@@ -1,0 +1,20 @@
+[
+  {
+    "name": "Example Hugging Face model",
+    "enabled": false,
+    "required": true,
+    "source": "huggingface",
+    "repo_id": "OWNER/REPOSITORY",
+    "filename": "path/model.safetensors",
+    "revision": "main",
+    "destination": "models/diffusion_models/model.safetensors"
+  },
+  {
+    "name": "Example direct URL model",
+    "enabled": false,
+    "required": true,
+    "source": "url",
+    "url": "https://example.com/model.safetensors",
+    "destination": "models/checkpoints/model.safetensors"
+  }
+]

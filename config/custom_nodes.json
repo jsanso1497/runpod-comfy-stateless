@@ -1,0 +1,16 @@
+[
+  {
+    "name": "ComfyUI-KJNodes",
+    "enabled": false,
+    "repo": "https://github.com/kijai/ComfyUI-KJNodes.git",
+    "ref": "main",
+    "run_install_py": false
+  },
+  {
+    "name": "ComfyUI-VideoHelperSuite",
+    "enabled": false,
+    "repo": "https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite.git",
+    "ref": "main",
+    "run_install_py": false
+  }
+]
