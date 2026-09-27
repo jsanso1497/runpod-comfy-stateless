@@ -11,8 +11,8 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 ARG DEBIAN_FRONTEND=noninteractive
 ARG INSTALL_SAGEATTENTION=1
 ARG SAGEATTENTION_VERSION=2.2.0
-ARG TORCH_VERSION=2.9.1
-ARG TORCHVISION_VERSION=0.24.1
+ARG TORCH_VERSION=2.9.0
+ARG TORCHVISION_VERSION=0.24.0
 ARG TORCH_INDEX_URL=https://download.pytorch.org/whl/cu129
 
 ENV PYTHONUNBUFFERED=1 \
@@ -74,12 +74,11 @@ RUN python -m pip install --upgrade pip setuptools wheel packaging ninja \
 # RunPod commonly offers. This avoids recompiling it on every disposable Pod.
 # Set --build-arg INSTALL_SAGEATTENTION=0 for a smaller/faster image build.
 RUN if [[ "${INSTALL_SAGEATTENTION}" == "1" ]]; then \
-      export TORCH_CUDA_ARCH_LIST="8.0;8.6;8.9;9.0;10.0;12.0;12.1"; \
-      export MAX_JOBS="2"; \
-      export EXT_PARALLEL="2"; \
-      python -m pip install "sageattention==${SAGEATTENTION_VERSION}" --no-build-isolation; \
+      python -m pip install \
+        "sageattention==${SAGEATTENTION_VERSION}" \
+        --extra-index-url https://comfy-org.github.io/wheels; \
     else \
-      echo "Skipping SageAttention build"; \
+      echo "Skipping SageAttention"; \
     fi
 
 COPY scripts /opt/runpod-comfy/scripts
