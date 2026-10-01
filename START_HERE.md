@@ -58,7 +58,7 @@ least 12 characters. Add these environment variables to the template:
 RESTORE_PASSWORD={{ RUNPOD_SECRET_restore_password }}
 RESTORE_USERNAME=james
 RESTORE_MODEL=7b
-RESTORE_ATTENTION=auto
+RESTORE_ATTENTION=sdpa
 ```
 
 Use the secret selector where available. Do not put the real password in GitHub.
@@ -79,7 +79,7 @@ Open Connect > HTTP service 8188 using RunPod's HTTPS link.
 Log in with username `james` and your chosen password.
 
 The page can open before startup finishes. Wait for Ready. Startup checks the GPU,
-tests the attention implementation, downloads the 7B model plus VAE, and verifies
+tests PyTorch SDPA on the GPU, downloads the 7B model plus VAE, and verifies
 both SHA-256 hashes. Downloads happen again on a fresh disposable Pod.
 
 ## 5. Run a three-second comparison

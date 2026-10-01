@@ -64,11 +64,12 @@ Weights are downloaded from public Hugging Face repositories to ephemeral disk
 and checked before use. Only the chosen model and shared VAE are downloaded.
 No credentials, input footage or model files are included in this ZIP.
 
-`RESTORE_ATTENTION=auto` executes real SageAttention variable-length kernels and
-compares them with PyTorch SDPA at two representative head dimensions. Failure
-falls back to SDPA. This is a compatibility smoke test, not a speed benchmark or
-a full-model correctness proof. An explicit `sageattn_2` setting fails rather than
-silently ignoring the requested backend. `sdpa` forces the conservative backend.
+`RESTORE_ATTENTION=sdpa` is the first-test default. The inherited SageAttention
+wheel is intentionally removed because its compiled extension is not ABI-compatible
+with the pinned Torch build used by this image. SeedVR2 supports PyTorch SDPA natively,
+so this avoids a build-time/runtime failure while keeping the restoration test valid.
+Once the baseline works on your footage, SageAttention can be rebuilt from source
+against the exact Torch/CUDA stack and benchmarked separately for speed.
 
 ## Conservative initial resource presets
 
@@ -100,7 +101,7 @@ Defaults:
 ```
 RESTORE_USERNAME=james
 RESTORE_MODEL=7b
-RESTORE_ATTENTION=auto
+RESTORE_ATTENTION=sdpa
 RESTORE_PORT=8188
 RESTORE_HOME=/workspace/video-restore
 RESTORE_MAX_UPLOAD_GB=5

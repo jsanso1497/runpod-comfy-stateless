@@ -29,7 +29,7 @@ def inspect_hardware():
     torch.cuda.synchronize()
     if not torch.isfinite(ref).all():
         raise RuntimeError('PyTorch SDPA produced non-finite results in the CUDA smoke test.')
-    requested = os.environ.get('RESTORE_ATTENTION', 'auto').lower()
+    requested = os.environ.get('RESTORE_ATTENTION', 'sdpa').lower()
     if requested not in {'auto', 'sdpa', 'sageattn_2'}:
         raise RuntimeError('RESTORE_ATTENTION must be auto, sdpa, or sageattn_2.')
     if requested != 'sdpa':

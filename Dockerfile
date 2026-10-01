@@ -9,13 +9,13 @@ ENV SEEDVR2_HOME=/opt/seedvr2 \
     RESTORE_HOME=/workspace/video-restore \
     RESTORE_PORT=8188 \
     RESTORE_MODEL=7b \
-    RESTORE_ATTENTION=auto \
+    RESTORE_ATTENTION=sdpa \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     TOKENIZERS_PARALLELISM=false \
     HF_HUB_DISABLE_TELEMETRY=1 \
     DO_NOT_TRACK=1 \
-    PYTORCH_CUDA_ALLOC_CONF=backend:cudaMallocAsync
+    PYTORCH_ALLOC_CONF=backend:cudaMallocAsync
 # Pin the engine source. Never git-pull or pip-upgrade when a paid Pod starts.
 RUN git init /opt/seedvr2 \
  && git -C /opt/seedvr2 remote add origin https://github.com/numz/ComfyUI-SeedVR2_VideoUpscaler.git \
@@ -23,6 +23,10 @@ RUN git init /opt/seedvr2 \
  && git -C /opt/seedvr2 checkout --detach FETCH_HEAD \
  && test "$(git -C /opt/seedvr2 rev-parse HEAD)" = "${SEEDVR2_REF}"
 COPY config/video_restore/constraints.txt /opt/video-restore/constraints.txt
+# The inherited SageAttention wheel was built against a different Torch ABI.
+# Remove it for this first restoration image and use PyTorch SDPA, which SeedVR2
+# supports natively. We can benchmark a source-built SageAttention later.
+RUN python -m pip uninstall -y sageattention || true
 RUN python -m pip install -c /opt/video-restore/constraints.txt \
         -r /opt/seedvr2/requirements.txt requests \
  && python -m pip check \
