@@ -1,96 +1,45 @@
 # syntax=docker/dockerfile:1.7
-
-# Stateless RunPod ComfyUI image.
-# CUDA 12.9 is new enough for SageAttention 2.2 / Blackwell while retaining
-# broad support for Ampere, Ada and Hopper GPUs.
-ARG CUDA_IMAGE=nvidia/cuda:12.9.0-cudnn-devel-ubuntu22.04
-FROM ${CUDA_IMAGE}
-
+# Additive update: reuse James's successfully published GPU foundation.
+# This digest is the EXISTING base, not the new restoration image.
+ARG BASE_IMAGE=ghcr.io/jsanso1497/runpod-comfy-stateless@sha256:e444d980f1c796405ba6478ce26682fd73c692fc56ea4ed51d727f31029730e8
+FROM ${BASE_IMAGE}
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-
-ARG DEBIAN_FRONTEND=noninteractive
-ARG INSTALL_SAGEATTENTION=1
-ARG SAGEATTENTION_VERSION=2.2.0
-ARG TORCH_VERSION=2.9.0
-ARG TORCHVISION_VERSION=0.24.0
-ARG TORCH_INDEX_URL=https://download.pytorch.org/whl/cu129
-
-ENV PYTHONUNBUFFERED=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+ARG SEEDVR2_REF=4490bd1f482e026674543386bb2a4d176da245b9
+ENV SEEDVR2_HOME=/opt/seedvr2 \
+    RESTORE_HOME=/workspace/video-restore \
+    RESTORE_PORT=8188 \
+    RESTORE_MODEL=7b \
+    RESTORE_ATTENTION=auto \
+    PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
-    CUDA_HOME=/usr/local/cuda \
-    PATH=/usr/local/cuda/bin:${PATH} \
-    LD_LIBRARY_PATH=/usr/local/cuda/lib64:${LD_LIBRARY_PATH} \
-    HF_HOME=/workspace/.cache/huggingface \
-    COMFY_HOME=/workspace/ComfyUI \
-    CONFIG_HOME=/workspace/config \
-    COMFY_PORT=8188 \
-    ATTENTION_BACKEND=auto \
-    ASSET_DOWNLOAD_WORKERS=4 \
-    COMFY_REF=master \
-    CONFIG_REF=main
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-      aria2 \
-      build-essential \
-      ca-certificates \
-      curl \
-      ffmpeg \
-      git \
-      git-lfs \
-      jq \
-      libgl1 \
-      libglib2.0-0 \
-      libgomp1 \
-      nano \
-      ninja-build \
-      openssh-server \
-      python3 \
-      python3-dev \
-      python3-pip \
-      python3-venv \
-      rsync \
-      tini \
-      unzip \
-      wget \
-    && rm -rf /var/lib/apt/lists/* \
-    && ln -sf /usr/bin/python3 /usr/local/bin/python \
-    && ln -sf /usr/bin/pip3 /usr/local/bin/pip \
-    && git lfs install --system \
-    && mkdir -p /run/sshd /root/.ssh /workspace
-
-RUN python -m pip install --upgrade pip setuptools wheel packaging ninja \
-    && python -m pip install \
-      torch==${TORCH_VERSION} \
-      torchvision==${TORCHVISION_VERSION} \
-      --index-url ${TORCH_INDEX_URL} \
-    && python -m pip install \
-      huggingface_hub \
-      requests \
-      rich \
-      jupyterlab
-
-# Build SageAttention into the image for the major NVIDIA architectures that
-# RunPod commonly offers. This avoids recompiling it on every disposable Pod.
-# Set --build-arg INSTALL_SAGEATTENTION=0 for a smaller/faster image build.
-RUN if [[ "${INSTALL_SAGEATTENTION}" == "1" ]]; then \
-      python -m pip install \
-        "sageattention==${SAGEATTENTION_VERSION}" \
-        --extra-index-url https://comfy-org.github.io/wheels; \
-    else \
-      echo "Skipping SageAttention"; \
-    fi
-
-COPY scripts /opt/runpod-comfy/scripts
-COPY config /opt/runpod-comfy/default-config
-COPY runpod-template.env.example /opt/runpod-comfy/runpod-template.env.example
-
-RUN chmod +x /opt/runpod-comfy/scripts/*.sh
-
-EXPOSE 8188 8888 22
+    TOKENIZERS_PARALLELISM=false \
+    HF_HUB_DISABLE_TELEMETRY=1 \
+    DO_NOT_TRACK=1 \
+    PYTORCH_CUDA_ALLOC_CONF=backend:cudaMallocAsync
+# Pin the engine source. Never git-pull or pip-upgrade when a paid Pod starts.
+RUN git init /opt/seedvr2 \
+ && git -C /opt/seedvr2 remote add origin https://github.com/numz/ComfyUI-SeedVR2_VideoUpscaler.git \
+ && git -C /opt/seedvr2 fetch --depth 1 origin "${SEEDVR2_REF}" \
+ && git -C /opt/seedvr2 checkout --detach FETCH_HEAD \
+ && test "$(git -C /opt/seedvr2 rev-parse HEAD)" = "${SEEDVR2_REF}"
+COPY config/video_restore/constraints.txt /opt/video-restore/constraints.txt
+RUN python -m pip install -c /opt/video-restore/constraints.txt \
+        -r /opt/seedvr2/requirements.txt requests \
+ && python -m pip check \
+ && python /opt/seedvr2/inference_cli.py --help > /opt/video-restore/seedvr2-help.txt \
+ && python -m pip freeze > /opt/video-restore/resolved-packages.txt
+COPY scripts/video_restore /opt/video-restore/app
+COPY config/video_restore/models.json /opt/video-restore/models.json
+RUN python -m compileall -q /opt/video-restore/app \
+ && python /opt/video-restore/app/validate_install.py \
+ && chmod +x /opt/video-restore/app/start.sh
+LABEL org.opencontainers.image.title="Stateless Video Restoration Test" \
+      org.opencontainers.image.description="SeedVR2 7B/3B, comparison tests, authenticated upload UI; no persistent volume" \
+      org.opencontainers.image.version="video-restore-1.0.0"
+EXPOSE 8188
 WORKDIR /workspace
-
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10m --retries=3 \
-  CMD curl -fsS "http://127.0.0.1:${COMFY_PORT}/system_stats" >/dev/null || exit 1
-
-ENTRYPOINT ["/opt/nvidia/nvidia_entrypoint.sh", "/usr/bin/tini", "--", "/opt/runpod-comfy/scripts/entrypoint.sh"]
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+  CMD curl -fsS "http://127.0.0.1:${RESTORE_PORT}/healthz" >/dev/null || exit 1
+# Override the original ComfyUI bootstrap. Do not start two applications on 8188.
+ENTRYPOINT ["/opt/nvidia/nvidia_entrypoint.sh", "/usr/bin/tini", "--", "/opt/video-restore/app/start.sh"]
+CMD []
