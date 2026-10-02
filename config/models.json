@@ -1,20 +1,24 @@
 [
   {
-    "name": "Example Hugging Face model",
-    "enabled": false,
+    "name": "SeedVR2 7B FP16",
+    "enabled": true,
     "required": true,
     "source": "huggingface",
-    "repo_id": "OWNER/REPOSITORY",
-    "filename": "path/model.safetensors",
+    "repo_id": "numz/SeedVR2_comfyUI",
+    "filename": "seedvr2_ema_7b_fp16.safetensors",
     "revision": "main",
-    "destination": "models/diffusion_models/model.safetensors"
+    "sha256": "7b8241aa957606ab6cfb66edabc96d43234f9819c5392b44d2492d9f0b0bbe4a",
+    "destination": "models/SEEDVR2/seedvr2_ema_7b_fp16.safetensors"
   },
   {
-    "name": "Example direct URL model",
-    "enabled": false,
+    "name": "SeedVR2 VAE FP16",
+    "enabled": true,
     "required": true,
-    "source": "url",
-    "url": "https://example.com/model.safetensors",
-    "destination": "models/checkpoints/model.safetensors"
+    "source": "huggingface",
+    "repo_id": "numz/SeedVR2_comfyUI",
+    "filename": "ema_vae_fp16.safetensors",
+    "revision": "main",
+    "sha256": "20678548f420d98d26f11442d3528f8b8c94e57ee046ef93dbb7633da8612ca1",
+    "destination": "models/SEEDVR2/ema_vae_fp16.safetensors"
   }
 ]
