@@ -1,3 +1,18 @@
-# Paste one real Civitai or Hugging Face LoRA URL per line.
-# Use the desired file/version link for FP32 or other specific variants.
-# No hashes, profiles, IDs, filenames or API keys belong in this file.
+# Add YOUR Civitai or Hugging Face LoRA links below, one complete URL per line.
+# Both your :latest and :h3-portrait templates download every link in this file.
+# No JSON, profile, filename, ID or checksum fields to type.
+# Empty lines and lines beginning with # are ignored.
+#
+# Civitai: paste the model page, version-specific page, or chosen Download link.
+# A plain model page uses its newest published version and primary safetensors.
+# For a particular FP32/other variant, copy THAT file's Download link.
+#
+# Hugging Face: open the LoRA .safetensors file and paste the page URL.
+# Both /blob/ and /resolve/ links work. A repository page also works when it has
+# exactly one safetensors file; otherwise use the chosen file's page link.
+#
+# No keys/tokens in links. Keep credentials in your existing RunPod Secrets.
+# No real LoRA was provided, so nothing downloads until you add your links.
+https://huggingface.co/jmew1989/CMFUI/resolve/main/MMH3/HMNSFW_AIO_V2.safetensors
+https://civitai.red/api/download/models/3329529?fileId=3215616
+https://huggingface.co/dgsag/ghhg/resolve/main/models/loras/MysticXXX_MMH3-V4-ref2va.safetensors
