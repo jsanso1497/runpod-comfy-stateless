@@ -1,18 +1,21 @@
-name: Build H3 Portrait template
+name: Build RunPod ComfyUI image
 
 on:
   workflow_dispatch:
   push:
     branches: ["main"]
     paths:
-      - "h3_portrait/**"
-      - "tools/**"
-      - "SOURCE_SNAPSHOT.json"
+      - "Dockerfile"
       - ".dockerignore"
+      - "scripts/**"
+      - "config/**"
+      - "tests/**"
       - "shared_loras/**"
       - "file_manager/**"
-      - "config/lora_links.txt"
-      - ".github/workflows/build-h3-portrait.yml"
+      - "tools/**"
+      - "SOURCE_SNAPSHOT.json"
+      - "BUILD_INFO.json"
+      - ".github/workflows/build-image.yml"
 
 permissions:
   contents: read
@@ -20,7 +23,7 @@ permissions:
 
 # A newer commit supersedes an older build of this same image.
 concurrency:
-  group: runpod-h3-portrait-${{ github.ref }}
+  group: runpod-comfy-image-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -44,7 +47,7 @@ jobs:
 
       - name: Verify complete repository source before building
         shell: bash
-        run: python3 tools/check_repository.py --target portrait
+        run: python3 tools/check_repository.py --target general
 
       - name: Free build-machine disk and check capacity
         shell: bash
@@ -204,17 +207,15 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository_owner }}/runpod-comfy-stateless
           tags: |
-            type=raw,value=h3-portrait
-            type=raw,value=h3-portrait-clean
-            type=raw,value=h3-portrait-v1.3.0
-            type=sha,prefix=h3-portrait-sha-
+            type=raw,value=latest
+            type=sha
 
       - name: Build and push image - no external build cache
         id: build
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ./h3_portrait/Dockerfile
+          file: ./Dockerfile
           builder: ${{ steps.buildx.outputs.name }}
           platforms: linux/amd64
           push: true
@@ -261,12 +262,7 @@ jobs:
           set -Eeuo pipefail
           test -n "$PUBLISHED_DIGEST"
           {
-            echo '## H3 Portrait 1.3 CLEAN + File Manager image published'
-            echo 'Clean snapshot: h3-clean-filemanager-2026-10-05-r2'
-            echo 'File manager: password-protected JupyterLab on HTTP port 8888; set FILEBROWSER_PASSWORD.'
-            echo 'Runtime: separate 32B Instruct analysis + 32B Thinking text director; sequential loading.'
-            echo 'Source commit: ${{ github.sha }}'
-            echo 'Expected startup: H3 PORTRAIT 1.3 | Instruct analysis + Thinking director'
+            echo '## ComfyUI image published'
             echo
             echo 'Tags:'
             echo '```text'
@@ -276,5 +272,5 @@ jobs:
             echo '```text'
             printf '%s\n' "$PUBLISHED_DIGEST"
             echo '```'
-            echo 'Use ghcr.io/jsanso1497/runpod-comfy-stateless:h3-portrait-clean in your portrait template. Existing latest is unchanged.'
+            echo 'RunPod settings and model/workflow files were not changed by this CI disk patch.'
           } >> "$GITHUB_STEP_SUMMARY"
