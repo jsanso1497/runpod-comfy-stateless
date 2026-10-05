@@ -1,0 +1,3 @@
+# Paste one real Civitai or Hugging Face LoRA URL per line.
+# Use the desired file/version link for FP32 or other specific variants.
+# No hashes, profiles, IDs, filenames or API keys belong in this file.
