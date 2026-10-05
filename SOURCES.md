@@ -1,3 +1,12 @@
+# Consolidation source note, 2026-10-05
+
+The material below describes the preserved general 3.2 package. Current portrait
+1.3 sources, including the Qwen3-VL non-hybrid correction, are in
+[h3_portrait/SOURCES.md](h3_portrait/SOURCES.md). The private live repository was
+not accessible. No unseen personal changes or LoRA links have been invented.
+
+## Earlier general package basis
+
 # Primary sources used for this recipe
 
 Krea-specific source inspected for this correction; other pinned sources retained from the prior package. Claims about comparative quality are NOT inferred solely

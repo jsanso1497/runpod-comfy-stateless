@@ -13,6 +13,7 @@ import uuid
 from . import logic
 from . import ollama_client as oc
 
+PACKAGE_VERSION='1.3.0'
 WEB_DIRECTORY='./web'
 _PROMPT_CACHE={}
 
@@ -98,7 +99,7 @@ class H3PortraitDirector:
     RETURN_NAMES=('ready_job','prompt_and_reference_map')
     FUNCTION='direct'
     CATEGORY='H3 Portrait'
-    DESCRIPTION='Write naturally. Thinking pass 1 analyzes references; pass 2 writes the MiniMax guide prompt. H3 starts only after Ollama unloads.'
+    DESCRIPTION='Write naturally. Compact non-thinking vision pass 1 maps references; text-only thinking pass 2 writes the MiniMax guide prompt. H3 starts only after Ollama unloads.'
 
     @classmethod
     def IS_CHANGED(cls, **kwargs):
@@ -131,13 +132,13 @@ class H3PortraitDirector:
             triggers='; '.join(x for x in (triggers,extra_trigger_words.strip()) if x)
         print('H3 PORTRAIT: '+str(len(loras))+' selected LoRA(s). Downloaded library entries are not auto-applied.',flush=True)
         with oc.session() as session:
-            info=oc.model_info(session,cfg['ollama_model'])
-            key=logic.cache_key([r['filename']+'|'+r['sha256'] for r in references],instruction,recipe,info['digest'],cfg,triggers,prompt_variation)
+            info=oc.pipeline_info(session,cfg)
+            key=logic.cache_key([r['filename']+'|'+r['sha256'] for r in references],instruction,recipe,oc.pipeline_digest(info),cfg,triggers,prompt_variation)
             if key in _PROMPT_CACHE:
                 obj=_PROMPT_CACHE[key]
                 print('H3 PORTRAIT: using the same cached prompt. Change prompt_variation for another draft.',flush=True)
                 # No fresh Ollama load. Ensure a previous failed/external request did not leave it resident.
-                if oc.api(session,'/api/ps').get('models'):oc.unload(session,info['model'],cfg['unload_timeout_seconds'])
+                oc.clear_owned_residency(session,info,cfg['unload_timeout_seconds'])
             else:
                 mm.unload_all_models();mm.soft_empty_cache()
                 try:
@@ -148,11 +149,11 @@ class H3PortraitDirector:
                 _PROMPT_CACHE[key]=obj
         prompt=logic.format_prompt(obj,instruction,recipe,triggers)
         job={'recipe':recipe,'seed':int(seed),'references':references,'prompt':prompt,'loras':loras,'files':cfg['model_files']}
-        report={'version':'h3-portrait-1.2.0','ollama':info,'recipe':recipe,'seed':int(seed),
+        report={'version':'h3-portrait-1.3.0','ollama':info,'recipe':recipe,'seed':int(seed),
                 'user_direction':instruction,'mapping':obj['references'],'prompt':prompt,
                 'reference_analysis':obj.get('_analysis'), 'prompt_stages':obj.get('_stages',[]),
                 'prompt_policy_sha256':hashlib.sha256(json.dumps(logic.prompt_policy(),sort_keys=True).encode()).hexdigest(),
-                'prompt_settings':{k:cfg.get(k) for k in ('think','temperature','top_p','top_k','context_length','image_max_edge','analysis_max_output_tokens','max_output_tokens')},
+                'prompt_settings':{k:cfg.get(k) for k in ('analysis_model','think','temperature','top_p','top_k','context_length','image_max_edge','analysis_max_output_tokens','max_output_tokens','analysis_think','analysis_temperature','repair_max_output_tokens')},
                 'sources':[{'file':r['filename'],'sha256':r['sha256']} for r in references],
                 'loras':loras}
         root=Path(folder_paths.get_output_directory())/'H3_Portrait'/'prompts';root.mkdir(parents=True,exist_ok=True)

@@ -48,7 +48,7 @@ def require_thinking(info):
             'in the RunPod template and deploy a new Pod. No silent Instruct fallback was used.')
 
 
-def model_info(s, model):
+def model_info(s, model, role="director"):
     match = next((x for x in api(s, '/api/tags').get('models', [])
                   if canonical(x.get('name') or x.get('model', '')) == canonical(model)), None)
     if not match:
@@ -60,8 +60,56 @@ def model_info(s, model):
         raise RuntimeError('This template uses local Ollama only.')
     info = {'model': model, 'digest': match.get('digest', model),
             'capabilities': show.get('capabilities', []), 'thinking': show.get('thinking')}
-    require_thinking(info)
+    if role == 'director':
+        require_thinking(info)
+    elif role == 'analysis':
+        require_non_thinking(info)
+    else:
+        raise ValueError('Unknown prompt model role.')
     return info
+
+
+def require_non_thinking(info):
+    """Use an actual Instruct model, not think=false on a Thinking-only model."""
+    tag = info['model'].rsplit(':', 1)[-1].lower()
+    if 'thinking' in tag:
+        raise RuntimeError('Reference analysis requires the separate Instruct model, not Qwen3-VL Thinking.')
+    control = info.get('thinking')
+    values = control.get('values') if isinstance(control, dict) else None
+    if values is not None and 'thinking' in info.get('capabilities', []) and not any(v is False for v in values):
+        raise RuntimeError('The analysis model cannot disable thinking. Use the supplied Instruct model.')
+
+
+def pipeline_info(s, cfg):
+    director = model_info(s, cfg['ollama_model'], role='director')
+    director['analysis'] = model_info(s, cfg['analysis_model'], role='analysis')
+    if canonical(director['model']) == canonical(director['analysis']['model']):
+        raise RuntimeError('Analysis and direction must use the separate supplied model editions.')
+    return director
+
+
+def pipeline_digest(info):
+    import hashlib
+    data = {role: info.get(role, {}).get('digest', '') for role in ('analysis',)}
+    data['director'] = info.get('digest', '')
+    return hashlib.sha256(json.dumps(data, sort_keys=True).encode()).hexdigest()
+
+
+def clear_owned_residency(s, info, timeout=90):
+    """A cache hit must not hand VRAM to H3 while either owned helper is loaded."""
+    allowed = {canonical(info['model']), canonical(info['analysis']['model'])}
+    rows = api(s, '/api/ps').get('models', [])
+    for row in rows:
+        name = row.get('name') or row.get('model', '')
+        if canonical(name) not in allowed:
+            raise RuntimeError('Another Ollama model is resident. Stop that request before starting H3.')
+        api(s, '/api/generate', {'model':name, 'stream':False, 'keep_alive':0}, timeout=min(timeout, 60))
+    end = time.monotonic() + timeout
+    while time.monotonic() < end:
+        if not api(s, '/api/ps', timeout=10).get('models', []):
+            return
+        time.sleep(.25)
+    raise RuntimeError('Prompt models did not unload; H3 was not started.')
 
 
 def preview(image,max_edge):
@@ -88,112 +136,186 @@ def unload(s,model,timeout=90):
     raise RuntimeError('Ollama did not unload fully. H3 was not started; retry after stopping any other Ollama request.')
 
 
+# This value is checked during image build and before model downloads at startup.
+PIPELINE_REVISION = 'split-model-reference-v3'
+
+
+class IncompleteResponse(ValueError):
+    """A finished generation hit its answer budget or returned truncated JSON."""
+
+
+def require_control(info, think):
+    """Respect advertised per-model thinking controls, when Ollama provides them."""
+    control = info.get('thinking')
+    values = control.get('values') if isinstance(control, dict) else None
+    if values is not None and not any(v is think for v in values):
+        raise RuntimeError(
+            f'The selected Ollama model does not advertise think={str(think).lower()}. '
+            'Check the configured model role and /api/show; '
+            'no unsupported level or different model was silently substituted.')
+
+
+def _stream_final(s, cfg, info, stage, body, deadline, interrupt):
+    """Return only final answer content and completion metadata, never reasoning."""
+    pieces, last, size, thinking_chars = [], None, 0, 0
+    remaining = deadline - time.monotonic()
+    if remaining <= 0:
+        raise RuntimeError(f'Ollama {stage} exceeded its time budget; no video was started.')
+    idle_timeout = max(1, min(cfg.get('stream_idle_timeout_seconds', 120), remaining))
+    try:
+        with s.post(BASE + '/api/chat', json=body, stream=True, allow_redirects=False,
+                    timeout=(5, idle_timeout)) as response:
+            if response.status_code != 200:
+                raise RuntimeError(
+                    f'Ollama {stage}: HTTP {response.status_code}; no video was started. '
+                    'Read /workspace/h3-portrait/ollama.log and check the selected model for this stage.')
+            for line in response.iter_lines(chunk_size=1):
+                interrupt()
+                if time.monotonic() > deadline:
+                    raise RuntimeError(f'Ollama {stage} exceeded its time budget; no video was started.')
+                if not line:
+                    continue
+                if len(line) > 1_000_000:
+                    raise RuntimeError('Ollama returned an oversized stream packet.')
+                try:
+                    packet = json.loads(line)
+                except (ValueError, TypeError) as exc:
+                    raise RuntimeError('Ollama returned a malformed stream packet.') from exc
+                if not isinstance(packet, dict) or packet.get('error'):
+                    raise RuntimeError(f'Ollama {stage} failed; inspect the local Ollama service log.')
+                message = packet.get('message') or {}
+                if not isinstance(message, dict):
+                    raise RuntimeError('Ollama returned a malformed message.')
+                thinking = message.get('thinking', '')
+                if not isinstance(thinking, str):
+                    raise RuntimeError('Ollama returned a malformed thinking field.')
+                thinking_chars += len(thinking)
+                # Counting is diagnostic only. Never retain or print thinking text.
+                del thinking
+                if body.get('think', False) is False and thinking_chars > 2048:
+                    raise RuntimeError(
+                        f'Ollama {stage} is producing reasoning despite think=false. '
+                        'Stopped early rather than spending another long attempt. '
+                        'The selected model/runtime may not honor non-thinking mode.')
+                if thinking_chars > 1_000_000:
+                    raise RuntimeError(f'Ollama {stage} exceeded its thinking stream limit.')
+                piece = message.get('content', '')
+                if not isinstance(piece, str):
+                    raise RuntimeError('Ollama returned non-text final content.')
+                size += len(piece)
+                if size > 100_000:
+                    raise RuntimeError('Ollama exceeded the final-response size limit.')
+                pieces.append(piece)
+                if packet.get('done') is True:
+                    last = packet
+                    break
+    except requests.RequestException as exc:
+        raise RuntimeError(f'Ollama {stage} connection timed out or failed; no video was started.') from exc
+    if last is None:
+        # An interrupted transport is not a completed answer. Do not blindly retry it.
+        raise RuntimeError(f'Ollama {stage} stream ended before completion; no video was started.')
+    if last.get('done_reason') == 'length':
+        raise IncompleteResponse(f'Ollama {stage} reached its answer/token budget.')
+    return ''.join(pieces), last, thinking_chars
+
+
 def _request_json(s, cfg, info, stage, schema, messages, validator, variation,
-                  output_limit, keep_alive, interrupt):
-    """Read final content only; thinking chunks are counted, not kept or forwarded."""
+                  output_limit, keep_alive, interrupt, *, think=True,
+                  temperature=None, timeout_seconds=None, retry_info=None, active_state=None):
+    """One requested call and at most one short, non-thinking regeneration.
+
+    A repair starts from the original task, NOT a broken JSON response. Both
+    attempts share the stage deadline. Failed output can never be sent to H3.
+    """
     import copy
-    messages = copy.deepcopy(messages)
+    originals = copy.deepcopy(messages)
+    stage_start = time.monotonic()
+    deadline = stage_start + (timeout_seconds or cfg['request_timeout_seconds'])
+    error = None
     for attempt in range(2):
+        attempt_think = bool(think) if attempt == 0 else False
+        attempt_info = info if attempt == 0 else (retry_info or info)
+        if attempt_think:
+            require_thinking(attempt_info)
+            require_control(attempt_info, True)
+        else:
+            require_non_thinking(attempt_info)
+        if attempt and canonical(attempt_info['model']) != canonical(info['model']):
+            unload(s, info['model'], cfg['unload_timeout_seconds'])
+        if active_state is not None:
+            active_state['model'] = attempt_info['model']
+        attempt_messages = copy.deepcopy(originals)
+        limit = int(output_limit)
+        request_deadline = deadline
+        if attempt:
+            limit = min(limit, int(cfg.get('repair_max_output_tokens', 4096)))
+            request_deadline = min(deadline, time.monotonic() + cfg.get('repair_timeout_seconds', 180))
+            attempt_messages.append({
+                'role': 'user',
+                'content': 'Regenerate the COMPLETE JSON object from the original task. '
+                           'The previous output failed validation: ' + str(error)[:350] + '. '
+                           'Keep all supplied reference entries in the analysis stage and '
+                           'the locked map unchanged in the director stage. Use short field '
+                           'values. No thinking prose, unfinished JSON continuation, markdown, '
+                           'or alternative draft. Do not repeat a references array in the director.',
+            })
         body = {
-            'model': info['model'], 'messages': copy.deepcopy(messages),
-            'format': schema, 'stream': True, 'think': True,
+            'model': attempt_info['model'], 'messages': attempt_messages,
+            'format': schema, 'stream': True, 'think': attempt_think,
             'keep_alive': keep_alive,
             'options': {
-                'num_ctx': cfg['context_length'], 'num_predict': output_limit,
-                'temperature': cfg.get('temperature', 0.25),
+                'num_ctx': cfg['context_length'], 'num_predict': limit,
+                'temperature': (cfg.get('temperature', 0.25) if temperature is None else temperature) if attempt == 0 else 0.10,
                 'top_p': cfg.get('top_p', 0.9), 'top_k': cfg.get('top_k', 20),
-                'seed': int(variation) % (2**31),
+                'seed': (int(variation) + attempt) % (2**31),
             },
         }
+        # Instruct is intrinsically non-thinking. Do not ask a Thinking-only
+        # checkpoint to honor an unsupported toggle. An explicit false is sent
+        # only for a model that advertises thinking and supports disabling it.
+        if not attempt_think and 'thinking' not in attempt_info.get('capabilities', []):
+            body.pop('think')
         interrupt()
-        pieces, last, size, thinking_chars = [], None, 0, 0
-        start = time.monotonic()
-        deadline = start + cfg['request_timeout_seconds']
         try:
-            with s.post(BASE + '/api/chat', json=body, stream=True, allow_redirects=False,
-                        timeout=(5, cfg['request_timeout_seconds'])) as response:
-                if response.status_code != 200:
-                    raise RuntimeError(f'Ollama {stage}: HTTP {response.status_code}; no video was started.')
-                for line in response.iter_lines(chunk_size=512):
-                    interrupt()
-                    if time.monotonic() > deadline:
-                        raise RuntimeError(f'Ollama {stage} exceeded its time budget; no video was started.')
-                    if not line:
-                        continue
-                    if len(line) > 1_000_000:
-                        raise RuntimeError('Ollama returned an oversized stream packet.')
-                    try:
-                        packet = json.loads(line)
-                    except (ValueError, TypeError) as exc:
-                        raise RuntimeError('Ollama returned a malformed stream packet.') from exc
-                    if not isinstance(packet, dict) or packet.get('error'):
-                        raise RuntimeError(f'Ollama {stage} failed; inspect the local Ollama service log.')
-                    message = packet.get('message') or {}
-                    if not isinstance(message, dict):
-                        raise RuntimeError('Ollama returned a malformed message.')
-                    thinking = message.get('thinking', '')
-                    if not isinstance(thinking, str):
-                        raise RuntimeError('Ollama returned a malformed thinking field.')
-                    thinking_chars += len(thinking)
-                    # Never print, save, concatenate, or pass thinking to H3.
-                    del thinking
-                    if thinking_chars > 1_000_000:
-                        raise RuntimeError(f'Ollama {stage} exceeded the thinking stream limit.')
-                    piece = message.get('content', '')
-                    if not isinstance(piece, str):
-                        raise RuntimeError('Ollama returned non-text final content.')
-                    size += len(piece)
-                    if size > 100_000:
-                        raise RuntimeError('Ollama exceeded the final-response size limit.')
-                    pieces.append(piece)
-                    if packet.get('done') is True:
-                        last = packet
-                        break
-        except requests.RequestException as exc:
-            raise RuntimeError(f'Ollama {stage} connection timed out or failed; no video was started.') from exc
-        if last is None:
-            raise RuntimeError(f'Ollama {stage} stream ended before completion; no video was started.')
-        if last.get('done_reason') == 'length':
-            raise RuntimeError(
-                f'Ollama {stage} exhausted its {output_limit}-token thinking/answer budget. '
-                'Try a simpler instruction or fewer redundant images; no partial prompt was sent to H3.')
-        result = ''.join(pieces)
-        try:
+            result, last, thinking_chars = _stream_final(
+                s, cfg, attempt_info, stage, body, request_deadline, interrupt)
             if '<think>' in result or '</think>' in result:
-                raise ValueError('Use the separate thinking channel; final content must contain only the requested JSON.')
+                raise ValueError('Final content must contain only the requested JSON, not thinking tags.')
             value = validator(result)
-            stats = {'stage': stage, 'attempts': attempt + 1, 'think_requested': True,
-                     'thinking_seen': thinking_chars > 0, 'elapsed_seconds': round(time.monotonic() - start, 3),
+            stats = {'stage': stage, 'model': attempt_info['model'], 'attempts': attempt + 1,
+                     'think_requested': attempt_think,
+                     'thinking_seen': thinking_chars > 0,
+                     'elapsed_seconds': round(time.monotonic() - stage_start, 3),
                      'done_reason': last.get('done_reason')}
-            for name in ('eval_count', 'prompt_eval_count', 'total_duration'):
+            for name in ('eval_count', 'prompt_eval_count', 'total_duration', 'load_duration', 'eval_duration'):
                 number = last.get(name)
                 if isinstance(number, (int, float)) and not isinstance(number, bool):
                     stats[name] = number
-            print(f'H3 PORTRAIT {stage} COMPLETE: think=true; '
-                  f'thinking channel seen={thinking_chars > 0}; final JSON validated.', flush=True)
+            print(f'H3 PORTRAIT {stage} COMPLETE: think={str(attempt_think).lower()}; '
+                  f'attempt={attempt + 1}; {stats["elapsed_seconds"]:.1f}s; final JSON validated.', flush=True)
             return value, stats
         except ClarificationNeeded:
             raise
         except (ValueError, TypeError, KeyError) as exc:
-            if attempt:
+            error = exc
+            if attempt or time.monotonic() >= deadline:
                 raise RuntimeError(
-                    f'Ollama {stage} failed final JSON validation after one repair. '
-                    'Your instruction needs no special format. Clarify the brief or change prompt_variation.') from exc
-            # Only a completed FINAL answer is returned for schema repair, never its thinking.
-            previous = result[:50000] if '<think>' not in result and '</think>' not in result else '{}'
-            messages.extend([
-                {'role': 'assistant', 'content': previous},
-                {'role': 'user', 'content': 'Repair ONLY the final JSON contract: ' + str(exc) +
-                 '. Return the complete JSON object. Preserve the user instructions and locked mapping. '
-                 'Do not add a new reference map during the director stage.'},
-            ])
-            print(f'H3 PORTRAIT: repairing {stage} final JSON once.', flush=True)
+                    f'Ollama {stage} failed after at most one bounded non-thinking retry: {exc}. '
+                    'No partial prompt was sent to H3. Your input needs no special reference syntax.') from exc
+            print(f'H3 PORTRAIT: retrying {stage} once with the Instruct model, '
+                  'from the original task without broken JSON.', flush=True)
+    raise RuntimeError('Ollama did not return a validated answer.')
 
 
 def generate(s, cfg, info, system, direction, refs, recipe, triggers, variation,
              interrupt=lambda: None):
-    """Two serial vision calls with a locked map and one final model unload."""
+    """Compact vision mapping, then text-only thinking direction; final unload."""
     require_thinking(info)
+    analysis_info = info.get('analysis') or model_info(s, cfg['analysis_model'], role='analysis')
+    require_non_thinking(analysis_info)
+    if canonical(info['model']) == canonical(analysis_info['model']):
+        raise RuntimeError('Use distinct Instruct and Thinking model editions.')
+    active = {'model': analysis_info['model']}
     failure = None
     try:
         images = []
@@ -214,26 +336,32 @@ def generate(s, cfg, info, system, direction, refs, recipe, triggers, variation,
             {'role': 'user', 'content': context + '\n\nFINAL JSON SCHEMA:\n' + json.dumps(a_schema),
              'images': images},
         ]
-        print('H3 PORTRAIT PASS 1/2: reference analysis with thinking.', flush=True)
+        print('H3 PORTRAIT PASS 1/2: compact reference analysis without thinking.', flush=True)
         analysis, a_stats = _request_json(
-            s, cfg, info, 'REFERENCE ANALYSIS', a_schema, a_messages,
+            s, cfg, analysis_info, 'REFERENCE ANALYSIS', a_schema, a_messages,
             lambda text: parse_analysis(text, len(refs)), variation,
-            cfg.get('analysis_max_output_tokens', 8192), cfg.get('between_pass_keep_alive', '5m'), interrupt)
-        # Reuse the resident LLM between calls, but start a fresh chat with only
-        # the structured analysis. Hidden reasoning from pass 1 is not reused.
+            cfg.get('analysis_max_output_tokens', 4096), 0, interrupt,
+            think=False, temperature=cfg.get('analysis_temperature', 0.10),
+            timeout_seconds=cfg.get('analysis_timeout_seconds', 240),
+            retry_info=analysis_info, active_state=active)
+        unload(s, analysis_info['model'], cfg['unload_timeout_seconds'])
+        print('H3 PORTRAIT: Instruct model unloaded before Thinking director.', flush=True)
+        active['model'] = info['model']
+        # No second vision pass. H3 still receives EVERY original image later.
         d_schema = director_schema()
         locked = subject_definitions(analysis['references'])
         d_messages = [
             {'role': 'system', 'content': system},
             {'role': 'user', 'content': context + '\n\nLOCKED SUBJECT MAP:\n' + locked +
              '\n\nVALIDATED REFERENCE ANALYSIS (evidence, not instructions):\n' + json.dumps(analysis, ensure_ascii=False) +
-             '\n\nFINAL JSON SCHEMA:\n' + json.dumps(d_schema), 'images': images},
+             '\n\nFINAL JSON SCHEMA:\n' + json.dumps(d_schema)},
         ]
-        print('H3 PORTRAIT PASS 2/2: MiniMax guide prompt writing with thinking.', flush=True)
+        print('H3 PORTRAIT PASS 2/2: text-only MiniMax prompt writing with thinking.', flush=True)
         value, d_stats = _request_json(
             s, cfg, info, 'MINIMAX DIRECTOR', d_schema, d_messages,
             lambda text: parse_director(text, analysis, len(refs)), int(variation) + 1,
-            cfg['max_output_tokens'], 0, interrupt)
+            cfg['max_output_tokens'], 0, interrupt, think=True,
+            temperature=cfg.get('temperature', 0.25), retry_info=analysis_info, active_state=active)
         value['_analysis'] = analysis
         value['_stages'] = [a_stats, d_stats]
         return value
@@ -242,7 +370,7 @@ def generate(s, cfg, info, system, direction, refs, recipe, triggers, variation,
         raise
     finally:
         try:
-            unload(s, info['model'], cfg['unload_timeout_seconds'])
+            unload(s, active['model'], cfg['unload_timeout_seconds'])
             print('H3 PORTRAIT: Ollama unloaded; GPU handoff clear.', flush=True)
         except Exception:
             if failure is None:

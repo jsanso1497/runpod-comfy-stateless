@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "comfy_ref": "65787d668397d230bf5839d69a0a7239e2dad378",
+  "default_profiles": [
+    "h3"
+  ],
+  "profiles": {
+    "h3": "H3 portrait only"
+  },
+  "workflow_profiles": {
+    "H3_Portrait_Auto.json": "h3"
+  }
+}

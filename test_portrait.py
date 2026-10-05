@@ -81,10 +81,10 @@ class LogicTests(unittest.TestCase):
     def test_trigger_words_retained(self):
         self.assertTrue(logic.format_prompt(response(),'walk',logic.geometry('9:16','Standard',5),'MYTRIGGER').endswith('MYTRIGGER'))
     def test_new_prompt_variation_changes_cache(self):
-        c={'image_max_edge':1024,'context_length':32768};r=logic.geometry('9:16','Standard',5)
+        c={'image_max_edge':768,'context_length':32768};r=logic.geometry('9:16','Standard',5)
         self.assertNotEqual(logic.cache_key(['sha'],'walk',r,'d',c,'',0),logic.cache_key(['sha'],'walk',r,'d',c,'',1))
     def test_video_quality_does_not_rerun_same_brief(self):
-        c={'image_max_edge':1024,'context_length':32768}
+        c={'image_max_edge':768,'context_length':32768}
         self.assertEqual(logic.cache_key(['sha'],'walk',logic.geometry('9:16','Standard',5),'d',c,'',0),logic.cache_key(['sha'],'walk',logic.geometry('9:16','High fidelity',5),'d',c,'',0))
     def test_empty_selection_does_not_apply_library(self):
         self.assertEqual(logic.active_loras(True,[]),[])
@@ -108,11 +108,11 @@ class LogicTests(unittest.TestCase):
 
 class TransportTests(unittest.TestCase):
     def cfg(self):
-        return {'image_max_edge':1024,'context_length':32768,
-                'analysis_max_output_tokens':8192,'max_output_tokens':12288,
+        return {'image_max_edge':768,'context_length':32768,
+                'analysis_max_output_tokens':4096,'max_output_tokens':8192,
                 'request_timeout_seconds':1200,'unload_timeout_seconds':90}
     def refs(self):return [{'image':'tensor','filename':'head.png'}]
-    def info(self):return {'model':'test','capabilities':['vision','thinking']}
+    def info(self):return {'model':'test-thinking','capabilities':['vision','thinking'], 'analysis':{'model':'test-instruct','capabilities':['vision']}}
     def analysis(self):
         return {'references':response(1)['references'],'priorities':'Use the face.','conflicts':[],'clarification':''}
     def director(self):
@@ -133,17 +133,18 @@ class TransportTests(unittest.TestCase):
     @patch.object(oc,'unload')
     def test_good_output_unloads(self,unload,preview):
         s=self.fake([self.analysis(),self.director()]);r=self.call(s)
-        unload.assert_called_once();self.assertEqual(r['references'][0]['image'],1)
+        self.assertEqual(unload.call_count,2);self.assertEqual(r['references'][0]['image'],1)
         body=s.post.call_args.kwargs['json'];self.assertEqual(body['keep_alive'],0)
-        self.assertEqual(body['messages'][1]['images'],['encoded-image'])
+        self.assertNotIn('images',body['messages'][1])
+        self.assertEqual(s.post.call_args_list[0].kwargs['json']['messages'][1]['images'],['encoded-image'])
         self.assertFalse(s.post.call_args.kwargs['allow_redirects'])
         self.assertEqual(s.post.call_count,2)
-        self.assertTrue(all(c.kwargs['json']['think'] is True for c in s.post.call_args_list))
+        self.assertEqual([c.kwargs['json'].get('think', False) for c in s.post.call_args_list],[False,True])
     @patch.object(oc,'preview',return_value='encoded')
     @patch.object(oc,'unload')
     def test_one_repair_then_success(self,unload,preview):
         s=self.fake([{},self.analysis(),self.director()]);self.call(s)
-        self.assertEqual(s.post.call_count,3);unload.assert_called_once()
+        self.assertEqual(s.post.call_count,3);self.assertEqual(unload.call_count,2)
     @patch.object(oc,'preview',return_value='encoded')
     @patch.object(oc,'unload')
     def test_no_infinite_retries(self,unload,preview):

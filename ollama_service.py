@@ -33,10 +33,12 @@ def main():
                 except Exception:
                     if time.monotonic()>=deadline:raise RuntimeError('Ollama did not start.')
                     time.sleep(1)
-            print('H3 PORTRAIT: downloading prompt model '+cfg['ollama_model'],flush=True)
-            subprocess.run(['/usr/bin/ollama','pull',cfg['ollama_model']],env=env,stdout=log,stderr=subprocess.STDOUT,timeout=cfg['pull_timeout_seconds'],check=True)
-            info=oc.model_info(s,cfg['ollama_model']);(ROOT/'ollama-status.json').write_text(json.dumps(info,indent=2))
-            print('H3 PORTRAIT OLLAMA READY: '+cfg['ollama_model']+' | thinking supported | two-pass prompting',flush=True)
+            for model in dict.fromkeys((cfg['analysis_model'], cfg['ollama_model'])):
+                print('H3 PORTRAIT: downloading prompt model '+model,flush=True)
+                subprocess.run(['/usr/bin/ollama','pull',model],env=env,stdout=log,stderr=subprocess.STDOUT,timeout=cfg['pull_timeout_seconds'],check=True)
+            info=oc.pipeline_info(s,cfg)
+            (ROOT/'ollama-status.json').write_text(json.dumps(info,indent=2))
+            print('H3 PORTRAIT OLLAMA READY: analysis='+cfg['analysis_model']+' | director='+cfg['ollama_model']+' | separate models; sequential loading',flush=True)
             child.wait();raise RuntimeError('Ollama stopped.')
     except KeyboardInterrupt:pass
     finally:

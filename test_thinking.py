@@ -86,6 +86,7 @@ class TransportTests(unittest.TestCase):
     def setUp(self):
         self.cfg = json.loads((ROOT/'settings.json').read_text())
         self.info = {'model': self.cfg['ollama_model'], 'digest':'digest', 'capabilities':['vision','thinking']}
+        self.info['analysis'] = {'model':self.cfg['analysis_model'],'digest':'a-digest','capabilities':['vision']}
         self.refs = [{'filename': f'image-{i}.png','image':object()} for i in range(1,4)]
         self.previews = patch.object(oc,'preview',side_effect=['img1','img2','img3'])
         self.previews.start(); self.addCleanup(self.previews.stop)
@@ -103,21 +104,23 @@ class TransportTests(unittest.TestCase):
         return oc.generate(s,self.cfg,self.info,(ROOT/'node/system_prompt.txt').read_text(),
                            'All photos show the same person. She walks.',self.refs,
                            logic.geometry('9:16','Standard',5),'TRIGGER',0,interrupt)
-    def test_two_calls_receive_all_images_same_order(self):
+    def test_vision_only_on_first_pass_all_images_same_order(self):
         s=self.session(analysis(),director());self.call(s)
         self.assertEqual(s.post.call_count,2)
-        for c in s.post.call_args_list:self.assertEqual(c.kwargs['json']['messages'][1]['images'],['img1','img2','img3'])
-    def test_think_and_sampling_options_in_both_calls(self):
+        self.assertEqual(s.post.call_args_list[0].kwargs['json']['messages'][1]['images'],['img1','img2','img3'])
+        self.assertTrue(all('images' not in m for m in s.post.call_args_list[1].kwargs['json']['messages']))
+    def test_separate_stage_thinking_sampling_and_budgets(self):
         s=self.session(analysis(),director());self.call(s)
-        for c in s.post.call_args_list:
-            b=c.kwargs['json'];self.assertIs(b['think'],True)
-            self.assertEqual((b['options']['num_ctx'],b['options']['temperature'],b['options']['top_p'],b['options']['top_k']), (32768,.25,.9,20))
-        self.assertEqual(s.post.call_args_list[0].kwargs['json']['options']['num_predict'],8192)
-        self.assertEqual(s.post.call_args_list[1].kwargs['json']['options']['num_predict'],12288)
+        bodies=[c.kwargs['json'] for c in s.post.call_args_list]
+        self.assertEqual([b.get('think', False) for b in bodies],[False,True])
+        self.assertEqual([b['options']['temperature'] for b in bodies],[.10,.25])
+        self.assertEqual([b['options']['num_predict'] for b in bodies],[4096,8192])
+        for b in bodies:
+            self.assertEqual((b['options']['num_ctx'],b['options']['top_p'],b['options']['top_k']),(32768,.9,20))
     def test_keepalive_between_passes_unload_after_last(self):
         s=self.session(analysis(),director());self.call(s)
-        self.assertEqual([c.kwargs['json']['keep_alive'] for c in s.post.call_args_list],['5m',0])
-        self.unload.assert_called_once()
+        self.assertEqual([c.kwargs['json']['keep_alive'] for c in s.post.call_args_list],[0,0])
+        self.assertEqual(self.unload.call_count,2)
     def test_thinking_not_in_result_or_second_chat(self):
         s=self.session(analysis(),director());obj=self.call(s)
         self.assertNotIn('do not expose this reasoning',json.dumps(obj))
@@ -135,7 +138,7 @@ class TransportTests(unittest.TestCase):
     def test_director_clarification_stops(self):
         d=director();d['clarification']='Did you intend Person B?';s=self.session(analysis(),d)
         with self.assertRaises(logic.ClarificationNeeded):self.call(s)
-        self.unload.assert_called_once()
+        self.assertEqual(self.unload.call_count,2)
     def test_director_json_repair_cannot_mutate_map(self):
         s=self.session(analysis(),dict(director(),references=[]),director());obj=self.call(s)
         self.assertEqual(s.post.call_count,3);self.assertEqual(obj['references'],analysis()['references'])
@@ -145,11 +148,12 @@ class TransportTests(unittest.TestCase):
     def test_final_failed_director_unloads(self):
         s=self.session(analysis(),{}, {})
         with self.assertRaises(RuntimeError):self.call(s)
-        self.assertEqual(s.post.call_count,3);self.unload.assert_called_once()
-    def test_length_truncation_no_handoff_or_repair(self):
+        self.assertEqual(s.post.call_count,3);self.assertEqual(self.unload.call_count,3)
+    def test_repeated_truncation_never_handoff_bounded_retry(self):
         s=MagicMock();s.post.return_value=self.response(analysis(),reason='length')
         with self.assertRaisesRegex(RuntimeError,'budget'):self.call(s)
-        self.assertEqual(s.post.call_count,1);self.unload.assert_called_once()
+        self.assertEqual(s.post.call_count,2);self.unload.assert_called_once()
+        self.assertTrue(all(c.kwargs['json'].get('think', False) is False for c in s.post.call_args_list))
     def test_missing_done_is_not_success(self):
         s=MagicMock();s.post.return_value=self.response(analysis(),done=False)
         with self.assertRaisesRegex(RuntimeError,'before completion'):self.call(s)
@@ -192,9 +196,10 @@ class ConfigurationTests(unittest.TestCase):
         self.assertEqual(cfg['ollama_model'],logic.DEFAULT_MODEL)
         self.assertIn('OLLAMA_MODEL='+logic.DEFAULT_MODEL,(ROOT/'Dockerfile').read_text())
         self.assertIs(cfg['think'],True)
-    def test_no_thinking_false_request_in_code(self):
-        source=(ROOT/'node/ollama_client.py').read_text()
-        self.assertNotIn("body['think']=False",source)
+    def test_compact_analysis_default_is_explicit(self):
+        cfg=json.loads((ROOT/'settings.json').read_text())
+        self.assertIs(cfg['analysis_think'],False)
+        self.assertEqual(cfg['analysis_temperature'],.10)
     def test_show_capability_compatibility(self):
         oc.require_thinking({'capabilities':['vision','thinking']})
         oc.require_thinking({'capabilities':['vision'],'thinking':{'values':[True,False]}})

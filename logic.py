@@ -13,6 +13,7 @@ import re
 MAX_REFERENCES = 9
 ROOT = Path(os.environ.get('H3_PORTRAIT_CONFIG', '/workspace/h3-portrait/config'))
 DEFAULT_MODEL = 'huihui_ai/qwen3-vl-abliterated:32b-thinking-q4_K_M'
+DEFAULT_ANALYSIS_MODEL = 'huihui_ai/qwen3-vl-abliterated:32b-instruct-q4_K_M'
 PRESETS = ('Standard', 'Preview', 'High fidelity')
 ASPECTS = ('9:16', '2:3')
 
@@ -23,27 +24,37 @@ def settings():
         path = Path('/opt/h3-portrait/settings.json')
     data = json.loads(path.read_text())
     data['ollama_model'] = os.environ.get('OLLAMA_MODEL', '').strip() or data['ollama_model']
-    name = data['ollama_model']
-    if not re.fullmatch(r'[A-Za-z0-9_.:/-]+', name) or '://' in name or name.endswith('-cloud'):
-        raise ValueError('OLLAMA_MODEL must be a local downloadable Ollama tag.')
+    data.setdefault('analysis_model', DEFAULT_ANALYSIS_MODEL)
+    for field in ('ollama_model', 'analysis_model'):
+        name = data[field]
+        if not isinstance(name, str) or not re.fullmatch(r'[A-Za-z0-9_.:/-]+', name) or '://' in name or name.endswith('-cloud'):
+            raise ValueError(f'{field} must be a local downloadable Ollama tag.')
+    if data['analysis_model'] == data['ollama_model'] or 'thinking' in data['analysis_model'].rsplit(':', 1)[-1].lower():
+        raise ValueError('Use a separate non-thinking Instruct model for analysis; Qwen3-VL Thinking is not a hybrid.')
     if data.get('think', True) is not True:
         raise ValueError('This two-pass template requires think=true in settings.json.')
     for field, default, minimum, maximum in (
         ('context_length', 32768, 8192, 131072),
-        ('analysis_max_output_tokens', 8192, 1024, 32768),
-        ('max_output_tokens', 12288, 1024, 32768),
-        ('image_max_edge', 1024, 256, 2048),
-        ('request_timeout_seconds', 1200, 60, 7200),
+        ('analysis_max_output_tokens', 4096, 1024, 32768),
+        ('max_output_tokens', 8192, 1024, 32768),
+        ('image_max_edge', 768, 256, 2048),
+        ('request_timeout_seconds', 480, 60, 7200),
+        ('analysis_timeout_seconds', 240, 30, 3600),
+        ('repair_timeout_seconds', 180, 30, 3600),
+        ('stream_idle_timeout_seconds', 120, 10, 600),
+        ('repair_max_output_tokens', 4096, 1024, 16384),
     ):
         value = data.setdefault(field, default)
         if type(value) is not int or not minimum <= value <= maximum:
             raise ValueError(f'{field} must be an integer between {minimum} and {maximum}.')
     for field, default, minimum, maximum in (
-        ('temperature', 0.25, 0.0, 2.0), ('top_p', 0.9, 0.01, 1.0),
+        ('temperature', 0.25, 0.0, 2.0), ('analysis_temperature', 0.10, 0.0, 2.0), ('top_p', 0.9, 0.01, 1.0),
     ):
         value = data.setdefault(field, default)
         if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) or not minimum <= value <= maximum:
             raise ValueError(f'Invalid {field} in settings.json.')
+    if data.setdefault('analysis_think', False) is not False:
+        raise ValueError('Compact reference mapping requires analysis_think=false.')
     data.setdefault('top_k', 20)
     if type(data['top_k']) is not int or not 0 <= data['top_k'] <= 1000:
         raise ValueError('top_k must be an integer between 0 and 1000.')
@@ -138,12 +149,19 @@ class ClarificationNeeded(ValueError):
 
 
 def analysis_schema(count):
+    if type(count) is not int or not 1 <= count <= MAX_REFERENCES:
+        raise ValueError('Reference count must be 1 through 9.')
+    refs = copy.deepcopy(output_schema(count)['properties']['references'])
+    fields = refs['items']['properties']
+    for key, limit in (('subject', 64), ('contains', 160), ('use_for', 240)):
+        fields[key] = {'type': 'string', 'minLength': 1, 'maxLength': limit}
     return {'type': 'object', 'additionalProperties': False,
             'properties': {
-                'references': output_schema(count)['properties']['references'],
-                'priorities': {'type': 'string'},
-                'conflicts': {'type': 'array', 'maxItems': 12, 'items': {'type': 'string'}},
-                'clarification': {'type': 'string'},
+                'references': refs,
+                'priorities': {'type': 'string', 'maxLength': 512},
+                'conflicts': {'type': 'array', 'maxItems': 5,
+                              'items': {'type': 'string', 'maxLength': 160}},
+                'clarification': {'type': 'string', 'maxLength': 240},
             }, 'required': ['references', 'priorities', 'conflicts', 'clarification']}
 
 
@@ -167,16 +185,20 @@ def parse_analysis(content, count):
     value = decode_json(content)
     if set(value) != set(analysis_schema(count)['properties']):
         raise ValueError('Analysis must contain exactly references, priorities, conflicts and clarification.')
-    for key in ('priorities', 'clarification'):
-        if not isinstance(value[key], str) or len(value[key]) > 8000:
+    for key, limit in (('priorities', 512), ('clarification', 240)):
+        if not isinstance(value[key], str) or len(value[key]) > limit:
             raise ValueError(f'Analysis {key} must be a bounded string.')
-    if not isinstance(value['conflicts'], list) or len(value['conflicts']) > 12 or any(not isinstance(x, str) or len(x) > 2000 for x in value['conflicts']):
+    if not isinstance(value['conflicts'], list) or len(value['conflicts']) > 5 or any(not isinstance(x, str) or len(x) > 160 for x in value['conflicts']):
         raise ValueError('Analysis conflicts must be a short list of strings.')
     # Reuse the strict per-image validation, without requiring a video narrative.
     probe = dict(references=copy.deepcopy(value['references']), summary='analysis',
                  retention='', shot='analysis', sound='', music='',
                  clarification=value['clarification'])
     value['references'] = parse_llm(json.dumps(probe), count)['references']
+    for ref in value['references']:
+        for key, limit in (('subject', 64), ('contains', 160), ('use_for', 240)):
+            if len(ref[key]) > limit:
+                raise ValueError(f'Reference {ref["image"]}: {key} must be at most {limit} characters.')
     return value
 
 
@@ -238,14 +260,17 @@ def prompt_policy():
 def cache_key(hashes, instruction, recipe, model_digest, cfg, triggers, variation):
     # Editing instructions/settings invalidates both the Comfy node cache and
     # this in-memory draft cache. H3 seed/quality alone do not redraft the prompt.
-    payload = {'v': 2, 'images': hashes, 'instruction': instruction,
+    payload = {'v': 4, 'images': hashes, 'instruction': instruction,
                'aspect': recipe['aspect'], 'length': recipe['length'],
                'model': model_digest, 'preview_edge': cfg['image_max_edge'],
                'context': cfg['context_length'], 'triggers': triggers,
                'variation': int(variation), 'policy': prompt_policy(),
                'options': {k: cfg.get(k) for k in (
                    'think', 'temperature', 'top_p', 'top_k',
-                   'analysis_max_output_tokens', 'max_output_tokens')}}
+                   'analysis_max_output_tokens', 'max_output_tokens',
+                   'analysis_model', 'analysis_think', 'analysis_temperature', 'repair_max_output_tokens',
+                   'analysis_timeout_seconds', 'repair_timeout_seconds',
+                   'request_timeout_seconds', 'stream_idle_timeout_seconds')}}
     return hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest()
 
 

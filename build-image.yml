@@ -1,0 +1,268 @@
+name: Build RunPod ComfyUI image
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+    paths:
+      - "Dockerfile"
+      - ".dockerignore"
+      - "scripts/**"
+      - "config/**"
+      - "tests/**"
+      - "shared_loras/**"
+      - "tools/**"
+      - "BUILD_INFO.json"
+      - ".github/workflows/build-image.yml"
+
+permissions:
+  contents: read
+  packages: write
+
+# A newer commit supersedes an older build of this same image.
+concurrency:
+  group: runpod-comfy-image-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    env:
+      # Keep normal step logs; skip the optional Docker Desktop record archive.
+      DOCKER_BUILD_SUMMARY: "false"
+      DOCKER_BUILD_RECORD_UPLOAD: "false"
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Verify complete repository source before building
+        shell: bash
+        run: python3 tools/check_repository.py --target general
+
+      - name: Free build-machine disk and check capacity
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          if [[ "${RUNNER_ENVIRONMENT:-}" != "github-hosted" || "${RUNNER_OS:-}" != "Linux" ]]; then
+            echo "::error::This cleanup is only for a disposable GitHub-hosted Linux runner."
+            exit 1
+          fi
+
+          echo "Disk and inode availability BEFORE cleanup"
+          df -h / "$RUNNER_TEMP"
+          df -i / "$RUNNER_TEMP"
+
+          # These are host SDKs, NOT packages inside the RunPod Docker image.
+          # Do not delete the Actions runner, its Node runtime, Docker, or the checkout.
+          unused=(
+            /usr/local/lib/android
+            /opt/ghc
+            /usr/share/dotnet
+            /usr/share/swift
+            /usr/local/share/powershell
+            /opt/microsoft/powershell
+            /usr/local/share/chromium
+            /usr/local/share/vcpkg
+            /usr/share/miniconda
+            /opt/az
+            /opt/hostedtoolcache
+            /home/linuxbrew
+          )
+          for path in "${unused[@]}"; do
+            if [[ -e "$path" ]]; then
+              echo "Removing unused host SDK: $path"
+              sudo du -sh "$path" || true
+              sudo rm -rf -- "$path"
+            fi
+          done
+          # setup-buildx uses this directory after cleanup; restore runner write access.
+          sudo install -d -m 0755 -o "$(id -u)" -g "$(id -g)" /opt/hostedtoolcache
+          sudo apt-get clean
+          # Run pruning BEFORE creating this job's BuildKit container, never during a build.
+          docker system prune --all --force
+          docker builder prune --all --force
+
+          docker_root="$(docker info --format '{{.DockerRootDir}}')"
+          echo "Docker data path: $docker_root"
+          echo "DOCKER_DATA_PATH=$docker_root" >> "$GITHUB_ENV"
+          echo "Disk and inode availability AFTER cleanup"
+          df -h "$docker_root" "$RUNNER_TEMP"
+          df -i "$docker_root" "$RUNNER_TEMP"
+
+          # This is an admission budget, NOT a measured peak-build requirement.
+          # The previous 45 GiB hard cutoff rejected the supplied runner before
+          # Docker started, even though human-readable df rounded its free space to 45G.
+          # Retain an emergency reserve and the independent live disk guard below.
+          min_gib=40
+          target_gib=45
+          min_kib=$((min_gib * 1024 * 1024))
+          free_kib="$(df -Pk "$docker_root" | awk 'NR==2 {print $4}')"
+          if [[ ! "$free_kib" =~ ^[0-9]+$ ]]; then
+            echo "::error::BUILD_DISK_PREFLIGHT: Could not measure Docker filesystem space."
+            exit 1
+          fi
+          awk -v kib="$free_kib" 'BEGIN {printf "Docker free before reserve: %.3f GiB (%s KiB)\n", kib/1048576, kib}'
+          if (( free_kib < min_kib )); then
+            echo "::error::BUILD_DISK_PREFLIGHT: Less than ${min_gib} GiB is free after cleanup. Docker was not started."
+            exit 1
+          fi
+
+          # Reserve space on the log filesystem before the final admission check.
+          fallocate -l 1G "$RUNNER_TEMP/comfy-build-emergency.reserve"
+          free_kib="$(df -Pk "$docker_root" | awk 'NR==2 {print $4}')"
+          if [[ ! "$free_kib" =~ ^[0-9]+$ ]]; then
+            rm -f "$RUNNER_TEMP/comfy-build-emergency.reserve"
+            echo "::error::BUILD_DISK_PREFLIGHT: Could not recheck space after reserving log headroom."
+            exit 1
+          fi
+          awk -v kib="$free_kib" 'BEGIN {printf "Docker free after 1 GiB log reserve: %.3f GiB (%s KiB)\n", kib/1048576, kib}'
+          if (( free_kib < min_kib )); then
+            rm -f "$RUNNER_TEMP/comfy-build-emergency.reserve"
+            echo "::error::BUILD_DISK_PREFLIGHT: Less than ${min_gib} GiB remains after reserving log headroom. Docker was not started."
+            exit 1
+          fi
+          if (( free_kib < target_gib * 1024 * 1024 )); then
+            echo "::warning::Below the preferred ${target_gib} GiB starting budget; proceeding with live disk monitoring."
+          fi
+          echo "BUILD_DISK_PREFLIGHT: PASS - at least ${min_gib} GiB free after the reserve."
+          echo "CI preflight patch 1.1: the 45 GiB target is advisory, not a hard requirement."
+
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver: docker-container
+          buildkitd-config-inline: |
+            [worker.oci]
+              max-parallelism = 1
+
+      - name: Start build disk guard
+        shell: bash
+        env:
+          BUILDER_NAME: ${{ steps.buildx.outputs.name }}
+        run: |
+          set -Eeuo pipefail
+          cat > "$RUNNER_TEMP/comfy-build-disk-guard.py" <<'PY'
+          import os
+          import pathlib
+          import subprocess
+          import time
+
+          root = pathlib.Path(os.environ["RUNNER_TEMP"])
+          paths = [os.environ["DOCKER_DATA_PATH"], str(root)]
+          reserve = root / "comfy-build-emergency.reserve"
+          builder = os.environ["BUILDER_NAME"]
+          last_report = 0.0
+          while not (root / "comfy-build-guard.stop").exists():
+              for path in paths:
+                  info = os.statvfs(path)
+                  free_bytes = info.f_bavail * info.f_frsize
+                  free_inodes = info.f_favail
+                  if free_bytes < 2 * 1024**3 or (info.f_files > 0 and free_inodes < 10000):
+                      # Release the reserve BEFORE writing the diagnostic or stopping BuildKit.
+                      reserve.unlink(missing_ok=True)
+                      message = (
+                          "BUILD_DISK_GUARD: Stopping BuildKit before the Actions runner loses its logs. "
+                          f"Path={path}; free={free_bytes / 1024**3:.2f} GiB; "
+                          f"available_inodes={free_inodes}. This is GitHub runner storage, not RunPod."
+                      )
+                      (root / "comfy-build-disk-full.txt").write_text(message + "\n")
+                      print(message, flush=True)
+                      try:
+                          subprocess.run(["docker", "buildx", "stop", builder], timeout=30, check=False)
+                      except (OSError, subprocess.TimeoutExpired) as exc:
+                          print(f"Could not complete builder stop: {exc}", flush=True)
+                      raise SystemExit(2)
+                  if time.monotonic() - last_report >= 30:
+                      print(f"{time.strftime('%H:%M:%S')} {path}: "
+                            f"{free_bytes / 1024**3:.2f} GiB free, {free_inodes} inodes free", flush=True)
+              if time.monotonic() - last_report >= 30:
+                  last_report = time.monotonic()
+              time.sleep(2)
+          PY
+          nohup /usr/bin/python3 -u "$RUNNER_TEMP/comfy-build-disk-guard.py" \
+            > "$RUNNER_TEMP/comfy-build-disk-monitor.log" 2>&1 < /dev/null &
+          echo "$!" > "$RUNNER_TEMP/comfy-build-disk-guard.pid"
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Prepare image tags
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/runpod-comfy-stateless
+          tags: |
+            type=raw,value=latest
+            type=sha
+
+      - name: Build and push image - no external build cache
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          builder: ${{ steps.buildx.outputs.name }}
+          platforms: linux/amd64
+          push: true
+          load: false
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            SOURCE_REVISION=${{ github.sha }}
+          # Deliberately no cache-from/cache-to. Avoid restoring/exporting the huge GHA cache.
+          # All Dockerfile dependency, workflow, HTTP and node-validation checks still run.
+
+      - name: Disk diagnostics - read this if the build fails
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          set +e
+          # This is safe even when the preflight stopped the job before the guard started.
+          rm -f "$RUNNER_TEMP/comfy-build-emergency.reserve"
+          touch "$RUNNER_TEMP/comfy-build-guard.stop"
+          if [[ -f "$RUNNER_TEMP/comfy-build-disk-guard.pid" ]]; then
+            kill "$(cat "$RUNNER_TEMP/comfy-build-disk-guard.pid")" 2>/dev/null || true
+          fi
+          echo "Disk/inode availability at end of build"
+          df -h / "$RUNNER_TEMP" /var/lib/docker
+          df -i / "$RUNNER_TEMP" /var/lib/docker
+          echo "Recent disk monitoring"
+          tail -n 40 "$RUNNER_TEMP/comfy-build-disk-monitor.log" 2>/dev/null || true
+          guard_failed=0
+          if [[ -f "$RUNNER_TEMP/comfy-build-disk-full.txt" ]]; then
+            guard_failed=1
+            echo "::error::$(cat "$RUNNER_TEMP/comfy-build-disk-full.txt")"
+            cat "$RUNNER_TEMP/comfy-build-disk-full.txt" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          timeout 15 docker system df || true
+          exit "$guard_failed"
+
+      - name: Record successfully published image
+        if: ${{ success() }}
+        shell: bash
+        env:
+          PUBLISHED_DIGEST: ${{ steps.build.outputs.digest }}
+          PUBLISHED_TAGS: ${{ steps.meta.outputs.tags }}
+        run: |
+          set -Eeuo pipefail
+          test -n "$PUBLISHED_DIGEST"
+          {
+            echo '## ComfyUI image published'
+            echo
+            echo 'Tags:'
+            echo '```text'
+            printf '%s\n' "$PUBLISHED_TAGS"
+            echo '```'
+            echo 'Digest:'
+            echo '```text'
+            printf '%s\n' "$PUBLISHED_DIGEST"
+            echo '```'
+            echo 'RunPod settings and model/workflow files were not changed by this CI disk patch.'
+          } >> "$GITHUB_STEP_SUMMARY"

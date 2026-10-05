@@ -5,12 +5,14 @@ export H3_PORTRAIT_CONFIG=/workspace/h3-portrait/config
 export OLLAMA_NO_CLOUD=1 TINI_SUBREAPER=1
 # This recipe deliberately does not use external CONFIG_REPO or legacy bootstrap.
 unset CONFIG_REPO CONFIG_REF COMFY_ARGS MODEL_PROFILES
-printf '\nH3 PORTRAIT 1.2 | Two-pass thinking | Shared link-only LoRAs | Native H3 | No OmniNode\n'
+printf '\nH3 PORTRAIT 1.3 | Instruct analysis + Thinking director | Shared link-only LoRAs | Native H3 | No OmniNode\n'
+python /opt/h3-portrait/verify_release.py --check-manifest /opt/h3-portrait/release-manifest.json --node-copy /opt/comfy-bundle/custom_nodes/ComfyUI-H3Portrait
 mkdir -p "$COMFY_HOME" "$H3_PORTRAIT_CONFIG" /workspace/h3-portrait
 cp -a /opt/h3-portrait/{settings.json,models.json,runtime.json} "$H3_PORTRAIT_CONFIG/"
 cp /opt/shared-loras/lora_links.txt "$H3_PORTRAIT_CONFIG/lora_links.txt"
 # The alternate image has only our node pack enabled in this bundle.
 rsync -a --exclude='__pycache__' --exclude='build-smoke.log' --exclude='/models/' --exclude='/input/' --exclude='/output/' --exclude='/user/' --exclude='/temp/' /opt/comfy-bundle/ "$COMFY_HOME/"
+python /opt/h3-portrait/verify_release.py --check-manifest /opt/h3-portrait/release-manifest.json --node-copy "$COMFY_HOME/custom_nodes/ComfyUI-H3Portrait"
 mkdir -p "$COMFY_HOME"/{models,input,output,temp,user/default/workflows}
 if [[ ! -f "$COMFY_HOME/user/default/workflows/H3_Portrait_Auto.json" ]]; then
   cp /opt/h3-portrait/workflows/H3_Portrait_Auto.json "$COMFY_HOME/user/default/workflows/"
