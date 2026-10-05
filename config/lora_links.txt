@@ -13,3 +13,5 @@
 #
 # No keys/tokens in links. Keep credentials in your existing RunPod Secrets.
 # No real LoRA was provided, so nothing downloads until you add your links.
+https://huggingface.co/jmew1989/CMFUI/resolve/main/MMH3/HMNSFW_AIO_V2.safetensors
+https://civitai.red/api/download/models/3329529?fileId=3215616
