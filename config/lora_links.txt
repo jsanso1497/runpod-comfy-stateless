@@ -15,3 +15,4 @@
 # No real LoRA was provided, so nothing downloads until you add your links.
 https://huggingface.co/jmew1989/CMFUI/resolve/main/MMH3/HMNSFW_AIO_V2.safetensors
 https://civitai.red/api/download/models/3329529?fileId=3215616
+https://huggingface.co/dgsag/ghhg/resolve/main/models/loras/MysticXXX_MMH3-V4-ref2va.safetensors
