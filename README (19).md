@@ -1,3 +1,12 @@
+# Shared LoRA library
+
+For current installation and build instructions, use [START_HERE.md](../START_HERE.md).
+This library is included in both images. Edit only `config/lora_links.txt` to add
+user LoRA URLs; choose compatible adapters in each workflow. Existing required
+Krea adapters in `config/loras.json` are separate and retained.
+
+## Downloader details
+
 # Shared LoRA link resolver
 
 Only config/lora_links.txt is user-edited. sync.py reads provider metadata and

@@ -1,4 +1,5 @@
-Repository paths included in this source package:
+Complete clean repository snapshot: h3-clean-2026-10-05-r1
+103 files. No enclosing folder in ZIP. Preserve .git in your local checkout.
 
 .dockerignore
 .gitattributes
@@ -11,6 +12,7 @@ Dockerfile
 PACKAGE_FILE_LIST.txt
 README.md
 SOURCES.md
+SOURCE_SNAPSHOT.json
 START_HERE.md
 USER_DIRECTED_START_HERE.md
 VALIDATION.md
@@ -99,4 +101,6 @@ tests/test_single_person.py
 tests/test_update.py
 tests/test_user_directed_h3.py
 tools/check_repository.py
+tools/test_snapshot.py
 tools/validate_repository.py
+tools/verify_snapshot.py

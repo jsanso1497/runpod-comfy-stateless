@@ -2,12 +2,32 @@
   "schema_version": 1,
   "comfy_ref": "65787d668397d230bf5839d69a0a7239e2dad378",
   "default_profiles": [
-    "h3"
+    "seedvr2",
+    "krea2"
   ],
   "profiles": {
-    "h3": "H3 portrait only"
+    "seedvr2": "Existing 7B video restoration",
+    "krea2": "Krea 2 Raw BF16 + Identity Edit + Krea-only Rebalance conditioning",
+    "h3": "Optional full BF16 MiniMax H3 ref2va; licensing and memory check required"
   },
   "workflow_profiles": {
-    "H3_Portrait_Auto.json": "h3"
-  }
+    "10_Krea2_Same_Subject.json": "krea2",
+    "11_Krea2_Subject_into_Scene.json": "krea2",
+    "20_H3_Reference_BF16.json": "h3",
+    "05_Vision_Prompt_Draft.json": "shared",
+    "21_H3_Ollama_Two_Refs_BF16.json": "h3",
+    "06_H3_Create_Full_RefMod.json": "h3",
+    "22_H3_RefMod_Ollama_Quality.json": "h3",
+    "23_H3_Saved_RefMods_Quality.json": "h3",
+    "07_Backup_RefMods.json": "h3",
+    "08_H3_Create_Person_RefMod.json": "h3",
+    "09_H3_One_Person_Prompt_Draft.json": "h3",
+    "24_H3_One_Person_Multi_Ref_Quality.json": "h3",
+    "25_H3_One_Person_Saved_RefMod_Quality.json": "h3",
+    "26_H3_User_Directed_Ollama.json": "h3"
+  },
+  "package_version": "3.2.0",
+  "retired_workflows": [
+    "30_Ideogram4_Rebalance_Reference_Quality.json"
+  ]
 }

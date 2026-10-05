@@ -1,100 +1,150 @@
-"""ComfyUI nodes for local vision-assisted H3 prompting. No server-side routes."""
+"""Small, local-only helpers for the quality-first workflows.
+
+No remote service calls, face recognition, training, or code generation.
+"""
 from __future__ import annotations
+
+import hashlib
 import json
+import os
 from pathlib import Path
-import threading
+import re
 import time
 import uuid
+import zipfile
 
-from .client import SYSTEM_PROMPT, settings, generate, validate_tags
-
-LOCK = threading.Lock()
-MODES = ["Generate with Ollama", "Use edited prompt (no Ollama)"]
+WEB_DIRECTORY = "./web"
+ARCHIVE_RE = re.compile(r"refmods-[0-9]{8}-[0-9]{6}-[0-9a-f]{12}\.zip\Z")
 
 
-class EverydayOllamaH3Prompt:
+def reference_name(image, label: str) -> str:
+    import torch
+    if image is None or image.ndim != 4 or image.shape[0] != 1 or image.shape[-1] not in (3, 4):
+        raise ValueError("Connect exactly one reference image to each RefMod creator. The two-subject workflow needs BOTH images.")
+    clean = re.sub(r"[^A-Za-z0-9_-]+", "_", str(label)).strip("_")[:48]
+    if not clean:
+        raise ValueError("Use a short subject label containing letters or digits.")
+    # Stable name identifies the supplied pixels, not a person's identity.
+    rgb = image[0, ..., :3].detach().to(device="cpu", dtype=torch.float32)
+    data = (rgb.clamp(0, 1).mul(255).round().to(torch.uint8)).contiguous().numpy().tobytes()
+    h = hashlib.sha256(str(tuple(rgb.shape)).encode() + data).hexdigest()[:16]
+    return f"{clean}_{h}"
+
+
+class QualityRefModName:
     @classmethod
     def INPUT_TYPES(cls):
-        return {"required": {
-            "image_1": ("IMAGE",),
-            "mode": (MODES, {"default": MODES[0]}),
-            "system_prompt": ("STRING", {"default": SYSTEM_PROMPT, "multiline": True}),
-            "user_prompt": ("STRING", {"default": "I want the person from image 1 to hug the person from image 2. Preserve both subjects' appearance and clothing. One continuous shot, no dialogue, no music.", "multiline": True}),
-            "edited_prompt": ("STRING", {"default": "", "multiline": True}),
-            "length": ("INT", {"default": 124, "min": 124, "max": 362, "step": 17}),
-            "variation_seed": ("INT", {"default": 42, "min": 0, "max": 2147483647}),
-            "temperature": ("FLOAT", {"default": 0.2, "min": 0.0, "max": 1.0, "step": 0.05}),
-            "save_prompt": ("BOOLEAN", {"default": True}),
-        }, "optional": {"image_2": ("IMAGE",)}}
-
-    RETURN_TYPES = ("STRING", "IMAGE", "IMAGE", "INT")
-    RETURN_NAMES = ("h3_prompt", "picture_1", "picture_2", "length")
-    FUNCTION = "build_prompt"
-    CATEGORY = "Everyday/H3 Prompt Assistant"
-    DESCRIPTION = "Writes an H3 prompt from one or two still references, then unloads Ollama before returning. Image outputs preserve the original reference order. Use edited mode to render an already-reviewed prompt without another LLM call."
-
-    def build_prompt(self, image_1, mode, system_prompt, user_prompt, edited_prompt,
-                     length, variation_seed, temperature, save_prompt, image_2=None):
-        if mode not in MODES:
-            raise ValueError("Unknown prompt mode")
-        if length < 124 or length > 362 or length % 17 != 5:
-            raise ValueError("Use an H3 length on the 17k+5 grid from 124 to 362 frames")
-        images = [image_1] + ([image_2] if image_2 is not None else [])
-        for image in images:
-            if image.ndim != 4 or image.shape[0] != 1:
-                raise ValueError("Connect one still image per reference input")
-        if mode == MODES[1]:
-            prompt = edited_prompt.strip()
-            if not prompt:
-                raise ValueError("Paste the reviewed H3 text into edited_prompt, or choose Generate with Ollama")
-            validate_tags(prompt, len(images))
-            metadata = {"mode": "edited", "frame_count": length, "references": len(images)}
-        else:
-            import comfy.model_management as mm
-            with LOCK:
-                mm.throw_exception_if_processing_interrupted()
-                # Clear previously cached H3/Krea GPU weights before a new vision request.
-                mm.unload_all_models()
-                mm.soft_empty_cache()
-                prompt, metadata = generate(settings(), system_prompt, user_prompt, images, length,
-                                            variation_seed, temperature, mm.throw_exception_if_processing_interrupted)
-            print("[OllamaH3] Prompt ready; selected vision model no longer listed in Ollama /api/ps.", flush=True)
-        if save_prompt:
-            import folder_paths
-            root = Path(folder_paths.get_output_directory()) / "prompt_assistant"
-            root.mkdir(parents=True, exist_ok=True)
-            stem = time.strftime("%Y%m%d-%H%M%S") + "-" + uuid.uuid4().hex[:8]
-            (root / (stem + ".txt")).write_text(prompt + "\n", encoding="utf-8")
-            (root / (stem + ".json")).write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
-            print(f"[OllamaH3] Saved prompt_assistant/{stem}.txt", flush=True)
-        return prompt, image_1, image_2, length
+        return {"required": {"image": ("IMAGE",), "label": ("STRING", {"default": "subject"})}}
+    RETURN_TYPES = ("STRING",)
+    FUNCTION = "name"
+    CATEGORY = "Quality/RefMod"
+    DESCRIPTION = "Creates a stable filename from a label and image checksum. Does not identify a real person."
+    def name(self, image, label):
+        return (reference_name(image, label),)
 
 
-class EverydayH3FilesAfterPrompt:
+class QualityCheckRefModBundle:
     @classmethod
     def INPUT_TYPES(cls):
-        # Use strings rather than dynamic dropdowns so a CPU build smoke-test needs no weights.
-        return {"required": {
-            "prompt_ready": ("STRING", {"forceInput": True}),
-            "diffusion_model": ("STRING", {"default": "minimax_h3_ref2va_bf16.safetensors"}),
-            "text_encoder": ("STRING", {"default": "qwen3vl_32b_minimax_h3_bf16.safetensors"}),
-            "video_vae": ("STRING", {"default": "minimax_h3_video_vae_fp16.safetensors"}),
-            "audio_vae": ("STRING", {"default": "minimax_h3_audio_vae_fp32.safetensors"}),
-        }}
-
-    RETURN_TYPES = ("COMBO", "COMBO", "COMBO", "COMBO")
-    RETURN_NAMES = ("diffusion_model", "text_encoder", "video_vae", "audio_vae")
-    FUNCTION = "after_prompt"
-    CATEGORY = "Everyday/H3 Prompt Assistant"
-    DESCRIPTION = "Execution dependency only: filenames reach native H3 loaders after prompting/unloading completes. This does not load or modify any model. Keep these connections in the integrated workflow."
-
-    def after_prompt(self, prompt_ready, diffusion_model, text_encoder, video_vae, audio_vae):
-        if not prompt_ready.strip():
-            raise ValueError("An H3 prompt is required before the model loaders run")
-        return diffusion_model, text_encoder, video_vae, audio_vae
+        return {"required": {"mods": ("H3_REF_MODS",)}}
+    RETURN_TYPES = ("H3_REF_MODS",)
+    FUNCTION = "check"
+    CATEGORY = "Quality/RefMod"
+    DESCRIPTION = "Stops a saved-reference render when no reference was selected."
+    def check(self, mods):
+        if not mods:
+            raise ValueError("Select at least one saved RefMod in Load H3 RefMods before rendering.")
+        return (mods,)
 
 
-NODE_CLASS_MAPPINGS = {"EverydayOllamaH3Prompt": EverydayOllamaH3Prompt,
-                       "EverydayH3FilesAfterPrompt": EverydayH3FilesAfterPrompt}
-NODE_DISPLAY_NAME_MAPPINGS = {"EverydayOllamaH3Prompt": "H3 Prompt Builder (Local Ollama)",
-                              "EverydayH3FilesAfterPrompt": "H3 Models AFTER Prompt + Unload"}
+def make_archive(ref_root: Path, output_root: Path, max_bytes: int = 2 * 1024**3) -> tuple[str, int]:
+    """Archive RefMod files only; reject symlinks and bound the total size."""
+    root = ref_root.resolve()
+    if not root.is_dir():
+        raise ValueError("No RefMod directory exists yet. Run the creator first.")
+    candidates = []
+    total = 0
+    for folder, dirs, files in os.walk(root, followlinks=False):
+        dirs[:] = sorted(d for d in dirs if not (Path(folder) / d).is_symlink() and d not in {".git", "__pycache__"})
+        for name in sorted(files):
+            path = Path(folder) / name
+            if path.suffix not in {".safetensors", ".json"} or path.is_symlink():
+                continue
+            resolved = path.resolve()
+            if not resolved.is_relative_to(root) or not resolved.is_file():
+                raise ValueError("RefMod path escapes the selected reference directory.")
+            total += resolved.stat().st_size
+            if total > max_bytes:
+                raise ValueError("RefMod archive exceeds 2 GiB. Export a smaller library using the Pod file tools.")
+            candidates.append((resolved, resolved.relative_to(root).as_posix()))
+    if not candidates:
+        raise ValueError("No saved RefMod files found. Enable save on the creator and run it first.")
+    output_root.mkdir(parents=True, exist_ok=True)
+    filename = "refmods-" + time.strftime("%Y%m%d-%H%M%S") + "-" + uuid.uuid4().hex[:12] + ".zip"
+    destination = output_root / filename
+    part = destination.with_suffix(".part")
+    try:
+        with zipfile.ZipFile(part, "w", compression=zipfile.ZIP_STORED) as z:
+            manifest = []
+            for path, relative in candidates:
+                z.write(path, "refmods/" + relative)
+                manifest.append({"path": relative, "bytes": path.stat().st_size})
+            z.writestr("RESTORE_README.txt", "Place refmods/ contents in ComfyUI/models/refmods/. These are private reference data, not LoRAs. Do not publish without appropriate rights.\n")
+            z.writestr("manifest.json", json.dumps(manifest, indent=2))
+        os.replace(part, destination)
+    finally:
+        part.unlink(missing_ok=True)
+    return filename, len(candidates)
+
+
+class QualityExportRefMods:
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {"required": {"after": ("H3_REF_MODS",)}}
+    RETURN_TYPES = ("STRING",)
+    FUNCTION = "export"
+    OUTPUT_NODE = True
+    CATEGORY = "Quality/RefMod"
+    DESCRIPTION = "Backs up ALL saved RefMods in the primary RefMod folder to a downloadable ZIP. Temporary Pod files must be downloaded before termination."
+    def export(self, after):
+        import folder_paths
+        roots = folder_paths.get_folder_paths("refmods")
+        root = Path(roots[0]) if roots else Path(folder_paths.models_dir) / "refmods"
+        directory = Path(folder_paths.get_output_directory()) / "refmod_exports"
+        filename, count = make_archive(root, directory)
+        relative_url = "/quality/refmod-exports/" + filename
+        return {"ui": {"text": [f"{count} files. Download before terminating the Pod."], "refmod_download": [relative_url]},
+                "result": (relative_url,)}
+
+
+def register_download_route():
+    try:
+        import folder_paths
+        from server import PromptServer
+        from aiohttp import web
+    except ImportError:
+        return
+    instance = getattr(PromptServer, "instance", None)
+    if instance is None or getattr(instance, "_quality_refmod_export_route", False):
+        return
+    @instance.routes.get("/quality/refmod-exports/{filename}")
+    async def download(request):
+        filename = request.match_info["filename"]
+        if not ARCHIVE_RE.fullmatch(filename):
+            raise web.HTTPNotFound()
+        root = (Path(folder_paths.get_output_directory()) / "refmod_exports").resolve()
+        path = root / filename
+        if path.is_symlink() or not path.resolve().is_relative_to(root) or not path.is_file():
+            raise web.HTTPNotFound()
+        return web.FileResponse(path, headers={"Content-Disposition": f'attachment; filename="{filename}"',
+                                               "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff"})
+    instance._quality_refmod_export_route = True
+
+
+NODE_CLASS_MAPPINGS = {"QualityRefModName": QualityRefModName,
+                       "QualityCheckRefModBundle": QualityCheckRefModBundle,
+                       "QualityExportRefMods": QualityExportRefMods}
+NODE_DISPLAY_NAME_MAPPINGS = {"QualityRefModName": "Reference Filename (Image Checksum)",
+                              "QualityCheckRefModBundle": "Check Saved RefMods Selected",
+                              "QualityExportRefMods": "Download RefMod Library ZIP"}
+register_download_route()

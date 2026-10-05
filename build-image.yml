@@ -12,6 +12,7 @@ on:
       - "tests/**"
       - "shared_loras/**"
       - "tools/**"
+      - "SOURCE_SNAPSHOT.json"
       - "BUILD_INFO.json"
       - ".github/workflows/build-image.yml"
 
@@ -36,6 +37,12 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+
+      - name: Verify exact clean source snapshot
+        shell: bash
+        run: |
+          python3 tools/verify_snapshot.py
+          python3 -m unittest discover -s tools -p 'test_snapshot.py'
 
       - name: Verify complete repository source before building
         shell: bash

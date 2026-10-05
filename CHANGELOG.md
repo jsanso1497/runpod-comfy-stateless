@@ -1,3 +1,12 @@
+# Clean reset snapshot: h3-clean-2026-10-05-r1
+
+- Complete source replacement; application code remains H3 Portrait 1.3.0.
+- Added exact source file-set/hash checks before Docker, with LoRA links editable.
+- Added 21 regression tests for upload completeness and mixed source versions.
+- Added the `h3-portrait-clean` tag alongside existing portrait tags.
+- Replaced partial web-upload instructions with a single GitHub Desktop commit.
+- No model, LoRA, rendering, or prompt logic changed from the consolidated 1.3.0 source.
+
 # 2026-10-05 complete source consolidation
 
 This supersedes the earlier source ZIPs and live hotfix scripts. It contains both

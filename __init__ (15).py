@@ -1,92 +1,100 @@
-"""Two small utility nodes. Generation stays in native ComfyUI/Krea2Edit nodes."""
+"""ComfyUI nodes for local vision-assisted H3 prompting. No server-side routes."""
 from __future__ import annotations
-import math
+import json
+from pathlib import Path
+import threading
+import time
+import uuid
 
-ASPECTS = {
-    "Match reference": None,
-    "Square 1:1": 1.0,
-    "Portrait 4:5": 4 / 5,
-    "Portrait 2:3": 2 / 3,
-    "Landscape 16:9": 16 / 9,
-    "Portrait 9:16": 9 / 16,
-}
+from .client import SYSTEM_PROMPT, settings, generate, validate_tags
 
-
-def canvas_size(width: int, height: int, aspect: str, megapixels: float) -> tuple[int, int]:
-    if width < 1 or height < 1 or aspect not in ASPECTS or not 0.25 <= megapixels <= 2.0:
-        raise ValueError("Use positive image dimensions and a 0.25 to 2.0 MP output")
-    ratio = ASPECTS[aspect] or width / height
-    if not 1 / 8 <= ratio <= 8:
-        raise ValueError("Use a reference with an aspect ratio between 1:8 and 8:1")
-    pixels = megapixels * 1024 * 1024
-    w, h = math.sqrt(pixels * ratio), math.sqrt(pixels / ratio)
-    scale = min(1.0, 2048 / max(w, h))
-    # Floor to a valid grid so neither the requested budget nor the 2 MP limit is exceeded.
-    return max(16, int(w * scale) // 16 * 16), max(16, int(h * scale) // 16 * 16)
+LOCK = threading.Lock()
+MODES = ["Generate with Ollama", "Use edited prompt (no Ollama)"]
 
 
-class EverydayReferenceCanvas:
+class EverydayOllamaH3Prompt:
     @classmethod
     def INPUT_TYPES(cls):
         return {"required": {
-            "image": ("IMAGE",),
-            "aspect": (list(ASPECTS), {"default": "Match reference"}),
-            "megapixels": ("FLOAT", {"default": 1.0, "min": 0.25, "max": 2.0, "step": 0.25}),
-        }}
+            "image_1": ("IMAGE",),
+            "mode": (MODES, {"default": MODES[0]}),
+            "system_prompt": ("STRING", {"default": SYSTEM_PROMPT, "multiline": True}),
+            "user_prompt": ("STRING", {"default": "I want the person from image 1 to hug the person from image 2. Preserve both subjects' appearance and clothing. One continuous shot, no dialogue, no music.", "multiline": True}),
+            "edited_prompt": ("STRING", {"default": "", "multiline": True}),
+            "length": ("INT", {"default": 124, "min": 124, "max": 362, "step": 17}),
+            "variation_seed": ("INT", {"default": 42, "min": 0, "max": 2147483647}),
+            "temperature": ("FLOAT", {"default": 0.2, "min": 0.0, "max": 1.0, "step": 0.05}),
+            "save_prompt": ("BOOLEAN", {"default": True}),
+        }, "optional": {"image_2": ("IMAGE",)}}
 
-    RETURN_TYPES = ("IMAGE", "INT", "INT")
-    RETURN_NAMES = ("reference_image", "width", "height")
-    FUNCTION = "prepare"
-    CATEGORY = "Everyday/Reference"
-    DESCRIPTION = "Limits source processing to 2 MP and chooses an output canvas. It does not preserve identity by itself; Krea2Edit supplies that conditioning."
+    RETURN_TYPES = ("STRING", "IMAGE", "IMAGE", "INT")
+    RETURN_NAMES = ("h3_prompt", "picture_1", "picture_2", "length")
+    FUNCTION = "build_prompt"
+    CATEGORY = "Everyday/H3 Prompt Assistant"
+    DESCRIPTION = "Writes an H3 prompt from one or two still references, then unloads Ollama before returning. Image outputs preserve the original reference order. Use edited mode to render an already-reviewed prompt without another LLM call."
 
-    def prepare(self, image, aspect, megapixels):
-        import comfy.utils
-        if image.ndim != 4 or image.shape[0] != 1:
-            raise ValueError("Use one still reference per Load Image node")
-        h, w = image.shape[1:3]
-        target_w, target_h = canvas_size(w, h, aspect, megapixels)
-        source = image[..., :3]
-        scale = min(1.0, math.sqrt((2 * 1024 * 1024) / (w * h)), 4096 / max(w, h))
-        if scale < 1.0:
-            sw, sh = max(16, int(w * scale) // 16 * 16), max(16, int(h * scale) // 16 * 16)
-            source = comfy.utils.common_upscale(source.movedim(-1, 1), sw, sh, "lanczos", "disabled").movedim(1, -1)
-        return source, target_w, target_h
+    def build_prompt(self, image_1, mode, system_prompt, user_prompt, edited_prompt,
+                     length, variation_seed, temperature, save_prompt, image_2=None):
+        if mode not in MODES:
+            raise ValueError("Unknown prompt mode")
+        if length < 124 or length > 362 or length % 17 != 5:
+            raise ValueError("Use an H3 length on the 17k+5 grid from 124 to 362 frames")
+        images = [image_1] + ([image_2] if image_2 is not None else [])
+        for image in images:
+            if image.ndim != 4 or image.shape[0] != 1:
+                raise ValueError("Connect one still image per reference input")
+        if mode == MODES[1]:
+            prompt = edited_prompt.strip()
+            if not prompt:
+                raise ValueError("Paste the reviewed H3 text into edited_prompt, or choose Generate with Ollama")
+            validate_tags(prompt, len(images))
+            metadata = {"mode": "edited", "frame_count": length, "references": len(images)}
+        else:
+            import comfy.model_management as mm
+            with LOCK:
+                mm.throw_exception_if_processing_interrupted()
+                # Clear previously cached H3/Krea GPU weights before a new vision request.
+                mm.unload_all_models()
+                mm.soft_empty_cache()
+                prompt, metadata = generate(settings(), system_prompt, user_prompt, images, length,
+                                            variation_seed, temperature, mm.throw_exception_if_processing_interrupted)
+            print("[OllamaH3] Prompt ready; selected vision model no longer listed in Ollama /api/ps.", flush=True)
+        if save_prompt:
+            import folder_paths
+            root = Path(folder_paths.get_output_directory()) / "prompt_assistant"
+            root.mkdir(parents=True, exist_ok=True)
+            stem = time.strftime("%Y%m%d-%H%M%S") + "-" + uuid.uuid4().hex[:8]
+            (root / (stem + ".txt")).write_text(prompt + "\n", encoding="utf-8")
+            (root / (stem + ".json")).write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
+            print(f"[OllamaH3] Saved prompt_assistant/{stem}.txt", flush=True)
+        return prompt, image_1, image_2, length
 
 
-class EverydayOptionalLoRA:
+class EverydayH3FilesAfterPrompt:
     @classmethod
     def INPUT_TYPES(cls):
-        import folder_paths
+        # Use strings rather than dynamic dropdowns so a CPU build smoke-test needs no weights.
         return {"required": {
-            "model": ("MODEL",),
-            "enabled": ("BOOLEAN", {"default": False}),
-            "lora_name": (["None"] + folder_paths.get_filename_list("loras"),),
-            "strength_model": ("FLOAT", {"default": 0.6, "min": -2.0, "max": 2.0, "step": 0.05}),
+            "prompt_ready": ("STRING", {"forceInput": True}),
+            "diffusion_model": ("STRING", {"default": "minimax_h3_ref2va_bf16.safetensors"}),
+            "text_encoder": ("STRING", {"default": "qwen3vl_32b_minimax_h3_bf16.safetensors"}),
+            "video_vae": ("STRING", {"default": "minimax_h3_video_vae_fp16.safetensors"}),
+            "audio_vae": ("STRING", {"default": "minimax_h3_audio_vae_fp32.safetensors"}),
         }}
 
-    RETURN_TYPES = ("MODEL",)
-    FUNCTION = "apply"
-    CATEGORY = "Everyday/LoRA"
-    DESCRIPTION = "Optional model-only LoRA. Off or None is a true pass-through, with no dummy file needed. Select only a LoRA trained for this model family."
+    RETURN_TYPES = ("COMBO", "COMBO", "COMBO", "COMBO")
+    RETURN_NAMES = ("diffusion_model", "text_encoder", "video_vae", "audio_vae")
+    FUNCTION = "after_prompt"
+    CATEGORY = "Everyday/H3 Prompt Assistant"
+    DESCRIPTION = "Execution dependency only: filenames reach native H3 loaders after prompting/unloading completes. This does not load or modify any model. Keep these connections in the integrated workflow."
 
-    def apply(self, model, enabled, lora_name, strength_model):
-        if not enabled or lora_name == "None" or strength_model == 0:
-            return (model,)
-        import folder_paths
-        import comfy.sd
-        import comfy.utils
-        path = folder_paths.get_full_path_or_raise("loras", lora_name)
-        state = comfy.utils.load_torch_file(path, safe_load=True)
-        patched, _ = comfy.sd.load_lora_for_models(model, None, state, strength_model, 0.0)
-        return (patched,)
+    def after_prompt(self, prompt_ready, diffusion_model, text_encoder, video_vae, audio_vae):
+        if not prompt_ready.strip():
+            raise ValueError("An H3 prompt is required before the model loaders run")
+        return diffusion_model, text_encoder, video_vae, audio_vae
 
 
-NODE_CLASS_MAPPINGS = {
-    "EverydayReferenceCanvas": EverydayReferenceCanvas,
-    "EverydayOptionalLoRA": EverydayOptionalLoRA,
-}
-NODE_DISPLAY_NAME_MAPPINGS = {
-    "EverydayReferenceCanvas": "Reference + Output Size",
-    "EverydayOptionalLoRA": "Optional LoRA (Off by Default)",
-}
+NODE_CLASS_MAPPINGS = {"EverydayOllamaH3Prompt": EverydayOllamaH3Prompt,
+                       "EverydayH3FilesAfterPrompt": EverydayH3FilesAfterPrompt}
+NODE_DISPLAY_NAME_MAPPINGS = {"EverydayOllamaH3Prompt": "H3 Prompt Builder (Local Ollama)",
+                              "EverydayH3FilesAfterPrompt": "H3 Models AFTER Prompt + Unload"}

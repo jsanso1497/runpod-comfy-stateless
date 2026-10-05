@@ -1,3 +1,5 @@
+> Legacy/general workflow documentation. For your H3 Portrait clean reset, use START_HERE.md at the repository root, not this guide.
+
 # H3: your reference definitions -> Ollama prompt -> native reference video
 
 This is a small ADDITIVE patch for your working ComfyUI Quality 3.2 installation.
