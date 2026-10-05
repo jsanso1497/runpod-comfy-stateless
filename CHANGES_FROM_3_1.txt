@@ -1,0 +1,23 @@
+Changes from the corrected Krea-only 3.1 package.
+Model/LoRA catalogs and all earlier workflow JSONs are unchanged.
+
+REPLACE BUILD_INFO.json
+REPLACE Dockerfile
+REPLACE README.md
+REPLACE SOURCES.md
+REPLACE START_HERE.md
+REPLACE VALIDATION.md
+REPLACE config/runtime.json
+ADD config/workflows/08_H3_Create_Person_RefMod.json
+ADD config/workflows/09_H3_One_Person_Prompt_Draft.json
+ADD config/workflows/24_H3_One_Person_Multi_Ref_Quality.json
+ADD config/workflows/25_H3_One_Person_Saved_RefMod_Quality.json
+REPLACE config/workflows/README.txt
+REPLACE scripts/bootstrap.sh
+ADD scripts/check_single_person_runtime.py
+REPLACE scripts/check_workflows.py
+ADD scripts/local_nodes/ComfyUI-SinglePersonH3/__init__.py
+ADD scripts/local_nodes/ComfyUI-SinglePersonH3/single_person_system_prompt.txt
+REPLACE scripts/prepare_image.sh
+REPLACE tests/test_krea_rebalance.py
+ADD tests/test_single_person.py

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "enabled": true,
+  "model": "huihui_ai/qwen3-vl-abliterated:32b-instruct-fp16",
+  "expected_model_digest": "",
+  "context_length": 16384,
+  "max_output_tokens": 3000,
+  "image_max_edge": 1536,
+  "request_timeout_seconds": 900,
+  "unload_timeout_seconds": 90,
+  "pull_timeout_seconds": 7200,
+  "note": "Quality-oriented local prompt helper: abliterated Qwen3-VL 32B Instruct F16, about 67 GB. Larger weights and reduced refusals do not prove better visual accuracy. Original H3 images are not resized by the helper. No automatic smaller-model or cloud fallback. Record/pin the resolved model manifest digest after testing."
+}

@@ -1,0 +1,35 @@
+{
+  "package": "ComfyUI Quality - One Person Multi-Reference + Krea-only Rebalance",
+  "version": "3.2.0",
+  "core_ref": "65787d668397d230bf5839d69a0a7239e2dad378",
+  "tested_locally": "174 unit/regression tests + 10 HTTP-policy tests; graph/catalog/syntax checks",
+  "unrun": [
+    "full Docker build",
+    "live upstream node registration",
+    "live Ollama inference",
+    "GPU image/video quality",
+    "browser interaction"
+  ],
+  "preserved_workflows_and_components_verified": [
+    "config/workflows/00_SeedVR2_4K_Video_Restore.json",
+    "config/workflows/01_SeedVR2_1080p_Video_Restore.json",
+    "config/workflows/05_Vision_Prompt_Draft.json",
+    "config/workflows/06_H3_Create_Full_RefMod.json",
+    "config/workflows/07_Backup_RefMods.json",
+    "config/workflows/20_H3_Reference_BF16.json",
+    "config/workflows/21_H3_Ollama_Two_Refs_BF16.json",
+    "config/workflows/22_H3_RefMod_Ollama_Quality.json",
+    "config/workflows/23_H3_Saved_RefMods_Quality.json",
+    "config/ollama.json",
+    "config/custom_nodes.json",
+    "config/loras.json",
+    "scripts/comfy_http_fix.py",
+    "scripts/ollama_service.py",
+    "scripts/local_nodes/ComfyUI-OllamaH3/client.py",
+    "scripts/local_nodes/ComfyUI-Quality/__init__.py"
+  ],
+  "package_version": "3.2.0",
+  "change": "One-person headshot plus up to eight separate body reference encodings and bundle reuse",
+  "local_unit_tests": 174,
+  "gpu_inference_tested": false
+}

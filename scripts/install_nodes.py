@@ -1,79 +1,65 @@
 #!/usr/bin/env python3
+"""Install only explicitly enabled, commit-pinned HTTPS custom-node repositories."""
+from __future__ import annotations
 import argparse
 import json
 import os
-import shlex
+import re
 import subprocess
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import urlsplit
 
 
-def run(cmd, cwd=None, env=None):
-    printable_parts = []
-    token = os.getenv("GITHUB_TOKEN", "")
-    for value in cmd:
-        text = str(value)
-        if token:
-            text = text.replace(token, "***")
-        printable_parts.append(shlex.quote(text))
-    print(f"+ {' '.join(printable_parts)}")
-    subprocess.run(cmd, cwd=cwd, env=env, check=True)
+def validate(row: dict) -> None:
+    if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]*", row.get("name", "")):
+        raise ValueError("Invalid custom-node directory name")
+    parsed = urlsplit(row.get("repo", ""))
+    if parsed.scheme != "https" or parsed.hostname != "github.com" or parsed.username or parsed.password or parsed.query or parsed.fragment:
+        raise ValueError("Custom-node repos must be public GitHub HTTPS URLs without credentials")
+    if not re.fullmatch(r"/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+(?:\.git)?", parsed.path):
+        raise ValueError("Invalid custom-node repository path")
+    if not re.fullmatch(r"[a-f0-9]{40}", row.get("ref", "")):
+        raise ValueError("Pin custom nodes to a complete Git commit SHA, not main/master")
 
 
-def git_cmd(repo):
-    cmd = ["git"]
-    token = os.getenv("GITHUB_TOKEN", "")
-    if token and urlparse(repo).hostname == "github.com":
-        cmd += ["-c", f"http.extraHeader=Authorization: Bearer {token}"]
-    return cmd
-
-
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--manifest", required=True)
-    parser.add_argument("--comfy-home", required=True)
-    args = parser.parse_args()
-
-    manifest_path = Path(args.manifest)
-    if not manifest_path.exists():
-        print(f"No custom node manifest: {manifest_path}")
-        return
-
-    nodes = json.loads(manifest_path.read_text())
-    root = Path(args.comfy_home) / "custom_nodes"
-    root.mkdir(parents=True, exist_ok=True)
-
-    for node in nodes:
-        if not node.get("enabled", True):
+def install(manifest: Path, comfy_home: Path, constraints: Path) -> None:
+    rows = json.loads(manifest.read_text())
+    if not isinstance(rows, list):
+        raise ValueError("custom_nodes.json must be a list")
+    names = set()
+    for row in rows:
+        if not row.get("enabled", True):
             continue
-
-        repo = node["repo"]
-        name = node.get("name") or Path(urlparse(repo).path).stem
-        dest = root / name
-        ref = node.get("ref")
-
-        print(f"\n== Custom node: {name} ==")
-        if dest.exists():
-            run(["rm", "-rf", str(dest)])
-
-        cmd = git_cmd(repo) + ["clone", "--filter=blob:none", repo, str(dest)]
-        run(cmd)
-
-        if ref:
-            run(git_cmd(repo) + ["-C", str(dest), "fetch", "--depth", "1", "origin", ref])
-            run(["git", "-C", str(dest), "checkout", "--detach", "FETCH_HEAD"])
-
-        requirements = dest / "requirements.txt"
-        if requirements.exists():
-            run(["python", "-m", "pip", "install", "-r", str(requirements)])
-
-        if node.get("run_install_py", False) and (dest / "install.py").exists():
-            run(["python", "install.py"], cwd=dest)
-
-        for command in node.get("post_install", []):
-            print(f"+ [post_install] {command}")
-            subprocess.run(command, cwd=dest, shell=True, check=True)
+        validate(row)
+        if row["name"] in names:
+            raise ValueError("Duplicate custom-node directory")
+        names.add(row["name"])
+        target = comfy_home / "custom_nodes" / row["name"]
+        if not target.resolve().is_relative_to((comfy_home / "custom_nodes").resolve()):
+            raise ValueError("Custom-node directory escapes custom_nodes")
+        target.mkdir(parents=True, exist_ok=True)
+        def git(*args):
+            return subprocess.run(["git", "-C", str(target), *args], check=True, text=True, stdout=subprocess.PIPE).stdout.strip()
+        if not (target / ".git").exists():
+            git("init", "-q")
+            git("remote", "add", "origin", row["repo"])
+        else:
+            git("remote", "set-url", "origin", row["repo"])
+        git("fetch", "--depth", "1", "origin", row["ref"])
+        git("checkout", "--force", "--detach", "FETCH_HEAD")
+        if git("rev-parse", "HEAD") != row["ref"]:
+            raise RuntimeError("Custom-node revision verification failed")
+        print(f"PINNED NODE: {row['name']} @ {row['ref']}", flush=True)
+        req = target / "requirements.txt"
+        if row.get("install_requirements", True) and req.is_file():
+            subprocess.run([os.sys.executable, "-m", "pip", "install", "--disable-pip-version-check", "-c", str(constraints), "-r", str(req)], check=True)
+        # Arbitrary install.py/install.sh hooks are deliberately NOT auto-executed.
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--manifest", type=Path, required=True)
+    parser.add_argument("--comfy-home", type=Path, required=True)
+    parser.add_argument("--constraints", type=Path, required=True)
+    args = parser.parse_args()
+    install(args.manifest, args.comfy_home, args.constraints)
