@@ -89,6 +89,8 @@ python "$SCRIPTS/comfy_http_fix.py" apply "$COMFY_HOME"
 PROFILES="$(python "$SCRIPTS/catalog.py" profiles --config "$CONFIG_HOME")"
 log "Preparing model profiles: $PROFILES"
 python "$SCRIPTS/catalog.py" download --config "$CONFIG_HOME" --comfy-home "$COMFY_HOME"
+# Shared user LoRAs are independent of MODEL_PROFILES. Do not auto-apply them.
+python /opt/shared-loras/sync.py --links "$CONFIG_HOME/lora_links.txt" --comfy-home "$COMFY_HOME"
 python "$SCRIPTS/catalog.py" workflows --config "$CONFIG_HOME" --comfy-home "$COMFY_HOME"
 
 # Independent optional service: a failed pull does not prevent existing Krea/SeedVR2 use.

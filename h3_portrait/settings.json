@@ -1,0 +1,16 @@
+{
+  "version": "1.0.0",
+  "ollama_model": "huihui_ai/qwen3-vl-abliterated:8b-instruct-q4_K_M",
+  "context_length": 32768,
+  "max_output_tokens": 4096,
+  "image_max_edge": 1024,
+  "request_timeout_seconds": 900,
+  "unload_timeout_seconds": 90,
+  "pull_timeout_seconds": 7200,
+  "model_files": {
+    "diffusion": "minimax_h3_ref2va_bf16.safetensors",
+    "encoder": "qwen3vl_32b_minimax_h3_bf16.safetensors",
+    "video_vae": "minimax_h3_video_vae_fp16.safetensors",
+    "audio_vae": "minimax_h3_audio_vae_fp32.safetensors"
+  }
+}

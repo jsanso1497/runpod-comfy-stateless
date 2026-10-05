@@ -39,6 +39,8 @@ RUN apt-get update \
  && test -x /usr/bin/ollama
 
 # Existing SeedVR2 config/workflows stay in the repository and are included here too.
+COPY shared_loras /opt/shared-loras
+RUN python -m unittest discover -s /opt/shared-loras/tests -p 'test_*.py'
 COPY config /opt/runpod-comfy/default-config
 COPY scripts/entrypoint.sh scripts/hardware_check.py scripts/bootstrap.sh scripts/prepare_image.sh scripts/catalog.py scripts/install_nodes.py scripts/check_workflows.py scripts/check_rebalance_runtime.py scripts/check_single_person_runtime.py scripts/comfy_http_fix.py /opt/runpod-comfy/scripts/
 COPY scripts/local_nodes /opt/runpod-comfy/scripts/local_nodes
