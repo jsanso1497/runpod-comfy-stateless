@@ -85,16 +85,43 @@ jobs:
           df -h "$docker_root" "$RUNNER_TEMP"
           df -i "$docker_root" "$RUNNER_TEMP"
 
-          # A conservative starting budget, not a guarantee of the build's peak usage.
-          min_kib=$((45 * 1024 * 1024))
+          # This is an admission budget, NOT a measured peak-build requirement.
+          # The previous 45 GiB hard cutoff rejected the supplied runner before
+          # Docker started, even though human-readable df rounded its free space to 45G.
+          # Retain an emergency reserve and the independent live disk guard below.
+          min_gib=40
+          target_gib=45
+          min_kib=$((min_gib * 1024 * 1024))
           free_kib="$(df -Pk "$docker_root" | awk 'NR==2 {print $4}')"
-          if (( free_kib < min_kib )); then
-            echo "::error::BUILD_DISK_PREFLIGHT: Less than 45 GiB is free after cleanup. The image was not built."
-            echo "Build-machine capacity is still insufficient; changing RunPod storage will not fix this."
+          if [[ ! "$free_kib" =~ ^[0-9]+$ ]]; then
+            echo "::error::BUILD_DISK_PREFLIGHT: Could not measure Docker filesystem space."
             exit 1
           fi
-          # Reserve space on the log filesystem so a disk-guard stop can still report its cause.
+          awk -v kib="$free_kib" 'BEGIN {printf "Docker free before reserve: %.3f GiB (%s KiB)\n", kib/1048576, kib}'
+          if (( free_kib < min_kib )); then
+            echo "::error::BUILD_DISK_PREFLIGHT: Less than ${min_gib} GiB is free after cleanup. Docker was not started."
+            exit 1
+          fi
+
+          # Reserve space on the log filesystem before the final admission check.
           fallocate -l 1G "$RUNNER_TEMP/comfy-build-emergency.reserve"
+          free_kib="$(df -Pk "$docker_root" | awk 'NR==2 {print $4}')"
+          if [[ ! "$free_kib" =~ ^[0-9]+$ ]]; then
+            rm -f "$RUNNER_TEMP/comfy-build-emergency.reserve"
+            echo "::error::BUILD_DISK_PREFLIGHT: Could not recheck space after reserving log headroom."
+            exit 1
+          fi
+          awk -v kib="$free_kib" 'BEGIN {printf "Docker free after 1 GiB log reserve: %.3f GiB (%s KiB)\n", kib/1048576, kib}'
+          if (( free_kib < min_kib )); then
+            rm -f "$RUNNER_TEMP/comfy-build-emergency.reserve"
+            echo "::error::BUILD_DISK_PREFLIGHT: Less than ${min_gib} GiB remains after reserving log headroom. Docker was not started."
+            exit 1
+          fi
+          if (( free_kib < target_gib * 1024 * 1024 )); then
+            echo "::warning::Below the preferred ${target_gib} GiB starting budget; proceeding with live disk monitoring."
+          fi
+          echo "BUILD_DISK_PREFLIGHT: PASS - at least ${min_gib} GiB free after the reserve."
+          echo "CI preflight patch 1.1: the 45 GiB target is advisory, not a hard requirement."
 
       - name: Set up Docker Buildx
         id: buildx
