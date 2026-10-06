@@ -13,12 +13,14 @@ import uuid
 from . import logic
 from . import ollama_client as oc
 from . import reference_roles as rr
+from . import still_portrait as sp
 from .video_export import H3PortraitExportVideo, H3PortraitSaveLastFrame
 from .native_helpers import H3PortraitOptionalLoRA, H3PortraitCropToAspect
 
-PACKAGE_VERSION='1.4.0'
+PACKAGE_VERSION='1.5.0'
 WEB_DIRECTORY='./web'
 _PROMPT_CACHE={}
+_STILL_PROMPT_CACHE={}
 
 
 def input_paths(value):
@@ -165,7 +167,7 @@ class H3PortraitDirector:
         active_refs=[references[i] for i in routing['native_source_indices']] if routing else references
         job={'recipe':recipe,'seed':int(seed),'references':active_refs,'prompt':prompt,'loras':loras,'files':cfg['model_files'],'routing':routing}
         display_prompt=(rr.routing_report(routing)+'\n\n' if routing else '')+prompt
-        report={'version':'h3-portrait-1.4.0','ollama':info,'recipe':recipe,'seed':int(seed),
+        report={'version':'h3-portrait-1.5.0','ollama':info,'recipe':recipe,'seed':int(seed),
                 'user_direction':instruction,'mapping':obj['references'],'prompt':prompt,'reference_routing':routing,
                 'reference_analysis':obj.get('_analysis'), 'prompt_stages':obj.get('_stages',[]),
                 'prompt_policy_sha256':hashlib.sha256(json.dumps(logic.prompt_policy(),sort_keys=True).encode()).hexdigest(),
@@ -179,6 +181,128 @@ class H3PortraitDirector:
         print(f'H3 PORTRAIT PROMPT READY: {len(references)} images, {recipe["aspect"]}, {recipe["quality"]}, {recipe["length"]} frames, {recipe["steps"]} steps, {len(loras)} LoRA(s).',flush=True)
         if mode=='Draft only':return (ExecutionBlocker(None),display_prompt)
         return (job,display_prompt)
+
+
+class H3PortraitStillDirector:
+    @classmethod
+    def INPUT_TYPES(cls):
+        import folder_paths
+        lora_names=['(none)']+folder_paths.get_filename_list('loras')
+        return {'required':{
+            'references':('H3_PORTRAIT_REFS',),
+            'instruction':('STRING',{'multiline':True,'default':"Create one high-detail photorealistic still image of my subject. Preserve identity from the subject references. If I supply a pose/camera or scene reference, use it only for that assigned role and do not copy the guide person's identity."}),
+            'aspect':(list(sp.STILL_ASPECTS),{'default':'Match guide/primary'}),
+            'resolution':(list(sp.STILL_RESOLUTIONS),{'default':'High-res (~2 MP, experimental)'}),
+            'quality':(list(sp.STILL_QUALITIES),{'default':'High fidelity'}),
+            'seed':('INT',{'default':42,'min':0,'max':2**32-1,'control_after_generate':True}),
+            'use_loras':('BOOLEAN',{'default':True}),
+            'mode':(['Generate image','Draft only'],{'default':'Draft only'}),
+            'prompt_variation':('INT',{'default':0,'min':0,'max':2**31-1})},
+            'optional':{
+            'lora_1':(lora_names,{'default':'(none)'}),
+            'strength_1':('FLOAT',{'default':1.0,'min':-2.0,'max':2.0,'step':0.05}),
+            'lora_2':(lora_names,{'default':'(none)'}),
+            'strength_2':('FLOAT',{'default':0.0,'min':-2.0,'max':2.0,'step':0.05}),
+            'extra_trigger_words':('STRING',{'default':'','multiline':False}),
+            'reference_mode':(list(sp.STILL_ROUTING),{'default':'Still safe swap (pose/scene text-only)'})}}
+    RETURN_TYPES=('H3_PORTRAIT_JOB','STRING')
+    RETURN_NAMES=('ready_job','prompt_and_reference_map')
+    FUNCTION='direct'
+    CATEGORY='H3 Portrait/Still image'
+    DESCRIPTION='Lite-only still workflow using the SAME MiniMax H3 Ref2VA model as video. Ollama maps roles, H3 renders a five-frame packet, and one stable frame is saved.'
+
+    @classmethod
+    def IS_CHANGED(cls,**kwargs):
+        try:
+            value={'settings':logic.settings(),'policy':sp.prompt_policy()}
+            return hashlib.sha256(json.dumps(value,sort_keys=True).encode()).hexdigest()
+        except (ValueError,OSError):return float('nan')
+
+    def direct(self,references,instruction,aspect,resolution,quality,seed,use_loras,mode,prompt_variation,
+               lora_1='(none)',strength_1=1.0,lora_2='(none)',strength_2=0.0,
+               extra_trigger_words='',reference_mode='Still safe swap (pose/scene text-only)'):
+        import folder_paths
+        import comfy.model_management as mm
+        from comfy_execution.graph_utils import ExecutionBlocker
+        if mode not in ('Generate image','Draft only'):raise ValueError('Unsupported still-image run mode.')
+        if not isinstance(instruction,str) or not instruction.strip():raise ValueError('Describe the desired still image.')
+        if not 1<=len(references)<=9:raise ValueError('Supply 1-9 reference images.')
+        cfg=logic.settings()
+        if cfg.get('profile')!='lite':
+            raise ValueError('The automatic H3 still-image workflow is installed only in the H3 Portrait Lite template.')
+        loras=logic.active_loras(use_loras,[(lora_1,strength_1),(lora_2,strength_2)],Path(folder_paths.models_dir)/'loras')
+        for lora in loras:
+            if not folder_paths.get_full_path('loras',lora['lora_name']):
+                raise ValueError('The configured LoRA has not downloaded. Read the startup download log.')
+        triggers='; '.join(x.get('trigger_words','') for x in loras if x.get('trigger_words','').strip())
+        if extra_trigger_words.strip() and loras:
+            triggers='; '.join(x for x in (triggers,extra_trigger_words.strip()) if x)
+        preliminary=sp.analysis_recipe(aspect,quality)
+        with oc.session() as session:
+            info=oc.pipeline_info(session,cfg)
+            cache_cfg=dict(cfg,reference_mode=reference_mode)
+            key=sp.cache_key([r['filename']+'|'+r['sha256']+'|'+r.get('role','auto') for r in references],
+                             instruction,aspect,resolution,quality,oc.pipeline_digest(info),cache_cfg,
+                             triggers,prompt_variation,reference_mode)
+            if key in _STILL_PROMPT_CACHE:
+                obj=_STILL_PROMPT_CACHE[key]
+                print('H3 PORTRAIT STILL: using cached prompt. Change prompt_variation for another draft.',flush=True)
+                oc.clear_owned_residency(session,info,cfg['unload_timeout_seconds'])
+            else:
+                mm.unload_all_models();mm.soft_empty_cache()
+                try:
+                    obj=oc.generate(session,cache_cfg,info,sp.prompt_policy()['still_system_prompt.txt'],
+                                    instruction,references,preliminary,triggers,prompt_variation,
+                                    mm.throw_exception_if_processing_interrupted)
+                except logic.ClarificationNeeded as e:
+                    raise ValueError('Clarify this in your instruction, then run again: '+str(e)) from e
+                if len(_STILL_PROMPT_CACHE)>=32:_STILL_PROMPT_CACHE.pop(next(iter(_STILL_PROMPT_CACHE)))
+                _STILL_PROMPT_CACHE[key]=obj
+        routing=obj.get('_routing')
+        if not routing:raise ValueError('Still reference routing was not produced.')
+        source_index=sp.aspect_source_index(references,routing)
+        recipe=sp.geometry(aspect,resolution,quality,references[source_index]['image'])
+        prompt=sp.format_prompt(obj,instruction,recipe,triggers)
+        active_refs=[references[i] for i in routing['native_source_indices']]
+        job={'recipe':recipe,'seed':int(seed),'references':active_refs,'prompt':prompt,
+             'loras':loras,'files':cfg['model_files'],'routing':routing,'task':'still'}
+        display=rr.routing_report(routing)+'\n\n'+prompt
+        report={'version':'h3-portrait-1.5.0','kind':'minimax-h3-ref2va-still','ollama':info,
+                'recipe':recipe,'seed':int(seed),'user_direction':instruction,'prompt':prompt,
+                'mapping':obj['references'],'reference_analysis':obj.get('_analysis'),
+                'reference_routing':routing,'prompt_stages':obj.get('_stages',[]),
+                'sources':[{'file':r['filename'],'sha256':r['sha256'],'role':r.get('role','auto')} for r in references],
+                'loras':loras}
+        root=Path(folder_paths.get_output_directory())/'H3_Portrait'/'still_prompts';root.mkdir(parents=True,exist_ok=True)
+        name=time.strftime('%Y%m%d_%H%M%S')+'_'+uuid.uuid4().hex[:8]
+        (root/(name+'.json')).write_text(json.dumps(report,indent=2,ensure_ascii=False)+'\n')
+        (root/(name+'.txt')).write_text(prompt+'\n')
+        print(f'H3 PORTRAIT STILL PROMPT READY: {len(active_refs)} native H3 picture(s); ' \
+              f'{recipe["width"]}x{recipe["height"]}; five-frame packet; {recipe["steps"]} steps.',flush=True)
+        if mode=='Draft only':return (ExecutionBlocker(None),display)
+        return (job,display)
+
+
+class H3PortraitStillOutput:
+    @classmethod
+    def INPUT_TYPES(cls):return {'required':{
+        'images':('IMAGE',),'ready_job':('H3_PORTRAIT_JOB',),
+        'selection':(list(sp.STILL_SELECTION),{'default':'Best stable quality'})}}
+    RETURN_TYPES=('IMAGE','STRING','INT')
+    RETURN_NAMES=('selected_image','selection_report','selected_frame_index')
+    FUNCTION='select'
+    CATEGORY='H3 Portrait/Still image/backend'
+    def select(self,images,ready_job,selection):
+        recipe=ready_job.get('recipe',{})
+        if recipe.get('task')!='still' and ready_job.get('task')!='still':
+            raise ValueError('H3PortraitStillOutput requires an H3 still-image job.')
+        frames=sp.crop_frames(images,recipe)
+        image,index,score=sp.select_frame(frames,selection)
+        report=(f'{selection}: selected decoded frame {index} of {len(frames)-1}; ' \
+                f'score={score:.4f}; saved size={image.shape[2]}x{image.shape[1]}; ' \
+                f'generated from MiniMax H3 Ref2VA five-frame packet.')
+        print('H3 PORTRAIT STILL: '+report,flush=True)
+        return (image,report,index)
 
 
 class _LoraWarnings(logging.Handler):
@@ -292,9 +416,11 @@ class H3PortraitExactAspect:
         return (images[:,y:y+oh,x:x+ow,:],)
 
 
-NODE_CLASS_MAPPINGS={c.__name__:c for c in (H3PortraitReferences,H3PortraitDirector,H3PortraitModels,H3PortraitConditioning,H3PortraitSampler,H3PortraitExactAspect,H3PortraitExportVideo,H3PortraitSaveLastFrame,H3PortraitOptionalLoRA,H3PortraitCropToAspect)}
+NODE_CLASS_MAPPINGS={c.__name__:c for c in (H3PortraitReferences,H3PortraitDirector,H3PortraitStillDirector,H3PortraitStillOutput,H3PortraitModels,H3PortraitConditioning,H3PortraitSampler,H3PortraitExactAspect,H3PortraitExportVideo,H3PortraitSaveLastFrame,H3PortraitOptionalLoRA,H3PortraitCropToAspect)}
 NODE_DISPLAY_NAME_MAPPINGS={'H3PortraitReferences':'1. Upload references',
                           'H3PortraitDirector':'2. Describe the video',
+                          'H3PortraitStillDirector':'2. Describe the H3 still image',
+                          'H3PortraitStillOutput':'Choose one H3 still frame',
                           'H3PortraitModels':'Load H3 + selected LoRA',
                           'H3PortraitConditioning':'Native H3 Ref2VA references',
                           'H3PortraitSampler':'H3 sampler',

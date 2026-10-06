@@ -1,18 +1,14 @@
-# H3 Portrait 1.4.0
+# H3 Portrait 1.5 - role-routed video + MiniMax H3 Ref2VA single-image workflow
 
-- Add explicit per-photo role dropdowns and text-only pose/camera/expression routing.
-- Preserve native-reference ordering, remap Picture numbers and expose routing reports.
-- Strengthen reference scope/clarification policy; do not infer wardrobe from incidental details.
-- Fix frontend seed-control serialization, Draft-only defaults and legacy migration.
-- Add explicit completed-video export dependency and exact last-decoded-frame PNG/sidecar.
-- Add independent Lite image with full-architecture INT8 H3, 8B Instruct helper, smaller presets.
-- Include standard native Ref2VA without Ollama in both profiles.
-- Align new portrait sampler/scheduler with res_multistep/simple upstream guidance.
-- Install versioned workflow names and verify source, workflow and model-catalog manifests.
-- Add build-time real CPU export probe and local role/widget/last-frame/profile regressions.
-- Preserve existing general workflows and password-protected file manager.
-
-## Previous source history
+- Fix automatic H3 reference dominance by allowing pose/camera and expression guides to be analyzed by Ollama but withheld from native H3 visual conditioning in the recommended video mode.
+- Add a stricter Lite still safe-swap mode: pose/camera, expression and scene guides are text-only while subject appearance refs remain native H3 pictures.
+- Add `H3_Portrait_Image_Lite_v1_5`, which uses MiniMax H3 Ref2VA itself for single-image generation. H3 renders its five-frame minimum packet and the workflow saves one selected frame.
+- Reuse the existing Lite H3 INT8 model stack; remove the abandoned separate still-image model path and its extra asset downloads.
+- Add Native (~1 MP), Preview (~0.5 MP) and experimental H3-native ~2 MP still canvases plus High fidelity/Standard/Fast quality presets.
+- Add best-stable/middle/first/last decoded-frame selection for H3 still delivery.
+- Correct ComfyUI workflow widget serialization by storing the seed companion control explicitly, preventing shifted enum/numeric values and NaN defaults.
+- Save the exact final decoded MP4 frame from H3 video exports as a matching PNG for future chaining.
+- Add versioned Full/Lite workflows and regression coverage for role routing, still geometry, still frame selection, widget values and H3-only Lite assets.
 
 # File-manager snapshot: h3-clean-filemanager-2026-10-05-r2
 

@@ -17,7 +17,8 @@ def main():
         shutil.copy2(ROOT/filename,resolved/filename)
     # Never consume the obsolete per-portrait numeric-ID catalog after a folder merge.
     (resolved/'loras.json').write_text('[]\n')
-    catalog.run_downloads(resolved,HOME,{'h3'})
+    profiles={'h3'}
+    catalog.run_downloads(resolved,HOME,profiles)
     subprocess.run([sys.executable,'/opt/shared-loras/sync.py',
         '--links',str(ROOT/'lora_links.txt'),'--comfy-home',str(HOME)],check=True)
     print('H3 PORTRAIT ASSETS READY',flush=True)

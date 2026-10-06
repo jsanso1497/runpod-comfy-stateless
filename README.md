@@ -1,16 +1,11 @@
-# RunPod ComfyUI: H3 Portrait 1.4 Full and Lite
+# RunPod ComfyUI: H3 Portrait 1.5 Full + Lite
 
-Read **START_HERE.md** for the browser-only update and exact RunPod settings.
-Do not wipe the repository again. Preserve config/lora_links.txt and your GHCR images.
+See `START_HERE.md` for browser-only update and RunPod instructions.
 
-- Full: `:h3-portrait-clean`, 32B Instruct analysis plus 32B Thinking direction, BF16 H3.
-- Lite: `:h3-portrait-lite`, 8B Instruct helper, full-architecture INT8 H3, smaller canvas.
-- Both: explicit reference roles, pose/camera text-only routing, native manual Ref2VA,
-  exact last-decoded-frame PNG, private loopback Ollama and passworded Jupyter on 8888.
-- General `:latest`: retained existing Krea, SeedVR2 and RefMod source/workflows, separate build.
+- **Full**: `:h3-portrait-clean`, BF16 MiniMax H3, 32B Instruct reference analysis + 32B Thinking director.
+- **Lite**: `:h3-portrait-lite`, full-architecture INT8 MiniMax H3 and one 8B Instruct Ollama helper.
+- **Lite single-image workflow**: Ollama-directed **MiniMax H3 Ref2VA** still generation from multiple subject refs plus optional pose/scene guides. No separate image-generation model is downloaded.
+- **Both portrait images**: explicit reference roles, corrected widget serialization, manual native Ref2VA, exact exported-video final-frame PNG, passworded JupyterLab on 8888.
+- **General image**: `:latest` remains independent for the preserved general workflows.
 
-The UPDATE ZIP excludes the private LoRA list. The complete source ZIP has a comments-only
-placeholder, not your URLs. Do not overwrite your list from that complete copy.
-
-See INVESTIGATION.md for the reference competition analysis and VALIDATION.md for executed
-checks and limitations. Local tests are not a successful GPU inference or a built image.
+The update ZIP intentionally excludes `config/lora_links.txt`.

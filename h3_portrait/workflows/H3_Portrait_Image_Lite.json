@@ -1,20 +1,18 @@
 {
-  "id": "bbdcacaa-7751-4b56-bdec-eba81a0819c0",
-  "revision": 0,
-  "last_node_id": 13,
-  "last_link_id": 21,
+  "last_node_id": 11,
+  "last_link_id": 17,
   "nodes": [
     {
       "id": 1,
       "type": "H3PortraitReferences",
-      "title": "1. Upload references - number order matters",
+      "title": "1. Upload subject + optional pose/scene refs",
       "pos": [
-        -860,
+        -900,
         0
       ],
       "size": [
-        760,
-        480
+        780,
+        500
       ],
       "flags": {},
       "order": 0,
@@ -38,15 +36,15 @@
     },
     {
       "id": 2,
-      "type": "H3PortraitDirector",
-      "title": "2. Tell Ollama what you want",
+      "type": "H3PortraitStillDirector",
+      "title": "2. Tell Ollama what single H3 image you want",
       "pos": [
         0,
         0
       ],
       "size": [
-        760,
-        680
+        800,
+        760
       ],
       "flags": {},
       "order": 1,
@@ -66,26 +64,26 @@
             2,
             3,
             7,
-            16
+            13
           ]
         },
         {
           "name": "prompt_and_reference_map",
           "type": "STRING",
           "links": [
-            20
+            15
           ]
         }
       ],
       "properties": {
-        "Node name for S&R": "H3PortraitDirector",
-        "h3_widget_schema": "director-v2-with-seed-control"
+        "Node name for S&R": "H3PortraitStillDirector",
+        "h3_widget_schema": "still-director-v1-with-seed-control"
       },
       "widgets_values": [
-        "Use my subject's facial identity and proportions. Follow the roles selected for each reference. Make one continuous portrait shot with subtle natural movement and a restrained camera. The subject wears a plain gray T-shirt. No extra people, dialogue, music or text.",
-        "9:16",
-        "Standard",
-        5,
+        "Create one high-detail photorealistic still image of my subject. Preserve identity from the subject references. If I supply a pose/camera or scene reference, use it only for that assigned role and do not copy the guide person's identity.",
+        "Match guide/primary",
+        "High-res (~2 MP, experimental)",
+        "High fidelity",
         42,
         "fixed",
         true,
@@ -96,20 +94,20 @@
         "(none)",
         0.0,
         "",
-        "Role-aware (recommended)"
+        "Still safe swap (pose/scene text-only)"
       ]
     },
     {
       "id": 3,
       "type": "H3PortraitModels",
-      "title": "H3 + automatic configured LoRA",
+      "title": "Same Lite MiniMax H3 Ref2VA models",
       "pos": [
         900,
         0
       ],
       "size": [
-        350,
-        150
+        380,
+        160
       ],
       "flags": {},
       "order": 2,
@@ -148,8 +146,7 @@
           "name": "audio_vae",
           "type": "VAE",
           "links": [
-            6,
-            14
+            6
           ]
         }
       ],
@@ -161,14 +158,14 @@
     {
       "id": 4,
       "type": "H3PortraitConditioning",
-      "title": "Native H3 Ref2VA (no RefMod)",
+      "title": "Native MiniMax H3 Ref2VA conditioning",
       "pos": [
-        1330,
-        170
+        1360,
+        180
       ],
       "size": [
-        350,
-        180
+        390,
+        190
       ],
       "flags": {},
       "order": 3,
@@ -219,14 +216,14 @@
     {
       "id": 5,
       "type": "H3PortraitSampler",
-      "title": "Sample video after prompt and LoRA are ready",
+      "title": "3. Render native five-frame H3 still packet",
       "pos": [
-        1780,
+        1830,
         0
       ],
       "size": [
-        350,
-        150
+        400,
+        170
       ],
       "flags": {},
       "order": 4,
@@ -258,8 +255,7 @@
           "name": "LATENT",
           "type": "LATENT",
           "links": [
-            11,
-            13
+            11
           ]
         }
       ],
@@ -271,14 +267,14 @@
     {
       "id": 6,
       "type": "VAEDecode",
-      "title": "Decode video",
+      "title": "Decode the H3 frame packet",
       "pos": [
-        2240,
+        2310,
         0
       ],
       "size": [
-        250,
-        90
+        300,
+        100
       ],
       "flags": {},
       "order": 5,
@@ -300,7 +296,7 @@
           "name": "IMAGE",
           "type": "IMAGE",
           "links": [
-            15
+            14
           ]
         }
       ],
@@ -311,56 +307,70 @@
     },
     {
       "id": 7,
-      "type": "VAEDecodeAudio",
-      "title": "Decode audio",
+      "type": "H3PortraitStillOutput",
+      "title": "4. Choose one stable high-quality frame",
       "pos": [
-        2240,
-        200
+        2690,
+        0
       ],
       "size": [
-        250,
-        90
+        420,
+        180
       ],
       "flags": {},
       "order": 6,
       "mode": 0,
       "inputs": [
         {
-          "name": "samples",
-          "type": "LATENT",
-          "link": 13
+          "name": "images",
+          "type": "IMAGE",
+          "link": 14
         },
         {
-          "name": "vae",
-          "type": "VAE",
-          "link": 14
+          "name": "ready_job",
+          "type": "H3_PORTRAIT_JOB",
+          "link": 13
         }
       ],
       "outputs": [
         {
-          "name": "AUDIO",
-          "type": "AUDIO",
+          "name": "selected_image",
+          "type": "IMAGE",
           "links": [
-            18
+            16
           ]
+        },
+        {
+          "name": "selection_report",
+          "type": "STRING",
+          "links": [
+            17
+          ]
+        },
+        {
+          "name": "selected_frame_index",
+          "type": "INT",
+          "links": []
         }
       ],
       "properties": {
-        "Node name for S&R": "VAEDecodeAudio"
+        "Node name for S&R": "H3PortraitStillOutput"
       },
-      "widgets_values": []
+      "widgets_values": [
+        "Best stable quality"
+      ]
     },
     {
       "id": 8,
-      "type": "H3PortraitExactAspect",
-      "title": "Exact 9:16 or 2:3 - no stretched bodies",
+      "type": "SaveImage",
+      "title": "5. Save the single finished H3 image",
       "pos": [
-        2590,
+        3210,
         0
       ],
       "size": [
-        350,
-        100
+        520,
+        520
       ],
       "flags": {},
       "order": 7,
@@ -369,133 +379,42 @@
         {
           "name": "images",
           "type": "IMAGE",
-          "link": 15
-        },
-        {
-          "name": "ready_job",
-          "type": "H3_PORTRAIT_JOB",
           "link": 16
         }
       ],
-      "outputs": [
-        {
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            17
-          ]
-        }
-      ],
+      "outputs": [],
       "properties": {
-        "Node name for S&R": "H3PortraitExactAspect"
+        "Node name for S&R": "SaveImage",
+        "cnr_id": "comfy-core",
+        "ver": "0.38.0"
       },
-      "widgets_values": []
+      "widgets_values": [
+        "H3_Portrait/stills/h3_ref2va_portrait"
+      ],
+      "widgets_values_named": {
+        "filename_prefix": "H3_Portrait/stills/h3_ref2va_portrait"
+      }
     },
     {
       "id": 9,
-      "type": "CreateVideo",
-      "title": "Assemble MP4 at 24 fps",
+      "type": "PreviewAny",
+      "title": "Review Ollama routing + final MiniMax H3 prompt",
       "pos": [
-        3050,
-        100
+        0,
+        900
       ],
       "size": [
-        350,
-        200
+        800,
+        600
       ],
       "flags": {},
       "order": 8,
       "mode": 0,
       "inputs": [
         {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 17
-        },
-        {
-          "name": "audio",
-          "type": "AUDIO",
-          "link": 18
-        }
-      ],
-      "outputs": [
-        {
-          "name": "VIDEO",
-          "type": "VIDEO",
-          "links": [
-            19
-          ]
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "CreateVideo"
-      },
-      "widgets_values": [
-        24.0,
-        "auto",
-        "sRGB",
-        "none"
-      ]
-    },
-    {
-      "id": 10,
-      "type": "H3PortraitExportVideo",
-      "title": "Save exported MP4 (H.264)",
-      "pos": [
-        3500,
-        0
-      ],
-      "size": [
-        550,
-        940
-      ],
-      "flags": {},
-      "order": 9,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "video",
-          "type": "VIDEO",
-          "link": 19
-        }
-      ],
-      "outputs": [
-        {
-          "name": "completed_export",
-          "type": "H3_EXPORTED_VIDEO",
-          "links": [
-            21
-          ]
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "H3PortraitExportVideo"
-      },
-      "widgets_values": [
-        "H3_Portrait/video",
-        18
-      ]
-    },
-    {
-      "id": 11,
-      "type": "PreviewAny",
-      "title": "What Ollama wrote - check reference assignments",
-      "pos": [
-        0,
-        800
-      ],
-      "size": [
-        760,
-        580
-      ],
-      "flags": {},
-      "order": 10,
-      "mode": 0,
-      "inputs": [
-        {
           "name": "source",
           "type": "*",
-          "link": 20
+          "link": 15
         }
       ],
       "outputs": [
@@ -511,19 +430,53 @@
       "widgets_values": []
     },
     {
-      "id": 12,
-      "type": "Note",
-      "title": "START HERE",
+      "id": 10,
+      "type": "PreviewAny",
+      "title": "Which internal H3 frame was selected",
       "pos": [
-        -860,
-        650
+        2690,
+        260
       ],
       "size": [
-        760,
-        450
+        420,
+        260
       ],
       "flags": {},
-      "order": 11,
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "source",
+          "type": "*",
+          "link": 17
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": []
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewAny"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 11,
+      "type": "Note",
+      "title": "START HERE - MiniMax H3 Ref2VA still image",
+      "pos": [
+        -900,
+        620
+      ],
+      "size": [
+        780,
+        670
+      ],
+      "flags": {},
+      "order": 10,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -531,47 +484,8 @@
         "Node name for S&R": "Note"
       },
       "widgets_values": [
-        "H3 Portrait 1.5\n1. Upload subject images and any pose/camera guide. Choose per-image roles in the uploader.\n2. For your three-photo case: Image 1 Face only; Image 2 Body/proportions only; Image 3 Pose/camera only.\n3. Keep Role-aware (recommended). Guide pixels do not go to H3; their geometry is translated to text.\n4. Start Draft only. The preview shows the exact routing and final prompt.\n5. Select only compatible H3 LoRAs, then choose Generate video.\n6. Export saves MP4 plus a matching _last.png from the actual encoded video.\nStandard/full = 20 steps; Standard/lite = 16 at a smaller canvas. No turbo is enabled.\nNative manual workflow is separate and bypasses Ollama.\nReplace the example video brief with your own request."
+        "H3 Portrait Lite 1.5 - SINGLE IMAGE USING MINIMAX H3 REF2VA\n1. This is NOT a separate image model. It uses the same Lite MiniMax H3 Ref2VA model/encoder/VAEs as the video workflows.\n2. Upload multiple subject references. Typical swap: Image 1 Face only; Image 2 Identity or Body/proportions; Image 3 Pose/camera only or Scene/environment only.\n3. Keep Still safe swap (pose/scene text-only) for identity swaps. Ollama analyzes every upload, but pose/camera, expression and scene-guide pixels are withheld from H3 and translated into prompt guidance so the guide person's identity does not compete with your subject.\n4. All images visual (comparison) is available when you intentionally want H3 to see the guide pixels directly. It can strengthen composition, but can also pull appearance from that guide.\n5. Start Draft only and review the routing and final H3 prompt. Then change only mode to Generate image.\n6. H3 natively renders its minimum five-frame packet. The workflow decodes all frames, selects one stable/sharp frame, and SaveImage writes ONLY that single result.\n7. High-res (~2 MP, experimental) is the shipped default for this high-resolution still workflow and asks H3 itself to render a larger canvas; it is not an interpolated upscale and may require more VRAM. If it OOMs or looks unstable, switch to Native detail (~1 MP). Preview is about 0.5 MP.\n8. High fidelity = 20 steps + maximum reference size. Standard = 16 steps. Fast preview = 12 steps. Sampler res_multistep, scheduler simple.\n9. Match guide/primary prefers an assigned pose/scene guide for aspect ratio, otherwise the first visual subject ref. Fixed 9:16, 2:3, 4:5, 1:1 and 16:9 are available.\n10. Compatible full-H3 LoRAs can be selected exactly as in the automatic video workflow. No additional large model download is required for this still workflow."
       ]
-    },
-    {
-      "id": 13,
-      "type": "H3PortraitSaveLastFrame",
-      "title": "Save LAST FRAME from exported MP4",
-      "pos": [
-        4160,
-        0
-      ],
-      "size": [
-        440,
-        850
-      ],
-      "flags": {},
-      "order": 12,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "completed_export",
-          "type": "H3_EXPORTED_VIDEO",
-          "link": 21
-        }
-      ],
-      "outputs": [
-        {
-          "name": "last_frame",
-          "type": "IMAGE",
-          "links": []
-        },
-        {
-          "name": "saved_png",
-          "type": "STRING",
-          "links": []
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "H3PortraitSaveLastFrame"
-      },
-      "widgets_values": []
     }
   ],
   "links": [
@@ -673,109 +587,52 @@
     ],
     [
       13,
-      5,
-      0,
-      7,
-      0,
-      "LATENT"
-    ],
-    [
-      14,
-      3,
-      3,
-      7,
-      1,
-      "VAE"
-    ],
-    [
-      15,
-      6,
-      0,
-      8,
-      0,
-      "IMAGE"
-    ],
-    [
-      16,
       2,
       0,
-      8,
+      7,
       1,
       "H3_PORTRAIT_JOB"
     ],
     [
-      17,
-      8,
+      14,
+      6,
       0,
-      9,
+      7,
       0,
       "IMAGE"
     ],
     [
-      18,
-      7,
-      0,
-      9,
-      1,
-      "AUDIO"
-    ],
-    [
-      19,
-      9,
-      0,
-      10,
-      0,
-      "VIDEO"
-    ],
-    [
-      20,
+      15,
       2,
       1,
-      11,
+      9,
       0,
       "STRING"
     ],
     [
-      21,
+      16,
+      7,
+      0,
+      8,
+      0,
+      "IMAGE"
+    ],
+    [
+      17,
+      7,
+      1,
       10,
       0,
-      13,
-      0,
-      "H3_EXPORTED_VIDEO"
+      "STRING"
     ]
   ],
-  "groups": [
-    {
-      "title": "Your inputs",
-      "bounding": [
-        -650,
-        -90,
-        1310,
-        1410
-      ],
-      "color": "#3f5159",
-      "font_size": 24,
-      "flags": {}
-    },
-    {
-      "title": "Automatic H3 pipeline - leave connected",
-      "bounding": [
-        700,
-        -90,
-        2350,
-        510
-      ],
-      "color": "#3f5159",
-      "font_size": 24,
-      "flags": {}
-    }
-  ],
+  "groups": [],
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.65,
+      "scale": 0.58,
       "offset": [
-        700,
+        650,
         120
       ]
     }

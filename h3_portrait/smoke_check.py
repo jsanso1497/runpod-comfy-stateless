@@ -55,7 +55,7 @@ def validate_registry(registry,workflow):
             if typ not in (slot['type'],'*'):raise ValueError(f'{n["type"]} output changed: {typ} != {slot["type"]}')
     # Wrappers call these actual pinned native methods. Check their registry and
     # callable interfaces in the separate CPU test command below, not by guessing.
-    for name in ('UNETLoader','CLIPLoader','VAELoader','MiniMaxH3ReferenceToVideo','BasicScheduler','RandomNoise','KSamplerSelect','SamplerCustomAdvanced','BasicGuider'):
+    for name in ('UNETLoader','CLIPLoader','VAELoader','MiniMaxH3ReferenceToVideo','BasicScheduler','RandomNoise','KSamplerSelect','SamplerCustomAdvanced','BasicGuider','VAEDecode','SaveImage'):
         if name not in registry:raise ValueError('Required native H3 support is missing: '+name)
 
 
@@ -63,7 +63,7 @@ def validate_director_widgets(registry, workflow):
     """Count the FRONTEND seed companion, not only Python inputs."""
     import math
     for node in workflow['nodes']:
-        if node['type'] != 'H3PortraitDirector':continue
+        if node['type'] not in ('H3PortraitDirector','H3PortraitStillDirector'):continue
         info=registry[node['type']];widgets=[]
         for group in ('required','optional'):
             for name,spec in info.get('input',{}).get(group,{}).items():
@@ -73,10 +73,10 @@ def validate_director_widgets(registry, workflow):
                     if opts.get('control_after_generate',name in ('seed','noise_seed')):
                         widgets.append(('control_after_generate',['fixed','increment','decrement','randomize']))
         values=node.get('widgets_values',[])
-        if len(values)!=len(widgets):raise ValueError('Director serialized widget count does not match the real schema plus frontend seed control.')
+        if len(values)!=len(widgets):raise ValueError(node['type']+' serialized widget count does not match the real schema plus frontend seed control.')
         for (name,typ),value in zip(widgets,values):
             valid=(value in typ if isinstance(typ,list) else type(value) is int if typ=='INT' else type(value) is bool if typ=='BOOLEAN' else isinstance(value,str) if typ=='STRING' else type(value) in (int,float) and math.isfinite(value))
-            if not valid:raise ValueError('Invalid serialized Director control: '+name)
+            if not valid:raise ValueError('Invalid serialized '+node['type']+' control: '+name)
 
 
 def export_probe(session, port, home):

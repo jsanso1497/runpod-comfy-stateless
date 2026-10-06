@@ -21,3 +21,13 @@ const graph=JSON.parse(fs.readFileSync(path.join(root,'h3_portrait/workflows/H3_
 const values=graph.nodes.find(n=>n.type==='H3PortraitDirector').widgets_values;
 assert.deepEqual(values.slice(1),fixed.slice(1));assert.equal(context.names.length,values.length);
 console.log('H3 FRONTEND SERIALIZATION PASS: 15 widgets including seed control; legacy and corrupted migrations; new defaults unchanged.');
+const stillGraph=JSON.parse(fs.readFileSync(path.join(root,'h3_portrait/workflows/H3_Portrait_Image_Lite.json'),'utf8'));
+const stillValues=stillGraph.nodes.find(n=>n.type==='H3PortraitStillDirector').widgets_values;
+assert.equal(stillValues.length,15);
+assert.deepEqual(stillValues,[
+  "Create one high-detail photorealistic still image of my subject. Preserve identity from the subject references. If I supply a pose/camera or scene reference, use it only for that assigned role and do not copy the guide person's identity.",
+  'Match guide/primary','High-res (~2 MP, experimental)','High fidelity',42,'fixed',true,'Draft only',0,
+  '(none)',1.0,'(none)',0.0,'','Still safe swap (pose/scene text-only)'
+]);
+assert.ok(stillValues.every(v=>!(typeof v==='number' && Number.isNaN(v))));
+console.log('H3 REF2VA STILL SERIALIZATION PASS: 15 widgets including seed control; safe-swap + Draft-only defaults; no shifted/NaN values.');

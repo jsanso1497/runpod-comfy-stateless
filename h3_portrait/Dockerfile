@@ -39,7 +39,7 @@ ENV H3_PORTRAIT_CONFIG=/workspace/h3-portrait/config \
     TINI_SUBREAPER=1 \
     PYTHONUNBUFFERED=1
 LABEL org.opencontainers.image.title="H3 Portrait Auto" \
-      org.opencontainers.image.version="h3-portrait-1.4.0"
+      org.opencontainers.image.version="h3-portrait-1.5.0"
 EXPOSE 8188 8888
 WORKDIR /workspace
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30m --retries=3 \

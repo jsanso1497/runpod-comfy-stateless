@@ -37,7 +37,7 @@ app.registerExtension({
           const label=document.createElement('span');label.textContent=`${index+1}. ${file.slice(slash+1)}`;label.style.cssText='flex:1;overflow-wrap:anywhere;';
           row.append(thumb,label);
           const select=document.createElement('select');select.title='This role limits what this reference contributes.';
-          for(const [value,text] of [['auto','Auto from brief'],['identity','Subject identity'],['face','Face only'],['body','Body/proportions only'],['hair','Hair only'],['wardrobe','Wardrobe only'],['pose_camera','Pose/camera only (text guide)'],['expression','Expression only (text guide)'],['scene','Scene only'],['ignore','Ignore']]){
+          for(const [value,text] of [['auto','Auto from brief'],['identity','Subject identity'],['face','Face only'],['body','Body/proportions only'],['hair','Hair only'],['wardrobe','Wardrobe only'],['pose_camera','Pose/camera guide (video=text; still=visual)'],['expression','Expression only (video=text guide)'],['scene','Scene/environment guide'],['ignore','Ignore']]){
             const option=document.createElement('option');option.value=value;option.textContent=text;select.append(option);
           }
           select.value=entry.role||'auto';select.style.maxWidth='205px';

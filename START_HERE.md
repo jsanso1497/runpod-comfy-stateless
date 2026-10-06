@@ -1,89 +1,82 @@
-# H3 Portrait 1.4: role-aware references, saved last frame, Full and Lite
+# H3 Portrait 1.5: role-aware video, MiniMax H3 Ref2VA stills, saved last frame
 
-This release is for James's existing `jsanso1497/runpod-comfy-stateless` repository.
-Do NOT wipe the repository again. Do NOT delete the existing GHCR package/base images.
-No local Terminal or GitHub Desktop is required.
+This is an in-place browser update. **Do not wipe the repository again.**
+Use the `h3-portrait-1.5-ref2va-still-update.zip` package for the existing repo.
+The update ZIP intentionally does **not** contain `config/lora_links.txt`, so the
+existing private LoRA list is not replaced.
 
-## 1. Update GitHub using the UPDATE ZIP
+The complete backup ZIP contains a neutral placeholder at that path and is meant
+for recovery/new-repo use, not as a blind replacement for a populated live repo.
 
-Use `h3-portrait-1.4-update.zip` for your existing repository. It contains only changed/new
-files, with their correct repository paths. It does NOT contain `config/lora_links.txt`.
-Your list stays exactly where it is. Do not add earlier patches afterward.
+## What changed
 
-1. Extract the UPDATE ZIP in Finder. Command + Shift + . reveals hidden files.
-2. Open your repository on main in github.dev (press the period key on its GitHub Code page).
-3. Drag the extracted CONTENTS into the repository root, merging folders and replacing
-   matching files. Do not add an enclosing folder. Include the new profiles, node modules,
-   JavaScript, tests, tools, updated root documentation and SOURCE_SNAPSHOT.json.
-4. Because hidden-folder drag/upload caused trouble before, explicitly check these TWO paths:
+- Automatic H3 video now supports explicit per-image roles. In the recommended
+  video routing, pose/camera and expression guides are analyzed by Ollama but
+  their pixels are not sent to native H3, reducing guide-person identity pull.
+- The ComfyUI workflow-default bug is fixed. The serialized seed companion
+  (`control after generate`) is present, so values after seed no longer shift to
+  `0`, `1`, or `NaN`.
+- H3 video export saves a matching PNG of the actual final decoded MP4 frame for
+  later chaining experiments.
+- A separate Lite container uses full-architecture INT8 MiniMax H3 plus one 8B
+  Instruct Ollama helper for fast workflow testing.
+- Lite adds `H3_Portrait_Image_Lite_v1_5`, which creates **one finished image
+  using MiniMax H3 Ref2VA itself**. There is no separate Qwen Image Edit model.
+- Both Full and Lite still include the standard manual native H3 Ref2VA workflow.
 
-```
+## Upload through GitHub in the browser
+
+1. Extract `h3-portrait-1.5-ref2va-still-update.zip`.
+2. Open `jsanso1497/runpod-comfy-stateless` in github.dev on `main`.
+3. Drag the extracted **contents** into the repository root, merging folders and
+   replacing matching files. Do not upload the ZIP or an enclosing folder.
+4. Leave your existing `config/lora_links.txt` untouched.
+5. Verify these exact hidden paths exist after upload:
+
+```text
 .github/workflows/build-h3-portrait.yml
 .github/workflows/build-h3-portrait-lite.yml
 ```
 
-Replace the existing full workflow with the included version. Create the new Lite workflow
-with the exact path above. In normal GitHub use Add file > Create new file and enter the
-whole path; paste the raw YAML file contents. Do not put either YAML at the repository root.
-The existing general `build-image.yml` stays unchanged.
+If Finder/browser upload flattens `.github`, manually create/replace those exact
+paths with the standalone YAMLs supplied beside the release ZIP.
 
-5. Stage all changes and Commit & Push to main. Do not build a partially uploaded commit.
-   Suggested commit: `H3 Portrait 1.4 roles, final-frame export and Lite profile`.
+6. Commit all changes to `main`.
 
-A COMPLETE repository ZIP is also supplied as a backup. Its LoRA list contains comments only.
-Do not overwrite your populated list with that placeholder. You only need one upload method.
+Expected early checks:
 
-## 2. Build Lite first for your testing
-
-On GitHub select:
-
-```
-Actions > Build H3 Portrait Lite template > Run workflow > main > Run workflow
+```text
+CLEAN SOURCE SNAPSHOT VERIFIED: h3-role-routing-ref2va-still-1.5.0-r1
+H3 PORTRAIT SOURCE VERIFIED: 1.5.0 | role-routed-reference-still-v5
 ```
 
-Watch the run for the final upload commit, not an old run's Re-run button.
-The early checks must show:
+## Build the Lite testing image
 
-```
-CLEAN SOURCE SNAPSHOT VERIFIED: h3-role-routing-1.4.0-r1
-H3 PORTRAIT SOURCE VERIFIED: 1.4.0 | role-routed-reference-v4
-H3 FRONTEND SERIALIZATION PASS
-```
+For the new single-image workflow, run:
 
-Inside Docker both profiles test the source, start a real CPU ComfyUI instance, check node
-schemas and execute a tiny native CreateVideo -> MP4 export -> last-frame PNG job. Expected:
-
-```
-H3 EXPORT CPU SMOKE PASS
-H3 PORTRAIT SCHEMA PASS
+```text
+Actions -> Build H3 Portrait Lite template -> Run workflow -> main
 ```
 
-The Lite summary ends with `H3 Portrait 1.4 LITE + Role Routing + Last Frame image published`.
-Full is a separate build: `Build H3 Portrait template`. It can run independently; its summary
-says FULL instead of LITE. Your general `Build RunPod ComfyUI image` is not required for either.
-The code, tests and file manager are shared, but the two portrait image tags are independent.
+The separate Full action is only needed when you also want to refresh Full.
+The general `:latest` image is independent.
 
-## 3. Create a separate RunPod Lite template
+## RunPod Lite template
 
-Keep your current Full template. In RunPod's Templates page choose New Template and enter:
+Use a separate template, for example `H3 Portrait Lite - Testing`.
 
-| Field | Lite value |
+| Field | Value |
 | --- | --- |
-| Name | H3 Portrait Lite - Testing |
-| Container image | ghcr.io/jsanso1497/runpod-comfy-stateless:h3-portrait-lite |
-| Container disk | 300 GB, same allocation as your current template |
-| Volume disk | 0 GB |
+| Container image | `ghcr.io/jsanso1497/runpod-comfy-stateless:h3-portrait-lite` |
+| Container disk | `300 GB` |
+| Volume disk | `0 GB` |
 | Network volume | None |
-| HTTP ports | 8188,8888 |
-| TCP ports | Blank |
-| Container start command | Blank |
-| Registry credential | Your existing GitHub GHCR credential |
+| HTTP ports | `8188,8888` |
+| TCP ports | blank |
+| Start command | blank |
+| Registry | existing GitHub GHCR credential |
 
-Use the same GPU initially to compare behavior. This release does not certify a lower VRAM
-minimum. Lite downloads less and uses a smaller canvas/helper; inherited CUDA/Comfy Docker
-layers are not dramatically smaller. Keep disk headroom for your personal LoRA collection.
-
-Enter these CUSTOM environment variables, one key/value pair per line:
+Environment variables:
 
 ```text
 OLLAMA_MODEL=huihui_ai/qwen3-vl-abliterated:8b-instruct-q4_K_M
@@ -94,180 +87,99 @@ FILEBROWSER_PORT=8888
 FILEBROWSER_PASSWORD={{ RUNPOD_SECRET_filebrowser_password }}
 ```
 
-Keep your actual existing secret references if their names differ. The file-browser password
-must contain at least 12 characters. The secret value is the password itself, not the braces.
-**Do not carry the 32B Thinking OLLAMA_MODEL value into Lite.** The image's internal profile
-chooses its H3 weights and render presets; no extra profile/hash setting is required.
-Do not expose Ollama port 11434. Do not add CONFIG_REPO, MODEL_PROFILES or legacy overrides.
+Use the actual secret names already configured in RunPod if they differ. The file
+manager password must be at least 12 characters.
 
-Your Full template keeps its existing image:
+## Installed workflows
 
-```
-ghcr.io/jsanso1497/runpod-comfy-stateless:h3-portrait-clean
-```
-
-Its OLLAMA_MODEL remains `huihui_ai/qwen3-vl-abliterated:32b-thinking-q4_K_M`.
-Keep Full's other settings unchanged. Its updated image becomes available after the Full build.
-
-## 4. Deploy a NEW Pod after the corresponding build succeeds
-
-Save current outputs/references before stopping or terminating any old Pod. Your `/workspace`
-is temporary in this no-volume configuration. An existing running Pod does not receive this
-release when GitHub changes. Do not try loading the new workflow into old 1.3 node code.
-
-Confirm the new Pod prints:
-
-```
-H3 PORTRAIT 1.4 | Role-aware references + saved last frame | profile=lite
-H3 PORTRAIT RELEASE VERIFIED: 1.4.0 | source=<the Git commit you built>
-```
-
-Full says `profile=full`. Compare the source commit with the successful Actions summary.
-Wait for ASSETS READY, SCHEMA PASS and OLLAMA READY before generating.
-
-Port 8188 is ComfyUI; 8888 is your password-protected Jupyter file manager.
-No new file-manager password is needed if your existing secret is correct.
-
-## 5. Open the NEW versioned workflow
-
-Lite installs:
-
-```
-H3_Portrait_Lite_v1_4
-H3_Ref2VA_Standard_Lite_v1_4
-```
-
-Full installs:
-
-```
-H3_Portrait_Full_v1_4
-H3_Ref2VA_Standard_Full_v1_4
-```
-
-Choose the new name, not an old saved `H3_Portrait_Auto`. Existing saved workflows are retained
-rather than overwritten. An additional migration repairs the known 1.3 seed-widget shift,
-but the versioned graph is the recommended starting point.
-
-## 6. Your three-reference test
-
-Open H3_Portrait_Lite_v1_4. Upload your three pictures in the intended order. Use the new
-per-image role dropdowns in the uploader:
-
-| Image | Role |
-| --- | --- |
-| 1 | Face only |
-| 2 | Body/proportions only |
-| 3 | Pose/camera only (text guide) |
-
-Use Subject identity instead of Face only when that picture should also define hair or other
-appearance, and explain which attributes matter in your brief. A body-only role does not
-choose wardrobe or imply undress. State your target outfit in the brief when it matters.
-Replace the example brief with your request. Keep `reference_mode=Role-aware (recommended)`.
-
-First-run controls:
+Full:
 
 ```text
-aspect: 9:16
-quality: Standard
-seconds: 5
-seed: 42
-control after generate: fixed
+H3_Portrait_Full_v1_5
+H3_Ref2VA_Standard_Full_v1_5
+```
+
+Lite:
+
+```text
+H3_Portrait_Lite_v1_5
+H3_Ref2VA_Standard_Lite_v1_5
+H3_Portrait_Image_Lite_v1_5
+```
+
+## New Lite single-image workflow
+
+Open `H3_Portrait_Image_Lite_v1_5`.
+
+A typical identity/composition swap is:
+
+```text
+Image 1 -> Face only
+Image 2 -> Identity or Body/proportions only
+Image 3 -> Pose/camera only OR Scene/environment only
+```
+
+Keep:
+
+```text
+reference_mode: Still safe swap (pose/scene text-only)
 mode: Draft only
-prompt_variation: 0
-lora_1: (none), or select your compatible H3 LoRA
-strength_1: 1.00, or the author's intended strength
-lora_2: (none)
-strength_2: 0.00
 ```
 
-Do one no-LoRA draft/video baseline by leaving both selectors at (none). Then deliberately
-select your LoRA for comparison. Downloading a file does not apply it. Your FP32 file does
-not require an FP32 base model; the LoRA still must target the full Ref2VA architecture.
+Ollama sees and analyzes every reference. In safe-swap mode, pose/camera,
+expression, and scene-guide images are converted into textual geometry/environment
+instructions and are not sent as native H3 picture latents. Subject/appearance
+references remain visual H3 references. This is designed to prevent an unrelated
+guide person from becoming the generated subject.
 
-The draft preview must show:
+Review the routing and generated H3 prompt, then switch only:
 
-```
-Image 1: face -> <Picture 1>
-Image 2: body -> <Picture 2>
-Image 3: pose_camera -> text only
-```
-
-Ollama examines all three. H3 receives the original pixels of images 1 and 2, plus text
-geometry extracted from image 3. Image 3's person can no longer compete through raw image
-conditioning. Its exact pose/camera geometry is not guaranteed: this is text guidance, not
-ControlNet or a hard pose lock. Other appearance roles remain visual, with textual scope.
-
-An analysis clarification gets one bounded review against explicit role selections. If the
-question remains unresolved, the job still stops; it is not silently ignored.
-
-Review the prompt and geometry, then change only mode to Generate video. The same draft is
-reused. Change prompt_variation for another draft; change seed for another video realization.
-All images visual (comparison) deliberately restores the old raw-image behavior for A/B tests.
-It may reproduce identity leakage; it is not the recommended default for a different person.
-
-## 7. Last-frame output
-
-Both supplied graphs end with:
-
-```
-CreateVideo -> Save exported H3 video -> Save last frame of exported video
+```text
+mode: Generate image
 ```
 
-The export is H.264 MP4 at CRF 18, preserving the generated audio. The next node decodes the
-completed MP4 in display order and saves the exact final decoded RGB frame as a PNG:
+The workflow is a true MiniMax H3 Ref2VA path. H3 renders its native minimum
+five-frame packet, the video VAE decodes those frames, and `H3PortraitStillOutput`
+selects one frame. `SaveImage` writes only that one result.
 
+Resolution choices:
+
+- `High-res (~2 MP, experimental)` - **shipped default for this requested high-resolution still workflow**. It asks H3 itself to sample a larger canvas.
+  This is **not** a Lanczos/post upscale; it can require materially more VRAM and is not guaranteed to improve every face/reference set. If it OOMs or looks less stable, use `Native detail (~1 MP)`, which stays near H3's ordinary native-detail area.
+- `Preview (~0.5 MP)` - lower-cost composition/prompt testing.
+
+Quality choices:
+
+```text
+High fidelity -> 20 steps, ref_image_size=max
+Standard      -> 16 steps, ref_image_size=match
+Fast preview  -> 12 steps, ref_image_size=match
+sampler       -> res_multistep
+scheduler     -> simple
 ```
-ComfyUI/output/H3_Portrait/video_<unique suffix>.mp4
-ComfyUI/output/H3_Portrait/video_<unique suffix>_last.png
-ComfyUI/output/H3_Portrait/video_<unique suffix>_last.json
-```
 
-The native workflow uses the H3_Standard folder. The sidecar records actual decoded frame
-count, last-frame index and dimensions. No guessed seek timestamp or directory-wide latest
-file search is used. The PNG is the post-crop, post-encoding frame, not the pre-encoding tensor.
-The final-frame node also outputs an IMAGE tensor for later connections.
+`Match guide/primary` uses an assigned pose/scene guide for output aspect when one
+exists; otherwise it uses the first visual subject reference. Fixed `9:16`, `2:3`,
+`4:5`, `1:1`, and `16:9` are also available.
 
-Download the pair through port 8888. Saving a last frame prepares chaining; feeding it as a
-Ref2VA reference alone does not guarantee a seamless continuation or force frame zero. A
-future hard-first-frame/continuation workflow needs the appropriate keyframe conditioning.
-H3's frame grid means a nominal 5-second request is normally 124 frames, about 5.167 seconds.
+`All images visual (comparison)` deliberately sends pose/scene pixels to H3 as
+normal pictures. It may strengthen composition but reintroduces the identity
+competition this release is designed to avoid.
 
-## 8. Standard MiniMax Ref2VA workflow, without Ollama
+## Video workflow behavior
 
-Open H3_Ref2VA_Standard_Lite_v1_4. Upload a subject image in LoadImage, write the prompt directly
-in MiniMax H3 Reference to Video, optionally select/enable your H3 LoRA, and Run. This bypasses
-both Ollama calls. Add more LoadImage nodes to the native reference image inputs as needed.
-Picture numbers follow native connection order. No automatic roles are applied in this graph.
-For an identity baseline, do not connect the unrelated person's raw pose photograph here.
+For the automatic video workflow, keep `Role-aware (recommended)`. Pose/camera and
+expression guides are text-only; a scene reference remains visual because the
+video may need the scene's direct visual appearance. Start in `Draft only`, review
+the routing, then generate.
 
-The installer selects the correct full/INT8 filenames automatically. For a 2:3 native test,
-set width=576,height=864 on Lite (768,1152 on Full), and set the crop node to 2:3. For 9:16,
-leave the supplied values unchanged. It saves the MP4 and last-frame PNG just like Portrait.
+Each generated MP4 also produces a matching `_last.png` decoded from the finished
+video file. That prepares a real continuation frame for later chaining; it does
+not yet guarantee a seamless next clip by itself.
 
-## Profiles and tradeoffs
+## Verification boundary
 
-| Setting | Full | Lite |
-| --- | --- | --- |
-| H3 Ref2VA | Full BF16 | Full INT8 convrot, not pruned |
-| H3 vision/text encoder | 32B BF16 | 32B INT8 convrot |
-| Ollama analysis | 32B Instruct Q4 | 8B Instruct Q4 |
-| Ollama director | 32B Thinking Q4 | Same 8B Instruct Q4, text-only |
-| Standard 9:16 output | 756 x 1344 | 576 x 1024 |
-| Standard 2:3 output | 768 x 1152 | 576 x 864 |
-| Preview / Standard / High steps | 12 / 20 / 25 | 12 / 16 / 20 |
-| High-reference sizing | max | match |
-| Turbo auto-enabled | No | No |
-| Sampler / scheduler | res_multistep / simple | res_multistep / simple |
-
-Lite is intended for faster iteration, not equal fidelity to Full. Quantization, fewer steps,
-smaller images and the smaller helper are deliberate tradeoffs. Actual speed, VRAM and visual
-identity quality have not been benchmarked on your host. No acceleration LoRA is auto-loaded.
-Full-model architecture is retained to avoid switching your LoRA to an incompatible pruned
-model family; your particular private adapter has not been inspected or inference-tested.
-
-## Source and testing limits
-
-Your live repository read returned Not Found in this session. This release was built from the
-supplied, previously checked source package and public upstream code at your pinned ComfyUI
-commit. Your personal LoRA text was not read or extracted. The UPDATE ZIP leaves it untouched.
-See INVESTIGATION.md and VALIDATION.md for evidence, checks and remaining deployment tests.
+Local unit/static/source checks are documented in `VALIDATION.md`. The final
+Docker images and real GPU H3 inference still need GitHub Actions + RunPod testing.
+Visual identity quality, exact VRAM use, and compatibility of any private LoRA are
+empirical and are not claimed by the local checks.

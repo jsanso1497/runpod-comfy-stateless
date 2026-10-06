@@ -19,10 +19,12 @@ def configured_graph(graph,settings):
 
 
 def install(home,settings,source=HERE):
-    profile='Lite' if settings.get('profile')=='lite' else 'Full'
+    lite=settings.get('profile')=='lite';profile='Lite' if lite else 'Full'
     folder=Path(home)/'user/default/workflows';folder.mkdir(parents=True,exist_ok=True)
-    for src,stem in [('H3_Portrait_Auto.json','H3_Portrait'),('H3_Ref2VA_Standard.json','H3_Ref2VA_Standard')]:
-        target=folder/f'{stem}_{profile}_v1_4.json'
+    recipes=[('H3_Portrait_Auto.json','H3_Portrait'),('H3_Ref2VA_Standard.json','H3_Ref2VA_Standard')]
+    if lite:recipes.append(('H3_Portrait_Image_Lite.json','H3_Portrait_Image'))
+    for src,stem in recipes:
+        target=folder/f'{stem}_{profile}_v1_5.json'
         # Never overwrite the user's edits to this versioned copy on restart.
         if not target.exists():
             graph=configured_graph(json.loads((Path(source)/'workflows'/src).read_text()),settings)

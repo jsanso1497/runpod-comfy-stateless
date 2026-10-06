@@ -1,4 +1,15 @@
-# H3 Portrait 1.4 validation
+# H3 Portrait 1.5 validation
 
-Read ../VALIDATION.md. Role, widget, Lite and exact last-frame regressions are in tests/test_release14.py.
-The build also executes a small native ComfyUI CPU video-export probe. GPU inference is untested here.
+See `../VALIDATION.md` for executed commands, results, and limitations.
+
+Release-specific checks cover:
+
+- role-aware H3 video routing;
+- still safe-swap routing where pose/camera, expression, and scene guides are text-only;
+- MiniMax H3 Ref2VA five-frame single-image recipe and one-frame selection;
+- no separate still-image model assets in Lite;
+- corrected ComfyUI seed/widget serialization;
+- exact exported-video final-frame PNG;
+- Full/Lite workflow installation and source/version verification.
+
+GPU H3 inference is not performed by the local test suite.

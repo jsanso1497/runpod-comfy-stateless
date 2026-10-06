@@ -1,7 +1,3 @@
-H3 Portrait 1.4 complete repository source
-122 files; the update ZIP is a subset.
-Private LoRA list: placeholder in complete ZIP only; omitted from update ZIP.
-
 .dockerignore
 .gitattributes
 .github/workflows/build-h3-portrait-lite.yml
@@ -64,6 +60,8 @@ h3_portrait/node/logic.py
 h3_portrait/node/native_helpers.py
 h3_portrait/node/ollama_client.py
 h3_portrait/node/reference_roles.py
+h3_portrait/node/still_portrait.py
+h3_portrait/node/still_system_prompt.txt
 h3_portrait/node/system_prompt.txt
 h3_portrait/node/video_export.py
 h3_portrait/node/web/director_controls.js
@@ -82,10 +80,12 @@ h3_portrait/tests/test_compact_release.py
 h3_portrait/tests/test_pipeline.py
 h3_portrait/tests/test_portrait.py
 h3_portrait/tests/test_release14.py
+h3_portrait/tests/test_release15.py
 h3_portrait/tests/test_split_models.py
 h3_portrait/tests/test_thinking.py
 h3_portrait/verify_release.py
 h3_portrait/workflows/H3_Portrait_Auto.json
+h3_portrait/workflows/H3_Portrait_Image_Lite.json
 h3_portrait/workflows/H3_Ref2VA_Standard.json
 runpod-template.env.example
 scripts/bootstrap.sh

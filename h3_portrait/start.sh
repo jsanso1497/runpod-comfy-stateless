@@ -5,7 +5,12 @@ export H3_PORTRAIT_CONFIG=/workspace/h3-portrait/config
 export OLLAMA_NO_CLOUD=1 TINI_SUBREAPER=1
 # This recipe deliberately does not use external CONFIG_REPO or legacy bootstrap.
 unset CONFIG_REPO CONFIG_REF COMFY_ARGS MODEL_PROFILES
-printf '\nH3 PORTRAIT 1.4 | Role-aware references + saved last frame | profile=%s\n' "${H3_PORTRAIT_PROFILE:-full}"
+profile="${H3_PORTRAIT_PROFILE:-full}"
+if [[ "$profile" == "lite" ]]; then
+  printf '\nH3 PORTRAIT 1.5 | Role-aware video + H3 Ref2VA stills + saved last frame | profile=lite\n'
+else
+  printf '\nH3 PORTRAIT 1.5 | Role-aware video + saved last frame | profile=full\n'
+fi
 python /opt/h3-portrait/verify_release.py --check-manifest /opt/h3-portrait/release-manifest.json --node-copy /opt/comfy-bundle/custom_nodes/ComfyUI-H3Portrait
 mkdir -p "$COMFY_HOME" "$H3_PORTRAIT_CONFIG" /workspace/h3-portrait
 cp -a /opt/h3-portrait/{settings.json,models.json,runtime.json} "$H3_PORTRAIT_CONFIG/"

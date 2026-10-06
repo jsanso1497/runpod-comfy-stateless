@@ -12,7 +12,7 @@ import os
 from pathlib import Path, PurePosixPath
 import re
 
-SNAPSHOT = 'h3-role-routing-1.4.0-r1'
+SNAPSHOT = 'h3-role-routing-ref2va-still-1.5.0-r1'
 MANIFEST = 'SOURCE_SNAPSHOT.json'
 EDITABLE = {'config/lora_links.txt'}
 IGNORE_DIRS = {'__pycache__', '.pytest_cache', '__MACOSX'}

@@ -9,6 +9,7 @@ import re
 
 ROLES = ('auto', 'identity', 'face', 'body', 'hair', 'wardrobe', 'pose_camera', 'expression', 'scene', 'ignore')
 TEXT_ONLY = {'pose_camera', 'expression'}
+STILL_TEXT_ONLY = {'pose_camera', 'expression', 'scene'}
 ROLE_SCOPE = {
     'identity': 'subject identity and natural appearance; not a first frame',
     'face': 'facial identity and facial features only; no clothing, jewelry, background or pose transfer',
@@ -72,8 +73,11 @@ def remap_text(text, mapping):
 
 
 def route_analysis(analysis, uploads, mode='Role-aware (recommended)'):
-    if mode not in ('Role-aware (recommended)', 'All images visual (comparison)'):
+    allowed = ('Role-aware (recommended)', 'All images visual (comparison)',
+               'Still safe swap (pose/scene text-only)')
+    if mode not in allowed:
         raise ValueError('Unknown reference-routing mode.')
+    text_only_roles = STILL_TEXT_ONLY if mode == 'Still safe swap (pose/scene text-only)' else TEXT_ONLY
     if len(analysis['references']) != len(uploads):
         raise ValueError('Reference map and uploads do not agree.')
     routed = copy.deepcopy(analysis)
@@ -82,7 +86,7 @@ def route_analysis(analysis, uploads, mode='Role-aware (recommended)'):
         if entry['image'] != source:
             raise ValueError('Reference map is not in upload order.')
         role = role_of(entry, upload.get('role', 'auto'))
-        visual = role != 'ignore' and (role not in TEXT_ONLY or mode == 'All images visual (comparison)')
+        visual = role != 'ignore' and (role not in text_only_roles or mode == 'All images visual (comparison)')
         number = len(native) + 1 if visual else None
         mapping[source] = number
         ledger.append({'source_image': source, 'filename': upload.get('filename',''), 'role': role,
@@ -107,7 +111,7 @@ def route_analysis(analysis, uploads, mode='Role-aware (recommended)'):
         target=guide['target_subject'].casefold()
         if target in labels:guide['target_subject']=labels[target]
         elif len(labels)==1:guide['target_subject']=next(iter(labels.values()))
-        else:raise ValueError('Specify which subject the pose/expression guide applies to. The guide performer is not a new subject.')
+        else:raise ValueError('Specify which subject the pose/scene/expression guide applies to. The guide performer is not a new subject.')
         guide['description'] = remap_text(guide['description'], mapping)
     routed['references'] = native
     routed['priorities'] = remap_text(routed.get('priorities',''), mapping)
