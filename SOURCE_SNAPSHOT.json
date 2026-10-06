@@ -1,5 +1,5 @@
 {
-  "snapshot": "h3-1.5.3-guarded-models-verified-ollama-handoff-r1",
+  "snapshot": "h3-1.5.3-guarded-models-verified-ollama-handoff-r2",
   "editable_files": [
     "config/lora_links.txt"
   ],
@@ -79,12 +79,12 @@
     "h3_portrait/models.json": "2e22899b4478515ba301ecd9b6f707de87b6fe061f5d39351a61c293a4a8cfda",
     "h3_portrait/node/__init__.py": "2b8963537b3425074e21b96dc1984275056c9964969e13fa0cc47d9f3af99579",
     "h3_portrait/node/analysis_prompt.txt": "0d14f9542e4f0901a0d8f732656c2d2c367793ae751b839c1c98412c261653b3",
-    "h3_portrait/node/local_runtime.py": "9da6ed54d28c8d98d1b2764481ad98370878cfe2c20989a2e579be0db5308bb8",
+    "h3_portrait/node/local_runtime.py": "15b777ae15e043711c998283cf20f40dd2afcea5851c7c3323fd370a8e0b281a",
     "h3_portrait/node/logic.py": "bc458398e0385db59751bfea9e78db6ed8a7cedb6186a6a71e168d562cd48b11",
     "h3_portrait/node/native_helpers.py": "a30a3196deb25be0fa580029849ef1e6805382e98b897ed29156fe49de505790",
     "h3_portrait/node/ollama_client.py": "b21f4c9c11a0646dbd924a8bd623050e8ceb0fd511528bf04f40fb955859d513",
     "h3_portrait/node/reference_roles.py": "b3412042860a07aaff3288a6d407b4a60ff1800c86df0c912569fc1a8787539f",
-    "h3_portrait/node/reference_video.py": "312b686631a3bf574a843f34dbe71798826728ddbb68a5c7ff6ce2c718d475d8",
+    "h3_portrait/node/reference_video.py": "04e1ba6da5b3fd5acb8f1b8051ea957b86c35393bb58905f04370d10d781e567",
     "h3_portrait/node/still_portrait.py": "c95784ceec65a9af3a09d633515f42c6d428c295761d9bc46a3a6299fa0322aa",
     "h3_portrait/node/still_system_prompt.txt": "1bc71f2c7e372f8686da73b9e46d549ec8823790a017f2850e20cada04454ef7",
     "h3_portrait/node/system_prompt.txt": "05eaf812429ea50b3addf29f73e7b66275543cd18df58947da0b86e80c6b1ef1",
@@ -110,7 +110,7 @@
     "h3_portrait/tests/test_release14.py": "b2fd422d00db75ba968292f69c09d4ae00e74a980e4c4a93bf2274cba6b06737",
     "h3_portrait/tests/test_release15.py": "9906355dc06953877e65224a5c40cee6808df360395559e7894def97eda8a251",
     "h3_portrait/tests/test_release152.py": "083d1b48c0d74d9fddf3716e558b9090333d00863ff8bf261df63c46195e1e67",
-    "h3_portrait/tests/test_release153.py": "9a58349d6f552323511219fc902bb83162b7fbad5e7ce5bdb2472c1db9cdbeab",
+    "h3_portrait/tests/test_release153.py": "2b3b7107de8d7f583ca0512b31bd60620a9d7b0995f202acc9dd01ce8ccc9d45",
     "h3_portrait/tests/test_split_models.py": "2dc18846a7314662b5d542b6ab5565602889b267ff263ae70ef306195172dfbf",
     "h3_portrait/tests/test_thinking.py": "458c9a0ff2595e6f77c416b6a65a56ead627cba2c7b9e023514f5aa730b9efc7",
     "h3_portrait/verify_release.py": "2b2f53be2fc90ccd251c2188923475d6cf9fd293d1ba853e063467d9e4fa6148",
@@ -187,9 +187,9 @@
     "tests/test_user_directed_h3.py": "55b380b999efeb4febedb71404827cafbd67363b8287b8597ae2281684427c00",
     "tools/check_repository.py": "410c9a64c4ebe5aca2a802084046d519f496ca599c18404d2a36e52aaeebdc3f",
     "tools/repair_workflow_models.py": "ddaf9464280626d1c68e64ca02aa37bc8313cadd40cbcb94dfc9a1bcd74db7c5",
-    "tools/test_snapshot.py": "e2364ef915e181d9a8ba546fb0351cb8ce787ecc1648783ff57570beab7fba96",
+    "tools/test_snapshot.py": "d700237aa4f583a6e412b7cd3b09296301e08ecbf68bdd08d830264f30dfc72f",
     "tools/test_widget_serialization.mjs": "dedc73046c105a7e2d9bd79545a47869354614e4e908df93f44a662361f51658",
     "tools/validate_repository.py": "85cbf2d15cc001fe850da5643781efdb792355983fef0de5d38322c6753a6b93",
-    "tools/verify_snapshot.py": "ada98641bae29c1fc70b480ab2ab690f5633461c0c15b43a560cc6cfe78fc8fe"
+    "tools/verify_snapshot.py": "5dd50d89695237540f1eb57f49e0c41a7640ea9c1b7f52f04eaac73831075c01"
   }
 }
