@@ -1,0 +1,59 @@
+{
+  "package": "ComfyUI Quality - One Person Multi-Reference + Krea-only Rebalance",
+  "version": "3.2.0",
+  "core_ref": "65787d668397d230bf5839d69a0a7239e2dad378",
+  "tested_locally": "230 general + 198 portrait + 69 shared-LoRA + 22 snapshot + 19 file-manager + 10 HTTP-policy = 548; plus actual local Jupyter HTTP and MP4 final-frame tests",
+  "unrun": [
+    "Complete Docker builds and their new native CreateVideo/export/PNG smoke test",
+    "GPU H3 inference, peak VRAM and rendering-speed benchmarks",
+    "Real Ollama vision/director calls",
+    "Actual user LoRA downloads, quantized merging and compatibility",
+    "RunPod proxy and interactive ComfyUI browser session",
+    "The exact user three-image incident and identity/pose fidelity"
+  ],
+  "preserved_workflows_and_components_verified": [
+    "config/workflows/00_SeedVR2_4K_Video_Restore.json",
+    "config/workflows/01_SeedVR2_1080p_Video_Restore.json",
+    "config/workflows/05_Vision_Prompt_Draft.json",
+    "config/workflows/06_H3_Create_Full_RefMod.json",
+    "config/workflows/07_Backup_RefMods.json",
+    "config/workflows/20_H3_Reference_BF16.json",
+    "config/workflows/21_H3_Ollama_Two_Refs_BF16.json",
+    "config/workflows/22_H3_RefMod_Ollama_Quality.json",
+    "config/workflows/23_H3_Saved_RefMods_Quality.json",
+    "config/ollama.json",
+    "config/custom_nodes.json",
+    "config/loras.json",
+    "scripts/comfy_http_fix.py",
+    "scripts/ollama_service.py",
+    "scripts/local_nodes/ComfyUI-OllamaH3/client.py",
+    "scripts/local_nodes/ComfyUI-Quality/__init__.py"
+  ],
+  "package_version": "3.2.0",
+  "change": "Role-aware reference routing, frontend serialization fix, exact exported final-frame PNG, and independent Full/Lite portrait builds.",
+  "local_unit_tests": 538,
+  "gpu_inference_tested": false,
+  "repository_snapshot": "h3-role-routing-1.4.0-r1",
+  "portrait_version": "1.4.0",
+  "portrait_pipeline": "role-routed-reference-v4",
+  "source_basis": "Supplied source archives and fixes; live repository read returned 404; private LoRA text contents not read",
+  "http_policy_tests": 10,
+  "file_manager": {
+    "service": "JupyterLab",
+    "port": 8888,
+    "root": "/workspace",
+    "password_required": true,
+    "version": "1.0",
+    "jupyterlab_pin": "4.6.4",
+    "jupyter_server_pin": "2.21.1",
+    "local_http_versions": {
+      "jupyterlab": "4.5.3",
+      "jupyter_server": "2.17.0"
+    }
+  },
+  "total_executed_tests": 548,
+  "profiles": [
+    "full",
+    "lite"
+  ]
+}
