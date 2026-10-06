@@ -1,3 +1,17 @@
+# Additions in 1.2.0
+
+See [the Krea two-reference / H3 MP4 setup guide](RELEASE_1_2_GUIDE.md) for the two new workflows and the opt-in `ENABLE_H3_MEDIA` flag. Existing seven Krea graphs and H3 graphs remain unchanged.
+
+# Krea Identity 1.1 additions
+
+Use `krea_identity/MULTI_REFERENCE_GUIDE.md` for labeled additional references,
+text-directed target selection, man/woman single-pass replacement, and protected
+separate-identity editing. Workflows 01-04 and all H3 inference graphs are retained.
+Rebuild the General/Image image from the new commit; the RunPod settings and model
+weights remain the same. The update is a cumulative overlay, not a folder replacement.
+
+---
+
 # RunPod ComfyUI: H3 Portrait 1.5 Full + Lite
 
 See `START_HERE.md` for browser-only update and RunPod instructions.

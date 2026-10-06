@@ -58,3 +58,15 @@ Private user LoRA links are outside the patch and excluded from source hashing.
 - User-supplied build evidence: logs_101498979872.zip, build step 11 and disk
   diagnostic step 12, 2026-10-06 13:41 UTC. The fix retains the inherited SeedVR2
   source rather than fetching a rolling upstream version during the build.
+
+
+## 1.1 additions: reviewed 2026-10-06
+
+Primary-source architecture and limits:
+- https://raw.githubusercontent.com/lbouaraba/comfyui-krea2edit/main/README.md
+- https://huggingface.co/conradlocke/krea2-identity-edit/raw/main/README.md
+- https://raw.githubusercontent.com/Comfy-Org/ComfyUI/65787d668397d230bf5839d69a0a7239e2dad378/requirements.txt
+
+The node documentation recommends simultaneous two-person placement and notes imperfect face separation. The model card still describes sequential inserts as a workaround. These sources differ on that preference. This release therefore supplies a single-pass option and a separately designed crop/composite option; it does not claim either arrangement has been visually benchmarked as a universal winner.
+
+The reference-list, labeled-sheet, target-description and protected-composite helpers are local implementation choices, not new capabilities trained into the editor. The architecture still sends scene first and reference sheet second. No experimental extra-RoPE multi-reference fork or new upstream dependency is substituted for the user's working node revision. The helper image operations use dependencies already in the pinned ComfyUI requirements, including Pillow and SciPy.

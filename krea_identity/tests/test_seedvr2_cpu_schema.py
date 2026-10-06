@@ -148,10 +148,10 @@ class SeedVR2CpuSchemaTests(unittest.TestCase):
             out = home/'custom_nodes/ComfyUI-SeedVR2_VideoUpscaler/src/interfaces'/name
             self.assertIn(CORRECTED, out.read_bytes())
 
-    def test_all_four_graphs_still_use_real_registry_validation(self):
+    def test_all_eight_graphs_still_use_real_registry_validation(self):
         text = (HERE/'check.py').read_text()
         self.assertIn('for graph in graphs:validate_schema(graph,registry)', text)
-        self.assertIn('if len(graphs)!=4', text)
+        self.assertIn('if len(graphs)!=8', text)
         self.assertNotIn('skip_seed', text)
 
 

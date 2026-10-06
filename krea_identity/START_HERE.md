@@ -1,4 +1,25 @@
-# Krea Identity 1.0.1: face / body / scene, without custom training
+# Krea Identity 1.1: labeled references and man/woman replacement
+
+Start with `MULTI_REFERENCE_GUIDE.md` for the three added workflows:
+05 Labeled References / Directed Replacement, 06 Man + Woman / Single Pass,
+and 07 Man + Woman / Protected Regions. Up to six labeled original photographs
+per person, editable target/replacement descriptions, independent clothing choices,
+scene-derived landscape/portrait/square aspect ratios, and the existing screenshot
+rebalancer are included. The protected workflow keeps original scene dimensions
+and isolates the two generations with explicit compositing regions.
+
+The original four workflow JSON files, model weights, upstream pins, and SeedVR2
+CPU schema fix are unchanged. No additional model downloads are introduced.
+Rebuild the General/Image image from this update and keep your current RunPod
+environment settings. Full and Lite also bundle these helpers as before.
+
+The following is the original setup reference, including the retained build fix.
+The old filenames intentionally still end in `v1_0`; the three additions end in
+`v1_1`. No existing user-edited workflow is overwritten at startup.
+
+---
+
+# Original Krea setup and retained 1.0.1 build fix
 
 This is an additive module for the attached RunPod ComfyUI repository. It is
 available in the general image, H3 Portrait Full, and H3 Portrait Lite after a
@@ -31,7 +52,7 @@ On macOS, open Terminal in your existing repository directory and use a merge
 extract, rather than replacing the entire `h3_portrait` folder in Finder:
 
 ```bash
-ditto -x -k "$HOME/Downloads/krea-identity-integration-update-v1.0.1.zip" .
+ditto -x -k "$HOME/Downloads/krea-identity-integration-update-v1.1.0.zip" .
 python3 tools/verify_snapshot.py
 ```
 

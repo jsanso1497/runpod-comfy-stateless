@@ -12,6 +12,7 @@ on:
       - "shared_loras/**"
       - "file_manager/**"
       - "krea_identity/**"
+      - "h3_media/**"
       - "config/lora_links.txt"
       - ".github/workflows/build-h3-portrait-lite.yml"
 
@@ -266,10 +267,10 @@ jobs:
           test -n "$PUBLISHED_DIGEST"
           {
             echo '## H3 Portrait 1.5 LITE + Role Routing + H3 Ref2VA Stills + Last Frame image published'
-            echo 'Clean snapshot: h3-1.5.0-krea-identity-1.0.1-r1'
+            echo 'Clean snapshot: h3-1.5.0-krea-identity-1.1.0-r1'
             echo 'File manager: password-protected JupyterLab on HTTP port 8888; set FILEBROWSER_PASSWORD.'
             echo 'Runtime: one 8B Instruct helper; full-architecture INT8 H3 for video AND single-image Ref2VA; stills use a native five-frame packet and save one selected frame.'
-            echo 'Krea Identity 1.0 bundled: enable with ENABLE_KREA_IDENTITY=1; optional still upscaler KREA_IDENTITY_UPSCALE=1.'
+            echo 'Krea Identity 1.1 bundled: enable with ENABLE_KREA_IDENTITY=1; optional still upscaler KREA_IDENTITY_UPSCALE=1.'
             echo 'Source commit: ${{ github.sha }}'
             echo 'Expected startup: H3 PORTRAIT 1.5 | Role-aware video + H3 Ref2VA stills + saved last frame | profile=lite'
             echo

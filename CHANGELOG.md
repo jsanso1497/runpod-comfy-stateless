@@ -1,3 +1,25 @@
+# Krea Identity + H3 Media 1.2.0
+
+- Add Krea workflow 08: two separate references, text-described scene, exact selectable image aspect and existing rebalancer.
+- Add native full BF16 H3 HQ media workflow: MP4 voice-only, selected-frame identity, motion or combined roles; new scripted dialogue and generated audio export.
+- Add bounded local FFmpeg extraction, independent reference numbering and optional standalone audio inputs.
+- Bundle native adapter in all three image recipes; model downloads opt in with ENABLE_H3_MEDIA=1.
+- Extend real CPU ComfyUI registry build gate without bypassing the SeedVR2 schema fix.
+- Make Krea graph-generator schema fixtures self-contained for isolated Docker module tests.
+- Preserve prior workflow JSONs, model weights/catalogs and private LoRA list.
+
+# Krea Identity 1.1.0 - 2026-10-06
+
+- Added chainable original-image reference lists with labels and free-text purposes, up to six per person.
+- Added directed replacement fields for the exact scene target, replacement description and wardrobe behavior.
+- Added one-pass man/woman replacement with separate A/B reference groups and an explicit binding map.
+- Added optional two-pass protected-region replacement, painted-mask inputs, crop context, inward feathering and second-pass protection of all first-pass pixels.
+- Added scene-aspect matching without discarding original edges and exact original dimensions for protected composites.
+- Retained the four existing Krea graphs, all model filenames/precision/hashes/upstream pins, H3 inference graphs, screenshot rebalancer and SeedVR2 CPU build fix.
+- Added 77 CPU tests, for 650 total; GPU image quality and the new full Docker build remain untested.
+
+---
+
 # Krea Identity 1.0.1: CPU build-schema hotfix (2026-10-06)
 
 - Fix the failure in logs_101498979872.zip: SeedVR2's loader schemas indexed

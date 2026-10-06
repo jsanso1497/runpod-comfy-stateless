@@ -1,3 +1,13 @@
+# Krea Identity 1.1 additions
+
+Use `krea_identity/MULTI_REFERENCE_GUIDE.md` for labeled additional references,
+text-directed target selection, man/woman single-pass replacement, and protected
+separate-identity editing. Workflows 01-04 and all H3 inference graphs are retained.
+Rebuild the General/Image image from the new commit; the RunPod settings and model
+weights remain the same. The update is a cumulative overlay, not a folder replacement.
+
+---
+
 # Added: Krea Identity still images
 
 Start with `krea_identity/START_HERE.md` for the new face/body/scene editor,
@@ -6,7 +16,7 @@ The module is available in all three existing builds after rebuilding.
 Add `ENABLE_KREA_IDENTITY=1` and optionally `KREA_IDENTITY_UPSCALE=1` to the Pod.
 No custom subject LoRA training is required. Existing H3 workflows are preserved.
 
-The new source snapshot ID is `h3-1.5.0-krea-identity-1.0.1-r1`.
+The new source snapshot ID is `h3-1.5.0-krea-identity-1.1.0-r1`.
 The instructions below describe the preserved H3 1.5 release; its pipeline version
 has not changed. Use the current Krea integration update ZIP for this update.
 
@@ -60,7 +70,7 @@ paths with the standalone YAMLs supplied beside the release ZIP.
 Expected early checks:
 
 ```text
-CLEAN SOURCE SNAPSHOT VERIFIED: h3-1.5.0-krea-identity-1.0.1-r1
+CLEAN SOURCE SNAPSHOT VERIFIED: h3-1.5.0-krea-identity-1.1.0-r1
 H3 PORTRAIT SOURCE VERIFIED: 1.5.0 | role-routed-reference-still-v5
 ```
 

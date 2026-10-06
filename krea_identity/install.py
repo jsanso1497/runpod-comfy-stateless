@@ -16,7 +16,7 @@ import subprocess
 import sys
 
 HERE = Path(__file__).resolve().parent
-VERSION = '1.0.1'
+VERSION = '1.2.0'
 EXPECTED_COMFY = '65787d668397d230bf5839d69a0a7239e2dad378'
 
 

@@ -24,6 +24,7 @@ python /opt/runpod-comfy/scripts/comfy_http_fix.py apply "$COMFY_HOME"
 # Catch configuration/access errors before starting the expensive generation model.
 python /opt/h3-portrait/prepare_assets.py
 python /opt/krea-identity/install.py runtime --comfy-home "$COMFY_HOME"
+python /opt/h3-media/install.py runtime --comfy-home "$COMFY_HOME"
 OLLAMA_PID=''
 COMFY_PID=''
 cleanup() {

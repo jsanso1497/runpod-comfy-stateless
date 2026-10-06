@@ -1,3 +1,15 @@
+# Krea Identity 1.1.0 validation
+
+Current release: 650 local Python tests, 26 static workflow graphs (seven Krea),
+two existing frontend serialization checks, and all three repository preflights pass.
+77 tests are new for reference routing, target text, aspect geometry, masks and compositing.
+No new full Docker build, live ComfyUI execution or GPU image comparison was run.
+See `krea_identity/VALIDATION.md` and `krea_identity/MULTI_REFERENCE_GUIDE.md`.
+
+The records below describe earlier preserved releases, not additional validation of 1.1.
+
+---
+
 # Latest integration validation: Krea Identity 1.0.1
 
 All 573 local Python tests passed, including 15 new tests for the CPU-only

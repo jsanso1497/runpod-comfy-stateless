@@ -115,7 +115,7 @@ class ImageHelpers(unittest.TestCase):
         with self.assertRaises(ValueError):N.KreaIdentityUpscaleSize().size(photo(),float('nan'),4096)
 
 class Workflows(unittest.TestCase):
-    def test_all_graphs_validate(self):self.assertEqual(len(C.static()),4)
+    def test_all_graphs_validate(self):self.assertEqual(len(C.static()),8)
     def test_broken_graph_rejected(self):
         g=graph();g['links'][0][5]='LATENT'
         with self.assertRaises(ValueError):C.validate_graph(g)
@@ -159,12 +159,12 @@ class Installation(unittest.TestCase):
             with self.assertRaises(ValueError):I.runtime('/nonexistent','/nonexistent')
     def test_install_respects_user_workflow_edits(self):
         with tempfile.TemporaryDirectory() as tmp:
-            files=I.install_workflows(tmp,False);self.assertEqual(len(files),3)
+            files=I.install_workflows(tmp,False);self.assertEqual(len(files),7)
             files[0].write_text('user-edited')
             I.install_workflows(tmp,False);self.assertEqual(files[0].read_text(),'user-edited')
     def test_optional_upscale_is_installed_only_when_enabled(self):
         with tempfile.TemporaryDirectory() as tmp:
-            self.assertEqual(len(I.install_workflows(tmp,True)),4)
+            self.assertEqual(len(I.install_workflows(tmp,True)),8)
     def test_only_two_new_upstream_dependencies(self):
         deps=json.loads((HERE/'config/custom_nodes.json').read_text())
         self.assertEqual({r['name'] for r in deps},{'comfyui-krea2edit','Rebalance-Pack'})

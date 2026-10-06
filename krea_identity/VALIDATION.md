@@ -1,51 +1,82 @@
-# Krea Identity 1.0.1 validation boundary
+# Krea Identity 1.1.0 validation
 
-Prepared from the attached repository ZIP, the prior Krea 1.0 update, and
-`logs_101498979872.zip`. No live GitHub repository was modified.
+```text
+KREA IDENTITY 1.1.0 - LABELED REFERENCES AND TWO-PERSON REPLACEMENT
+Prepared: 2026-10-06
+Snapshot: h3-1.5.0-krea-identity-1.1.0-r1
 
-## Failure observed in the uploaded build log
+IMPLEMENTED
+- Workflow 05: up to six labeled original references and text-directed target/replacement selection.
+- Workflow 06: man/woman single-pass replacement with separate A/B reference banks and clothing choices.
+- Workflow 07: separate Krea generations in selected crops with protected masked compositing.
+- Existing screenshot rebalancer is available for every pass with the same layer weights.
+- Source aspect is automatic. Protected final composites retain the original scene dimensions.
+- Original four Krea workflows, all inherited image/video workflows and model manifests unchanged.
+- Existing SeedVR2 CPU build-schema guard retained unchanged.
 
-The real CPU ComfyUI smoke test launched successfully, but SeedVR2 failed to
-register: `list index out of range`. The next fatal validation error was
-`Missing installed node: SeedVR2LoadDiTModel`. Krea2Edit, Rebalance-Pack and the
-local Krea helper pack were reported loaded. Disk diagnostics showed 8.3G
-available at exit; the fatal error was not a disk-full error.
+EXECUTED PYTHON TESTS
+PASS: general: 230 tests
+PASS: portrait: 171 tests
+PASS: shared_loras: 69 tests
+PASS: file_manager: 19 tests
+PASS: krea_identity: 139 tests
+PASS: snapshot: 22 tests
+TOTAL: 650 tests passed. 77 new directed-reference/region/graph cases.
+The new tests use CPU tensors and synthetic images. They are not diffusion-model or likeness benchmarks.
 
-The upstream DiT and VAE schema definitions use `devices[0]` after a GPU-only
-`get_device_list()` call. The installer now changes that assignment to
-`get_device_list() or ["cpu"]` in the bundled copies of those two files. This
-permits CPU-only schema inspection, not CPU upscaling. Nonempty GPU lists and
-inference methods are untouched. Unrecognized source layouts fail explicitly.
+STATIC REPOSITORY CHECKS
+KREA IDENTITY STATIC PASS: seven graphs, reference order, screenshot node, fixed seeds, native-save/optional-upscale separation.
+{
+  "python_sources": 58,
+  "json_files": 43,
+  "shell_scripts": 5,
+  "dockerfiles_checked": 2,
+  "actions_workflows_checked": 3,
+  "graphs_checked": 26,
+  "krea_identity_graphs_checked": 7
+}
+STATIC REPOSITORY CHECKS PASS. No Docker build or GPU inference performed.
 
-## Executed locally after the fix
+EXISTING FRONTEND SERIALIZATION CHECKS
+H3 FRONTEND SERIALIZATION PASS: 15 widgets including seed control; legacy and corrupted migrations; new defaults unchanged.
+H3 REF2VA STILL SERIALIZATION PASS: 15 widgets including seed control; safe-swap + Draft-only defaults; no shifted/NaN values.
 
-- 573 Python unit tests: 230 general, 171 portrait, 69 shared LoRAs, 19 file
-  manager, 62 Krea and 22 source-snapshot tests.
-- The 62 Krea tests include the prior 47 and 15 new CPU-schema regression tests.
-  The new tests reproduce the original empty-list failure in minimal schema
-  fixtures, then verify the fallback, unchanged CUDA/MPS device lists,
-  idempotence, source-drift detection and installer ordering. Fixtures do not
-  stand in for a real ComfyUI installation.
-- 23 static workflow graphs, 2 frontend serialization checks, 3 repository
-  preflights, Python 3.10-compatible syntax, JSON, shell, Dockerfile structure
-  and all 3 Actions definitions.
-- Source-snapshot verification, archive integrity, and exact reconstruction
-  from both the original attached repository and the previous Krea update.
-- All workflow files, model manifests, custom-node pins, sampler settings,
-  rebalancer settings and inference helper code are byte-identical to 1.0.
+REPOSITORY PREFLIGHTS
+KREA IDENTITY STATIC PASS: seven graphs, reference order, screenshot node, fixed seeds, native-save/optional-upscale separation.
+REPOSITORY PREFLIGHT PASS: general
+H3 PORTRAIT SOURCE VERIFIED: 1.5.0 | role-routed-reference-still-v5
+H3 PORTRAIT RELEASE VERIFIED: 1.5.0 | source=local-uncommitted
+KREA IDENTITY STATIC PASS: seven graphs, reference order, screenshot node, fixed seeds, native-save/optional-upscale separation.
+REPOSITORY PREFLIGHT PASS: portrait
+H3 PORTRAIT SOURCE VERIFIED: 1.5.0 | role-routed-reference-still-v5
+H3 PORTRAIT RELEASE VERIFIED: 1.5.0 | source=local-uncommitted
+KREA IDENTITY STATIC PASS: seven graphs, reference order, screenshot node, fixed seeds, native-save/optional-upscale separation.
+REPOSITORY PREFLIGHT PASS: portrait-lite
 
-## Required live build check, retained without a bypass
+BACKWARD COMPATIBILITY
+PASS: 28 protected workflow/model/inference files are byte-identical to the working 1.0.1 snapshot.
+PASS: SeedVR2 CPU schema-guard function is unchanged.
+PASS: new workflow generation is reproducible, and local node widgets/signatures match all new graphs.
+PASS: tests cover exact outside-mask pixel preservation and first-person protection during the second composite, including feathered masks.
 
-`python /opt/krea-identity/check.py --build-smoke --comfy-home /opt/comfy-bundle`
-starts real CPU ComfyUI and validates every shipped Krea graph against its
-actual node registry, including SeedVR2. Missing nodes still fail the build.
-It does not download model weights or queue image inference.
+NOT RUN
+Full Docker build/push, live ComfyUI server/node registry, RunPod deployment, model downloads, GPU rendering,
+visual likeness/realism comparisons, GPU memory or throughput measurements.
+The Docker stages still require real ComfyUI object_info validation for all seven Krea graphs.
+There is no Docker/GPU runtime here; direct upstream downloads also failed DNS resolution.
+No live GitHub changes were made. This is a cumulative update to the user's provided source snapshot.
 
-## Not executed locally
+KNOWN LIMITS
+Reference sheets and purpose labels are a prompt/conditioning arrangement, not a newly trained multi-reference model.
+Single-pass two-person results can mix faces or change unrelated scene content.
+Protected editing requires correct regions/masks; rectangles are not automatic person detection.
+First-person pixels take priority on mask overlap. Global upscaling voids pixel-preservation guarantees.
+Six references per person is an integration limit, not a promise that six improves likeness over two.
+The two-person graphs are not claimed to outperform the user's baseline without GPU image comparisons.
 
-The corrected Docker build/push, a real ComfyUI registry run, RunPod deployment,
-model-weight downloads, CUDA inference, VRAM/timing benchmarks or visual
-identity comparisons. This environment has no Docker executable and direct
-upstream source downloads failed DNS resolution; the runtime was not recreated.
-The previous user-run Docker smoke failure is the supplied evidence, not a
-successful validation of this corrected release.
+APPLY
+Merge the ZIP contents, including .github and SOURCE_SNAPSHOT.json, into the existing repository.
+Keep the existing config/lora_links.txt, which is excluded from this update.
+Commit and rebuild General/Image from the new commit; deploy that successfully built image.
+Keep the same RunPod environment variables and existing models.
+```

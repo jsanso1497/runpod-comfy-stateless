@@ -1,11 +1,11 @@
 {
-  "package": "RunPod ComfyUI - H3 Portrait Full/Lite + optional Krea Identity stills",
-  "package_version": "3.2.0+h3.1.5.0+kreaidentity.1.0.1",
+  "package": "RunPod ComfyUI - optional Krea Identity and H3 HQ Media",
+  "package_version": "3.2.0+h3.1.5.0+kreaidentity.1.2.0+h3media.1.2.0",
   "core_ref": "65787d668397d230bf5839d69a0a7239e2dad378",
-  "repository_snapshot": "h3-1.5.0-krea-identity-1.0.1-r1",
+  "repository_snapshot": "h3-1.5.0-krea-identity-1.2.0-media-r1",
   "portrait_version": "1.5.0",
   "portrait_pipeline": "role-routed-reference-still-v5",
-  "change": "Fix SeedVR2 CPU-only schema registration during the Krea Docker smoke test. Add an empty-GPU-list fallback in the bundled DiT and VAE schema definitions; retain real validation of all four workflows. No models, precision, sampling, workflow graphs, rebalancer settings, or GPU inference code changed.",
+  "change": "Add Krea two independent references with described scene and native full BF16 H3 MP4 voice/identity/action workflow; preserve existing graphs and weights.",
   "profiles": [
     "full",
     "lite"
@@ -19,9 +19,9 @@
     "H3_Portrait_Full_v1_5",
     "H3_Ref2VA_Standard_Full_v1_5"
   ],
-  "local_python_unit_tests": 573,
+  "local_python_unit_tests": 714,
   "widget_serialization_checks": 2,
-  "workflow_graphs_checked": 23,
+  "workflow_graphs_checked": 28,
   "gpu_inference_tested": false,
   "still_image_gpu_inference_tested": false,
   "file_manager": {
@@ -31,7 +31,7 @@
     "password_required": true,
     "local_unit_tests": "passed"
   },
-  "privacy": "config/lora_links.txt is editable/exempt from source hashes; its contents were not read while preparing this release",
+  "privacy": "Private config/lora_links.txt was not inspected or included; it remains editable and excluded from content hashing.",
   "unrun": [
     "Complete 1.5 Docker builds",
     "RunPod deployment of newly built 1.5 images",
@@ -43,14 +43,18 @@
     "Real ComfyUI CPU node-schema smoke test added to the new Docker stages",
     "Krea model downloads and RunPod startup",
     "GPU Krea identity editing, face/body reference fusion, and rebalancer A/B comparison",
-    "GPU single-image SeedVR2 finishing and identity comparison"
+    "GPU single-image SeedVR2 finishing and identity comparison",
+    "H3 Media native encode and GPU MP4 voice/identity/action inference",
+    "Full v1.2.0 Docker build with both optional modules",
+    "H3 Media native encode and GPU MP4 voice/identity/action inference",
+    "Full v1.2.0 Docker build with both optional modules"
   ],
-  "source_snapshot_files": 142,
+  "source_snapshot_files": 165,
   "static_repository_checks": "passed",
   "krea_identity": {
-    "version": "1.0.1",
-    "workflows": 4,
-    "new_python_tests": 62,
+    "version": "1.2.0",
+    "workflows": 8,
+    "new_python_tests": 153,
     "custom_subject_lora_training": false,
     "external_inference_api": false,
     "enabled_by_default": false,
@@ -63,6 +67,26 @@
     "cpu_schema_hotfix_regression_tests": 15,
     "original_failed_build_log": "logs_101498979872.zip",
     "corrected_docker_build_tested": false,
-    "patch_scope": "Only empty device enumeration in the two bundled SeedVR2 loader schemas; nonempty CUDA/MPS lists remain unchanged."
+    "patch_scope": "One additive text-scene workflow, self-contained graph builder fixtures and optional H3 media integration.",
+    "directed_reference_new_tests": 77,
+    "max_active_references_per_person": 6,
+    "protected_two_person_pixel_tests_passed": true,
+    "original_four_workflows_unchanged": true,
+    "reported_working_baseline": "User reported Krea working before this update; new v1.1 image quality not GPU-tested here.",
+    "original_seven_workflows_unchanged": true,
+    "text_scene_new_tests": 14
+  },
+  "h3_media": {
+    "version": "1.2.0",
+    "workflows": 1,
+    "local_python_tests": 50,
+    "real_ffmpeg_fixture_tests_passed": true,
+    "enabled_by_default": false,
+    "weights": "Inherited full BF16 H3 and encoder; no new inference API or voice-cloning model",
+    "max_source_clips": 3,
+    "real_comfy_schema_test_added_to_docker": true,
+    "real_comfy_schema_test_run_locally": false,
+    "gpu_inference_tested": false,
+    "voice_likeness_tested": false
   }
 }

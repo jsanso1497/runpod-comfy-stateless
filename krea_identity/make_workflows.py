@@ -9,8 +9,10 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 WEIGHTS = '1.0,1.0,1.0,1.0,1.0,1.0,1.0,2.5,5.0,1.1,4.0,1.0'
-BASE = json.loads((ROOT/'config/workflows/11_Krea2_Subject_into_Scene.json').read_text())
-SEED = json.loads((ROOT/'config/workflows/00_SeedVR2_4K_Video_Restore.json').read_text())
+# Bundle the exact source schemas so Docker's /opt/krea-identity tests do not
+# depend on a repository-only /opt/config directory.
+SCHEMAS = json.loads((HERE/'config/graph_prototypes.json').read_text())
+BASE, SEED = SCHEMAS['base'], SCHEMAS['seed']
 PROTOTYPES = {n['type']: n for n in BASE['nodes']}
 PROTOTYPES.update({n['type']: n for n in SEED['nodes'] if 'SeedVR2' in n['type']})
 spec = importlib.util.spec_from_file_location('krea_identity_nodes_for_graphs', HERE/'node/__init__.py')
@@ -34,13 +36,14 @@ class Graph:
         elif kind in local.NODE_CLASS_MAPPINGS:
             cls = local.NODE_CLASS_MAPPINGS[kind]
             n = {'inputs': [], 'outputs': [], 'widgets_values_named': {}, 'widgets_values': []}
-            for name, definition in cls.INPUT_TYPES()['required'].items():
-                typ = definition[0]
-                if isinstance(typ, list) or typ in ('STRING','INT','FLOAT','BOOLEAN'):
-                    val = typ[0] if isinstance(typ,list) else definition[1].get('default', '')
-                    n['widgets_values_named'][name] = val
-                else:
-                    n['inputs'].append({'name': name, 'type': typ, 'link': None})
+            for group in ('required', 'optional'):
+                for name, definition in cls.INPUT_TYPES().get(group, {}).items():
+                    typ = definition[0]
+                    if isinstance(typ, list) or typ in ('STRING','INT','FLOAT','BOOLEAN'):
+                        val = typ[0] if isinstance(typ,list) else definition[1].get('default', '')
+                        n['widgets_values_named'][name] = val
+                    else:
+                        n['inputs'].append({'name': name, 'type': typ, 'link': None})
             for name, typ in zip(getattr(cls,'RETURN_NAMES',cls.RETURN_TYPES),cls.RETURN_TYPES):
                 n['outputs'].append({'name': name, 'type': typ, 'links': []})
         elif kind == 'PreviewImage':
