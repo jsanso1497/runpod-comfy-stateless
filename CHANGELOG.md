@@ -1,3 +1,19 @@
+# H3 Portrait 1.4.0
+
+- Add explicit per-photo role dropdowns and text-only pose/camera/expression routing.
+- Preserve native-reference ordering, remap Picture numbers and expose routing reports.
+- Strengthen reference scope/clarification policy; do not infer wardrobe from incidental details.
+- Fix frontend seed-control serialization, Draft-only defaults and legacy migration.
+- Add explicit completed-video export dependency and exact last-decoded-frame PNG/sidecar.
+- Add independent Lite image with full-architecture INT8 H3, 8B Instruct helper, smaller presets.
+- Include standard native Ref2VA without Ollama in both profiles.
+- Align new portrait sampler/scheduler with res_multistep/simple upstream guidance.
+- Install versioned workflow names and verify source, workflow and model-catalog manifests.
+- Add build-time real CPU export probe and local role/widget/last-frame/profile regressions.
+- Preserve existing general workflows and password-protected file manager.
+
+## Previous source history
+
 # File-manager snapshot: h3-clean-filemanager-2026-10-05-r2
 
 - Complete source package, including both build workflows and all 17 generation workflows.

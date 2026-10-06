@@ -1,110 +1,112 @@
-# Complete source + file manager: verification report
+# H3 Portrait 1.4 verification
 
-Snapshot: `h3-clean-filemanager-2026-10-05-r2`.
-H3 Portrait code remains 1.3.0, pipeline split-model-reference-v3.
-General ComfyUI code remains 3.2.0. New file-manager integration: 1.0.
+Release: 1.4.0. Pipeline: role-routed-reference-v4.
+Snapshot: h3-role-routing-1.4.0-r1.
+General application source remains 3.2.0, except shared packaging/verification documentation.
 
-## Executed locally against the packaged source
+## Executed locally for this release
 
 | Check | Result |
 | --- | --- |
-| General ComfyUI regression suites | 230 passed |
-| H3 Portrait regression suites | 150 passed |
-| Shared link-only LoRA downloader tests | 69 passed |
-| Source-snapshot tests, including Finder metadata | 22 passed |
-| File-manager auth/config/supervisor tests | 19 passed |
-| Existing ComfyUI HTTP compatibility self-tests | 10 passed |
-| Total local unit/self-tests | **500 passed** |
-| ComfyUI graph structure / reciprocal links | **17 workflows checked** |
-| JSON/Python 3.10/shell source syntax | Passed |
-| Both Docker COPY paths, entrypoints and shell RUN syntax | Passed static checks |
-| Both GitHub Actions build paths, source-check steps and shell syntax | Passed static checks |
-| JavaScript syntax | Portrait upload and RefMod download interfaces passed |
-| Exact source inventory and normalized source hashes | Passed after ZIP re-extraction |
-| Editable LoRA list | Content changes accepted without changing hashes |
-| Real local file-manager HTTP test | Passed, details below |
+| Existing general ComfyUI suites | 230 passed |
+| Portrait suites, including the new 1.4 regressions | 198 passed |
+| Shared link-only LoRA downloader suites | 69 passed |
+| Source-snapshot suites | 22 passed |
+| File-manager unit suites | 19 passed |
+| HTTP compatibility policy self-tests | 10 passed |
+| Total | 548 tests passed, no skipped or failed tests |
+| Workflow graph connections and acyclicity | All 18 source graphs passed |
+| Python 3.10-compatible source syntax | Passed |
+| JSON, shell syntax, Docker COPY paths/RUN syntax, and Actions YAML/shell blocks | Passed static checks |
+| Both portrait build configurations | Separate full/lite arguments and non-overlapping main tags verified |
+| Frontend widget migration | Executed the actual JavaScript migration in Node; valid new, legacy, and already-shifted examples passed |
+| JavaScript module syntax | Passed |
+| Both portrait profile source checks | Passed |
+| Actual local Jupyter HTTP service | Password login, anonymous rejection, CSRF, upload, download, edit and delete passed |
+| Actual MP4 final-frame decoding | Six-frame H.264 fixture with audio decoded; saved PNG equals an independent extraction of frame 5 |
 
-The final ZIP was re-extracted and all tests above rerun against that extracted
-copy. There are no model weights, credentials, previous ZIPs, old hotfixes, virtual
-environments or Python caches in the package. The image tag remains
-h3-portrait-clean. The LoRA link list is comments-only for the user to populate.
+The final ZIP is re-extracted and its source snapshot/tests rechecked. The update ZIP is
+also applied to a fresh copy of the prior supplied package; the result must match the new
+snapshot without replacing the LoRA list. Results are provided in the verification archive.
 
-## Real local Jupyter HTTP test
+## What the new tests establish
 
-This was NOT a mock server. The actual packaged service.py launched JupyterLab
-with a temporary root and a randomly generated test password. The smoke test
-confirmed:
+- Explicit uploader roles override inferred model roles. Pose/camera and expression guides
+  are text-only by default; their pixels do not enter either native H3 reference path.
+- All original images are presented to the vision analyst. Only retained native visual
+  references reach H3, in order, with original image tensors, remapped picture numbers,
+  and an explicit source-to-H3 ledger. The original analysis/brief remain in the record.
+- A guide performer does not automatically become a new subject. A single target is
+  normalized to the native subject; unresolved multi-person assignment stops explicitly.
+- An unnecessary clarification with explicit roles gets at most one bounded review of the
+  original task. A repeated essential clarification still stops. Nothing is silently accepted.
+- Lite reuses one 8B Instruct helper for both calls; Full uses separate 32B Instruct/Thinking
+  editions. Cleanup is checked before returning an H3 job. Model HTTP calls are mocked.
+- The Director's 15 saved values include the frontend-generated seed companion. Combo labels,
+  numeric finiteness, LoRA defaults and Draft-only startup are checked, not just Python inputs.
+- Both new graphs have an explicit completed-export dependency before the final-frame node.
+- MP4 export retains audio in the fixture test. A matching PNG/JSON is written from the last
+  decoded displayed frame, not a pre-export image or estimated seek time. Unsafe/missing/
+  modified files, cancellation and bounded extraction failures are tested.
+- The native manual graph contains no Ollama director. Its optional LoRA and portrait crop
+  are local helper nodes around the pinned native H3 sampling path.
 
-- Login page available; unauthenticated /api/contents access denied.
-- Password login succeeds; filesystem access then succeeds.
-- Missing CSRF token prevents writes after authentication.
-- Upload, raw download, edit and delete succeed with valid auth/CSRF.
-- Raw password is not written in the generated config; an Argon2 hash is used.
-- No URL token; private config/runtime outside the file-tree root.
-- The test server was stopped and the temporary files were removed.
+## Real checks versus mocked checks
 
-**Versions actually available for local HTTP execution:** JupyterLab 4.5.3,
-Jupyter Server 2.17.0, Python 3.13.5. These are not the new dependency pins.
+The local video test uses the real installed FFmpeg/ffprobe to encode a short fixture and
+extract the last frame. Its native ComfyUI Video.save_to object is mocked locally because
+this environment does not have the pinned ComfyUI/PyAV runtime. This is not a claim that a
+real H3 video or native ComfyUI export was generated here.
 
-**Versions configured for the actual Docker image:** JupyterLab 4.6.4 and
-Jupyter Server 2.21.1, verified on their official PyPI pages as Python >=3.10.
-Installing those versions locally was blocked by this environment's external
-network access. Therefore their exact runtime compatibility is NOT claimed as
-locally executed. BOTH Dockerfiles run the same real smoke test using those pinned
-versions before publication. They fail the build if it fails. This separates the
-new dependencies from ComfyUI's Torch/transformers/aiohttp environment.
+Both portrait Docker builds now start a real CPU ComfyUI server and execute:
+LoadImage -> native CreateVideo -> H3PortraitExportVideo -> H3PortraitSaveLastFrame.
+The build checks the actual MP4/PNG pair and final-frame index. It prints
+`H3 EXPORT CPU SMOKE PASS` only after that succeeds. That newly added Docker smoke test
+has NOT run here; it must pass on GitHub before an image is published.
 
-The supervisor's missing-secret, port, auth-readiness, app-failure and browser-
-failure paths were additionally tested with process fixtures. No production GPU
-process was started or killed by these tests.
+The file-manager live test used local JupyterLab 4.5.3 / Jupyter Server 2.17.0. The existing
+Docker pins remain 4.6.4 / 2.21.1, whose live HTTP test is repeated by the Docker build.
+The frontend test runs actual migration JavaScript in Node with an app stub, not a real
+ComfyUI browser canvas. The running-registry test additionally checks the generated seed
+companion; actual browser loading still requires the first deployment.
 
-## Preserved functionality
+## Not executed or guaranteed
 
-The H3 generation pipeline, prompt-model editions, split reference/director
-routing, 9:16/2:3 dimensions, quality presets, original reference-image flow,
-LoRA selection and one-line download catalog are unchanged from the consolidated
-1.3 source. All 17 workflow JSON files are byte-for-byte identical to that source.
-The file manager is a separate password-protected service on 8888, not a new
-inference path and not merely an exposed unused port.
-
-No globally disabled authentication, wildcard CORS, or disabled CSRF has been
-added. Jupyter's owner login permits editing and terminal access to the container;
-it is NOT a restricted security sandbox. It does not add a login to ComfyUI 8188.
-No inference-model weight is downloaded at Docker build time.
-
-## Remaining deployment checks
-
-- Neither complete Docker image was built or pushed here; Docker is unavailable.
-- The exact new Jupyter dependency pins require the included GitHub build smoke test.
-- No RunPod HTTPS-proxy session or interactive browser UI was exercised here.
-- No live Ollama model inference, H3 GPU inference or LoRA compatibility test ran.
-- Ollama/provider responses in application unit tests are mocked.
-- User LoRA URLs have not been supplied; authorization and model compatibility
-  cannot be verified in this package.
-- Peak disk/RAM/VRAM, render speed and reference-identity quality are unmeasured.
-- The source uses existing pinned GHCR images; they must still exist and be
-  accessible with the existing repository/package credentials.
-- This is the complete intended source reconstructed from the supplied packages,
-  not an export of Git history or unseen private-repository changes.
-
-A successful GitHub portrait build and a first live Draft-only/video test are still
-required. Passing these tests is not a promise that arbitrary workloads will fit.
+- No full Docker image was built or pushed here. Docker/Podman and a GPU are unavailable.
+- No real Ollama model generated a prompt in this environment.
+- No Full or Lite H3 inference, quantized-LoRA merge, peak VRAM/RAM measurement or speed
+  benchmark was run. Lite uses smaller weights/helper/canvas but is not guaranteed to fit
+  a particular lower-VRAM GPU or be a particular number of times faster.
+- The exact user's three reference photos, generated prompt, video and LoRA were not supplied
+  for this incident. The pipeline mechanism was inspected, not the precise perceptual cause.
+- The private LoRA text file was not read, extracted, downloaded or tested. A comments-only
+  stand-in was written locally. The update ZIP excludes the list completely.
+- Live GitHub inspection returned 404. This release is based on the supplied source package
+  and recorded build context, not on unseen changes in the live repository.
+- Pose/camera text routing removes those source pixels but is not a pose ControlNet. It can
+  lose exact geometry. Face/body/wardrobe/scene references are still visual conditioning;
+  their verbal role limits are not hard pixel-level identity masks.
+- Saving a last frame prepares an asset for chaining; it does not establish hard first-frame
+  conditioning or guarantee a seamless next clip.
 
 ## Reproduce
 
+Run from the repository root using the project's test dependencies:
+
 ```bash
-python tools/verify_snapshot.py
-python -m unittest discover -s tools -p 'test_snapshot.py'
 PYTHONPATH=tests python -m unittest test_update test_krea_rebalance test_ollama_h3 test_quality test_single_person test_user_directed_h3
 python -m unittest discover -s h3_portrait/tests -p 'test_*.py'
 python -m unittest discover -s shared_loras/tests -p 'test_*.py'
+python -m unittest discover -s tools -p 'test_snapshot.py'
 python -m unittest discover -s file_manager/tests -p 'test_*.py'
-python file_manager/smoke_test.py
 python scripts/comfy_http_fix.py self-test
-python tools/validate_repository.py
+node tools/test_widget_serialization.mjs
+python tools/verify_snapshot.py
 python tools/check_repository.py --target portrait
+python tools/check_repository.py --target portrait-lite
 python tools/check_repository.py --target general
+python tools/validate_repository.py
 ```
 
-These are verification commands for the build/test environment, NOT instructions
-to run Terminal on the user's work Mac. Use browser-only START_HERE.md.
+These commands document validation; they are not extra local-Mac setup steps for James.
+Follow START_HERE.md for browser-only GitHub upload and RunPod deployment instructions.

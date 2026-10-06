@@ -1,3 +1,9 @@
+# H3 Portrait 1.4 sources
+
+See INVESTIGATION.md for the newly checked native H3, frontend widget,
+Lite weight, and Ollama references. The earlier general-template references below
+are retained for provenance; they are not changes to the current portrait setup.
+
 # Consolidation source note, 2026-10-05
 
 The material below describes the preserved general 3.2 package. Current portrait

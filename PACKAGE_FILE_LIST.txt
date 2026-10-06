@@ -1,14 +1,17 @@
-Complete repository snapshot: h3-clean-filemanager-2026-10-05-r2
-109 files. ZIP root is repository root. Includes 17 ComfyUI JSON workflows and both GitHub Actions workflows.
+H3 Portrait 1.4 complete repository source
+122 files; the update ZIP is a subset.
+Private LoRA list: placeholder in complete ZIP only; omitted from update ZIP.
 
 .dockerignore
 .gitattributes
+.github/workflows/build-h3-portrait-lite.yml
 .github/workflows/build-h3-portrait.yml
 .github/workflows/build-image.yml
 .gitignore
 BUILD_INFO.json
 CHANGELOG.md
 Dockerfile
+INVESTIGATION.md
 PACKAGE_FILE_LIST.txt
 README.md
 SOURCES.md
@@ -52,16 +55,24 @@ h3_portrait/START_HERE.md
 h3_portrait/VALIDATION.md
 h3_portrait/VERSION
 h3_portrait/catalog.py
+h3_portrait/install_workflows.py
 h3_portrait/loras.json
 h3_portrait/models.json
 h3_portrait/node/__init__.py
 h3_portrait/node/analysis_prompt.txt
 h3_portrait/node/logic.py
+h3_portrait/node/native_helpers.py
 h3_portrait/node/ollama_client.py
+h3_portrait/node/reference_roles.py
 h3_portrait/node/system_prompt.txt
+h3_portrait/node/video_export.py
+h3_portrait/node/web/director_controls.js
 h3_portrait/node/web/references.js
 h3_portrait/ollama_service.py
 h3_portrait/prepare_assets.py
+h3_portrait/profiles/lite/models.json
+h3_portrait/profiles/lite/runpod-template.env.example
+h3_portrait/profiles/lite/settings.json
 h3_portrait/runpod-template.env.example
 h3_portrait/runtime.json
 h3_portrait/settings.json
@@ -70,10 +81,12 @@ h3_portrait/start.sh
 h3_portrait/tests/test_compact_release.py
 h3_portrait/tests/test_pipeline.py
 h3_portrait/tests/test_portrait.py
+h3_portrait/tests/test_release14.py
 h3_portrait/tests/test_split_models.py
 h3_portrait/tests/test_thinking.py
 h3_portrait/verify_release.py
 h3_portrait/workflows/H3_Portrait_Auto.json
+h3_portrait/workflows/H3_Ref2VA_Standard.json
 runpod-template.env.example
 scripts/bootstrap.sh
 scripts/catalog.py
@@ -108,5 +121,6 @@ tests/test_update.py
 tests/test_user_directed_h3.py
 tools/check_repository.py
 tools/test_snapshot.py
+tools/test_widget_serialization.mjs
 tools/validate_repository.py
 tools/verify_snapshot.py

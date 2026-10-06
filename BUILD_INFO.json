@@ -2,14 +2,14 @@
   "package": "ComfyUI Quality - One Person Multi-Reference + Krea-only Rebalance",
   "version": "3.2.0",
   "core_ref": "65787d668397d230bf5839d69a0a7239e2dad378",
-  "tested_locally": "230 general + 150 portrait + 69 shared-LoRA + 22 snapshot + 19 file-manager + 10 HTTP-policy tests = 500; plus actual local Jupyter HTTP smoke test",
+  "tested_locally": "230 general + 198 portrait + 69 shared-LoRA + 22 snapshot + 19 file-manager + 10 HTTP-policy = 548; plus actual local Jupyter HTTP and MP4 final-frame tests",
   "unrun": [
-    "complete Docker builds and exact new Jupyter dependency smoke test on GitHub",
-    "GPU generation or peak VRAM measurement",
-    "live Ollama calls to either selected model",
-    "authenticated provider downloads of user LoRAs",
-    "RunPod proxy and interactive browser session",
-    "comparison of reference identity fidelity"
+    "Complete Docker builds and their new native CreateVideo/export/PNG smoke test",
+    "GPU H3 inference, peak VRAM and rendering-speed benchmarks",
+    "Real Ollama vision/director calls",
+    "Actual user LoRA downloads, quantized merging and compatibility",
+    "RunPod proxy and interactive ComfyUI browser session",
+    "The exact user three-image incident and identity/pose fidelity"
   ],
   "preserved_workflows_and_components_verified": [
     "config/workflows/00_SeedVR2_4K_Video_Restore.json",
@@ -30,13 +30,13 @@
     "scripts/local_nodes/ComfyUI-Quality/__init__.py"
   ],
   "package_version": "3.2.0",
-  "change": "Adds isolated, password-protected file manager to both images. H3 1.3 pipeline and all existing workflow JSONs unchanged.",
-  "local_unit_tests": 490,
+  "change": "Role-aware reference routing, frontend serialization fix, exact exported final-frame PNG, and independent Full/Lite portrait builds.",
+  "local_unit_tests": 538,
   "gpu_inference_tested": false,
-  "repository_snapshot": "h3-clean-filemanager-2026-10-05-r2",
-  "portrait_version": "1.3.0",
-  "portrait_pipeline": "split-model-reference-v3",
-  "source_basis": "Conversation source archives and fixes; live private repository unavailable",
+  "repository_snapshot": "h3-role-routing-1.4.0-r1",
+  "portrait_version": "1.4.0",
+  "portrait_pipeline": "role-routed-reference-v4",
+  "source_basis": "Supplied source archives and fixes; live repository read returned 404; private LoRA text contents not read",
   "http_policy_tests": 10,
   "file_manager": {
     "service": "JupyterLab",
@@ -50,5 +50,10 @@
       "jupyterlab": "4.5.3",
       "jupyter_server": "2.17.0"
     }
-  }
+  },
+  "total_executed_tests": 548,
+  "profiles": [
+    "full",
+    "lite"
+  ]
 }
