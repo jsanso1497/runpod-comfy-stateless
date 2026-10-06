@@ -11,6 +11,12 @@ ASPECTS = ('9:16', '2:3', '16:9')
 QUALITIES = ('Preview', 'Standard', 'High fidelity')
 
 
+def _require_ollama_idle():
+    """Late-bind the runtime handoff so tests and hot-reloads can replace it safely."""
+    from .local_runtime import require_idle
+    return require_idle()
+
+
 def _profile():
     value = (os.environ.get('H3_PORTRAIT_PROFILE') or 'full').strip().lower()
     return 'lite' if value == 'lite' else 'full'
@@ -105,8 +111,7 @@ class H3ReferenceVideoDraftGate:
             raise ValueError('Choose Draft only or Generate video.')
         if subject_image is None or reference_video is None:
             raise ValueError('Add at least one subject image and one reference video.')
-        from .local_runtime import require_idle
-        require_idle()
+        _require_ollama_idle()
         return {'ui': {'text': [ui_text]}, 'result': (preview,)}
 
 

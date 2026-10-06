@@ -171,7 +171,7 @@ class WorkflowTests(unittest.TestCase):
         mod=load(ROOT/'node/reference_video.py','release153_video')
         import math
         self.assertTrue(math.isnan(mod.H3ReferenceVideoDraftGate.IS_CHANGED()))
-        self.assertIn('require_idle()', (ROOT/'node/reference_video.py').read_text())
+        self.assertIn('_require_ollama_idle()', (ROOT/'node/reference_video.py').read_text())
 
 
 if __name__=='__main__':unittest.main()
@@ -188,17 +188,17 @@ class DraftGateTests(unittest.TestCase):
         return types.SimpleNamespace(ExecutionBlocker=Blocker)
 
     def test_draft_only_does_not_check_or_load_h3(self):
-        with patch.dict(sys.modules,{'comfy_execution.graph_utils':self.graph_utils()}),patch('node.local_runtime.require_idle') as idle:
+        with patch.dict(sys.modules,{'comfy_execution.graph_utils':self.graph_utils()}),patch('node.reference_video._require_ollama_idle') as idle:
             got=self.gate().review('prompt','debug',object(),object(),'Draft only')
             self.assertNotIsInstance(got['result'][0],str);idle.assert_not_called()
 
     def test_generate_checks_live_residency(self):
-        with patch.dict(sys.modules,{'comfy_execution.graph_utils':self.graph_utils()}),patch('node.local_runtime.require_idle') as idle:
+        with patch.dict(sys.modules,{'comfy_execution.graph_utils':self.graph_utils()}),patch('node.reference_video._require_ollama_idle') as idle:
             got=self.gate().review('prompt','debug',object(),object(),'Generate video')
             self.assertEqual(got['result'],('prompt',));idle.assert_called_once()
 
     def test_generate_refuses_cached_prompt_with_live_ollama(self):
-        with patch.dict(sys.modules,{'comfy_execution.graph_utils':self.graph_utils()}),patch('node.local_runtime.require_idle',side_effect=RuntimeError('still resident')):
+        with patch.dict(sys.modules,{'comfy_execution.graph_utils':self.graph_utils()}),patch('node.reference_video._require_ollama_idle',side_effect=RuntimeError('still resident')):
             with self.assertRaisesRegex(RuntimeError,'still resident'):
                 self.gate().review('cached prompt','debug',object(),object(),'Generate video')
 

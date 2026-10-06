@@ -31,13 +31,17 @@ def local_base(value):
 def api(s, path, body=None, timeout=30):
     method = s.get if body is None else s.post
     kw = {} if body is None else {'json': body}
-    with method(BASE + path, timeout=(5, timeout), allow_redirects=False, **kw) as r:
-        if r.status_code != 200:
-            raise RuntimeError(f'Private Ollama {path}: HTTP {r.status_code}. Check /workspace/h3-portrait/ollama-status.json.')
-        data = r.json()
-        if not isinstance(data, dict):
-            raise RuntimeError('Private Ollama returned a malformed response.')
-        return data
+    try:
+        with method(BASE + path, timeout=(5, timeout), allow_redirects=False, **kw) as r:
+            if r.status_code != 200:
+                raise RuntimeError(f'Private Ollama {path}: HTTP {r.status_code}. Check /workspace/h3-portrait/ollama-status.json.')
+            data = r.json()
+    except requests.RequestException as exc:
+        raise RuntimeError('Private Ollama is unavailable at 127.0.0.1:11434. '
+                           'Check /workspace/h3-portrait/ollama-status.json before generating.') from exc
+    if not isinstance(data, dict):
+        raise RuntimeError('Private Ollama returned a malformed response.')
+    return data
 
 
 def canonical(model):
