@@ -38,7 +38,7 @@ RUN python /opt/krea-identity/install.py build --comfy-home /opt/comfy-bundle \
  && python -m pip check \
  && python /opt/krea-identity/check.py --build-smoke --comfy-home /opt/comfy-bundle
 ENV ENABLE_KREA_IDENTITY=0 KREA_IDENTITY_UPSCALE=0
-LABEL io.runpod.krea-identity.version="1.0.0"
+LABEL io.runpod.krea-identity.version="1.0.1"
 
 ENV H3_PORTRAIT_CONFIG=/workspace/h3-portrait/config \
     OLLAMA_MODEL="" \

@@ -16,7 +16,7 @@ import subprocess
 import sys
 
 HERE = Path(__file__).resolve().parent
-VERSION = '1.0.0'
+VERSION = '1.0.1'
 EXPECTED_COMFY = '65787d668397d230bf5839d69a0a7239e2dad378'
 
 
@@ -48,6 +48,44 @@ def install_workflows(home, upscale=False, source=HERE):
     return installed
 
 
+
+def patch_seedvr2_cpu_schemas(seed_root):
+    """Let the real SeedVR2 loader schemas register without a GPU.
+
+    Upstream uses devices[0] after a GPU-only enumeration. The fallback changes
+    only the empty-list case; CUDA/MPS choices and all inference code remain
+    untouched. This does not add support for CPU upscaling.
+
+    Review both files before writing either. Reject source drift instead of
+    silently bypassing the real ComfyUI registry/schema smoke test.
+    """
+    seed_root = Path(seed_root)
+    original = b"        devices = get_device_list()\n"
+    corrected = b'        devices = get_device_list() or ["cpu"]\n'
+    pending = []
+    for name in ('dit_model_loader.py', 'vae_model_loader.py'):
+        path = seed_root/'src/interfaces'/name
+        if path.is_symlink() or not path.is_file():
+            raise FileNotFoundError('Missing regular SeedVR2 schema source: '+str(path))
+        source = path.read_bytes()
+        if source.count(corrected) == 1 and original not in source:
+            updated = source
+        elif source.count(original) == 1 and corrected not in source:
+            updated = source.replace(original, corrected, 1)
+        else:
+            raise ValueError('Unrecognized SeedVR2 device schema in '+str(path)+
+                             '. Review the CPU registration fix for this upstream version; '
+                             'do not skip the real registry smoke test.')
+        compile(updated, str(path), 'exec')
+        if updated != source:
+            pending.append((path, updated))
+    for path, updated in pending:
+        path.write_bytes(updated)
+    print('SEEDVR2 CPU SCHEMA GUARD: '+str(len(pending))+
+          ' loader(s) patched; GPU device lists and inference code unchanged.', flush=True)
+    return len(pending)
+
+
 def build(home, scripts, seed_source, constraints):
     home, scripts = Path(home), Path(scripts)
     pin_file = Path('/opt/runpod-comfy/comfy-build-ref.txt')
@@ -64,6 +102,7 @@ def build(home, scripts, seed_source, constraints):
         raise FileNotFoundError('The pinned base image is missing /opt/seedvr2.')
     shutil.copytree(seed_source,home/'custom_nodes/ComfyUI-SeedVR2_VideoUpscaler',
                     dirs_exist_ok=True,ignore=shutil.ignore_patterns('__pycache__','*.pyc','.git'))
+    patch_seedvr2_cpu_schemas(home/'custom_nodes/ComfyUI-SeedVR2_VideoUpscaler')
     subprocess.run([sys.executable,'-m','unittest','discover','-s',str(HERE/'tests'),'-p','test_*.py'],check=True)
     print('KREA IDENTITY SOURCE INSTALLED. Weights are deferred to opt-in Pod startup.',flush=True)
 

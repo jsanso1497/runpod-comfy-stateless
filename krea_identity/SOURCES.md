@@ -45,3 +45,16 @@ actual inherited copy before publishing the image.
 No third-party model weights are included in this source package. The small
 local helper code is new; editing and rebalancing stay in the upstream packs.
 Private user LoRA links are outside the patch and excluded from source hashing.
+
+
+## CPU-only build hotfix, reviewed 2026-10-06
+
+- Upstream DiT schema (GPU-only device list, then devices[0]):
+  https://github.com/numz/ComfyUI-SeedVR2_VideoUpscaler/blob/main/src/interfaces/dit_model_loader.py
+- Upstream VAE schema (same empty-device-list assumption):
+  https://github.com/numz/ComfyUI-SeedVR2_VideoUpscaler/blob/main/src/interfaces/vae_model_loader.py
+- Device enumeration implementation:
+  https://github.com/numz/ComfyUI-SeedVR2_VideoUpscaler/blob/main/src/optimization/memory_manager.py
+- User-supplied build evidence: logs_101498979872.zip, build step 11 and disk
+  diagnostic step 12, 2026-10-06 13:41 UTC. The fix retains the inherited SeedVR2
+  source rather than fetching a rolling upstream version during the build.

@@ -274,5 +274,5 @@ jobs:
             printf '%s\n' "$PUBLISHED_DIGEST"
             echo '```'
             echo 'Krea Identity 1.0 bundled: enable with ENABLE_KREA_IDENTITY=1; optional still upscaler KREA_IDENTITY_UPSCALE=1.'
-            echo 'Clean snapshot: h3-1.5.0-krea-identity-1.0.0-r1'
+            echo 'Clean snapshot: h3-1.5.0-krea-identity-1.0.1-r1'
           } >> "$GITHUB_STEP_SUMMARY"

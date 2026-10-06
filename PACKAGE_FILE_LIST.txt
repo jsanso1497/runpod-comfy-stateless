@@ -99,6 +99,7 @@ krea_identity/install.py
 krea_identity/make_workflows.py
 krea_identity/node/__init__.py
 krea_identity/tests/test_module.py
+krea_identity/tests/test_seedvr2_cpu_schema.py
 krea_identity/workflows/Krea_Identity_01_Face_Body_Scene_v1_0.json
 krea_identity/workflows/Krea_Identity_02_Scene_One_Reference_v1_0.json
 krea_identity/workflows/Krea_Identity_03_Face_Refine_v1_0.json

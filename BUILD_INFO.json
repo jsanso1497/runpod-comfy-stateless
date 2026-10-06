@@ -1,11 +1,11 @@
 {
   "package": "RunPod ComfyUI - H3 Portrait Full/Lite + optional Krea Identity stills",
-  "package_version": "3.2.0+h3.1.5.0+kreaidentity.1.0.0",
+  "package_version": "3.2.0+h3.1.5.0+kreaidentity.1.0.1",
   "core_ref": "65787d668397d230bf5839d69a0a7239e2dad378",
-  "repository_snapshot": "h3-1.5.0-krea-identity-1.0.0-r1",
+  "repository_snapshot": "h3-1.5.0-krea-identity-1.0.1-r1",
   "portrait_version": "1.5.0",
   "portrait_pipeline": "role-routed-reference-still-v5",
-  "change": "Adds opt-in Krea 2 Turbo BF16 identity stills to all existing image builds. Main face/body/scene reference-sheet workflow, exact screenshot Rebalance-Pack node with an off-by-default A/B switch, one-reference alternative, optional manual face refinement, and separate single-image SeedVR2 upscaling. Existing H3 workflows and model recipes are unchanged.",
+  "change": "Fix SeedVR2 CPU-only schema registration during the Krea Docker smoke test. Add an empty-GPU-list fallback in the bundled DiT and VAE schema definitions; retain real validation of all four workflows. No models, precision, sampling, workflow graphs, rebalancer settings, or GPU inference code changed.",
   "profiles": [
     "full",
     "lite"
@@ -19,7 +19,7 @@
     "H3_Portrait_Full_v1_5",
     "H3_Ref2VA_Standard_Full_v1_5"
   ],
-  "local_python_unit_tests": 558,
+  "local_python_unit_tests": 573,
   "widget_serialization_checks": 2,
   "workflow_graphs_checked": 23,
   "gpu_inference_tested": false,
@@ -45,12 +45,12 @@
     "GPU Krea identity editing, face/body reference fusion, and rebalancer A/B comparison",
     "GPU single-image SeedVR2 finishing and identity comparison"
   ],
-  "source_snapshot_files": 141,
+  "source_snapshot_files": 142,
   "static_repository_checks": "passed",
   "krea_identity": {
-    "version": "1.0.0",
+    "version": "1.0.1",
     "workflows": 4,
-    "new_python_tests": 47,
+    "new_python_tests": 62,
     "custom_subject_lora_training": false,
     "external_inference_api": false,
     "enabled_by_default": false,
@@ -59,6 +59,10 @@
     "real_comfy_schema_test_run_locally": false,
     "gpu_inference_tested": false,
     "visual_identity_quality_tested": false,
-    "source_baseline": "Attached New Compressed (zipped) Folder(1).zip; live GitHub was not changed"
+    "source_baseline": "Attached New Compressed (zipped) Folder(1).zip; live GitHub was not changed",
+    "cpu_schema_hotfix_regression_tests": 15,
+    "original_failed_build_log": "logs_101498979872.zip",
+    "corrected_docker_build_tested": false,
+    "patch_scope": "Only empty device enumeration in the two bundled SeedVR2 loader schemas; nonempty CUDA/MPS lists remain unchanged."
   }
 }

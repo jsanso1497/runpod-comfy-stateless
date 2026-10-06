@@ -1,9 +1,12 @@
-# Latest additive integration validation
+# Latest integration validation: Krea Identity 1.0.1
 
-Krea Identity 1.0 adds 47 local Python tests to the existing 511, for 558 total,
-plus 2 existing frontend checks and 23 static workflow graphs. See
-`krea_identity/VALIDATION.md` for the exact boundary. Docker and GPU inference
-were not run during this update. The older H3 validation record follows.
+All 573 local Python tests passed, including 15 new tests for the CPU-only
+SeedVR2 schema failure shown in the uploaded build log. The 23 static graphs,
+2 frontend checks and all 3 repository preflights passed. No model or workflow
+settings were changed. The full corrected Docker build and GPU inference have
+not been run here. See `krea_identity/VALIDATION.md` for the validation boundary.
+
+The historical H3 validation record follows.
 
 ---
 

@@ -1,9 +1,24 @@
-# Krea Identity 1.0: face / body / scene, without custom training
+# Krea Identity 1.0.1: face / body / scene, without custom training
 
 This is an additive module for the attached RunPod ComfyUI repository. It is
 available in the general image, H3 Portrait Full, and H3 Portrait Lite after a
 rebuild. It does not change the H3 models, prompts, workflows, last-frame export,
 or shared user LoRA list. It does not use an external inference API.
+
+## Build failure fixed in 1.0.1
+
+This update corrects the CPU-only SeedVR2 node-registration failure in the
+uploaded GitHub Actions log. It changes the two loader schema device-list
+fallbacks only. It keeps full real-node validation, the same BF16 identity
+models, the same rebalancer, and the same GPU workflow settings.
+
+Merge this cumulative update over the repository that received the earlier
+Krea update, commit all changed files, and run the build on that NEW commit.
+Re-running the old failed job would use the old source and fail again.
+No RunPod environment-variable changes are needed for this fix.
+
+The workflow filenames still end in `v1_0`: image-generation graphs did not
+change, so the fix does not replace your edited/saved workflow copies.
 
 ## Install the update
 
@@ -16,7 +31,7 @@ On macOS, open Terminal in your existing repository directory and use a merge
 extract, rather than replacing the entire `h3_portrait` folder in Finder:
 
 ```bash
-ditto -x -k "$HOME/Downloads/krea-identity-integration-update.zip" .
+ditto -x -k "$HOME/Downloads/krea-identity-integration-update-v1.0.1.zip" .
 python3 tools/verify_snapshot.py
 ```
 
@@ -32,7 +47,7 @@ required. Wait for a successful build before creating the updated Pod.
 The exact snapshot identifier is now:
 
 ```
-h3-1.5.0-krea-identity-1.0.0-r1
+h3-1.5.0-krea-identity-1.0.1-r1
 ```
 
 The H3 pipeline itself remains version 1.5.0. You do not need to delete your

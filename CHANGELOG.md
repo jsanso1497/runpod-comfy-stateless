@@ -1,3 +1,16 @@
+# Krea Identity 1.0.1: CPU build-schema hotfix (2026-10-06)
+
+- Fix the failure in logs_101498979872.zip: SeedVR2's loader schemas indexed
+  devices[0] when the CPU-only Docker builder reported no GPU devices.
+- Add a guarded, idempotent fallback in BOTH the DiT and VAE loader schemas.
+  Nonempty CUDA/MPS lists, model execution code, precision and settings are unchanged.
+- Apply the fix to the bundled copy before the real ComfyUI registry smoke test.
+  Keep validation of all four Krea workflows; do not skip or fabricate SeedVR2 nodes.
+- Add 15 regression tests: original failure, CPU fallback, unchanged GPU choices,
+  repeat installation, source-drift errors and correct installer sequencing.
+- Rerun all 573 local Python tests, 23 static graphs and 2 frontend checks.
+  Corrected full Docker builds and GPU inference remain untested locally.
+
 # Krea Identity 1.0 additive integration (2026-10-06)
 
 - Added the same Turbo BF16 still-image capability to general, H3 Full and H3 Lite builds.

@@ -66,7 +66,7 @@ RUN python /opt/krea-identity/install.py build --comfy-home /opt/comfy-bundle \
  && python -m pip check \
  && python /opt/krea-identity/check.py --build-smoke --comfy-home /opt/comfy-bundle
 ENV ENABLE_KREA_IDENTITY=0 KREA_IDENTITY_UPSCALE=0
-LABEL io.runpod.krea-identity.version="1.0.0"
+LABEL io.runpod.krea-identity.version="1.0.1"
 
 LABEL org.opencontainers.image.title="ComfyUI Quality - Krea Rebalance + H3 RefMod + Ollama" \
       org.opencontainers.image.description="Krea-only Rebalance with grounded Identity Edit; H3 Full RefMod; local abliterated vision prompting" \
