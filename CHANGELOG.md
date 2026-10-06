@@ -1,3 +1,13 @@
+# Krea Identity 1.0 additive integration (2026-10-06)
+
+- Added the same Turbo BF16 still-image capability to general, H3 Full and H3 Lite builds.
+- Three original-photo inputs via a face/body reference sheet, plus a direct two-image alternative.
+- Existing Identity Edit v1.2 and exact ConditioningKrea2Rebalance node, with true A/B bypass.
+- Optional manually cropped face refinement and separate SeedVR2 single-image upscale.
+- Opt-in runtime downloads; pinned source and hash-verified weights; no new inference API.
+- Retained all existing workflows and private shared LoRA configuration.
+- 47 new local tests; actual Docker/GPU/visual testing still pending.
+
 # H3 Portrait 1.5 - role-routed video + MiniMax H3 Ref2VA single-image workflow
 
 - Fix automatic H3 reference dominance by allowing pose/camera and expression guides to be analyzed by Ollama but withheld from native H3 visual conditioning in the recommended video mode.

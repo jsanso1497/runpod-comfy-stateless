@@ -15,7 +15,7 @@ python /opt/h3-portrait/verify_release.py --check-manifest /opt/h3-portrait/rele
 mkdir -p "$COMFY_HOME" "$H3_PORTRAIT_CONFIG" /workspace/h3-portrait
 cp -a /opt/h3-portrait/{settings.json,models.json,runtime.json} "$H3_PORTRAIT_CONFIG/"
 cp /opt/shared-loras/lora_links.txt "$H3_PORTRAIT_CONFIG/lora_links.txt"
-# The alternate image has only our node pack enabled in this bundle.
+# H3 plus the isolated Krea/SeedVR2 node capability are bundled; weights remain opt-in.
 rsync -a --exclude='__pycache__' --exclude='build-smoke.log' --exclude='/models/' --exclude='/input/' --exclude='/output/' --exclude='/user/' --exclude='/temp/' /opt/comfy-bundle/ "$COMFY_HOME/"
 python /opt/h3-portrait/verify_release.py --check-manifest /opt/h3-portrait/release-manifest.json --node-copy "$COMFY_HOME/custom_nodes/ComfyUI-H3Portrait"
 mkdir -p "$COMFY_HOME"/{models,input,output,temp,user/default/workflows}
@@ -23,6 +23,7 @@ python /opt/h3-portrait/install_workflows.py --home "$COMFY_HOME" --settings "$H
 python /opt/runpod-comfy/scripts/comfy_http_fix.py apply "$COMFY_HOME"
 # Catch configuration/access errors before starting the expensive generation model.
 python /opt/h3-portrait/prepare_assets.py
+python /opt/krea-identity/install.py runtime --comfy-home "$COMFY_HOME"
 OLLAMA_PID=''
 COMFY_PID=''
 cleanup() {

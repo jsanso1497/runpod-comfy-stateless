@@ -1,3 +1,17 @@
+# Added: Krea Identity still images
+
+Start with `krea_identity/START_HERE.md` for the new face/body/scene editor,
+optional exact screenshot rebalancer, and single-image upscale workflows.
+The module is available in all three existing builds after rebuilding.
+Add `ENABLE_KREA_IDENTITY=1` and optionally `KREA_IDENTITY_UPSCALE=1` to the Pod.
+No custom subject LoRA training is required. Existing H3 workflows are preserved.
+
+The new source snapshot ID is `h3-1.5.0-krea-identity-1.0.0-r1`.
+The instructions below describe the preserved H3 1.5 release; its pipeline version
+has not changed. Use the current Krea integration update ZIP for this update.
+
+---
+
 # H3 Portrait 1.5: role-aware video, MiniMax H3 Ref2VA stills, saved last frame
 
 This is an in-place browser update. **Do not wipe the repository again.**
@@ -46,7 +60,7 @@ paths with the standalone YAMLs supplied beside the release ZIP.
 Expected early checks:
 
 ```text
-CLEAN SOURCE SNAPSHOT VERIFIED: h3-role-routing-ref2va-still-1.5.0-r1
+CLEAN SOURCE SNAPSHOT VERIFIED: h3-1.5.0-krea-identity-1.0.0-r1
 H3 PORTRAIT SOURCE VERIFIED: 1.5.0 | role-routed-reference-still-v5
 ```
 

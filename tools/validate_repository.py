@@ -89,6 +89,9 @@ def main():
     portrait=importlib.util.module_from_spec(spec);spec.loader.exec_module(portrait)
     for p in (ROOT/'h3_portrait/workflows').glob('*.json'):portrait.validate_graph(json.loads(p.read_text()))
     counts['graphs_checked']=len(list((ROOT/'config/workflows').glob('*.json')))+len(list((ROOT/'h3_portrait/workflows').glob('*.json')))
+    subprocess.run([sys.executable, str(ROOT/'krea_identity/check.py')], check=True)
+    counts['krea_identity_graphs_checked']=4
+    counts['graphs_checked']+=4
     print(json.dumps(counts,indent=2))
     print('STATIC REPOSITORY CHECKS PASS. No Docker build or GPU inference performed.')
 

@@ -1,3 +1,12 @@
+# Latest additive integration validation
+
+Krea Identity 1.0 adds 47 local Python tests to the existing 511, for 558 total,
+plus 2 existing frontend checks and 23 static workflow graphs. See
+`krea_identity/VALIDATION.md` for the exact boundary. Docker and GPU inference
+were not run during this update. The older H3 validation record follows.
+
+---
+
 # H3 Portrait 1.5 validation
 
 This document records local validation for the release source package. It does

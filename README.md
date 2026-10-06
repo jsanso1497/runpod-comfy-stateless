@@ -9,3 +9,9 @@ See `START_HERE.md` for browser-only update and RunPod instructions.
 - **General image**: `:latest` remains independent for the preserved general workflows.
 
 The update ZIP intentionally excludes `config/lora_links.txt`.
+
+## Optional Krea Identity still-image module
+
+See [krea_identity/START_HERE.md](krea_identity/START_HERE.md) for the three-upload
+Turbo BF16 editor, exact screenshot rebalancer, optional head refinement and
+single-image upscaling. No H3 pipeline or private LoRA-list replacement.

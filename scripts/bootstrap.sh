@@ -92,6 +92,7 @@ python "$SCRIPTS/catalog.py" download --config "$CONFIG_HOME" --comfy-home "$COM
 # Shared user LoRAs are independent of MODEL_PROFILES. Do not auto-apply them.
 python /opt/shared-loras/sync.py --links "$CONFIG_HOME/lora_links.txt" --comfy-home "$COMFY_HOME"
 python "$SCRIPTS/catalog.py" workflows --config "$CONFIG_HOME" --comfy-home "$COMFY_HOME"
+python /opt/krea-identity/install.py runtime --comfy-home "$COMFY_HOME"
 
 # Independent optional service: a failed pull does not prevent existing Krea/SeedVR2 use.
 # The helper binds ONLY loopback. Do not expose port 11434 in the RunPod template.

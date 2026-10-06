@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def check(target):
-    wanted = ['.dockerignore', 'shared_loras/sync.py', 'shared_loras/tests/test_links.py',
+    wanted = ['krea_identity/install.py', 'krea_identity/check.py', 'krea_identity/node/__init__.py', '.dockerignore', 'shared_loras/sync.py', 'shared_loras/tests/test_links.py',
               'config/lora_links.txt', 'file_manager/service.py', 'file_manager/install.sh',
               'file_manager/requirements.txt', 'file_manager/smoke_test.py']
     if target in ('portrait','portrait-lite'):
@@ -37,6 +37,7 @@ def check(target):
                      'test_quality', 'test_single_person', 'test_user_directed_h3'):
             f=ROOT/'tests'/f'{name}.py'
             ast.parse(f.read_text(), filename=str(f))
+    subprocess.run([sys.executable, str(ROOT/'krea_identity/check.py')], check=True)
     print('REPOSITORY PREFLIGHT PASS: ' + target)
 
 

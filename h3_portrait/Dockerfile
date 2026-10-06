@@ -32,6 +32,14 @@ RUN test "$(cat /opt/runpod-comfy/comfy-build-ref.txt)" = "65787d668397d230bf583
  && python /opt/runpod-comfy/scripts/comfy_http_fix.py self-test \
  && python /opt/runpod-comfy/scripts/comfy_http_fix.py apply /opt/comfy-bundle \
  && python /opt/h3-portrait/smoke_check.py --build --wait 240
+# Optional Krea identity stills. No H3 workflow, model precision, or prompt changes.
+COPY krea_identity/ /opt/krea-identity/
+RUN python /opt/krea-identity/install.py build --comfy-home /opt/comfy-bundle \
+ && python -m pip check \
+ && python /opt/krea-identity/check.py --build-smoke --comfy-home /opt/comfy-bundle
+ENV ENABLE_KREA_IDENTITY=0 KREA_IDENTITY_UPSCALE=0
+LABEL io.runpod.krea-identity.version="1.0.0"
+
 ENV H3_PORTRAIT_CONFIG=/workspace/h3-portrait/config \
     OLLAMA_MODEL="" \
     OLLAMA_NO_CLOUD=1 \
