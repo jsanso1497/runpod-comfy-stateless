@@ -1,0 +1,4 @@
+# Isolated from ComfyUI/Torch in /opt/file-manager-venv.
+# Jupyter releases verified on PyPI, 2026-10-05. Python >= 3.10.
+jupyterlab==4.6.4
+jupyter-server==2.21.1
