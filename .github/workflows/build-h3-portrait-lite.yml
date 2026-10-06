@@ -1,4 +1,4 @@
-name: Build H3 Portrait template
+name: Build H3 Portrait Lite template
 
 on:
   workflow_dispatch:
@@ -12,7 +12,7 @@ on:
       - "shared_loras/**"
       - "file_manager/**"
       - "config/lora_links.txt"
-      - ".github/workflows/build-h3-portrait.yml"
+      - ".github/workflows/build-h3-portrait-lite.yml"
 
 permissions:
   contents: read
@@ -20,7 +20,7 @@ permissions:
 
 # A newer commit supersedes an older build of this same image.
 concurrency:
-  group: runpod-h3-portrait-${{ github.ref }}
+  group: runpod-h3-portrait-lite-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -44,7 +44,7 @@ jobs:
 
       - name: Verify complete repository source before building
         shell: bash
-        run: python3 tools/check_repository.py --target portrait
+        run: python3 tools/check_repository.py --target portrait-lite
 
       - name: Check actual frontend widget migration
         run: node tools/test_widget_serialization.mjs
@@ -207,10 +207,9 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository_owner }}/runpod-comfy-stateless
           tags: |
-            type=raw,value=h3-portrait
-            type=raw,value=h3-portrait-clean
-            type=raw,value=h3-portrait-v1.4.0
-            type=sha,prefix=h3-portrait-sha-
+            type=raw,value=h3-portrait-lite
+            type=raw,value=h3-portrait-lite-v1.4.0
+            type=sha,prefix=h3-portrait-lite-sha-
 
       - name: Build and push image - no external build cache
         id: build
@@ -226,7 +225,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             SOURCE_REVISION=${{ github.sha }}
-            PORTRAIT_PROFILE=full
+            PORTRAIT_PROFILE=lite
           # Deliberately no cache-from/cache-to. Avoid restoring/exporting the huge GHA cache.
           # All Dockerfile dependency, workflow, HTTP and node-validation checks still run.
 
@@ -265,12 +264,12 @@ jobs:
           set -Eeuo pipefail
           test -n "$PUBLISHED_DIGEST"
           {
-            echo '## H3 Portrait 1.4 FULL + Role Routing + Last Frame image published'
+            echo '## H3 Portrait 1.4 LITE + Role Routing + Last Frame image published'
             echo 'Clean snapshot: h3-role-routing-1.4.0-r1'
             echo 'File manager: password-protected JupyterLab on HTTP port 8888; set FILEBROWSER_PASSWORD.'
-            echo 'Runtime: separate 32B Instruct analysis + 32B Thinking text director; sequential loading.'
+            echo 'Runtime: one 8B Instruct helper; full-architecture INT8 H3; Standard 16 steps at a smaller canvas.'
             echo 'Source commit: ${{ github.sha }}'
-            echo 'Expected startup: H3 PORTRAIT 1.4 | Role-aware references + saved last frame | profile=full'
+            echo 'Expected startup: H3 PORTRAIT 1.4 | Role-aware references + saved last frame | profile=lite'
             echo
             echo 'Tags:'
             echo '```text'
@@ -280,5 +279,5 @@ jobs:
             echo '```text'
             printf '%s\n' "$PUBLISHED_DIGEST"
             echo '```'
-            echo 'Use ghcr.io/jsanso1497/runpod-comfy-stateless:h3-portrait-clean in your portrait template. Existing latest is unchanged.'
+            echo 'Use ghcr.io/jsanso1497/runpod-comfy-stateless:h3-portrait-lite in your portrait template. Existing latest is unchanged.'
           } >> "$GITHUB_STEP_SUMMARY"
