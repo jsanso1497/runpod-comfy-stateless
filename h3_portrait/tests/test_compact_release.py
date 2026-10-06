@@ -126,7 +126,7 @@ class CompactTests(unittest.TestCase):
 
 class ReleaseTests(unittest.TestCase):
     def test_current_source_verified(self):
-        self.assertEqual(release.verify_source(ROOT)['version'],'1.5.0')
+        self.assertEqual(release.verify_source(ROOT)['version'],'1.5.2')
     def test_all_node_files_hashed(self):
         self.assertEqual(set(release.node_hashes(ROOT/'node')),set(release.NODE_FILES))
     def test_missing_analysis_file_rejected(self):

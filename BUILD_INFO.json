@@ -1,27 +1,29 @@
 {
   "package": "RunPod ComfyUI - optional Krea Identity and H3 HQ Media",
-  "package_version": "3.2.0+h3.1.5.0+kreaidentity.1.2.0+h3media.1.2.0",
+  "package_version": "3.2.1+h3.1.5.2+kreaidentity.1.2.0+h3media.1.2.0",
   "core_ref": "65787d668397d230bf5839d69a0a7239e2dad378",
-  "repository_snapshot": "h3-1.5.0-krea-identity-1.2.0-media-r1",
-  "portrait_version": "1.5.0",
-  "portrait_pipeline": "role-routed-reference-still-v5",
-  "change": "Add Krea two independent references with described scene and native full BF16 H3 MP4 voice/identity/action workflow; preserve existing graphs and weights.",
+  "repository_snapshot": "h3-1.5.2-krea-identity-1.2.0-media-local-refpack-r1",
+  "portrait_version": "1.5.2",
+  "portrait_pipeline": "role-routed-reference-still-local-refvideo-v5_2",
+  "change": "Add local-only Hearmeman MiniMax H3 image + reference-video replacement workflow to Full and Lite while preserving Krea Identity 1.2.0, H3 Media 1.2.0, existing H3 graphs, weights, and shared LoRA configuration.",
   "profiles": [
     "full",
     "lite"
   ],
   "lite_workflows": [
-    "H3_Portrait_Lite_v1_5",
-    "H3_Ref2VA_Standard_Lite_v1_5",
-    "H3_Portrait_Image_Lite_v1_5"
+    "H3_Portrait_Lite_v1_5_2",
+    "H3_Ref2VA_Standard_Lite_v1_5_2",
+    "H3_Reference_Video_Swap_Local_Lite_v1_5_2",
+    "H3_Portrait_Image_Lite_v1_5_2"
   ],
   "full_workflows": [
-    "H3_Portrait_Full_v1_5",
-    "H3_Ref2VA_Standard_Full_v1_5"
+    "H3_Portrait_Full_v1_5_2",
+    "H3_Ref2VA_Standard_Full_v1_5_2",
+    "H3_Reference_Video_Swap_Local_Full_v1_5_2"
   ],
-  "local_python_unit_tests": 714,
+  "local_python_unit_tests": 721,
   "widget_serialization_checks": 2,
-  "workflow_graphs_checked": 28,
+  "workflow_graphs_checked": 29,
   "gpu_inference_tested": false,
   "still_image_gpu_inference_tested": false,
   "file_manager": {
@@ -47,10 +49,13 @@
     "H3 Media native encode and GPU MP4 voice/identity/action inference",
     "Full v1.2.0 Docker build with both optional modules",
     "H3 Media native encode and GPU MP4 voice/identity/action inference",
-    "Full v1.2.0 Docker build with both optional modules"
+    "Full v1.2.0 Docker build with both optional modules",
+    "Complete 1.5.2 Full and Lite Docker builds with the pinned Reference Pack",
+    "Live RunPod MiniMax H3 reference-video generation and identity-fidelity evaluation",
+    "Reference-conditioned voice similarity evaluation on GPU"
   ],
-  "source_snapshot_files": 165,
-  "static_repository_checks": "passed",
+  "source_snapshot_files": 170,
+  "static_repository_checks": "passed for portrait and portrait-lite",
   "krea_identity": {
     "version": "1.2.0",
     "workflows": 8,
@@ -88,5 +93,18 @@
     "real_comfy_schema_test_run_locally": false,
     "gpu_inference_tested": false,
     "voice_likeness_tested": false
-  }
+  },
+  "h3_reference_pack": {
+    "upstream": "Hearmeman24/ComfyUI-MiniMaxRefPack",
+    "version": "0.3.5",
+    "commit": "7012734eabf6f98063d6eaf8ce1f9264ee803664",
+    "prompt_provider": "local-only Ollama OpenAI-compatible endpoint",
+    "hosted_prompt_models_enabled": false,
+    "full_local_prompt_model": "huihui_ai/qwen3-vl-abliterated:32b-instruct-q4_K_M",
+    "lite_local_prompt_model": "huihui_ai/qwen3-vl-abliterated:8b-instruct-q4_K_M",
+    "full_default_quality": "High fidelity, 25 steps, ref_image_size=max",
+    "lite_default_quality": "Standard, 16 steps, ref_image_size=match",
+    "gpu_inference_tested": false
+  },
+  "source_baseline": "Attached New Compressed (zipped) Folder(2).zip; changes prepared against that ZIP, not a live repo checkout."
 }

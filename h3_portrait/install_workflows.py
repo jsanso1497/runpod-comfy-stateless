@@ -14,6 +14,11 @@ def configured_graph(graph,settings):
         if typ=='UNETLoader':values[0]=files['diffusion'];node['title']='H3 Ref2VA: full INT8' if lite else 'H3 Ref2VA: full BF16'
         elif typ=='CLIPLoader':values[0]=files['encoder'];node['title']='H3 encoder: INT8' if lite else 'H3 encoder: BF16'
         elif typ=='MiniMaxH3ReferenceToVideo' and lite:values[1:5]=[576,1024,124,'match']
+        elif typ=='MiniMaxH3ReferencePack':
+            values[3]='local';values[4]='';values[5]='(hosted models disabled)';values[6]='none'
+            values[7]='http://127.0.0.1:11434/v1';values[8]=settings['analysis_model'];values[9]='replacement';values[13]=2048
+            node['title']='2. Subject images + reference video | Local Ollama only'
+        elif typ=='H3ReferenceVideoSettings' and lite:values[1]='Standard'
         elif typ=='BasicScheduler' and lite:values[1]=16
     return graph
 
@@ -21,10 +26,10 @@ def configured_graph(graph,settings):
 def install(home,settings,source=HERE):
     lite=settings.get('profile')=='lite';profile='Lite' if lite else 'Full'
     folder=Path(home)/'user/default/workflows';folder.mkdir(parents=True,exist_ok=True)
-    recipes=[('H3_Portrait_Auto.json','H3_Portrait'),('H3_Ref2VA_Standard.json','H3_Ref2VA_Standard')]
+    recipes=[('H3_Portrait_Auto.json','H3_Portrait'),('H3_Ref2VA_Standard.json','H3_Ref2VA_Standard'),('H3_Reference_Video_Swap_Local.json','H3_Reference_Video_Swap_Local')]
     if lite:recipes.append(('H3_Portrait_Image_Lite.json','H3_Portrait_Image'))
     for src,stem in recipes:
-        target=folder/f'{stem}_{profile}_v1_5.json'
+        target=folder/f'{stem}_{profile}_v1_5_2.json'
         # Never overwrite the user's edits to this versioned copy on restart.
         if not target.exists():
             graph=configured_graph(json.loads((Path(source)/'workflows'/src).read_text()),settings)

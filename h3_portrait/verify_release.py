@@ -13,18 +13,19 @@ import os
 from pathlib import Path
 import re
 
-EXPECTED_VERSION='1.5.0'
-EXPECTED_PIPELINE='role-routed-reference-still-v5'
+EXPECTED_VERSION='1.5.2'
+EXPECTED_PIPELINE='role-routed-reference-still-local-refvideo-v5_2'
 HERE=Path(__file__).resolve().parent
 NODE_FILES=(
     '__init__.py','logic.py','ollama_client.py','analysis_prompt.txt','system_prompt.txt',
     'still_portrait.py','still_system_prompt.txt','reference_roles.py','video_export.py',
-    'native_helpers.py','web/references.js','web/director_controls.js',
+    'native_helpers.py','reference_video.py','web/references.js','web/director_controls.js',
 )
 WORKFLOW_FILES=(
     'workflows/H3_Portrait_Auto.json',
     'workflows/H3_Ref2VA_Standard.json',
     'workflows/H3_Portrait_Image_Lite.json',
+    'workflows/H3_Reference_Video_Swap_Local.json',
 )
 
 
@@ -65,7 +66,7 @@ def verify_source(source):
     source=Path(source)
     required=(
         'VERSION','settings.json','models.json','runtime.json','start.sh','prepare_assets.py',
-        'ollama_service.py','smoke_check.py','install_workflows.py','profiles/lite/settings.json',
+        'ollama_service.py','smoke_check.py','install_workflows.py','patch_refpack_local.py','profiles/lite/settings.json',
         'profiles/lite/models.json',*WORKFLOW_FILES,
     )
     for relative in required+tuple('node/'+x for x in NODE_FILES):
@@ -111,7 +112,7 @@ def verify_source(source):
                        and isinstance(n.value,ast.Constant)
                        and any(isinstance(t,ast.Name) and t.id=='PACKAGE_VERSION' for t in n.targets)),None)
     if init_version!=EXPECTED_VERSION:
-        raise ValueError('Older node/__init__.py detected. Upload the complete H3 Portrait 1.5 node folder.')
+        raise ValueError('Older node/__init__.py detected. Upload the complete H3 Portrait 1.5.2 node folder.')
     classes={n.name for n in init_module.body if isinstance(n,ast.ClassDef)}
     for name in ('H3PortraitDirector','H3PortraitStillDirector','H3PortraitStillOutput','H3PortraitSaveLastFrame'):
         if name not in classes and name not in init:
@@ -135,6 +136,16 @@ def verify_source(source):
         raise ValueError('Lite still workflow is missing native H3 Ref2VA stages.')
     if any('QwenGenerate' in t or 'QwenModels' in t or t=='H3PortraitImageDirector' for t in types):
         raise ValueError('Lite still workflow must not use the removed separate image-model path.')
+
+    ref_graph=json.loads((source/'workflows/H3_Reference_Video_Swap_Local.json').read_text())
+    ref_types={n['type'] for n in ref_graph.get('nodes',[])}
+    required_ref={'MiniMaxH3ReferencePack','MiniMaxH3ReferenceToVideo','H3ReferenceVideoSettings','H3ReferenceVideoDraftGate','H3ReferenceVideoCrop','H3PortraitExportVideo','H3PortraitSaveLastFrame'}
+    if not required_ref.issubset(ref_types):
+        raise ValueError('Local reference-video workflow is missing required Hearmeman/H3 stages.')
+    pack=next(n for n in ref_graph['nodes'] if n['type']=='MiniMaxH3ReferencePack')
+    vals=pack.get('widgets_values',[])
+    if len(vals)<14 or vals[3]!='local' or vals[4] or vals[7]!='http://127.0.0.1:11434/v1' or vals[9]!='replacement':
+        raise ValueError('Reference Pack workflow must default to local Ollama replacement mode with no API key.')
 
     for f in (source/'node').rglob('*.py'):
         ast.parse(f.read_text(),filename=str(f))

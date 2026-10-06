@@ -211,7 +211,7 @@ jobs:
           tags: |
             type=raw,value=h3-portrait
             type=raw,value=h3-portrait-clean
-            type=raw,value=h3-portrait-v1.5.0
+            type=raw,value=h3-portrait-v1.5.2
             type=sha,prefix=h3-portrait-sha-
 
       - name: Build and push image - no external build cache

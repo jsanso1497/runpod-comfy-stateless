@@ -4,6 +4,7 @@ ARG BASE_IMAGE=ghcr.io/jsanso1497/runpod-comfy-stateless@sha256:49d305115a3cfe57
 FROM ${BASE_IMAGE}
 ARG SOURCE_REVISION=local-uncommitted
 ARG PORTRAIT_PROFILE=full
+ARG H3_REFPACK_COMMIT=7012734eabf6f98063d6eaf8ce1f9264ee803664
 ENV H3_PORTRAIT_PROFILE=${PORTRAIT_PROFILE}
 ENV H3_SOURCE_REVISION=${SOURCE_REVISION}
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
@@ -23,6 +24,14 @@ RUN test "$(cat /opt/runpod-comfy/comfy-build-ref.txt)" = "65787d668397d230bf583
  && test -x /usr/bin/ollama \
  && find /opt/comfy-bundle/custom_nodes -mindepth 1 -maxdepth 1 -exec rm -rf -- {} + \
  && cp -a /opt/h3-portrait/node /opt/comfy-bundle/custom_nodes/ComfyUI-H3Portrait \
+ && git clone https://github.com/Hearmeman24/ComfyUI-MiniMaxRefPack.git /tmp/ComfyUI-MiniMaxRefPack \
+ && git -C /tmp/ComfyUI-MiniMaxRefPack checkout "${H3_REFPACK_COMMIT}" \
+ && test "$(git -C /tmp/ComfyUI-MiniMaxRefPack rev-parse HEAD)" = "${H3_REFPACK_COMMIT}" \
+ && python /opt/h3-portrait/patch_refpack_local.py /tmp/ComfyUI-MiniMaxRefPack \
+ && python -m pip install --no-cache-dir -r /tmp/ComfyUI-MiniMaxRefPack/requirements.txt \
+ && rm -rf /tmp/ComfyUI-MiniMaxRefPack/.git /tmp/ComfyUI-MiniMaxRefPack/tests /tmp/ComfyUI-MiniMaxRefPack/conftest.py \
+ && cp -a /tmp/ComfyUI-MiniMaxRefPack /opt/comfy-bundle/custom_nodes/ComfyUI-MiniMaxRefPack \
+ && rm -rf /tmp/ComfyUI-MiniMaxRefPack \
  && chmod +x /opt/h3-portrait/start.sh \
  && bash -n /opt/h3-portrait/start.sh \
  && python -m compileall -q /opt/h3-portrait \
@@ -40,7 +49,7 @@ RUN python /opt/krea-identity/install.py build --comfy-home /opt/comfy-bundle \
  && python -m pip check \
  && python /opt/krea-identity/check.py --build-smoke --comfy-home /opt/comfy-bundle
 ENV ENABLE_KREA_IDENTITY=0 KREA_IDENTITY_UPSCALE=0 ENABLE_H3_MEDIA=0
-LABEL io.runpod.krea-identity.version="1.2.0" io.runpod.h3-media.version="1.2.0"
+LABEL io.runpod.krea-identity.version="1.2.0" io.runpod.h3-media.version="1.2.0" io.runpod.h3-refpack.version="0.3.5-local-only"
 
 ENV H3_PORTRAIT_CONFIG=/workspace/h3-portrait/config \
     OLLAMA_MODEL="" \
@@ -49,7 +58,7 @@ ENV H3_PORTRAIT_CONFIG=/workspace/h3-portrait/config \
     TINI_SUBREAPER=1 \
     PYTHONUNBUFFERED=1
 LABEL org.opencontainers.image.title="H3 Portrait Auto" \
-      org.opencontainers.image.version="h3-portrait-1.5.0"
+      org.opencontainers.image.version="h3-portrait-1.5.2"
 EXPOSE 8188 8888
 WORKDIR /workspace
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30m --retries=3 \

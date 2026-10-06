@@ -1,3 +1,13 @@
+# H3 Portrait 1.5.2: local Hearmeman Reference Video
+
+- Add `H3_Reference_Video_Swap_Local` to Full and Lite builds from the attached 1.5.0 source baseline.
+- Install Hearmeman24 `ComfyUI-MiniMaxRefPack` 0.3.5 at pinned commit `7012734eabf6f98063d6eaf8ce1f9264ee803664`.
+- Patch the baked Reference Pack to local-only prompt writing through the existing Ollama service. OpenRouter model discovery and hosted execution are disabled.
+- Full uses the existing 32B Instruct local analysis model; Lite uses the existing 8B Instruct model.
+- Preserve native H3 video, image, soundtrack and standalone audio reference sockets.
+- Add Draft-only prompt review, Full 25-step High fidelity mode, exact 9:16 / 2:3 / 16:9 delivery geometry, and existing final-MP4 last-frame export.
+- Preserve Krea Identity 1.2.0, H3 Media 1.2.0, existing H3 workflows, weights and private shared LoRA configuration.
+
 # Krea Identity + H3 Media 1.2.0
 
 - Add Krea workflow 08: two separate references, text-described scene, exact selectable image aspect and existing rebalancer.

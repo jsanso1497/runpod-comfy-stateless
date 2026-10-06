@@ -154,7 +154,7 @@ class Packaging15(unittest.TestCase):
         self.assertEqual(vals[2],'High-res (~2 MP, experimental)');self.assertEqual(vals[5],'fixed');self.assertEqual(vals[7],'Draft only');self.assertEqual(vals[-1],'Still safe swap (pose/scene text-only)')
         self.assertFalse(any(isinstance(v,float) and v!=v for v in vals))
     def test_installer_installs_still_only_on_lite(self):
-        for profile,path,count in [('Full',ROOT/'settings.json',2),('Lite',ROOT/'profiles/lite/settings.json',3)]:
+        for profile,path,count in [('Full',ROOT/'settings.json',3),('Lite',ROOT/'profiles/lite/settings.json',4)]:
             with self.subTest(profile=profile),tempfile.TemporaryDirectory() as td:
                 install(td,json.loads(path.read_text()))
                 files=list((Path(td)/'user/default/workflows').glob('*.json'))
@@ -172,6 +172,6 @@ class Packaging15(unittest.TestCase):
     def test_release_verifier_accepts_current_source(self):
         import importlib.util
         spec=importlib.util.spec_from_file_location('verify',ROOT/'verify_release.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
-        self.assertEqual(m.verify_source(ROOT)['version'],'1.5.0')
+        self.assertEqual(m.verify_source(ROOT)['version'],'1.5.2')
 
 if __name__=='__main__':unittest.main()

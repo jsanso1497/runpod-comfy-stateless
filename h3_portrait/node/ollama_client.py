@@ -138,7 +138,7 @@ def unload(s,model,timeout=90):
 
 
 # This value is checked during image build and before model downloads at startup.
-PIPELINE_REVISION = 'role-routed-reference-still-v5'
+PIPELINE_REVISION='role-routed-reference-still-local-refvideo-v5_2'
 
 
 class IncompleteResponse(ValueError):

@@ -210,7 +210,7 @@ jobs:
           images: ghcr.io/${{ github.repository_owner }}/runpod-comfy-stateless
           tags: |
             type=raw,value=h3-portrait-lite
-            type=raw,value=h3-portrait-lite-v1.5.0
+            type=raw,value=h3-portrait-lite-v1.5.2
             type=sha,prefix=h3-portrait-lite-sha-
 
       - name: Build and push image - no external build cache

@@ -7,6 +7,7 @@
 BUILD_INFO.json
 CHANGELOG.md
 Dockerfile
+H3_REFERENCE_VIDEO_LOCAL_1_5_2.md
 INVESTIGATION.md
 PACKAGE_FILE_LIST.txt
 README.md
@@ -73,6 +74,7 @@ h3_portrait/node/logic.py
 h3_portrait/node/native_helpers.py
 h3_portrait/node/ollama_client.py
 h3_portrait/node/reference_roles.py
+h3_portrait/node/reference_video.py
 h3_portrait/node/still_portrait.py
 h3_portrait/node/still_system_prompt.txt
 h3_portrait/node/system_prompt.txt
@@ -80,6 +82,7 @@ h3_portrait/node/video_export.py
 h3_portrait/node/web/director_controls.js
 h3_portrait/node/web/references.js
 h3_portrait/ollama_service.py
+h3_portrait/patch_refpack_local.py
 h3_portrait/prepare_assets.py
 h3_portrait/profiles/lite/models.json
 h3_portrait/profiles/lite/runpod-template.env.example
@@ -94,12 +97,14 @@ h3_portrait/tests/test_pipeline.py
 h3_portrait/tests/test_portrait.py
 h3_portrait/tests/test_release14.py
 h3_portrait/tests/test_release15.py
+h3_portrait/tests/test_release152.py
 h3_portrait/tests/test_split_models.py
 h3_portrait/tests/test_thinking.py
 h3_portrait/verify_release.py
 h3_portrait/workflows/H3_Portrait_Auto.json
 h3_portrait/workflows/H3_Portrait_Image_Lite.json
 h3_portrait/workflows/H3_Ref2VA_Standard.json
+h3_portrait/workflows/H3_Reference_Video_Swap_Local.json
 krea_identity/MULTI_REFERENCE_GUIDE.md
 krea_identity/SOURCES.md
 krea_identity/START_HERE.md

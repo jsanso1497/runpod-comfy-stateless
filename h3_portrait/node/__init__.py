@@ -16,8 +16,9 @@ from . import reference_roles as rr
 from . import still_portrait as sp
 from .video_export import H3PortraitExportVideo, H3PortraitSaveLastFrame
 from .native_helpers import H3PortraitOptionalLoRA, H3PortraitCropToAspect
+from .reference_video import H3ReferenceVideoSettings, H3ReferenceVideoDraftGate, H3ReferenceVideoCrop
 
-PACKAGE_VERSION='1.5.0'
+PACKAGE_VERSION='1.5.2'
 WEB_DIRECTORY='./web'
 _PROMPT_CACHE={}
 _STILL_PROMPT_CACHE={}
@@ -167,7 +168,7 @@ class H3PortraitDirector:
         active_refs=[references[i] for i in routing['native_source_indices']] if routing else references
         job={'recipe':recipe,'seed':int(seed),'references':active_refs,'prompt':prompt,'loras':loras,'files':cfg['model_files'],'routing':routing}
         display_prompt=(rr.routing_report(routing)+'\n\n' if routing else '')+prompt
-        report={'version':'h3-portrait-1.5.0','ollama':info,'recipe':recipe,'seed':int(seed),
+        report={'version':'h3-portrait-1.5.2','ollama':info,'recipe':recipe,'seed':int(seed),
                 'user_direction':instruction,'mapping':obj['references'],'prompt':prompt,'reference_routing':routing,
                 'reference_analysis':obj.get('_analysis'), 'prompt_stages':obj.get('_stages',[]),
                 'prompt_policy_sha256':hashlib.sha256(json.dumps(logic.prompt_policy(),sort_keys=True).encode()).hexdigest(),
@@ -267,7 +268,7 @@ class H3PortraitStillDirector:
         job={'recipe':recipe,'seed':int(seed),'references':active_refs,'prompt':prompt,
              'loras':loras,'files':cfg['model_files'],'routing':routing,'task':'still'}
         display=rr.routing_report(routing)+'\n\n'+prompt
-        report={'version':'h3-portrait-1.5.0','kind':'minimax-h3-ref2va-still','ollama':info,
+        report={'version':'h3-portrait-1.5.2','kind':'minimax-h3-ref2va-still','ollama':info,
                 'recipe':recipe,'seed':int(seed),'user_direction':instruction,'prompt':prompt,
                 'mapping':obj['references'],'reference_analysis':obj.get('_analysis'),
                 'reference_routing':routing,'prompt_stages':obj.get('_stages',[]),
@@ -416,7 +417,7 @@ class H3PortraitExactAspect:
         return (images[:,y:y+oh,x:x+ow,:],)
 
 
-NODE_CLASS_MAPPINGS={c.__name__:c for c in (H3PortraitReferences,H3PortraitDirector,H3PortraitStillDirector,H3PortraitStillOutput,H3PortraitModels,H3PortraitConditioning,H3PortraitSampler,H3PortraitExactAspect,H3PortraitExportVideo,H3PortraitSaveLastFrame,H3PortraitOptionalLoRA,H3PortraitCropToAspect)}
+NODE_CLASS_MAPPINGS={c.__name__:c for c in (H3PortraitReferences,H3PortraitDirector,H3PortraitStillDirector,H3PortraitStillOutput,H3PortraitModels,H3PortraitConditioning,H3PortraitSampler,H3PortraitExactAspect,H3PortraitExportVideo,H3PortraitSaveLastFrame,H3PortraitOptionalLoRA,H3PortraitCropToAspect,H3ReferenceVideoSettings,H3ReferenceVideoDraftGate,H3ReferenceVideoCrop)}
 NODE_DISPLAY_NAME_MAPPINGS={'H3PortraitReferences':'1. Upload references',
                           'H3PortraitDirector':'2. Describe the video',
                           'H3PortraitStillDirector':'2. Describe the H3 still image',
@@ -428,4 +429,7 @@ NODE_DISPLAY_NAME_MAPPINGS={'H3PortraitReferences':'1. Upload references',
                           'H3PortraitExportVideo':'Save exported H3 video',
                           'H3PortraitSaveLastFrame':'Save last frame of exported video',
                           'H3PortraitOptionalLoRA':'Optional H3 LoRA (strict compatibility)',
-                          'H3PortraitCropToAspect':'Crop to exact portrait aspect'}
+                          'H3PortraitCropToAspect':'Crop to exact portrait aspect',
+                          'H3ReferenceVideoSettings':'Reference video render settings',
+                          'H3ReferenceVideoDraftGate':'Review local Reference Pack prompt',
+                          'H3ReferenceVideoCrop':'Reference video exact crop'}
