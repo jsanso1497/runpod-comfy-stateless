@@ -11,6 +11,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 COPY file_manager/ /opt/file-manager/
 RUN bash /opt/file-manager/install.sh
 ENV FILEBROWSER_PORT=8888
+COPY model_safety/ /opt/model-safety/
 COPY h3_portrait/ /opt/h3-portrait/
 COPY shared_loras/ /opt/shared-loras/
 COPY config/lora_links.txt /opt/shared-loras/lora_links.txt
@@ -23,6 +24,8 @@ RUN python -m unittest discover -s /opt/shared-loras/tests -p 'test_*.py'
 RUN test "$(cat /opt/runpod-comfy/comfy-build-ref.txt)" = "65787d668397d230bf5839d69a0a7239e2dad378" \
  && test -x /usr/bin/ollama \
  && find /opt/comfy-bundle/custom_nodes -mindepth 1 -maxdepth 1 -exec rm -rf -- {} + \
+ && python /opt/model-safety/install.py --comfy-home /opt/comfy-bundle \
+ && python -m unittest discover -s /opt/model-safety/tests -p 'test_*.py' \
  && cp -a /opt/h3-portrait/node /opt/comfy-bundle/custom_nodes/ComfyUI-H3Portrait \
  && git clone https://github.com/Hearmeman24/ComfyUI-MiniMaxRefPack.git /tmp/ComfyUI-MiniMaxRefPack \
  && git -C /tmp/ComfyUI-MiniMaxRefPack checkout "${H3_REFPACK_COMMIT}" \
@@ -32,6 +35,7 @@ RUN test "$(cat /opt/runpod-comfy/comfy-build-ref.txt)" = "65787d668397d230bf583
  && rm -rf /tmp/ComfyUI-MiniMaxRefPack/.git /tmp/ComfyUI-MiniMaxRefPack/tests /tmp/ComfyUI-MiniMaxRefPack/conftest.py \
  && cp -a /tmp/ComfyUI-MiniMaxRefPack /opt/comfy-bundle/custom_nodes/ComfyUI-MiniMaxRefPack \
  && rm -rf /tmp/ComfyUI-MiniMaxRefPack \
+ && python /opt/h3-portrait/probe_refpack.py --comfy-home /opt/comfy-bundle \
  && chmod +x /opt/h3-portrait/start.sh \
  && bash -n /opt/h3-portrait/start.sh \
  && python -m compileall -q /opt/h3-portrait \
@@ -54,11 +58,13 @@ LABEL io.runpod.krea-identity.version="1.2.0" io.runpod.h3-media.version="1.2.0"
 ENV H3_PORTRAIT_CONFIG=/workspace/h3-portrait/config \
     OLLAMA_MODEL="" \
     OLLAMA_NO_CLOUD=1 \
+    H3_DYNAMIC_VRAM=0 \
+    H3_RESERVE_VRAM=4 \
     ASSET_DOWNLOAD_WORKERS=2 \
     TINI_SUBREAPER=1 \
     PYTHONUNBUFFERED=1
 LABEL org.opencontainers.image.title="H3 Portrait Auto" \
-      org.opencontainers.image.version="h3-portrait-1.5.2"
+      org.opencontainers.image.version="h3-portrait-1.5.3"
 EXPOSE 8188 8888
 WORKDIR /workspace
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30m --retries=3 \

@@ -25,7 +25,7 @@ def settings():
         path = Path('/opt/h3-portrait/settings.json')
     data = json.loads(path.read_text())
     data['ollama_model'] = os.environ.get('OLLAMA_MODEL', '').strip() or data['ollama_model']
-    data.setdefault('analysis_model', DEFAULT_ANALYSIS_MODEL)
+    data['analysis_model'] = os.environ.get('OLLAMA_ANALYSIS_MODEL', '').strip() or data.get('analysis_model', DEFAULT_ANALYSIS_MODEL)
     for field in ('ollama_model', 'analysis_model'):
         name = data[field]
         if not isinstance(name, str) or not re.fullmatch(r'[A-Za-z0-9_.:/-]+', name) or '://' in name or name.endswith('-cloud'):

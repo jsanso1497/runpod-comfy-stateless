@@ -14,6 +14,7 @@ on:
       - "file_manager/**"
       - "krea_identity/**"
       - "h3_media/**"
+      - "model_safety/**"
       - "tools/**"
       - "SOURCE_SNAPSHOT.json"
       - "BUILD_INFO.json"

@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def check(target):
-    wanted = ['h3_media/install.py', 'h3_media/check.py', 'h3_media/node/__init__.py', 'krea_identity/install.py', 'krea_identity/check.py', 'krea_identity/node/__init__.py', '.dockerignore', 'shared_loras/sync.py', 'shared_loras/tests/test_links.py',
+    wanted = ['model_safety/install.py', 'model_safety/node/__init__.py', 'model_safety/node/policy.py', 'h3_media/install.py', 'h3_media/check.py', 'h3_media/node/__init__.py', 'krea_identity/install.py', 'krea_identity/check.py', 'krea_identity/node/__init__.py', '.dockerignore', 'shared_loras/sync.py', 'shared_loras/tests/test_links.py',
               'config/lora_links.txt', 'file_manager/service.py', 'file_manager/install.sh',
               'file_manager/requirements.txt', 'file_manager/smoke_test.py']
     if target in ('portrait','portrait-lite'):

@@ -1,3 +1,8 @@
+# H3 Portrait 1.5.3 update
+
+Read `H3_1.5.3_START_HERE.md` for the new protected workflows, startup gate and GPU handoff.
+The general-template documentation below is retained for its separate build.
+
 # Additions in 1.2.0
 
 See [the Krea two-reference / H3 MP4 setup guide](RELEASE_1_2_GUIDE.md) for the two new workflows and the opt-in `ENABLE_H3_MEDIA` flag. Existing seven Krea graphs and H3 graphs remain unchanged.

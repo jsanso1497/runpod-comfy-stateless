@@ -15,6 +15,13 @@ import subprocess
 import sys
 import time
 
+# Repository checkout and Docker install share the same loader-policy code.
+import sys
+_safety = Path(__file__).resolve().parents[1]/'model_safety'
+if not _safety.is_dir(): _safety = Path('/opt/model-safety')
+sys.path.insert(0, str(_safety))
+from bridge import protect_graph
+
 HERE=Path(__file__).resolve().parent
 WEIGHTS='1.0,1.0,1.0,1.0,1.0,1.0,1.0,2.5,5.0,1.1,4.0,1.0'
 
@@ -200,7 +207,9 @@ def validate_directed_graph(g, ns, origin):
             raise ValueError('Directed image generation must stay Krea-only.')
 
 
-def validate_schema(g,registry):
+def validate_schema(g,registry, protected_checked=False):
+    if not protected_checked:
+        validate_schema(protect_graph(g),registry,protected_checked=True)
     files={'unet_name','clip_name','vae_name','lora_name','model','image','file'}
     for n in g['nodes']:
         if n['type']=='Note':continue

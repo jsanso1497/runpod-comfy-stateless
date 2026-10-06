@@ -13,13 +13,13 @@ import os
 from pathlib import Path
 import re
 
-EXPECTED_VERSION='1.5.2'
-EXPECTED_PIPELINE='role-routed-reference-still-local-refvideo-v5_2'
+EXPECTED_VERSION='1.5.3'
+EXPECTED_PIPELINE='role-routed-reference-still-local-refvideo-v5_3'
 HERE=Path(__file__).resolve().parent
 NODE_FILES=(
     '__init__.py','logic.py','ollama_client.py','analysis_prompt.txt','system_prompt.txt',
     'still_portrait.py','still_system_prompt.txt','reference_roles.py','video_export.py',
-    'native_helpers.py','reference_video.py','web/references.js','web/director_controls.js',
+    'native_helpers.py','reference_video.py','local_runtime.py','web/references.js','web/director_controls.js',
 )
 WORKFLOW_FILES=(
     'workflows/H3_Portrait_Auto.json',
@@ -66,7 +66,7 @@ def verify_source(source):
     source=Path(source)
     required=(
         'VERSION','settings.json','models.json','runtime.json','start.sh','prepare_assets.py',
-        'ollama_service.py','smoke_check.py','install_workflows.py','patch_refpack_local.py','profiles/lite/settings.json',
+        'ollama_service.py','wait_ready.py','launch_options.py','probe_refpack.py','smoke_check.py','install_workflows.py','patch_refpack_local.py','profiles/lite/settings.json',
         'profiles/lite/models.json',*WORKFLOW_FILES,
     )
     for relative in required+tuple('node/'+x for x in NODE_FILES):
@@ -112,7 +112,7 @@ def verify_source(source):
                        and isinstance(n.value,ast.Constant)
                        and any(isinstance(t,ast.Name) and t.id=='PACKAGE_VERSION' for t in n.targets)),None)
     if init_version!=EXPECTED_VERSION:
-        raise ValueError('Older node/__init__.py detected. Upload the complete H3 Portrait 1.5.2 node folder.')
+        raise ValueError('Older node/__init__.py detected. Upload the complete H3 Portrait 1.5.3 node folder.')
     classes={n.name for n in init_module.body if isinstance(n,ast.ClassDef)}
     for name in ('H3PortraitDirector','H3PortraitStillDirector','H3PortraitStillOutput','H3PortraitSaveLastFrame'):
         if name not in classes and name not in init:
@@ -170,7 +170,7 @@ def compare_node(source,node):
 
 def asset_hashes(source):
     source=Path(source)
-    names=('settings.json','models.json','runtime.json','install_workflows.py',*WORKFLOW_FILES)
+    names=('settings.json','models.json','runtime.json','install_workflows.py','start.sh','ollama_service.py','wait_ready.py','launch_options.py','patch_refpack_local.py','probe_refpack.py',*WORKFLOW_FILES)
     return {name:digest(source/name) for name in names}
 
 

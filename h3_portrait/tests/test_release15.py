@@ -172,6 +172,6 @@ class Packaging15(unittest.TestCase):
     def test_release_verifier_accepts_current_source(self):
         import importlib.util
         spec=importlib.util.spec_from_file_location('verify',ROOT/'verify_release.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
-        self.assertEqual(m.verify_source(ROOT)['version'],'1.5.2')
+        self.assertEqual(m.verify_source(ROOT)['version'],'1.5.3')
 
 if __name__=='__main__':unittest.main()

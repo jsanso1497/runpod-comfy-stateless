@@ -120,14 +120,17 @@ class SplitModelsTests(unittest.TestCase):
         service=importlib.util.module_from_spec(spec);spec.loader.exec_module(service)
         proc=MagicMock();proc.poll.return_value=None;proc.wait.side_effect=[KeyboardInterrupt(),0];proc.pid=1234
         sess=MagicMock();sess.__enter__.return_value=sess
-        with tempfile.TemporaryDirectory() as td,patch.object(service,'ROOT',Path(td)),patch.object(service,'settings',return_value=self.cfg),patch.object(service.oc,'session',return_value=sess),patch.object(service.oc,'api',side_effect=[RuntimeError('not up'),{}]),patch.object(service.oc,'pipeline_info',return_value=self.info),patch.object(service.subprocess,'Popen',return_value=proc) as popen,patch.object(service.subprocess,'run') as pull,patch.object(service.signal,'signal'),patch.object(service.os,'killpg'):
+        with tempfile.TemporaryDirectory() as td,patch.object(service,'ROOT',Path(td)),patch.object(service,'settings',return_value=self.cfg),patch.object(service.oc,'session',return_value=sess),patch.object(service.oc,'api',side_effect=[RuntimeError('not up'),{}]),patch.object(service.oc,'pipeline_info',return_value=self.info),patch.object(service.subprocess,'Popen',return_value=proc) as popen,patch.object(service,'pull_model') as pull,patch.object(service.oc,'clear_owned_residency') as clear,patch.object(service,'atomic_json',wraps=service.atomic_json) as writes,patch.object(service.signal,'signal'),patch.object(service.os,'killpg'):
             service.main()
-            models=[c.args[0][-1] for c in pull.call_args_list]
+            models=[c.args[1] for c in pull.call_args_list]
             self.assertEqual(models,[logic.DEFAULT_ANALYSIS_MODEL,logic.DEFAULT_MODEL])
             self.assertEqual(popen.call_args.kwargs['env']['OLLAMA_MAX_LOADED_MODELS'],'1')
             status=json.loads((Path(td)/'ollama-status.json').read_text())
-            self.assertEqual(status['analysis']['model'],logic.DEFAULT_ANALYSIS_MODEL)
-            self.assertEqual(status['model'],logic.DEFAULT_MODEL)
+            self.assertEqual(status['phase'],'stopped')
+            clear.assert_called_once()
+            ready=[c.args[1] for c in writes.call_args_list if c.args[0].name=='ollama-ready.json']
+            self.assertEqual(ready[0]['models'],[logic.DEFAULT_ANALYSIS_MODEL,logic.DEFAULT_MODEL])
+            self.assertFalse((Path(td)/'ollama-ready.json').exists())
 
 
 if __name__=='__main__':unittest.main()

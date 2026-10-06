@@ -2,12 +2,20 @@
 """Bundle a native-H3 input adapter; download full BF16 weights only by opt-in."""
 from __future__ import annotations
 import argparse
+import json
 import importlib.util
 import os
 from pathlib import Path
 import shutil
 import subprocess
 import sys
+
+# Repository checkout and Docker install share the same loader-policy code.
+import sys
+_safety = Path(__file__).resolve().parents[1]/'model_safety'
+if not _safety.is_dir(): _safety = Path('/opt/model-safety')
+sys.path.insert(0, str(_safety))
+from bridge import protect_graph
 
 HERE=Path(__file__).resolve().parent
 VERSION='1.2.0'
@@ -24,9 +32,9 @@ def install_workflows(home,source=HERE):
     target=Path(home)/'user/default/workflows';target.mkdir(parents=True,exist_ok=True)
     result=[]
     for p in sorted((Path(source)/'workflows').glob('*.json')):
-        out=target/p.name
+        out=target/(p.stem+"_safe_v1_5_3.json")
         try:
-            with out.open('x',encoding='utf-8') as f:f.write(p.read_text())
+            with out.open('x',encoding='utf-8') as f:f.write(json.dumps(protect_graph(json.loads(p.read_text())),indent=2)+'\n')
         except FileExistsError:pass
         result.append(out)
         print('H3 MEDIA WORKFLOW: '+out.name,flush=True)

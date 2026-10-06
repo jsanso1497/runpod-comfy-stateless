@@ -18,7 +18,7 @@ from .video_export import H3PortraitExportVideo, H3PortraitSaveLastFrame
 from .native_helpers import H3PortraitOptionalLoRA, H3PortraitCropToAspect
 from .reference_video import H3ReferenceVideoSettings, H3ReferenceVideoDraftGate, H3ReferenceVideoCrop
 
-PACKAGE_VERSION='1.5.2'
+PACKAGE_VERSION='1.5.3'
 WEB_DIRECTORY='./web'
 _PROMPT_CACHE={}
 _STILL_PROMPT_CACHE={}
@@ -168,7 +168,7 @@ class H3PortraitDirector:
         active_refs=[references[i] for i in routing['native_source_indices']] if routing else references
         job={'recipe':recipe,'seed':int(seed),'references':active_refs,'prompt':prompt,'loras':loras,'files':cfg['model_files'],'routing':routing}
         display_prompt=(rr.routing_report(routing)+'\n\n' if routing else '')+prompt
-        report={'version':'h3-portrait-1.5.2','ollama':info,'recipe':recipe,'seed':int(seed),
+        report={'version':'h3-portrait-1.5.3','ollama':info,'recipe':recipe,'seed':int(seed),
                 'user_direction':instruction,'mapping':obj['references'],'prompt':prompt,'reference_routing':routing,
                 'reference_analysis':obj.get('_analysis'), 'prompt_stages':obj.get('_stages',[]),
                 'prompt_policy_sha256':hashlib.sha256(json.dumps(logic.prompt_policy(),sort_keys=True).encode()).hexdigest(),
@@ -268,7 +268,7 @@ class H3PortraitStillDirector:
         job={'recipe':recipe,'seed':int(seed),'references':active_refs,'prompt':prompt,
              'loras':loras,'files':cfg['model_files'],'routing':routing,'task':'still'}
         display=rr.routing_report(routing)+'\n\n'+prompt
-        report={'version':'h3-portrait-1.5.2','kind':'minimax-h3-ref2va-still','ollama':info,
+        report={'version':'h3-portrait-1.5.3','kind':'minimax-h3-ref2va-still','ollama':info,
                 'recipe':recipe,'seed':int(seed),'user_direction':instruction,'prompt':prompt,
                 'mapping':obj['references'],'reference_analysis':obj.get('_analysis'),
                 'reference_routing':routing,'prompt_stages':obj.get('_stages',[]),

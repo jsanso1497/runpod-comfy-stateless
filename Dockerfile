@@ -59,7 +59,10 @@ RUN bash -n /opt/runpod-comfy/scripts/bootstrap.sh \
  && chmod +x /opt/runpod-comfy/scripts/bootstrap.sh /opt/runpod-comfy/scripts/prepare_image.sh /opt/runpod-comfy/scripts/entrypoint.sh
 
 RUN python /opt/runpod-comfy/scripts/ollama_service.py check-install
-RUN /opt/runpod-comfy/scripts/prepare_image.sh
+COPY model_safety/ /opt/model-safety/
+RUN /opt/runpod-comfy/scripts/prepare_image.sh \
+ && python /opt/model-safety/install.py --comfy-home /opt/comfy-bundle \
+ && python -m unittest discover -s /opt/model-safety/tests -p 'test_*.py'
 # Optional Krea identity stills. No H3 workflow, model precision, or prompt changes.
 COPY h3_media/ /opt/h3-media/
 RUN python /opt/h3-media/install.py build --comfy-home /opt/comfy-bundle

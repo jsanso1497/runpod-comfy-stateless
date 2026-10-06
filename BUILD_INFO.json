@@ -106,5 +106,7 @@
     "lite_default_quality": "Standard, 16 steps, ref_image_size=match",
     "gpu_inference_tested": false
   },
-  "source_baseline": "Attached New Compressed (zipped) Folder(2).zip; changes prepared against that ZIP, not a live repo checkout."
+  "source_baseline": "Attached New Compressed (zipped) Folder(2).zip; changes prepared against that ZIP, not a live repo checkout.",
+  "h3_portrait_update": "1.5.3",
+  "artifact_status": "source patch; Docker and GPU validation pending"
 }

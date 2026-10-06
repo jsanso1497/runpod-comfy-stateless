@@ -1,5 +1,5 @@
 {
-  "version": "1.5.2",
+  "version": "1.5.3",
   "ollama_model": "huihui_ai/qwen3-vl-abliterated:32b-thinking-q4_K_M",
   "context_length": 32768,
   "max_output_tokens": 8192,

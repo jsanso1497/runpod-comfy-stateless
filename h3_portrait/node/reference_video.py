@@ -87,6 +87,11 @@ class H3ReferenceVideoDraftGate:
     OUTPUT_NODE = True
     DESCRIPTION = 'Draft only runs local prompt/reference preparation but blocks H3 sampling. Review the returned prompt, then switch to Generate video.'
 
+    @classmethod
+    def IS_CHANGED(cls, **kwargs):
+        # Recheck live residency even when the expensive Reference Pack is cached.
+        return float('nan')
+
     def review(self, prompt, debug, subject_image, reference_video, mode):
         from comfy_execution.graph_utils import ExecutionBlocker
         preview = (prompt or '').strip()
@@ -96,6 +101,12 @@ class H3ReferenceVideoDraftGate:
             return {'ui': {'text': [ui_text]}, 'result': (ExecutionBlocker(None),)}
         if not preview:
             raise ValueError('The local Reference Pack returned an empty prompt. Run Draft only and inspect its debug output first.')
+        if mode != 'Generate video':
+            raise ValueError('Choose Draft only or Generate video.')
+        if subject_image is None or reference_video is None:
+            raise ValueError('Add at least one subject image and one reference video.')
+        from .local_runtime import require_idle
+        require_idle()
         return {'ui': {'text': [ui_text]}, 'result': (preview,)}
 
 

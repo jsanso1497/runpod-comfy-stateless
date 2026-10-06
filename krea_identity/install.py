@@ -15,6 +15,13 @@ import shutil
 import subprocess
 import sys
 
+# Repository checkout and Docker install share the same loader-policy code.
+import sys
+_safety = Path(__file__).resolve().parents[1]/'model_safety'
+if not _safety.is_dir(): _safety = Path('/opt/model-safety')
+sys.path.insert(0, str(_safety))
+from bridge import protect_graph
+
 HERE = Path(__file__).resolve().parent
 VERSION = '1.2.0'
 EXPECTED_COMFY = '65787d668397d230bf5839d69a0a7239e2dad378'
@@ -35,12 +42,12 @@ def install_workflows(home, upscale=False, source=HERE):
     for file in sorted((source/'workflows').glob('*.json')):
         if '04_Upscale' in file.name and not upscale:
             continue
-        out = target/file.name
+        out = target/(file.stem+"_safe_v1_5_3.json")
         if not out.exists():
             # Avoid overwriting an edited workflow or a concurrent install.
             try:
                 with out.open('x', encoding='utf-8') as handle:
-                    handle.write(file.read_text())
+                    handle.write(json.dumps(protect_graph(json.loads(file.read_text())),indent=2)+"\n")
             except FileExistsError:
                 pass  # Another installer won; never replace its/user's workflow.
         print('KREA IDENTITY WORKFLOW: '+out.name, flush=True)

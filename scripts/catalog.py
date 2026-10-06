@@ -230,10 +230,18 @@ def install_workflows(config: Path, root: Path, profiles: set[str]) -> list[Path
         profile = runtime.get("workflow_profiles", {}).get(source.name, "shared")
         if profile not in profiles | {"shared"}:
             continue
-        target = destination / source.name
-        # Copy recipe workflows on a new Pod. Preserve manually edited copies on a process restart.
+        # New protected copy, never overwrite an older saved/user-edited graph.
+        safety = Path(__file__).resolve().parents[1] / 'model_safety'
+        if not safety.is_dir(): safety = Path('/opt/model-safety')
+        import sys
+        sys.path.insert(0, str(safety))
+        from bridge import protect_graph
+        graph = protect_graph(read_json(source))
+        protected = any(n['type'].startswith(('SafeKrea', 'SafeH3')) for n in graph.get('nodes', []))
+        target = destination / (source.stem + '_safe_v1_5_3.json' if protected else source.name)
         if not target.exists():
-            shutil.copy2(source, target)
+            if protected: target.write_text(json.dumps(graph, indent=2) + "\n")
+            else: shutil.copy2(source, target)
         installed.append(target)
     (root / "active-recipe-workflows.json").write_text(json.dumps([str(s) for s in installed], indent=2) + "\n")
     return installed

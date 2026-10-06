@@ -1,3 +1,7 @@
+# 1.5.3: verified startup and model-family safeguards
+
+See `H3_1.5.3_START_HERE.md` and `VALIDATION_1_5_3.md`. Adds explicit readiness, resumable progress-reporting pulls, confirmed Reference Pack model unloading, protected native loaders, a conservative saved-workflow repair tool, and a non-dynamic VRAM default. Full model precision and generation settings remain unchanged.
+
 # H3 Portrait 1.5.2: local Hearmeman Reference Video
 
 - Add `H3_Reference_Video_Swap_Local` to Full and Lite builds from the attached 1.5.0 source baseline.

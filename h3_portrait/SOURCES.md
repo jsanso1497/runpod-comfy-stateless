@@ -46,7 +46,7 @@ Model/LoRA licenses are not granted by these scripts. Actual visual fidelity,
 VRAM, speed, and private LoRA compatibility require live GPU testing.
 
 
-## H3 Portrait 1.5.2 Reference Pack
+## H3 Portrait 1.5.3 Reference Pack
 
 - Hearmeman24/ComfyUI-MiniMaxRefPack 0.3.5
 - Pinned commit: `7012734eabf6f98063d6eaf8ce1f9264ee803664`

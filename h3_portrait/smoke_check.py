@@ -12,6 +12,13 @@ import sys
 import time
 import requests
 
+# Repository checkout and Docker install share the same loader-policy code.
+import sys
+_safety = Path(__file__).resolve().parents[1]/'model_safety'
+if not _safety.is_dir(): _safety = Path('/opt/model-safety')
+sys.path.insert(0, str(_safety))
+from bridge import protect_graph
+
 HERE=Path(__file__).resolve().parent
 WORKFLOW=HERE/'workflows/H3_Portrait_Auto.json'
 
@@ -131,6 +138,7 @@ def main():
     for tool in ('ffmpeg','ffprobe'):
         if not shutil.which(tool):raise RuntimeError('Missing export tool: '+tool)
     graphs=[json.loads(p.read_text()) for p in (HERE/'workflows').glob('*.json')]
+    graphs += [protect_graph(g) for g in list(graphs)]
     for graph in graphs:validate_graph(graph)
     port=18188 if a.build else a.port;child=None
     session=requests.Session();session.trust_env=False

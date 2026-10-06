@@ -12,7 +12,7 @@ import os
 from pathlib import Path, PurePosixPath
 import re
 
-SNAPSHOT = 'h3-1.5.2-krea-identity-1.2.0-media-local-refpack-r1'
+SNAPSHOT = 'h3-1.5.3-guarded-models-verified-ollama-handoff-r1'
 MANIFEST = 'SOURCE_SNAPSHOT.json'
 EDITABLE = {'config/lora_links.txt'}
 IGNORE_DIRS = {'__pycache__', '.pytest_cache', '__MACOSX'}

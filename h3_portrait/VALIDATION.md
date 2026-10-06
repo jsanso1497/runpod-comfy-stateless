@@ -1,21 +1,53 @@
-# 1.5.2 validation additions
+# H3 Portrait 1.5.3 validation
 
-Local validation for this release covers Reference Pack local-only defaults, Full/Lite model routing, aspect/quality geometry, workflow installation, Docker pin/patch instructions and source-drift checks. The complete Docker build and live GPU H3 generation are still deployment checks and are not claimed as locally executed.
+## Executed in this session
 
-**Completed locally:** 721 Python unit tests across the repository, 22 source-snapshot regression tests within that total, 2 frontend widget-serialization checks, Full and Lite repository preflight checks, source workflow graph validation, Python compilation and shell syntax checks.
+| Suite | Passing tests |
+| --- | ---: |
+| H3 Portrait, startup, Reference Pack handoff, local HTTP protocol | 211 |
+| KREA Identity | 153 |
+| H3 Media | 50 |
+| General template | 230 |
+| Shared LoRA downloader | 69 |
+| File manager | 19 |
+| Snapshot verifier | 22 |
+| Protected model loaders and saved-workflow repair | 20 |
+| Total Python unit/integration tests | 774 |
 
-# H3 Portrait 1.5 validation
+The separate HTTP-policy self-test also passed all 10 tests. Total test cases:
+784, not counting the separate frontend, schema, syntax and package checks.
 
-See `../VALIDATION.md` for executed commands, results, and limitations.
+Other checks executed: Full/Lite/general repository preflights; H3 source/release
+verification; two Node.js frontend serialization contracts; Python 3.10 syntax
+parsing; shell syntax; and Actions YAML parsing. Final packaging additionally
+checks source snapshot hashes, ZIP extraction, changed-file overlay completeness,
+private-LoRA-file preservation using a sentinel fixture, and graph connections.
 
-Release-specific checks cover:
+Three tests use a real loopback HTTP server that simulates Ollama. They exercise
+streamed pulls, installed-model reuse, missing-model errors and unload/confirmation
+requests. This is real local HTTP, not actual Ollama inference or a model download.
+Other model/ComfyUI memory operations are tested with mocks. Graph tests check
+structure and serialized settings, not image quality.
 
-- role-aware H3 video routing;
-- still safe-swap routing where pose/camera, expression, and scene guides are text-only;
-- MiniMax H3 Ref2VA five-frame single-image recipe and one-frame selection;
-- no separate still-image model assets in Lite;
-- corrected ComfyUI seed/widget serialization;
-- exact exported-video final-frame PNG;
-- Full/Lite workflow installation and source/version verification.
+## Added to the Docker build, not executed locally
 
-GPU H3 inference is not performed by the local test suite.
+The build installs the pinned actual Reference Pack, applies and verifies the
+local-only/handoff patch, then executes its real none-provider class on CPU. It
+also runs the actual ComfyUI registry/schema checks for the protected and native
+graphs and retains the native export/final-frame CPU probe. No external prompt
+inference is required for those build probes.
+
+## Not executed or claimed
+
+No final Docker image build or GHCR publication, live RunPod deployment, actual
+Ollama 32B/8B inference, full upstream dependency installation, GPU H3/KREA/SeedVR2
+generation, render-time benchmark or identity/quality evaluation ran here. This
+runtime has no Docker daemon, and direct package downloads were unavailable.
+Upstream source contracts were inspected through the GitHub connector.
+
+The original VRAM error is a real allocation failure. The logs do not establish
+its sole cause. Verified unloading and a non-dynamic allocator are implemented
+mitigations, not evidence that every requested reference size will fit on an A100.
+
+The first successful GitHub build, a live Draft-only run, and a short live render
+remain necessary deployment checks.

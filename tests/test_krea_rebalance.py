@@ -129,7 +129,7 @@ class KreaRebalanceTests(unittest.TestCase):
             root = p/'comfy'
             installed = catalog.install_workflows(p/'config', root, {'seedvr2','krea2','h3'})
             self.assertFalse((root/'user/default/workflows'/RETIRED).exists())
-            self.assertTrue(set(KREA).issubset({x.name for x in installed}))
+            self.assertTrue({Path(n).stem+'_safe_v1_5_3.json' for n in KREA}.issubset({x.name for x in installed}))
             self.assertNotIn(RETIRED, {x.name for x in check_workflows.graph_paths(p/'config')})
 
     def test_local_rebalance_schema_contract(self):
