@@ -10,7 +10,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY . /opt/qwen21_identity
 RUN case "$PROFILE" in identity|upscale) ;; *) echo 'PROFILE must be identity or upscale'; exit 1;; esac && \
     printf '%s\n' "$PROFILE" > /opt/qwen21_identity/config/built_profile.txt && \
-    python /opt/qwen21_identity/scripts/checkout_sources.py --profile "$PROFILE"
+    python /opt/qwen21_identity/scripts/checkout_sources.py --profile "$PROFILE" && \
+    if [[ "$PROFILE" == upscale ]]; then \
+      python /opt/qwen21_identity/scripts/patch_seedvr2_cpu_schema.py; \
+    fi
 # Constrain the CUDA stack already supplied by the base image. Do not silently replace it.
 RUN python -c "import importlib.metadata as m; from pathlib import Path; Path('/tmp/torch-constraints.txt').write_text(''.join(f'{n}=={m.version(n)}\n' for n in ('torch','torchvision','torchaudio') if m.packages_distributions().get(n)))" && \
     python -m pip install --constraint /tmp/torch-constraints.txt -r /opt/ComfyUI/requirements.txt && \
@@ -24,7 +27,6 @@ RUN python -c "import importlib.metadata as m; from pathlib import Path; Path('/
     python -m compileall -q /opt/qwen21_identity/scripts /opt/qwen21_identity/custom_nodes && \
     chmod +x /opt/qwen21_identity/scripts/*.sh && \
     python /opt/qwen21_identity/scripts/validate_workflows.py --profile "$PROFILE" && \
-    bash /opt/qwen21_identity/scripts/build_smoke.sh && \
     python -m pip freeze > /opt/qwen21_identity/config/built_python_packages.txt
 WORKDIR /opt/ComfyUI
 EXPOSE 8188

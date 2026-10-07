@@ -1,4 +1,4 @@
-# Qwen 2.1 Identity Kit v1.0.0
+# Qwen 2.1 Identity Kit v1.0.1
 
 Prepared October 7, 2026 for a separate Runpod build in `jsanso1497/runpod-comfy-stateless`.
 
@@ -14,6 +14,6 @@ Read `qwen21_identity/README.md` for setup and the model profiles. Start with `0
 
 Locally completed: Python compilation, shell syntax checks, all seven UI/API graph pairs, model manifest/profile checks, and 31 offline unit tests covering masks, reference encoding delegation, protected-pixel auditing, handoff files, download resume and checksums.
 
-Not performed here: Docker build, real ComfyUI import/registration check, model downloads, GPU image generation, image-quality comparison, GitHub commit/push, GHCR publishing, or Runpod deployment. The Docker build includes a CPU-only real-node schema check before its image can be published. This is a build safeguard, not a completed GPU test.
+Not performed here: Docker build, real ComfyUI import/registration check, model downloads, GPU image generation, image-quality comparison, GitHub commit/push, GHCR publishing, or Runpod deployment. The Docker build includes a CPU-only real-node schema check before its image can be published. v1.0.1 includes a narrow SeedVR2 schema-registration fallback for GPU-less Docker builders; it does not change normal GPU runtime selection. This is a build safeguard, not a completed GPU test.
 
 A GitHub read attempt to the existing repository returned 404. These files were prepared separately and did not change that repository.

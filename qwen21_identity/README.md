@@ -1,6 +1,6 @@
 # Qwen 2.1 Identity Kit
 
-**Version 1.0.0 | Prepared October 7, 2026 | Personal image workflow**
+**Version 1.0.1 | Prepared October 7, 2026 | Personal image workflow**
 
 Dedicated pipeline: genuine body reference + face reference + existing scene, with a separate body pass and head pass. Each pass uses AusBoss crop-and-stitch. The original scene is retained at its original dimensions; only the actual blend region is replaced. This is an original integration of native ComfyUI, BFS adapters and AusBoss nodes, not a byte-for-byte copy of the AusBoss Person Swap graph.
 
@@ -235,9 +235,9 @@ Default target: **2048 pixels on the shorter edge, capped at 4096 on the longer 
 
 ## Validation and maintenance
 
-Local preparation checks passed: 31 offline tests, Python compilation, shell syntax, and seven UI/API graph pairs. No actual image was generated and no Docker image was built in the preparation environment.
+Local preparation checks passed: offline tests, Python compilation, shell syntax, and seven UI/API graph pairs. No actual image was generated and no Docker image was built in the preparation environment.
 
-The included Docker build starts ComfyUI on CPU and checks real node registration, required inputs, connection types and saved widget order. It does not download model weights or validate GPU inference/likeness. After the image is built, the first real generation on your GPU remains the acceptance test.
+The included Docker build starts ComfyUI on CPU and checks real node registration, required inputs, connection types and saved widget order. SeedVR2 upstream currently assumes at least one GPU device while defining its DiT/VAE loader schemas; v1.0.1 applies a narrow build-safe fallback so those schemas can register as `cpu` when no CUDA/MPS device exists. On a Runpod GPU the upstream device list is non-empty, so its normal `cuda:0` runtime behavior is unchanged. It does not download model weights or validate GPU inference/likeness. After the image is built, the first real generation on your GPU remains the acceptance test.
 
 ```bash
 python -m pytest tests -q

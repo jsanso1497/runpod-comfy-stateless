@@ -29,7 +29,7 @@ jobs:
           python qwen21_identity/scripts/validate_workflows.py --profile upscale
           bash -n qwen21_identity/scripts/start.sh qwen21_identity/scripts/build_smoke.sh
           python -m pip install pytest requests
-          python -m pytest qwen21_identity/tests/test_downloader.py -q
+          python -m pytest qwen21_identity/tests -q
   build:
     needs: validate
     if: github.event_name != 'pull_request'

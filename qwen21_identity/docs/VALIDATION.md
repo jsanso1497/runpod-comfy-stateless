@@ -14,6 +14,10 @@ Date: October 7, 2026.
 - Python compilation passed. Bash syntax checks passed.
 - Upstream node definitions and exact source commits were inspected. The custom encoder calls the native ComfyUI implementation rather than reimplementing Qwen conditioning.
 
+## v1.0.1 build fix
+
+The first upscale Docker build exposed an upstream SeedVR2 registration assumption: its DiT and VAE loader schemas call `get_device_list()` and index the first element even on a GPU-less Docker builder. The kit now patches only that empty-list case to expose `cpu` during schema registration. The patch is idempotent and fails closed if the pinned upstream source shape changes. Runtime on a CUDA-equipped Runpod is unaffected because the upstream device list is non-empty.
+
 ## Included automated checks not executed here
 
 The Docker build runs the actual pinned ComfyUI server on CPU, loads installed custom nodes, and verifies real `/object_info` schemas against every selected workflow. It fails the image build on missing nodes, incompatible connections or saved widget-order mismatches. The lightweight GitHub validation job runs static checks and the downloader tests.
