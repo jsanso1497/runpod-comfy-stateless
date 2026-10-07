@@ -23,13 +23,16 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Validate package without downloading weights
+      - name: Validate package without downloading weights or PyTorch
         run: |
           python -m compileall -q qwen21_identity/scripts qwen21_identity/custom_nodes
           python qwen21_identity/scripts/validate_workflows.py --profile upscale
           bash -n qwen21_identity/scripts/start.sh qwen21_identity/scripts/build_smoke.sh
           python -m pip install pytest requests
-          python -m pytest qwen21_identity/tests -q
+          python -m pytest \
+            qwen21_identity/tests/test_downloader.py \
+            qwen21_identity/tests/test_seedvr2_cpu_schema_patch.py \
+            -q
   build:
     needs: validate
     if: github.event_name != 'pull_request'
@@ -61,7 +64,7 @@ jobs:
         id: image
         shell: bash
         run: echo "name=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
-      - name: Build, CPU schema-check, then publish dedicated tag
+      - name: Build and publish dedicated tag
         uses: docker/build-push-action@v6
         with:
           context: ./qwen21_identity

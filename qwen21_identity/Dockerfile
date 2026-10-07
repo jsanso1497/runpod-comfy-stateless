@@ -27,6 +27,10 @@ RUN python -c "import importlib.metadata as m; from pathlib import Path; Path('/
     python -m compileall -q /opt/qwen21_identity/scripts /opt/qwen21_identity/custom_nodes && \
     chmod +x /opt/qwen21_identity/scripts/*.sh && \
     python /opt/qwen21_identity/scripts/validate_workflows.py --profile "$PROFILE" && \
+    python -m venv --system-site-packages /tmp/q21-tests && \
+    /tmp/q21-tests/bin/python -m pip install -q pytest && \
+    /tmp/q21-tests/bin/python -m pytest /opt/qwen21_identity/tests -q && \
+    rm -rf /tmp/q21-tests && \
     python -m pip freeze > /opt/qwen21_identity/config/built_python_packages.txt
 WORKDIR /opt/ComfyUI
 EXPOSE 8188
