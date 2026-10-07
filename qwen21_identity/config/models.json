@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "verified_date": "2026-10-07",
+  "assets": [
+    {
+      "id": "qwen_dit",
+      "profile": "identity",
+      "repo": "Comfy-Org/Qwen-Image-2.1",
+      "revision": "main",
+      "file": "diffusion_models/qwen_image_2.1_bf16.safetensors",
+      "destination": "diffusion_models/qwen_image_2.1_bf16.safetensors",
+      "sha256": "89f4158d066cc33906a199fca85634f766892dd78f49b6698dabf187ac86c4bc",
+      "approx_bytes": 14200000000
+    },
+    {
+      "id": "qwen_encoder",
+      "profile": "identity",
+      "repo": "Comfy-Org/Qwen-Image-2.1",
+      "revision": "main",
+      "file": "text_encoders/qwen3vl_8b_bf16.safetensors",
+      "destination": "text_encoders/qwen3vl_8b_bf16.safetensors",
+      "sha256": "68bdc82bc1b66851162ae656225e7e2068166b603db19bd5d5a3b90eb12669a9",
+      "approx_bytes": 17500000000
+    },
+    {
+      "id": "qwen_vae",
+      "profile": "identity",
+      "repo": "Comfy-Org/Qwen-Image-2.1",
+      "revision": "main",
+      "file": "vae/qwen_image_2.1_vae_bf16.safetensors",
+      "destination": "vae/qwen_image_2.1_vae_bf16.safetensors",
+      "sha256": "bb21f7473051e1ac368515dd3f2e15cd44d7a11748ee8823e1ddca3e4876b7c9",
+      "approx_bytes": 676000000
+    },
+    {
+      "id": "bfs_body",
+      "profile": "identity",
+      "repo": "Alissonerdx/BFS-Best-Face-Swap",
+      "revision": "main",
+      "file": "bfs_body_swap_v1.0_qwen_2.1.safetensors",
+      "destination": "loras/bfs_body_swap_v1.0_qwen_2.1.safetensors",
+      "sha256": "7dc0a53aba4dbc70c204f498936a619d226559da11011f748c389189af46b664",
+      "approx_bytes": 210000000
+    },
+    {
+      "id": "bfs_head",
+      "profile": "identity",
+      "repo": "Alissonerdx/BFS-Best-Face-Swap",
+      "revision": "main",
+      "file": "bfs_head_v1.1_qwen_2.1.safetensors",
+      "destination": "loras/bfs_head_v1.1_qwen_2.1.safetensors",
+      "sha256": "d1d748d5601077f3b6d05766f6823510e901970d916afa404a97e85dc92fa88e",
+      "approx_bytes": 260000000
+    },
+    {
+      "id": "seedvr_dit",
+      "profile": "upscale",
+      "repo": "numz/SeedVR2_comfyUI",
+      "revision": "main",
+      "file": "seedvr2_ema_7b_fp16.safetensors",
+      "destination": "SEEDVR2/seedvr2_ema_7b_fp16.safetensors",
+      "sha256": "7b8241aa957606ab6cfb66edabc96d43234f9819c5392b44d2492d9f0b0bbe4a",
+      "approx_bytes": 16500000000
+    },
+    {
+      "id": "seedvr_vae",
+      "profile": "upscale",
+      "repo": "numz/SeedVR2_comfyUI",
+      "revision": "main",
+      "file": "ema_vae_fp16.safetensors",
+      "destination": "SEEDVR2/ema_vae_fp16.safetensors",
+      "sha256": "20678548f420d98d26f11442d3528f8b8c94e57ee046ef93dbb7633da8612ca1",
+      "approx_bytes": 501000000
+    }
+  ]
+}

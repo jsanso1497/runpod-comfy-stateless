@@ -1,0 +1,21 @@
+{
+  "imageName": "ghcr.io/jsanso1497/runpod-comfy-stateless:qwen21-identity-bf16",
+  "name": "Qwen 2.1 Identity BF16",
+  "category": "NVIDIA",
+  "containerDiskInGb": 150,
+  "dockerEntrypoint": [],
+  "dockerStartCmd": [],
+  "env": {
+    "DATA_ROOT": "/workspace/qwen21_identity",
+    "COMFY_PORT": "8188",
+    "ASSET_DOWNLOAD_WORKERS": "2"
+  },
+  "isPublic": false,
+  "isServerless": false,
+  "ports": [
+    "8188/http"
+  ],
+  "readme": "Dedicated body swap, head refinement, masked crop-and-stitch. Build/publish the image before using this template. No image weights baked into Docker. No persistent storage by default. Download outputs before stopping or terminating.",
+  "volumeInGb": 0,
+  "volumeMountPath": "/workspace"
+}
