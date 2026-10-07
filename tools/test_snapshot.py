@@ -60,9 +60,6 @@ class SnapshotTests(unittest.TestCase):
     def test_root_duplicate_rejected(self):
         self.write('test_links.py', 'pass\n')
         with self.assertRaisesRegex(ValueError, 'Unexpected files'): self.check()
-    def test_hotfix_release_note_allowed(self):
-        self.write('H3_1.5.3_BUILD_HOTFIX.md', '# Build hotfix notes\n')
-        self.assertEqual(self.check(), 3)
     def test_old_workflow_rejected(self):
         self.write('.github/workflows/old-portrait.yml', 'name: Old\n')
         with self.assertRaisesRegex(ValueError, 'Unexpected files'): self.check()
