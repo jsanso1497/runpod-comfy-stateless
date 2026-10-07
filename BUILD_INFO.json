@@ -1,11 +1,11 @@
 {
-  "package": "RunPod ComfyUI - optional Krea Identity and H3 HQ Media",
-  "package_version": "3.2.1+h3.1.5.2+kreaidentity.1.2.0+h3media.1.2.0",
+  "package": "RunPod ComfyUI - preserved H3/Krea and separate FLUX Photo 9B distilled",
+  "package_version": "flux-photo-1.0.0-with-preserved-h3-krea",
   "core_ref": "65787d668397d230bf5839d69a0a7239e2dad378",
-  "repository_snapshot": "h3-1.5.2-krea-identity-1.2.0-media-local-refpack-r1",
+  "repository_snapshot": "h3-1.5.3-preserved-flux-photo-1.0.0-r1",
   "portrait_version": "1.5.2",
   "portrait_pipeline": "role-routed-reference-still-local-refvideo-v5_2",
-  "change": "Add local-only Hearmeman MiniMax H3 image + reference-video replacement workflow to Full and Lite while preserving Krea Identity 1.2.0, H3 Media 1.2.0, existing H3 graphs, weights, and shared LoRA configuration.",
+  "change": "Add an isolated non-quantized FLUX.2 klein 9B distilled original-size inpainting image. Existing H3/Krea inference code and build recipes are byte-preserved from the supplied ZIP.",
   "profiles": [
     "full",
     "lite"
@@ -21,7 +21,7 @@
     "H3_Ref2VA_Standard_Full_v1_5_2",
     "H3_Reference_Video_Swap_Local_Full_v1_5_2"
   ],
-  "local_python_unit_tests": 721,
+  "local_python_unit_tests": 844,
   "widget_serialization_checks": 2,
   "workflow_graphs_checked": 29,
   "gpu_inference_tested": false,
@@ -54,7 +54,7 @@
     "Live RunPod MiniMax H3 reference-video generation and identity-fidelity evaluation",
     "Reference-conditioned voice similarity evaluation on GPU"
   ],
-  "source_snapshot_files": 170,
+  "source_snapshot_files": 210,
   "static_repository_checks": "passed for portrait and portrait-lite",
   "krea_identity": {
     "version": "1.2.0",
@@ -108,5 +108,54 @@
   },
   "source_baseline": "Attached New Compressed (zipped) Folder(2).zip; changes prepared against that ZIP, not a live repo checkout.",
   "h3_portrait_update": "1.5.3",
-  "artifact_status": "source patch; Docker and GPU validation pending"
+  "artifact_status": "source patch; Docker and GPU validation pending",
+  "retained_legacy_package_version": "3.2.1+h3.1.5.2+kreaidentity.1.2.0+h3media.1.2.0",
+  "flux_photo": {
+    "version": "1.0.0",
+    "new_python_tests": 70,
+    "ui_workflows": 2,
+    "api_workflows": 2,
+    "model": "black-forest-labs/FLUX.2-klein-9B",
+    "model_format": "original BF16, not FP8/GGUF",
+    "manual_mask": true,
+    "manual_prompt": true,
+    "replacement_reference_inputs": 1,
+    "optional_lora_slots": 3,
+    "native_crop_default_limit": 3072,
+    "fit_crop_default_limit": 2048,
+    "full_canvas_resized": false,
+    "strict_zero_mask_pixel_preservation_tested": true,
+    "large_canvas_geometry_tests": [
+      [
+        7001,
+        4003
+      ],
+      [
+        4003,
+        7001
+      ]
+    ],
+    "large_mask_test": [
+      2500,
+      2500
+    ],
+    "large_native_processing_test": [
+      2768,
+      2768
+    ],
+    "export": "8-bit RGB sRGB PNG",
+    "raw_or_16bit_roundtrip": false,
+    "model_downloads_verified_in_authoring": false,
+    "gpu_inference_tested": false,
+    "visual_identity_quality_tested": false,
+    "browser_comparison_tested": false,
+    "docker_built_or_published": false,
+    "real_comfy_cpu_schema_test_added_to_docker": true,
+    "real_comfy_cpu_schema_test_run_locally": false,
+    "external_inference_api": false,
+    "stateless": true,
+    "action": ".github/workflows/build-flux-photo.yml",
+    "image_after_successful_build": "ghcr.io/jsanso1497/runpod-comfy-flux-photo:latest"
+  },
+  "current_validation": "844 tests passed; FLUX static graphs, old General/Full/Lite preflights, shell/JS/YAML syntax and final source verification passed. Docker, real-core smoke and GPU inference remain unrun."
 }

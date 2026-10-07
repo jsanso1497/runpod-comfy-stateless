@@ -1,3 +1,11 @@
+# New: FLUX Photo 9B distilled template
+
+Read [FLUX_PHOTO_START_HERE.md](FLUX_PHOTO_START_HERE.md) for the separate original-size inpainting image, two workflow presets, source/reference inputs, LoRAs and comparison. Build it with **Build FLUX Photo 9B Distilled image**, not the older H3/General Actions.
+
+The documentation below describes the retained pre-existing templates.
+
+---
+
 # H3 Portrait 1.5.3 update
 
 Read `H3_1.5.3_START_HERE.md` for the new protected workflows, startup gate and GPU handoff.

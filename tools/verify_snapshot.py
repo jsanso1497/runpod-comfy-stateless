@@ -12,12 +12,11 @@ import os
 from pathlib import Path, PurePosixPath
 import re
 
-SNAPSHOT = 'h3-1.5.3-guarded-models-verified-ollama-handoff-r2'
+SNAPSHOT = 'h3-1.5.3-preserved-flux-photo-1.0.0-r1'
 MANIFEST = 'SOURCE_SNAPSHOT.json'
 EDITABLE = {'config/lora_links.txt'}
 IGNORE_DIRS = {'__pycache__', '.pytest_cache', '__MACOSX'}
 IGNORE_FILES = {'.DS_Store', 'Thumbs.db'}
-OPTIONAL_ROOT_DOCS = {'H3_1.5.3_BUILD_HOTFIX.md'}
 
 
 def normalized_sha256(path):
@@ -42,11 +41,6 @@ def inventory(root):
                 raise ValueError('Unexpected source symlink: ' + str(path.relative_to(root)))
         for name in files:
             if name in IGNORE_FILES or name.startswith('._'):
-                continue
-            # Release-note files may accompany a small overlay update. They are
-            # documentation only and are intentionally excluded from the source
-            # integrity manifest so applying the overlay cannot poison preflight.
-            if base == root and name in OPTIONAL_ROOT_DOCS:
                 continue
             if base == root and name == '.git':
                 continue
