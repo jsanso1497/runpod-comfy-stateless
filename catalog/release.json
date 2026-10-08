@@ -1,0 +1,9 @@
+{
+  "version": "0.1.1",
+  "name": "Comfy Workbench HQ",
+  "status": "source-candidate",
+  "published_images": {},
+  "gpu_validation": {},
+  "repository_default": "jsanso1497/runpod-comfy-stateless",
+  "built_from": "HQ 0.1.0 source package; same-repository, no-CLI distribution"
+}

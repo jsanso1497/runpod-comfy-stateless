@@ -1,0 +1,235 @@
+{
+  "1": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": ""
+    },
+    "_meta": {
+      "title": "1 | SOURCE PHOTO - paint mask here"
+    }
+  },
+  "2": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": ""
+    },
+    "_meta": {
+      "title": "2 | REPLACEMENT REFERENCE - no mask needed"
+    }
+  },
+  "3": {
+    "class_type": "FluxPhotoModels",
+    "inputs": {
+      "text_encoder_device": "cpu",
+      "checkpoint": "flux-2-klein-9b.safetensors"
+    },
+    "_meta": {
+      "title": "9B DISTILLED BF16 | fixed matching models"
+    }
+  },
+  "4": {
+    "class_type": "FluxPhotoOptionalLoRA",
+    "inputs": {
+      "lora_name": "None",
+      "strength": 0.75,
+      "model": [
+        "3",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Optional LoRA 1 | None = off"
+    }
+  },
+  "5": {
+    "class_type": "FluxPhotoOptionalLoRA",
+    "inputs": {
+      "lora_name": "None",
+      "strength": 0.75,
+      "model": [
+        "4",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Optional LoRA 2 | None = off"
+    }
+  },
+  "6": {
+    "class_type": "FluxPhotoOptionalLoRA",
+    "inputs": {
+      "lora_name": "None",
+      "strength": 0.75,
+      "model": [
+        "5",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Optional LoRA 3 | None = off"
+    }
+  },
+  "7": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "text": "Replace the [describe the target] in image 1 with the [person or object] from image 2. Preserve the reference identity, facial features, proportions, distinctive details and colors. Use image 1 for pose, camera angle, perspective and scene lighting. Keep the surrounding photo unchanged.\n\nReplace this example with your own instruction.",
+      "clip": [
+        "3",
+        1
+      ]
+    },
+    "_meta": {
+      "title": "3 | YOUR EDIT PROMPT - image 1 = crop; image 2 = reference"
+    }
+  },
+  "8": {
+    "class_type": "FluxPhotoCrop",
+    "inputs": {
+      "processing": "native",
+      "max_crop_side": 3072,
+      "context_pixels": 128,
+      "sampling_mask_grow": 16,
+      "source": [
+        "1",
+        0
+      ],
+      "mask": [
+        "1",
+        1
+      ]
+    },
+    "_meta": {
+      "title": "4 | INPAINT CROP - native is experimental"
+    }
+  },
+  "9": {
+    "class_type": "FluxPhotoReferenceConditioning",
+    "inputs": {
+      "scene_reference_long_side": 1024,
+      "replacement_reference_long_side": 2048,
+      "vae_tile_size": 1024,
+      "vae_overlap": 128,
+      "conditioning": [
+        "7",
+        0
+      ],
+      "vae": [
+        "3",
+        2
+      ],
+      "cropped_image": [
+        "8",
+        1
+      ],
+      "sampling_mask": [
+        "8",
+        2
+      ],
+      "replacement_reference": [
+        "2",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "5 | TWO IMAGE REFERENCES + MASKED LATENT"
+    }
+  },
+  "10": {
+    "class_type": "FluxPhotoSampler",
+    "inputs": {
+      "seed": 12345,
+      "steps": 4,
+      "model": [
+        "6",
+        0
+      ],
+      "conditioning": [
+        "9",
+        0
+      ],
+      "latent": [
+        "9",
+        1
+      ]
+    },
+    "_meta": {
+      "title": "6 | DISTILLED - Euler / CFG 1 / start at 4 steps"
+    }
+  },
+  "11": {
+    "class_type": "VAEDecodeTiled",
+    "inputs": {
+      "tile_size": 1024,
+      "overlap": 128,
+      "temporal_size": 64,
+      "temporal_overlap": 8,
+      "samples": [
+        "10",
+        0
+      ],
+      "vae": [
+        "3",
+        2
+      ]
+    },
+    "_meta": {
+      "title": "7 | TILED VAE DECODE - not tiled diffusion"
+    }
+  },
+  "12": {
+    "class_type": "FluxPhotoStitch",
+    "inputs": {
+      "feather_pixels": 16,
+      "boundary_color_strength": 0.0,
+      "stitch_data": [
+        "8",
+        0
+      ],
+      "generated_crop": [
+        "11",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "8 | PROTECTED STITCH - original photo dimensions"
+    }
+  },
+  "13": {
+    "class_type": "FluxPhotoCompare",
+    "inputs": {
+      "preview_long_side": 2048,
+      "original": [
+        "1",
+        0
+      ],
+      "edited": [
+        "12",
+        0
+      ],
+      "report": [
+        "12",
+        1
+      ]
+    },
+    "_meta": {
+      "title": "9 | ORIGINAL / OUTPUT - preview only"
+    }
+  },
+  "14": {
+    "class_type": "FluxPhotoSave",
+    "inputs": {
+      "filename_prefix": "FLUX_Photo/Edited",
+      "images": [
+        "12",
+        0
+      ],
+      "report": [
+        "12",
+        1
+      ]
+    },
+    "_meta": {
+      "title": "10 | FULL-SIZE LOSSLESS PNG + VERIFICATION JSON"
+    }
+  }
+}

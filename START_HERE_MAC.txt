@@ -1,0 +1,21 @@
+KEEP YOUR EXISTING GITHUB REPOSITORY
+
+This folder is a full replacement of the working source files in
+runpod-comfy-stateless. It is not an overlay and does not create a new repo.
+
+For GitHub Desktop:
+Open docs/mac-install.md. Clone the existing repo, replace the working
+files, keep .git, review, commit, and Push origin. No Terminal is needed.
+Show hidden files with Command + Shift + Period when copying contents.
+
+For browser-only upload:
+Use the separate browser-upload kit. Open its START_HERE.html for three
+upload batches and six visible dotfile copy cards. No app installation,
+API token, Terminal, or CLI is required.
+
+Do not upload this ZIP as a single file. Do not nest this enclosing folder
+inside the repo. Dockerfile, src, site, and .github belong at the root.
+Do not copy any private LoRA list or secret values from the old setup.
+
+After upload: Actions > Validate repository, then Build HQ workspace.
+Open site/index.html locally for the RunPod configurator.

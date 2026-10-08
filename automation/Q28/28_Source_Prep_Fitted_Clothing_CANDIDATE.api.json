@@ -1,0 +1,219 @@
+{
+  "2": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "face_primary.png"
+    },
+    "_meta": {
+      "title": "<image2> PRIMARY genuine face"
+    }
+  },
+  "3": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "body_front.png"
+    },
+    "_meta": {
+      "title": "<image3> Genuine body evidence"
+    }
+  },
+  "4": {
+    "class_type": "WBQwenUNETLoader",
+    "inputs": {
+      "unet_name": "qwen_image_2.1_bf16.safetensors",
+      "weight_dtype": "default"
+    },
+    "_meta": {
+      "title": "BASE Qwen 2.1 BF16 | no LoRA by default"
+    }
+  },
+  "5": {
+    "class_type": "WBQwenCLIPLoader",
+    "inputs": {
+      "clip_name": "qwen3vl_8b_bf16.safetensors",
+      "type": "qwen_image",
+      "device": "default"
+    },
+    "_meta": {
+      "title": "Qwen3-VL 8B BF16 | qwen_image"
+    }
+  },
+  "6": {
+    "class_type": "WBQwenVAELoader",
+    "inputs": {
+      "vae_name": "qwen_image_2.1_vae_bf16.safetensors"
+    },
+    "_meta": {
+      "title": "Qwen 2.1 VAE BF16"
+    }
+  },
+  "7": {
+    "class_type": "Q21NBlankCanvas",
+    "inputs": {
+      "width": 1408,
+      "height": 1408
+    },
+    "_meta": {
+      "title": "<image1> blank canvas ONLY | editable dimensions"
+    }
+  },
+  "8": {
+    "class_type": "Q21NResizeBudget",
+    "inputs": {
+      "megapixels": 1.0,
+      "allow_upscale": false,
+      "image": [
+        "2",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Reference 2 | <= 1 MP | no detail invented"
+    }
+  },
+  "9": {
+    "class_type": "Q21NResizeBudget",
+    "inputs": {
+      "megapixels": 1.0,
+      "allow_upscale": false,
+      "image": [
+        "3",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Reference 3 | <= 1 MP | no detail invented"
+    }
+  },
+  "10": {
+    "class_type": "QwenImage21Cache",
+    "inputs": {
+      "device": "auto",
+      "dtype": "default",
+      "model": [
+        "4",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Lossless KV cache | auto / default"
+    }
+  },
+  "11": {
+    "class_type": "Q21NEncodeReferences",
+    "inputs": {
+      "prompt": "Create one photorealistic full-body reference photograph on the canvas in <image1>. Use <image2> only for the exact person's face and hair, and <image3> only for observed physique. One person standing front-facing, complete head, hands and feet visible, arms slightly away from torso, neutral expression, plain light-gray background and soft even lighting. Plain fitted sleeveless top and fitted mid-thigh athletic shorts without compression, padding or body reshaping. Keep bare feet only if supported by real source evidence; otherwise retain simple footwear. Do not slim, add muscle, exaggerate curves or guess concealed anatomy with false certainty. Output one view, not a collage.",
+      "clip": [
+        "5",
+        0
+      ],
+      "vae": [
+        "6",
+        0
+      ],
+      "image_1": [
+        "7",
+        0
+      ],
+      "image_2": [
+        "8",
+        0
+      ],
+      "image_3": [
+        "9",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "EDIT THIS PROMPT | image1=base crop"
+    }
+  },
+  "12": {
+    "class_type": "KSampler",
+    "inputs": {
+      "seed": 18071042,
+      "steps": 40,
+      "cfg": 1.0,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 1.0,
+      "model": [
+        "10",
+        0
+      ],
+      "positive": [
+        "11",
+        0
+      ],
+      "negative": [
+        "11",
+        1
+      ],
+      "latent_image": [
+        "11",
+        2
+      ]
+    },
+    "_meta": {
+      "title": "40 steps | CFG 1 | Euler/simple | fixed seed"
+    }
+  },
+  "13": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "12",
+        0
+      ],
+      "vae": [
+        "6",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Decode native matching 64-channel latent"
+    }
+  },
+  "14": {
+    "class_type": "Q21NOpaqueImage",
+    "inputs": {
+      "image": [
+        "13",
+        0
+      ],
+      "background": [
+        "7",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Flatten generated alpha over source crop"
+    }
+  },
+  "15": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "filename_prefix": "Qwen21_Native/28_Source_Prep_Fitted_Clothing_CANDIDATE/image",
+      "images": [
+        "14",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Save separate candidate PNG"
+    }
+  },
+  "16": {
+    "class_type": "Q21NWriteHandoff",
+    "inputs": {
+      "stage": "reference",
+      "image": [
+        "14",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Update reference_latest.png | candidate, not auto-approved"
+    }
+  }
+}
