@@ -34,6 +34,14 @@ jobs:
           else
             python qwen21_unified/scripts/generate_dockerfile.py --repo .
           fi
+      - name: Verify manifest repair against alternate snapshot layouts
+        run: |
+          set -Eeuo pipefail
+          if ! python -m unittest discover -s qwen21_unified/tests -p test_repair_snapshot.py -q > /tmp/qwen-snapshot-tests.log 2>&1; then
+            cat /tmp/qwen-snapshot-tests.log
+            exit 1
+          fi
+          tail -n 3 /tmp/qwen-snapshot-tests.log
       - name: Audit unified package and propose snapshot-only updates
         run: |
           set -Eeuo pipefail

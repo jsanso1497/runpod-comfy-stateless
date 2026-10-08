@@ -165,6 +165,81 @@ class SnapshotRepairTests(unittest.TestCase):
             repair.reconcile(self.root, write=True)
         self.assertEqual(original, self.snapshot.read_bytes())
 
+    def test_unrecognized_top_level_key_and_nested_digest_map(self):
+        old = json.loads(self.snapshot.read_text())["files"]
+        self.snapshot.write_text(json.dumps({"metadata": {"version": 2},
+              "source_data": {"tracked_files": {k: {"digest": v,
+                         "size": (self.root / k).stat().st_size} for k, v in old.items()},
+                         "count": len(old)}}))
+        self._set_verifier_for("nested_dict")
+        result = repair.reconcile(self.root, write=True)
+        self.assertEqual(result["snapshot_mapping"], "source_data.tracked_files")
+        data = json.loads(self.snapshot.read_text())
+        records = data["source_data"]["tracked_files"]
+        self.assertEqual(data["source_data"]["count"], len(records))
+        self.assertEqual(records["existing_00.txt"]["digest"], old["existing_00.txt"])
+        self.assertIn("qwen21_photo_edit/Dockerfile.unified", records)
+
+    def test_nested_list_uses_nonstandard_path_and_hash_keys(self):
+        old = json.loads(self.snapshot.read_text())["files"]
+        self.snapshot.write_text(json.dumps({"schema_version": 4,
+                   "snapshot": {"paths": [{"file": k, "hash": v, "bytes": (self.root/k).stat().st_size}
+                                           for k, v in old.items()], "file_count": len(old)}}))
+        self._set_verifier_for("nested_list")
+        result = repair.reconcile(self.root, write=True)
+        self.assertEqual(result["snapshot_mapping"], "snapshot.paths")
+        data = json.loads(self.snapshot.read_text())
+        records = data["snapshot"]["paths"]
+        self.assertEqual(data["snapshot"]["file_count"], len(records))
+        self.assertIn("qwen21_photo_edit/Dockerfile.unified", [r["file"] for r in records])
+
+    def test_unknown_root_mapping_and_prefixed_sha(self):
+        old = json.loads(self.snapshot.read_text())["files"]
+        self.snapshot.write_text(json.dumps({k: "sha256:" + v for k, v in old.items()}))
+        self._set_verifier_for("root_dict")
+        result = repair.reconcile(self.root, write=True)
+        self.assertEqual(result["snapshot_mapping"], "(root)")
+        data = json.loads(self.snapshot.read_text())
+        self.assertTrue(data["qwen21_photo_edit/Dockerfile.unified"].startswith("sha256:"))
+
+    def test_unrecognizable_schema_fails_without_modifications(self):
+        self.snapshot.write_text(json.dumps({"files": ["foo", "bar"], "version": 1}))
+        original = self.snapshot.read_bytes()
+        with self.assertRaisesRegex(RuntimeError, "Could not identify a verified path/SHA256 inventory"):
+            repair.reconcile(self.root, write=True)
+        self.assertEqual(self.snapshot.read_bytes(), original)
+
+    def test_preexisting_unrelated_hash_mismatch_is_not_overwritten(self):
+        records = json.loads(self.snapshot.read_text())
+        records["files"]["existing_00.txt"] = "0"*64
+        self.snapshot.write_text(json.dumps(records))
+        before = self.snapshot.read_bytes()
+        with self.assertRaisesRegex(RuntimeError, "verifier rejected"):
+            repair.reconcile(self.root, write=True)
+        self.assertEqual(self.snapshot.read_bytes(), before)
+
+    def _set_verifier_for(self, mode):
+        script = """import hashlib,json,sys
+from pathlib import Path
+r=Path(__file__).resolve().parents[1]
+j=json.loads((r/'SOURCE_SNAPSHOT.json').read_text())
+mode=MODE
+if mode=='nested_dict':
+ m={k:v['digest'] for k,v in j['source_data']['tracked_files'].items()}
+elif mode=='nested_list':
+ m={row['file']:row['hash'] for row in j['snapshot']['paths']}
+else:
+ m={k:v.removeprefix('sha256:') for k,v in j.items()}
+for rel,sha in m.items():
+ p=r/rel
+ if not p.is_file() or hashlib.sha256(p.read_bytes()).hexdigest()!=sha:sys.exit(3)
+for rel in ('PACKAGE_MANIFEST.json','qwen21_photo_edit/Dockerfile.unified',
+ 'qwen21_unified/scripts/repair_source_snapshot.py',
+ 'qwen21_unified/tests/test_repair_snapshot.py'):
+ if rel not in m:sys.exit(4)
+"""
+        (self.root / "tools/verify_snapshot.py").write_text(script.replace("MODE", repr(mode)))
+
 
 if __name__ == "__main__":
     unittest.main()
