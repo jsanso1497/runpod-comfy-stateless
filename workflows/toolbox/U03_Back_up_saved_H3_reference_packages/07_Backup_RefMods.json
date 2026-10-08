@@ -1,0 +1,237 @@
+{
+  "id": "202b981d-eaf1-532f-a1c5-35568e4b86bb",
+  "revision": 0,
+  "last_node_id": 3,
+  "last_link_id": 1,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "MiniMaxH3RefModsLoader",
+      "title": "Saved RefMod library (selection optional for backup)",
+      "pos": [
+        20,
+        20
+      ],
+      "size": [
+        420,
+        600
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "mods",
+          "type": "H3_REF_MODS",
+          "links": [
+            1
+          ]
+        },
+        {
+          "name": "prompt_hint",
+          "type": "STRING",
+          "links": []
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "MiniMaxH3RefModsLoader"
+      },
+      "widgets_values": [
+        true,
+        "(none)",
+        1.0,
+        1,
+        "(none)",
+        1.0,
+        1,
+        "(none)",
+        1.0,
+        1,
+        "(none)",
+        1.0,
+        1,
+        "(none)",
+        1.0,
+        1,
+        "(none)",
+        1.0,
+        1,
+        "(none)",
+        1.0,
+        1,
+        "(none)",
+        1.0,
+        1,
+        131072,
+        "Visual",
+        1.0,
+        1.0,
+        "Visual",
+        1.0,
+        1.0,
+        "Visual",
+        1.0,
+        1.0,
+        "Visual",
+        1.0,
+        1.0,
+        "Visual",
+        1.0,
+        1.0,
+        "Visual",
+        1.0,
+        1.0,
+        "Visual",
+        1.0,
+        1.0,
+        "Visual",
+        1.0,
+        1.0
+      ],
+      "widgets_values_named": {
+        "show_info": true,
+        "mod_1": "(none)",
+        "strength_1": 1.0,
+        "copies_1": 1,
+        "mod_2": "(none)",
+        "strength_2": 1.0,
+        "copies_2": 1,
+        "mod_3": "(none)",
+        "strength_3": 1.0,
+        "copies_3": 1,
+        "mod_4": "(none)",
+        "strength_4": 1.0,
+        "copies_4": 1,
+        "mod_5": "(none)",
+        "strength_5": 1.0,
+        "copies_5": 1,
+        "mod_6": "(none)",
+        "strength_6": 1.0,
+        "copies_6": 1,
+        "mod_7": "(none)",
+        "strength_7": 1.0,
+        "copies_7": 1,
+        "mod_8": "(none)",
+        "strength_8": 1.0,
+        "copies_8": 1,
+        "max_total_tokens": 131072,
+        "components_1": "Visual",
+        "visual_strength_1": 1.0,
+        "audio_strength_1": 1.0,
+        "components_2": "Visual",
+        "visual_strength_2": 1.0,
+        "audio_strength_2": 1.0,
+        "components_3": "Visual",
+        "visual_strength_3": 1.0,
+        "audio_strength_3": 1.0,
+        "components_4": "Visual",
+        "visual_strength_4": 1.0,
+        "audio_strength_4": 1.0,
+        "components_5": "Visual",
+        "visual_strength_5": 1.0,
+        "audio_strength_5": 1.0,
+        "components_6": "Visual",
+        "visual_strength_6": 1.0,
+        "audio_strength_6": 1.0,
+        "components_7": "Visual",
+        "visual_strength_7": 1.0,
+        "audio_strength_7": 1.0,
+        "components_8": "Visual",
+        "visual_strength_8": 1.0,
+        "audio_strength_8": 1.0
+      }
+    },
+    {
+      "id": 2,
+      "type": "QualityExportRefMods",
+      "title": "Download ALL saved RefMods",
+      "pos": [
+        500,
+        20
+      ],
+      "size": [
+        420,
+        200
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "after",
+          "type": "H3_REF_MODS",
+          "link": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "download_url",
+          "type": "STRING",
+          "links": []
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "QualityExportRefMods"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 3,
+      "type": "Note",
+      "title": "Read before running",
+      "pos": [
+        500,
+        280
+      ],
+      "size": [
+        600,
+        330
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "Note"
+      },
+      "widgets_values": [
+        "Run this graph to get a ZIP download button for all saved RefMod files. No H3 render or model download is triggered by the graph itself. The h3 profile still prepares its model catalog at Pod startup. Download before deleting this Pod. Restore extracted refmods/ contents to ComfyUI/models/refmods/ on a new Pod, then Refresh RefMods."
+      ]
+    }
+  ],
+  "links": [
+    [
+      1,
+      1,
+      0,
+      2,
+      0,
+      "H3_REF_MODS"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.65,
+      "offset": [
+        40,
+        60
+      ]
+    },
+    "everyday": {
+      "profile": "h3",
+      "version": "3.0.0",
+      "requires_user_upload": true
+    },
+    "workbench": {
+      "task_id": "U03",
+      "quality": "hq",
+      "source": "config/workflows/07_Backup_RefMods.json",
+      "validation": "static source adaptation; GPU untested"
+    }
+  },
+  "version": 0.4
+}
