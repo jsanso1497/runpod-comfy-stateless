@@ -20,7 +20,7 @@ jobs:
       - run: pip install torch --index-url https://download.pytorch.org/whl/cpu
       - run: python scripts/build_site.py
       - run: python scripts/validate.py
-      - run: PYTHONPATH=src pytest -q
+      - run: PYTHONPATH=src pytest -q tests
       - run: node tests/test_configurator.cjs
       - run: python -m compileall -q src deploy scripts
       - run: git diff --exit-code site/index.html site/catalog.json
