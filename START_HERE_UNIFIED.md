@@ -1,6 +1,8 @@
+# Unified Qwen v2.1.1: ACTIVE COMFYUI AusBoss fix
+
 # Qwen Photo 2K / SAM 3.1 + Native Suite + Torso Lock
 
-**Integration overlay:** v2.1.0, October 7, 2026. **Status:** code and offline validation complete; **not yet built, pushed, or tested on a live GPU**. This package requires the existing `qwen21_photo_edit/` folder from your current `runpod-comfy-stateless` repository. It does not contain or replace your entire private repository.
+**Integration overlay:** v2.1.1, October 8, 2026. **Status:** code and offline validation complete; **not yet built, pushed, or tested on a live GPU**. This package requires the existing `qwen21_photo_edit/` folder from your current `runpod-comfy-stateless` repository. It does not contain or replace your entire private repository.
 
 ## What the one unified image contains
 
@@ -71,7 +73,7 @@ Open GitHub Actions and choose **Build Qwen Photo + Native + Torso (Unified)** >
 
 ```text
 ghcr.io/jsanso1497/runpod-comfy-qwen21-photo:unified
-ghcr.io/jsanso1497/runpod-comfy-qwen21-photo:unified-v2.1.0
+ghcr.io/jsanso1497/runpod-comfy-qwen21-photo:unified-v2.1.1
 ghcr.io/jsanso1497/runpod-comfy-qwen21-photo:unified-sha-<commit-sha>
 ```
 
@@ -83,7 +85,7 @@ Use the `qwen21_unified/config/runpod-template.json` file as your canonical pres
 
 | Setting | Value |
 |---|---|
-| **Image** | `ghcr.io/jsanso1497/runpod-comfy-qwen21-photo:unified-v2.1.0` (after successful publication) |
+| **Image** | `ghcr.io/jsanso1497/runpod-comfy-qwen21-photo:unified-v2.1.1` (after successful publication) |
 | GPU | NVIDIA A40 **48 GB** or higher to start; not benchmarked for 4 MP or many references |
 | System RAM | Prefer **96 GB+** when available for BF16 offloading |
 | Container disk | **160 GB** suggested for stateless Pod |

@@ -1,10 +1,13 @@
 {
   "schema_version": 1,
-  "release": "2.1.0",
-  "default_image_tag": "ghcr.io/jsanso1497/runpod-comfy-qwen21-photo:unified-v2.1.0",
+  "release": "2.1.1",
+  "default_image_tag": "ghcr.io/jsanso1497/runpod-comfy-qwen21-photo:unified-v2.1.1",
   "base": "existing qwen21_photo_edit Dockerfile and start.sh must remain the build and runtime foundations",
   "workflows": {
-    "qwen_photo_sam31": ["Qwen21_Photo_2K_SAM3_BF16.json", "Qwen21_Photo_2K_SAM3_INT8.json"],
+    "qwen_photo_sam31": [
+      "Qwen21_Photo_2K_SAM3_BF16.json",
+      "Qwen21_Photo_2K_SAM3_INT8.json"
+    ],
     "native_qwen_default_count": 34,
     "torso_lock": [
       "36_Sports_Bra_Torso_Landmark_Lock.json",

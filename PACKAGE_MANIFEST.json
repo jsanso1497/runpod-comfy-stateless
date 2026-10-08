@@ -1,5 +1,5 @@
 {
-  "release": "2.1.0",
+  "release": "2.1.1",
   "includes": {
     "photo_ui_in_existing_repo": 2,
     "native_default": 34,
@@ -8,16 +8,20 @@
   },
   "files": {
     ".github/workflows/build-qwen21-unified.yml": {
-      "sha256": "7d3c60108f905ee01fe4e7c666640fdea0d06e669608872cc4bcdb727622c8aa",
+      "sha256": "640332168c91ef6f5b0853b66b449a3145b6333daeb1b46be34f157cd983eab0",
       "bytes": 2940
+    },
+    ".github/workflows/repair-qwen21-unified-snapshot.yml": {
+      "sha256": "d68767661a29cd11bb83ef3fbf9d83811c329d2bf34d5f3a7112531ec5f5cf98",
+      "bytes": 3009
     },
     "APPLY_QWEN_UNIFIED.py": {
       "sha256": "8d2ab01ceb729c5b2ed73629e5f724c1f1f4028c0532c2ef3736d2d5a82db826",
       "bytes": 8605
     },
     "START_HERE_UNIFIED.md": {
-      "sha256": "dbba41a152a4d47bf12b867108793314bce3bf0eb5fd985d527126fc3da5cb29",
-      "bytes": 8890
+      "sha256": "0af564c012d67e6d16d255ac2c3958aac9390e620d4a3cffe1e6f3c448a02885",
+      "bytes": 8941
     },
     "qwen21_native/.dockerignore": {
       "sha256": "3b7e4795b9429140b1ebb33a0f2c41f10795607004b7862d0da9bf360b69eb08",
@@ -524,12 +528,12 @@
       "bytes": 90345
     },
     "qwen21_unified/config/RELEASE_CONTRACT.json": {
-      "sha256": "4e7c6d20963d88795c9058c076882935abdf4e2e69566e455a2b3e3165071060",
-      "bytes": 1505
+      "sha256": "a8afaf6baf965c392e64e6ddc8a72ac295377bfd44b9a2746d87aea0c2ccde1b",
+      "bytes": 1523
     },
     "qwen21_unified/config/runpod-template.json": {
-      "sha256": "dc23c33e1f72c12194960ec495bb38ad3e33b73f078b409a9f9b57bc78e4886c",
-      "bytes": 934
+      "sha256": "085676ce145ae9ba8eb23b60c0b30a97e15e02ffb4d897e801ef348d097837ce",
+      "bytes": 942
     },
     "qwen21_unified/scripts/build_install.py": {
       "sha256": "1b33738c4555e4aca158f24884d043121dffd8fbad3f0f2cea56c79837454a7e",
@@ -547,9 +551,13 @@
       "sha256": "8cd3ec369180a223b945d5c3bf3cf91e186ef606df57cbd59845433d0eb62e0f",
       "bytes": 4289
     },
+    "qwen21_unified/scripts/repair_source_snapshot.py": {
+      "sha256": "3f25b510474ad3d53541494a8ed2cf04f2a20f4448283994e3a2182b836f4d1c",
+      "bytes": 16523
+    },
     "qwen21_unified/scripts/runtime_prepare.py": {
-      "sha256": "fa6b72405403fa9efb47b5125b839c7105f6daca78a9b09deeee0c30810c9032",
-      "bytes": 3471
+      "sha256": "864516404b574e4303e875ae2c04f5a23f04ade7357bc0b392889e2fa077aa7f",
+      "bytes": 5260
     },
     "qwen21_unified/scripts/supervise.py": {
       "sha256": "b004fdd6340c5cb49a83d14e80e62f55d4cfefeffab27158981ebf31a1b3c7ae",
@@ -559,12 +567,20 @@
       "sha256": "01025b7280b7a1022c20f78e941203fef0e8159d9d059541d5911b213cf319d5",
       "bytes": 2526
     },
+    "qwen21_unified/tests/test_active_comfy_nodes.py": {
+      "sha256": "0ecad04bad69db03997db436223c03d526db5becef778b675976bd13c453d3a9",
+      "bytes": 4074
+    },
     "qwen21_unified/tests/test_apply_overlay.py": {
       "sha256": "998a8f617725bb61321ab6428c8b18a113fbac7fea0df2b7adfb43180d079f58",
       "bytes": 7719
     },
+    "qwen21_unified/tests/test_repair_snapshot.py": {
+      "sha256": "8b17512137cfc2e05ce2ff02760742294a552fa75fbdd0be4ff7a039105e1af9",
+      "bytes": 12986
+    },
     "qwen21_unified/tests/test_unified_package.py": {
-      "sha256": "5410dba13bcc2b8570d23a69995b0c903e6d15469a42cc6ae52683e306a658f4",
+      "sha256": "2645ae406b12256576f25bb724243c40eb0dc39927856e6608ff684c3b9940f3",
       "bytes": 5457
     }
   }

@@ -85,7 +85,7 @@ class Tests(unittest.TestCase):
         self.assertEqual(count,0)
     def test_unified_template_contract(self):
         template=json.loads((ROOT/'qwen21_unified/config/runpod-template.json').read_text())
-        self.assertIn(':unified-v2.1.0',template['imageName'])
+        self.assertIn(':unified-v2.1.1',template['imageName'])
         self.assertIn('8188/http',template['ports'])
         self.assertEqual(template['dockerEntrypoint'],[])
         self.assertEqual(template['env']['QWEN_PHOTO_MODEL_PRECISION'],'bf16')

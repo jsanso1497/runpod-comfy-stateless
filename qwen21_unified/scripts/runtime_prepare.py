@@ -7,6 +7,9 @@ from pathlib import Path
 NATIVE=Path('/opt/qwen21_native')
 PHOTO=Path('/opt/qwen21_photo_edit')
 PHOTO_WORKFLOWS=('Qwen21_Photo_2K_SAM3_BF16.json','Qwen21_Photo_2K_SAM3_INT8.json')
+AUSBOSS_STAGE=Path('/opt/ComfyUI/custom_nodes/ComfyUI-AusBoss')
+REQUIRED_AUSBOSS='nodes/node_inpaint_crop_stitch.py'
+
 
 def install_photo_workflows(user:Path):
     """Copy only the two reviewed editable UI workflows, never overwrite user edits."""
@@ -29,7 +32,36 @@ def install_photo_workflows(user:Path):
     return 2
 
 
+def ensure_ausboss_for_active_comfy(comfy: Path, staged: Path | None = None) -> Path:
+    """Make the build-pinned AusBoss checkout visible to the *active* ComfyUI.
+
+    Qwen Photo can launch /workspace/ComfyUI even though Docker installed
+    custom nodes under /opt/ComfyUI. Link only our separately pinned package;
+    never replace a pre-existing third-party checkout or edit core files.
+    """
+    comfy = Path(comfy).resolve()
+    staged = Path(staged) if staged is not None else AUSBOSS_STAGE
+    staged = staged.resolve()
+    destination = comfy / 'custom_nodes' / 'ComfyUI-AusBoss'
+    marker = destination / REQUIRED_AUSBOSS
+    if marker.is_file() and 'AUSBOSS_NODES_StitchInpaint' in marker.read_text(encoding='utf-8'):
+        return destination
+    if destination.exists() or destination.is_symlink():
+        raise RuntimeError(f'Existing AusBoss directory is incomplete/incompatible: {destination}. Refusing to overwrite user files.')
+    source_marker = staged / REQUIRED_AUSBOSS
+    if not source_marker.is_file() or 'AUSBOSS_NODES_StitchInpaint' not in source_marker.read_text(encoding='utf-8'):
+        raise RuntimeError(f'Pinned AusBoss checkout is missing or incomplete: {staged}. Check the unified Docker build layer.')
+    destination.parent.mkdir(parents=True,exist_ok=True)
+    destination.symlink_to(staged, target_is_directory=True)
+    if not marker.is_file():
+        destination.unlink()
+        raise RuntimeError(f'Unable to expose AusBoss at active ComfyUI: {destination}')
+    print(f'Linked pinned AusBoss to ACTIVE ComfyUI: {destination} -> {staged}', flush=True)
+    return destination
+
+
 def install_for(comfy:Path,user:Path,require_photo:bool=False):
+    ensure_ausboss_for_active_comfy(comfy)
     sys.path.insert(0,str(NATIVE/'scripts'))
     from install_into_comfy import install as native_install
     import importlib.util
