@@ -82,16 +82,31 @@ def check_schema(ui,api,info,check_files=False):
                 actual=output[val[1]]
                 require(want==actual or '*' in (want,actual),f'{typ}.{name}: expected {want}, got {actual}')
             elif isinstance(want,list) or want=='COMBO':
-                # Legacy dropdowns are represented by the list itself.
-                # ComfyUI V3 io.Combo.Input serializes to ["COMBO", {"options": [...]}].
-                # Both are widgets, not wiring sockets. Do not mistake a V3
-                # dropdown for a missing control, and validate its choices.
+                # Legacy dropdowns expose their choices in the type list.
+                # ComfyUI V3 COMBO widgets normally use options=[...], but
+                # file/upload widgets (notably LoadImage.image) can have NO
+                # choices at startup. Their choices are populated dynamically
+                # from user uploads or the server's model/file directories.
                 opts=inputs[name][1] if len(inputs[name])>1 and isinstance(inputs[name][1],dict) else {}
                 choices=want if isinstance(want,list) else opts.get('options')
-                require(isinstance(choices,list) and bool(choices),f'{typ}.{name}: missing COMBO options')
                 is_file=name in file_choices or (name=='model' and typ.startswith('SeedVR2'))
-                if check_files or not is_file:
-                    require(val in choices,f'{typ}.{name}: {val!r} not in runtime options')
+                if is_file:
+                    # The bundled graph can refer to an image not uploaded yet.
+                    # Do not treat an empty/absent choice list as a missing node.
+                    require(isinstance(val,str) and bool(val.strip()),
+                            f'{typ}.{name}: invalid file selector value')
+                    require(choices is None or isinstance(choices,list),
+                            f'{typ}.{name}: malformed COMBO options')
+                    if check_files:
+                        require(isinstance(choices,list) and val in choices,
+                                f'{typ}.{name}: {val!r} not in runtime options')
+                else:
+                    # Strict validation remains mandatory for actual settings,
+                    # including QwenImage21Cache.device and .dtype.
+                    require(isinstance(choices,list) and bool(choices),
+                            f'{typ}.{name}: missing COMBO options')
+                    require(val in choices,
+                            f'{typ}.{name}: {val!r} not in runtime options')
             elif want in ('INT','FLOAT','STRING','BOOLEAN'):
                 valid={'INT':isinstance(val,int) and not isinstance(val,bool),
                     'FLOAT':isinstance(val,(int,float)) and not isinstance(val,bool),'STRING':isinstance(val,str),'BOOLEAN':isinstance(val,bool)}

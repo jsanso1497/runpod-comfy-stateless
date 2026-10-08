@@ -85,7 +85,7 @@ class Tests(unittest.TestCase):
         self.assertEqual(count,0)
     def test_unified_template_contract(self):
         template=json.loads((ROOT/'qwen21_unified/config/runpod-template.json').read_text())
-        self.assertIn(':unified-v2.1.2',template['imageName'])
+        self.assertIn(':unified-v2.1.3',template['imageName'])
         self.assertIn('8188/http',template['ports'])
         self.assertEqual(template['dockerEntrypoint'],[])
         self.assertEqual(template['env']['QWEN_PHOTO_MODEL_PRECISION'],'bf16')
@@ -163,6 +163,68 @@ class TestQwen21ComfyV3ComboCompatibility(unittest.TestCase):
             api,info=self.inputs_and_info()
             api['2']['inputs']['device']='invented'
             with self.assertRaisesRegex(ValueError,'not in runtime options'):
+                module.check_schema({},api,info)
+
+    def test_v3_loadimage_without_options_is_valid(self):
+        """On ComfyUI 0.39, a file upload COMBO can advertise no options.
+
+        The UI/API graph can still contain a placeholder file name; the file
+        will be uploaded interactively after the ComfyUI server starts.
+        """
+        for path in ('qwen21_native/scripts/validate_workflows.py',
+                     'qwen21_native/addons/torso_lock/scripts/validate_workflows.py'):
+            module=self.validator(path)
+            api,info=self.inputs_and_info()
+            api['3']={'class_type':'LoadImage','inputs':{'image':'scene_not_yet_uploaded.png'}}
+            info['LoadImage']={'input':{'required':{
+                'image':['COMBO',{'image_upload':True,'image_folder':'input',
+                                  'remote':{'route':'/internal/files/input'}}]
+            }},'output':['IMAGE','MASK']}
+            module.check_schema({},api,info)
+
+    def test_v3_loadimage_with_empty_options_is_valid(self):
+        for path in ('qwen21_native/scripts/validate_workflows.py',
+                     'qwen21_native/addons/torso_lock/scripts/validate_workflows.py'):
+            module=self.validator(path)
+            api,info=self.inputs_and_info()
+            api['3']={'class_type':'LoadImage','inputs':{'image':'pending.png'}}
+            info['LoadImage']={'input':{'required':{
+                'image':['COMBO',{'options':[],'image_upload':True}]
+            }},'output':['IMAGE','MASK']}
+            module.check_schema({},api,info)
+            # Explicit strict-file validation must not claim a missing file exists.
+            with self.assertRaisesRegex(ValueError,'not in runtime options'):
+                module.check_schema({},api,info,check_files=True)
+
+    def test_v3_file_selector_not_yet_available_passes_normal_check(self):
+        for path in ('qwen21_native/scripts/validate_workflows.py',
+                     'qwen21_native/addons/torso_lock/scripts/validate_workflows.py'):
+            module=self.validator(path)
+            api,info=self.inputs_and_info()
+            # Files/model weights can appear later (RunPod runtime download).
+            info['UNETLoader']['input']['required']['unet_name']=['COMBO',{'options':[]}]
+            module.check_schema({},api,info)
+            with self.assertRaisesRegex(ValueError,'not in runtime options'):
+                module.check_schema({},api,info,check_files=True)
+
+    def test_v3_file_selector_requires_nonempty_string(self):
+        for path in ('qwen21_native/scripts/validate_workflows.py',
+                     'qwen21_native/addons/torso_lock/scripts/validate_workflows.py'):
+            module=self.validator(path)
+            api,info=self.inputs_and_info()
+            info['UNETLoader']['input']['required']['unet_name']=['COMBO',{}]
+            for invalid in ('',42,None):
+                api['1']['inputs']['unet_name']=invalid
+                with self.assertRaisesRegex(ValueError,'invalid file selector value'):
+                    module.check_schema({},api,info)
+
+    def test_v3_rejects_malformed_file_combo_options(self):
+        for path in ('qwen21_native/scripts/validate_workflows.py',
+                     'qwen21_native/addons/torso_lock/scripts/validate_workflows.py'):
+            module=self.validator(path)
+            api,info=self.inputs_and_info()
+            info['UNETLoader']['input']['required']['unet_name']=['COMBO',{'options':{'bad':'schema'}}]
+            with self.assertRaisesRegex(ValueError,'malformed COMBO options'):
                 module.check_schema({},api,info)
 
     def test_v3_combo_rejects_missing_options(self):

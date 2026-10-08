@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "release": "2.1.2",
-  "default_image_tag": "ghcr.io/jsanso1497/runpod-comfy-qwen21-photo:unified-v2.1.2",
+  "release": "2.1.3",
+  "default_image_tag": "ghcr.io/jsanso1497/runpod-comfy-qwen21-photo:unified-v2.1.3",
   "base": "existing qwen21_photo_edit Dockerfile and start.sh must remain the build and runtime foundations",
   "workflows": {
     "qwen_photo_sam31": [

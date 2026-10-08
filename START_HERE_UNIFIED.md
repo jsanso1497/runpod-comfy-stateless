@@ -1,18 +1,28 @@
-# Unified Qwen v2.1.2: ComfyUI V3 widget-schema compatibility fix
+# Unified Qwen v2.1.3: Dynamic COMBO upload-schema compatibility fix
 
 # Qwen Photo 2K / SAM 3.1 + Native Suite + Torso Lock
 
-**Integration overlay:** v2.1.2, October 8, 2026. **Status:** code and offline validation complete; **not yet built, pushed, or tested on a live GPU**. This package requires the existing `qwen21_photo_edit/` folder from your current `runpod-comfy-stateless` repository. It does not contain or replace your entire private repository.
+**Integration overlay:** v2.1.3, October 8, 2026. **Status:** code and offline validation complete; **not yet built, pushed, or tested on a live GPU**. This package requires the existing `qwen21_photo_edit/` folder from your current `runpod-comfy-stateless` repository. It does not contain or replace your entire private repository.
 
-## What v2.1.2 fixes (October 8 RunPod logs)
+## v2.1.3 correction: image-upload COMBOs with no static options
+
+A live ComfyUI 0.39.0 run reported `VALIDATION FAILED: LoadImage.image: missing COMBO options` after v2.1.2 resolved the original `QwenImage21Cache` schema check. The /object_info descriptor of a file/upload dropdown can legitimately omit `options` or supply `options: []`, especially before the user uploads a scene/reference image. This was a false negative in **our** runtime schema validator, not a missing ComfyUI model or node.
+
+v2.1.3 fixes both the Native and Torso Lock validators: **file selectors require nonempty string file names, but default runtime startup validation does not require the server to list their files.** Their `--check-files` switch remains strict. Non-file dropdowns (e.g., cache device/dtype, sampling settings) still require a populated options list and reject invalid choices. UI widget ordering, graph wiring, LoRA boundaries, sampler constraints, and all 40 default workflows are retained.
+
+To upgrade a repository already at v2.1.2, merge the **v2.1.3 Dynamic COMBO GitHub Update Only** ZIP at the repository root (including `PACKAGE_MANIFEST.json`), commit, run **Repair Qwen Unified Source Snapshot**, then run **Build Qwen Photo + Native + Torso (Unified)**. Select image `ghcr.io/jsanso1497/runpod-comfy-qwen21-photo:unified-v2.1.3` only after publication. For a currently running v2.1.2 stateless Pod, use the separate **v2.1.3 One-Time Repair** terminal script; no model downloads or Torch installation are necessary.
+
+The repeated warning that `comfyui-workflow-templates` is not installed is a separate optional-gallery dependency. It is not the supervisor error above. The Comfy-kitchen CUDA 13.0 warning means optional optimized kernels are unavailable on the pinned CUDA 12.8/Torch 2.9.1 image; the eager backend is present. Neither warning justifies replacing the PyTorch stack during this fix.
+
+## Previous v2.1.2 fix (historical)
 
 The v2.1.1 server *did* load Photo/SAM3, Native, Torso Lock, and AusBoss on the active `/workspace/ComfyUI` server. However, the unified startup validator rejected `QwenImage21Cache` with `UI widget order differs: runtime [], saved ["device", "dtype"]`. The validator understood legacy dropdowns represented as Python/JSON choice arrays, but did not recognize ComfyUI V3 dropdowns, where the input type is `COMBO` and the choices live in the descriptor's `options` field. The node has not necessarily lost its controls; the validator was failing to recognize them.
 
 v2.1.2 updates **both** the Native and Torso Lock live-schema validators to recognize and validate both forms. The checks still reject unsupported values, invalid graph links, missing nodes, and changed widget order. All previously included editing workflows and original pixel locks are unchanged. No model, sampler, BF16/INT8, SAM3, AusBoss, or Qwen weight modifications are required. The non-fatal missing `comfyui-workflow-templates` warning may remain because built-in demo-gallery media is intentionally excluded to reduce Docker size.
 
-**Installing an update-only hotfix into your GitHub repo:** Merge the exact tracked files from the companion update-only ZIP and overwrite those specific files, including `PACKAGE_MANIFEST.json`. Then manually run **Repair Qwen Unified Source Snapshot** on `main` (this will refresh the changed files' verified hashes), followed by **Build Qwen Photo + Native + Torso (Unified)**. Do not launch `unified-v2.1.2` before that build publishes successfully. Do not drop the other 40 workflow files.
+**Historical v2.1.2 installation note:** This change was incorporated into v2.1.3. Use the new update-only ZIP and `unified-v2.1.3` build instructions at the top of this file. Keep all 40 workflow files.
 
-**Optional existing-Pod fix:** A companion terminal-only script `Qwen21_Unified_COMBO_One_Time_Repair_v2.1.2.sh` can patch the two validators inside a running v2.1.1 Pod. A one-time local patch does *not* survive stateless termination and is not a substitute for the new GitHub image.
+**Historical one-time fix:** The v2.1.2 helper script fixes V3 static dropdowns only and is insufficient for dynamic `LoadImage.image`; use the v2.1.3 one-time repair instead.
 
 ## What the one unified image contains
 
@@ -83,7 +93,7 @@ Open GitHub Actions and choose **Build Qwen Photo + Native + Torso (Unified)** >
 
 ```text
 ghcr.io/jsanso1497/runpod-comfy-qwen21-photo:unified
-ghcr.io/jsanso1497/runpod-comfy-qwen21-photo:unified-v2.1.2
+ghcr.io/jsanso1497/runpod-comfy-qwen21-photo:unified-v2.1.3
 ghcr.io/jsanso1497/runpod-comfy-qwen21-photo:unified-sha-<commit-sha>
 ```
 
@@ -95,7 +105,7 @@ Use the `qwen21_unified/config/runpod-template.json` file as your canonical pres
 
 | Setting | Value |
 |---|---|
-| **Image** | `ghcr.io/jsanso1497/runpod-comfy-qwen21-photo:unified-v2.1.2` (after successful publication) |
+| **Image** | `ghcr.io/jsanso1497/runpod-comfy-qwen21-photo:unified-v2.1.3` (after successful publication) |
 | GPU | NVIDIA A40 **48 GB** or higher to start; not benchmarked for 4 MP or many references |
 | System RAM | Prefer **96 GB+** when available for BF16 offloading |
 | Container disk | **160 GB** suggested for stateless Pod |
