@@ -1,0 +1,54 @@
+name: Repair Qwen Unified Source Snapshot
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PYTHONDONTWRITEBYTECODE: '1'
+
+concurrency:
+  group: qwen21-unified-snapshot-maintenance
+  cancel-in-progress: false
+
+jobs:
+  repair:
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Audit unified package and propose snapshot-only updates
+        run: |
+          set -Eeuo pipefail
+          python qwen21_unified/scripts/repair_source_snapshot.py --repo .
+      - name: Register verified unified sources and run original snapshot verifier
+        run: |
+          set -Eeuo pipefail
+          python qwen21_unified/scripts/repair_source_snapshot.py --repo . --write
+          python qwen21_unified/scripts/verify_bundle.py --repo .
+          python qwen21_native/scripts/validate_workflows.py --profile upscale --include-bfs
+          python qwen21_native/addons/torso_lock/scripts/validate_workflows.py
+      - name: Commit ONLY SOURCE_SNAPSHOT.json
+        run: |
+          set -Eeuo pipefail
+          if git diff --quiet -- SOURCE_SNAPSHOT.json; then
+            echo "SOURCE_SNAPSHOT.json already accurate; no commit needed"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add SOURCE_SNAPSHOT.json
+          git diff --cached --name-only
+          git diff --cached --name-only | grep -Fx 'SOURCE_SNAPSHOT.json'
+          test "$(git diff --cached --name-only | wc -l)" -eq 1
+          git commit -m "Register verified Qwen unified sources in snapshot [skip ci]"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
