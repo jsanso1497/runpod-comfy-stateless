@@ -1,0 +1,1416 @@
+{
+  "2": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "scene.png"
+    },
+    "_meta": {
+      "title": "BASE SCENE | paint head mask"
+    }
+  },
+  "3": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "face_primary.png"
+    },
+    "_meta": {
+      "title": "PRIMARY genuine face reference"
+    }
+  },
+  "4": {
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "qwen_image_2.1_bf16.safetensors",
+      "weight_dtype": "default"
+    },
+    "_meta": {
+      "title": "BASE Qwen 2.1 BF16 | no LoRA by default"
+    }
+  },
+  "5": {
+    "class_type": "CLIPLoader",
+    "inputs": {
+      "clip_name": "qwen3vl_8b_bf16.safetensors",
+      "type": "qwen_image",
+      "device": "default"
+    },
+    "_meta": {
+      "title": "Qwen3-VL 8B BF16 | qwen_image"
+    }
+  },
+  "6": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "qwen_image_2.1_vae_bf16.safetensors"
+    },
+    "_meta": {
+      "title": "Qwen 2.1 VAE BF16"
+    }
+  },
+  "7": {
+    "class_type": "Q21NMaskGuard",
+    "inputs": {
+      "label": "Paint the intended edit region",
+      "image": [
+        "2",
+        0
+      ],
+      "mask": [
+        "2",
+        1
+      ]
+    },
+    "_meta": {
+      "title": "Check mask and source dimensions"
+    }
+  },
+  "8": {
+    "class_type": "AUSBOSS_NODES_CropForInpaint",
+    "inputs": {
+      "context_factor": 1.6,
+      "blend_pixels": 16,
+      "output_multiple": 32,
+      "target_width": 0,
+      "target_height": 0,
+      "mask_grow": 0,
+      "mask_blur": 0.0,
+      "invert_mask": false,
+      "context_pixels": 32,
+      "target_megapixels": 2.0,
+      "rescale_algorithm": "bicubic",
+      "extend_left": 0,
+      "extend_right": 0,
+      "extend_up": 0,
+      "extend_down": 0,
+      "keep_inside": true,
+      "image": [
+        "7",
+        0
+      ],
+      "mask": [
+        "7",
+        1
+      ]
+    },
+    "_meta": {
+      "title": "AusBoss | 2 MP crop | never resize full scene"
+    }
+  },
+  "9": {
+    "class_type": "Q21NResizeBudget",
+    "inputs": {
+      "megapixels": 1.0,
+      "allow_upscale": false,
+      "image": [
+        "3",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Reference 2 | <= 1 MP | no detail invented"
+    }
+  },
+  "10": {
+    "class_type": "QwenImage21Cache",
+    "inputs": {
+      "device": "auto",
+      "dtype": "default",
+      "model": [
+        "4",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Lossless KV cache | auto / default"
+    }
+  },
+  "11": {
+    "class_type": "Q21NEncodeReferences",
+    "inputs": {
+      "prompt": "Edit the centered person's head and face in <image1> to be the exact person in <image2>. <image2> is the sole primary facial identity anchor. Reproduce that exact person rather than a lookalike or a blend with the old face. Preserve the referenced person's natural asymmetry and apparent age. Fit that identity to the head rotation, expression, gaze and head-to-body scale in <image1>. Keep the body and clothing unchanged. Preserve the camera viewpoint, perspective, pose, lighting, scene layout and unrelated people and objects from <image1>. Do not copy any reference background, framing or camera angle. Natural photographic texture; no beauty retouching or idealization.",
+      "clip": [
+        "5",
+        0
+      ],
+      "vae": [
+        "6",
+        0
+      ],
+      "image_1": [
+        "8",
+        0
+      ],
+      "image_2": [
+        "9",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "EDIT THIS PROMPT | image1=base crop"
+    }
+  },
+  "12": {
+    "class_type": "KSampler",
+    "inputs": {
+      "seed": 18071042,
+      "steps": 40,
+      "cfg": 1.0,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 1.0,
+      "model": [
+        "10",
+        0
+      ],
+      "positive": [
+        "11",
+        0
+      ],
+      "negative": [
+        "11",
+        1
+      ],
+      "latent_image": [
+        "11",
+        2
+      ]
+    },
+    "_meta": {
+      "title": "40 steps | CFG 1 | Euler/simple | fixed seed"
+    }
+  },
+  "13": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "12",
+        0
+      ],
+      "vae": [
+        "6",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Decode native matching 64-channel latent"
+    }
+  },
+  "14": {
+    "class_type": "Q21NOpaqueImage",
+    "inputs": {
+      "image": [
+        "13",
+        0
+      ],
+      "background": [
+        "8",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Flatten generated alpha over source crop"
+    }
+  },
+  "15": {
+    "class_type": "AUSBOSS_NODES_StitchInpaint",
+    "inputs": {
+      "fix_edge_halo": false,
+      "color_match": 0.0,
+      "seam": "classic",
+      "stitcher": [
+        "8",
+        2
+      ],
+      "inpainted": [
+        "14",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Original-size stitch | color match OFF"
+    }
+  },
+  "16": {
+    "class_type": "Q21NAuditPreservation",
+    "inputs": {
+      "original": [
+        "2",
+        0
+      ],
+      "edited": [
+        "15",
+        0
+      ],
+      "blend_mask": [
+        "15",
+        1
+      ]
+    },
+    "_meta": {
+      "title": "Assert exact protected RGB pixels"
+    }
+  },
+  "17": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "filename_prefix": "Qwen21_Native/90_AB_Head_Native_vs_BFS/native/image",
+      "images": [
+        "16",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Save separate candidate PNG"
+    }
+  },
+  "18": {
+    "class_type": "PreviewImage",
+    "inputs": {
+      "images": [
+        "14",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Inspect generated crop at native resolution"
+    }
+  },
+  "19": {
+    "class_type": "Q21NComparePanel",
+    "inputs": {
+      "label": "RAW: 90_AB_Head_Native_vs_BFS/native",
+      "before": [
+        "8",
+        0
+      ],
+      "after": [
+        "14",
+        0
+      ],
+      "reference": [
+        "9",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "RAW crop / generated crop / reference (before protection)"
+    }
+  },
+  "20": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "filename_prefix": "Qwen21_Native/90_AB_Head_Native_vs_BFS/native/comparison/image",
+      "images": [
+        "19",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Save separate candidate PNG"
+    }
+  },
+  "21": {
+    "class_type": "Q21NMaskGuard",
+    "inputs": {
+      "label": "Paint the intended edit region",
+      "image": [
+        "2",
+        0
+      ],
+      "mask": [
+        "2",
+        1
+      ]
+    },
+    "_meta": {
+      "title": "Check mask and source dimensions"
+    }
+  },
+  "22": {
+    "class_type": "AUSBOSS_NODES_CropForInpaint",
+    "inputs": {
+      "context_factor": 1.6,
+      "blend_pixels": 16,
+      "output_multiple": 32,
+      "target_width": 0,
+      "target_height": 0,
+      "mask_grow": 0,
+      "mask_blur": 0.0,
+      "invert_mask": false,
+      "context_pixels": 32,
+      "target_megapixels": 2.0,
+      "rescale_algorithm": "bicubic",
+      "extend_left": 0,
+      "extend_right": 0,
+      "extend_up": 0,
+      "extend_down": 0,
+      "keep_inside": true,
+      "image": [
+        "21",
+        0
+      ],
+      "mask": [
+        "21",
+        1
+      ]
+    },
+    "_meta": {
+      "title": "AusBoss | 2 MP crop | never resize full scene"
+    }
+  },
+  "23": {
+    "class_type": "Q21NResizeBudget",
+    "inputs": {
+      "megapixels": 1.0,
+      "allow_upscale": false,
+      "image": [
+        "3",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Reference 2 | <= 1 MP | no detail invented"
+    }
+  },
+  "24": {
+    "class_type": "LoraLoaderModelOnly",
+    "inputs": {
+      "lora_name": "bfs_head_v1.1_qwen_2.1.safetensors",
+      "strength_model": 0.25,
+      "model": [
+        "4",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "COMPARISON ONLY | 0.25"
+    }
+  },
+  "25": {
+    "class_type": "QwenImage21Cache",
+    "inputs": {
+      "device": "auto",
+      "dtype": "default",
+      "model": [
+        "24",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Lossless KV cache | auto / default"
+    }
+  },
+  "26": {
+    "class_type": "Q21NEncodeReferences",
+    "inputs": {
+      "prompt": "Edit the centered person's head and face in <image1> to be the exact person in <image2>. <image2> is the sole primary facial identity anchor. Reproduce that exact person rather than a lookalike or a blend with the old face. Preserve the referenced person's natural asymmetry and apparent age. Fit that identity to the head rotation, expression, gaze and head-to-body scale in <image1>. Keep the body and clothing unchanged. Preserve the camera viewpoint, perspective, pose, lighting, scene layout and unrelated people and objects from <image1>. Do not copy any reference background, framing or camera angle. Natural photographic texture; no beauty retouching or idealization.",
+      "clip": [
+        "5",
+        0
+      ],
+      "vae": [
+        "6",
+        0
+      ],
+      "image_1": [
+        "22",
+        0
+      ],
+      "image_2": [
+        "23",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "EDIT THIS PROMPT | image1=base crop"
+    }
+  },
+  "27": {
+    "class_type": "KSampler",
+    "inputs": {
+      "seed": 18071042,
+      "steps": 40,
+      "cfg": 1.0,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 1.0,
+      "model": [
+        "25",
+        0
+      ],
+      "positive": [
+        "26",
+        0
+      ],
+      "negative": [
+        "26",
+        1
+      ],
+      "latent_image": [
+        "26",
+        2
+      ]
+    },
+    "_meta": {
+      "title": "40 steps | CFG 1 | Euler/simple | fixed seed"
+    }
+  },
+  "28": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "27",
+        0
+      ],
+      "vae": [
+        "6",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Decode native matching 64-channel latent"
+    }
+  },
+  "29": {
+    "class_type": "Q21NOpaqueImage",
+    "inputs": {
+      "image": [
+        "28",
+        0
+      ],
+      "background": [
+        "22",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Flatten generated alpha over source crop"
+    }
+  },
+  "30": {
+    "class_type": "AUSBOSS_NODES_StitchInpaint",
+    "inputs": {
+      "fix_edge_halo": false,
+      "color_match": 0.0,
+      "seam": "classic",
+      "stitcher": [
+        "22",
+        2
+      ],
+      "inpainted": [
+        "29",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Original-size stitch | color match OFF"
+    }
+  },
+  "31": {
+    "class_type": "Q21NAuditPreservation",
+    "inputs": {
+      "original": [
+        "2",
+        0
+      ],
+      "edited": [
+        "30",
+        0
+      ],
+      "blend_mask": [
+        "30",
+        1
+      ]
+    },
+    "_meta": {
+      "title": "Assert exact protected RGB pixels"
+    }
+  },
+  "32": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "filename_prefix": "Qwen21_Native/90_AB_Head_Native_vs_BFS/bfs_0.25/image",
+      "images": [
+        "31",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Save separate candidate PNG"
+    }
+  },
+  "33": {
+    "class_type": "PreviewImage",
+    "inputs": {
+      "images": [
+        "29",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Inspect generated crop at native resolution"
+    }
+  },
+  "34": {
+    "class_type": "Q21NComparePanel",
+    "inputs": {
+      "label": "RAW: 90_AB_Head_Native_vs_BFS/bfs_0.25",
+      "before": [
+        "22",
+        0
+      ],
+      "after": [
+        "29",
+        0
+      ],
+      "reference": [
+        "23",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "RAW crop / generated crop / reference (before protection)"
+    }
+  },
+  "35": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "filename_prefix": "Qwen21_Native/90_AB_Head_Native_vs_BFS/bfs_0.25/comparison/image",
+      "images": [
+        "34",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Save separate candidate PNG"
+    }
+  },
+  "36": {
+    "class_type": "Q21NMaskGuard",
+    "inputs": {
+      "label": "Paint the intended edit region",
+      "image": [
+        "2",
+        0
+      ],
+      "mask": [
+        "2",
+        1
+      ]
+    },
+    "_meta": {
+      "title": "Check mask and source dimensions"
+    }
+  },
+  "37": {
+    "class_type": "AUSBOSS_NODES_CropForInpaint",
+    "inputs": {
+      "context_factor": 1.6,
+      "blend_pixels": 16,
+      "output_multiple": 32,
+      "target_width": 0,
+      "target_height": 0,
+      "mask_grow": 0,
+      "mask_blur": 0.0,
+      "invert_mask": false,
+      "context_pixels": 32,
+      "target_megapixels": 2.0,
+      "rescale_algorithm": "bicubic",
+      "extend_left": 0,
+      "extend_right": 0,
+      "extend_up": 0,
+      "extend_down": 0,
+      "keep_inside": true,
+      "image": [
+        "36",
+        0
+      ],
+      "mask": [
+        "36",
+        1
+      ]
+    },
+    "_meta": {
+      "title": "AusBoss | 2 MP crop | never resize full scene"
+    }
+  },
+  "38": {
+    "class_type": "Q21NResizeBudget",
+    "inputs": {
+      "megapixels": 1.0,
+      "allow_upscale": false,
+      "image": [
+        "3",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Reference 2 | <= 1 MP | no detail invented"
+    }
+  },
+  "39": {
+    "class_type": "LoraLoaderModelOnly",
+    "inputs": {
+      "lora_name": "bfs_head_v1.1_qwen_2.1.safetensors",
+      "strength_model": 0.5,
+      "model": [
+        "4",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "COMPARISON ONLY | 0.5"
+    }
+  },
+  "40": {
+    "class_type": "QwenImage21Cache",
+    "inputs": {
+      "device": "auto",
+      "dtype": "default",
+      "model": [
+        "39",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Lossless KV cache | auto / default"
+    }
+  },
+  "41": {
+    "class_type": "Q21NEncodeReferences",
+    "inputs": {
+      "prompt": "Edit the centered person's head and face in <image1> to be the exact person in <image2>. <image2> is the sole primary facial identity anchor. Reproduce that exact person rather than a lookalike or a blend with the old face. Preserve the referenced person's natural asymmetry and apparent age. Fit that identity to the head rotation, expression, gaze and head-to-body scale in <image1>. Keep the body and clothing unchanged. Preserve the camera viewpoint, perspective, pose, lighting, scene layout and unrelated people and objects from <image1>. Do not copy any reference background, framing or camera angle. Natural photographic texture; no beauty retouching or idealization.",
+      "clip": [
+        "5",
+        0
+      ],
+      "vae": [
+        "6",
+        0
+      ],
+      "image_1": [
+        "37",
+        0
+      ],
+      "image_2": [
+        "38",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "EDIT THIS PROMPT | image1=base crop"
+    }
+  },
+  "42": {
+    "class_type": "KSampler",
+    "inputs": {
+      "seed": 18071042,
+      "steps": 40,
+      "cfg": 1.0,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 1.0,
+      "model": [
+        "40",
+        0
+      ],
+      "positive": [
+        "41",
+        0
+      ],
+      "negative": [
+        "41",
+        1
+      ],
+      "latent_image": [
+        "41",
+        2
+      ]
+    },
+    "_meta": {
+      "title": "40 steps | CFG 1 | Euler/simple | fixed seed"
+    }
+  },
+  "43": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "42",
+        0
+      ],
+      "vae": [
+        "6",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Decode native matching 64-channel latent"
+    }
+  },
+  "44": {
+    "class_type": "Q21NOpaqueImage",
+    "inputs": {
+      "image": [
+        "43",
+        0
+      ],
+      "background": [
+        "37",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Flatten generated alpha over source crop"
+    }
+  },
+  "45": {
+    "class_type": "AUSBOSS_NODES_StitchInpaint",
+    "inputs": {
+      "fix_edge_halo": false,
+      "color_match": 0.0,
+      "seam": "classic",
+      "stitcher": [
+        "37",
+        2
+      ],
+      "inpainted": [
+        "44",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Original-size stitch | color match OFF"
+    }
+  },
+  "46": {
+    "class_type": "Q21NAuditPreservation",
+    "inputs": {
+      "original": [
+        "2",
+        0
+      ],
+      "edited": [
+        "45",
+        0
+      ],
+      "blend_mask": [
+        "45",
+        1
+      ]
+    },
+    "_meta": {
+      "title": "Assert exact protected RGB pixels"
+    }
+  },
+  "47": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "filename_prefix": "Qwen21_Native/90_AB_Head_Native_vs_BFS/bfs_0.5/image",
+      "images": [
+        "46",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Save separate candidate PNG"
+    }
+  },
+  "48": {
+    "class_type": "PreviewImage",
+    "inputs": {
+      "images": [
+        "44",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Inspect generated crop at native resolution"
+    }
+  },
+  "49": {
+    "class_type": "Q21NComparePanel",
+    "inputs": {
+      "label": "RAW: 90_AB_Head_Native_vs_BFS/bfs_0.5",
+      "before": [
+        "37",
+        0
+      ],
+      "after": [
+        "44",
+        0
+      ],
+      "reference": [
+        "38",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "RAW crop / generated crop / reference (before protection)"
+    }
+  },
+  "50": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "filename_prefix": "Qwen21_Native/90_AB_Head_Native_vs_BFS/bfs_0.5/comparison/image",
+      "images": [
+        "49",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Save separate candidate PNG"
+    }
+  },
+  "51": {
+    "class_type": "Q21NMaskGuard",
+    "inputs": {
+      "label": "Paint the intended edit region",
+      "image": [
+        "2",
+        0
+      ],
+      "mask": [
+        "2",
+        1
+      ]
+    },
+    "_meta": {
+      "title": "Check mask and source dimensions"
+    }
+  },
+  "52": {
+    "class_type": "AUSBOSS_NODES_CropForInpaint",
+    "inputs": {
+      "context_factor": 1.6,
+      "blend_pixels": 16,
+      "output_multiple": 32,
+      "target_width": 0,
+      "target_height": 0,
+      "mask_grow": 0,
+      "mask_blur": 0.0,
+      "invert_mask": false,
+      "context_pixels": 32,
+      "target_megapixels": 2.0,
+      "rescale_algorithm": "bicubic",
+      "extend_left": 0,
+      "extend_right": 0,
+      "extend_up": 0,
+      "extend_down": 0,
+      "keep_inside": true,
+      "image": [
+        "51",
+        0
+      ],
+      "mask": [
+        "51",
+        1
+      ]
+    },
+    "_meta": {
+      "title": "AusBoss | 2 MP crop | never resize full scene"
+    }
+  },
+  "53": {
+    "class_type": "Q21NResizeBudget",
+    "inputs": {
+      "megapixels": 1.0,
+      "allow_upscale": false,
+      "image": [
+        "3",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Reference 2 | <= 1 MP | no detail invented"
+    }
+  },
+  "54": {
+    "class_type": "LoraLoaderModelOnly",
+    "inputs": {
+      "lora_name": "bfs_head_v1.1_qwen_2.1.safetensors",
+      "strength_model": 0.75,
+      "model": [
+        "4",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "COMPARISON ONLY | 0.75"
+    }
+  },
+  "55": {
+    "class_type": "QwenImage21Cache",
+    "inputs": {
+      "device": "auto",
+      "dtype": "default",
+      "model": [
+        "54",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Lossless KV cache | auto / default"
+    }
+  },
+  "56": {
+    "class_type": "Q21NEncodeReferences",
+    "inputs": {
+      "prompt": "Edit the centered person's head and face in <image1> to be the exact person in <image2>. <image2> is the sole primary facial identity anchor. Reproduce that exact person rather than a lookalike or a blend with the old face. Preserve the referenced person's natural asymmetry and apparent age. Fit that identity to the head rotation, expression, gaze and head-to-body scale in <image1>. Keep the body and clothing unchanged. Preserve the camera viewpoint, perspective, pose, lighting, scene layout and unrelated people and objects from <image1>. Do not copy any reference background, framing or camera angle. Natural photographic texture; no beauty retouching or idealization.",
+      "clip": [
+        "5",
+        0
+      ],
+      "vae": [
+        "6",
+        0
+      ],
+      "image_1": [
+        "52",
+        0
+      ],
+      "image_2": [
+        "53",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "EDIT THIS PROMPT | image1=base crop"
+    }
+  },
+  "57": {
+    "class_type": "KSampler",
+    "inputs": {
+      "seed": 18071042,
+      "steps": 40,
+      "cfg": 1.0,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 1.0,
+      "model": [
+        "55",
+        0
+      ],
+      "positive": [
+        "56",
+        0
+      ],
+      "negative": [
+        "56",
+        1
+      ],
+      "latent_image": [
+        "56",
+        2
+      ]
+    },
+    "_meta": {
+      "title": "40 steps | CFG 1 | Euler/simple | fixed seed"
+    }
+  },
+  "58": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "57",
+        0
+      ],
+      "vae": [
+        "6",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Decode native matching 64-channel latent"
+    }
+  },
+  "59": {
+    "class_type": "Q21NOpaqueImage",
+    "inputs": {
+      "image": [
+        "58",
+        0
+      ],
+      "background": [
+        "52",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Flatten generated alpha over source crop"
+    }
+  },
+  "60": {
+    "class_type": "AUSBOSS_NODES_StitchInpaint",
+    "inputs": {
+      "fix_edge_halo": false,
+      "color_match": 0.0,
+      "seam": "classic",
+      "stitcher": [
+        "52",
+        2
+      ],
+      "inpainted": [
+        "59",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Original-size stitch | color match OFF"
+    }
+  },
+  "61": {
+    "class_type": "Q21NAuditPreservation",
+    "inputs": {
+      "original": [
+        "2",
+        0
+      ],
+      "edited": [
+        "60",
+        0
+      ],
+      "blend_mask": [
+        "60",
+        1
+      ]
+    },
+    "_meta": {
+      "title": "Assert exact protected RGB pixels"
+    }
+  },
+  "62": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "filename_prefix": "Qwen21_Native/90_AB_Head_Native_vs_BFS/bfs_0.75/image",
+      "images": [
+        "61",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Save separate candidate PNG"
+    }
+  },
+  "63": {
+    "class_type": "PreviewImage",
+    "inputs": {
+      "images": [
+        "59",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Inspect generated crop at native resolution"
+    }
+  },
+  "64": {
+    "class_type": "Q21NComparePanel",
+    "inputs": {
+      "label": "RAW: 90_AB_Head_Native_vs_BFS/bfs_0.75",
+      "before": [
+        "52",
+        0
+      ],
+      "after": [
+        "59",
+        0
+      ],
+      "reference": [
+        "53",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "RAW crop / generated crop / reference (before protection)"
+    }
+  },
+  "65": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "filename_prefix": "Qwen21_Native/90_AB_Head_Native_vs_BFS/bfs_0.75/comparison/image",
+      "images": [
+        "64",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Save separate candidate PNG"
+    }
+  },
+  "66": {
+    "class_type": "Q21NMaskGuard",
+    "inputs": {
+      "label": "Paint the intended edit region",
+      "image": [
+        "2",
+        0
+      ],
+      "mask": [
+        "2",
+        1
+      ]
+    },
+    "_meta": {
+      "title": "Check mask and source dimensions"
+    }
+  },
+  "67": {
+    "class_type": "AUSBOSS_NODES_CropForInpaint",
+    "inputs": {
+      "context_factor": 1.6,
+      "blend_pixels": 16,
+      "output_multiple": 32,
+      "target_width": 0,
+      "target_height": 0,
+      "mask_grow": 0,
+      "mask_blur": 0.0,
+      "invert_mask": false,
+      "context_pixels": 32,
+      "target_megapixels": 2.0,
+      "rescale_algorithm": "bicubic",
+      "extend_left": 0,
+      "extend_right": 0,
+      "extend_up": 0,
+      "extend_down": 0,
+      "keep_inside": true,
+      "image": [
+        "66",
+        0
+      ],
+      "mask": [
+        "66",
+        1
+      ]
+    },
+    "_meta": {
+      "title": "AusBoss | 2 MP crop | never resize full scene"
+    }
+  },
+  "68": {
+    "class_type": "Q21NResizeBudget",
+    "inputs": {
+      "megapixels": 1.0,
+      "allow_upscale": false,
+      "image": [
+        "3",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Reference 2 | <= 1 MP | no detail invented"
+    }
+  },
+  "69": {
+    "class_type": "LoraLoaderModelOnly",
+    "inputs": {
+      "lora_name": "bfs_head_v1.1_qwen_2.1.safetensors",
+      "strength_model": 1.0,
+      "model": [
+        "4",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "COMPARISON ONLY | 1"
+    }
+  },
+  "70": {
+    "class_type": "QwenImage21Cache",
+    "inputs": {
+      "device": "auto",
+      "dtype": "default",
+      "model": [
+        "69",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Lossless KV cache | auto / default"
+    }
+  },
+  "71": {
+    "class_type": "Q21NEncodeReferences",
+    "inputs": {
+      "prompt": "Edit the centered person's head and face in <image1> to be the exact person in <image2>. <image2> is the sole primary facial identity anchor. Reproduce that exact person rather than a lookalike or a blend with the old face. Preserve the referenced person's natural asymmetry and apparent age. Fit that identity to the head rotation, expression, gaze and head-to-body scale in <image1>. Keep the body and clothing unchanged. Preserve the camera viewpoint, perspective, pose, lighting, scene layout and unrelated people and objects from <image1>. Do not copy any reference background, framing or camera angle. Natural photographic texture; no beauty retouching or idealization.",
+      "clip": [
+        "5",
+        0
+      ],
+      "vae": [
+        "6",
+        0
+      ],
+      "image_1": [
+        "67",
+        0
+      ],
+      "image_2": [
+        "68",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "EDIT THIS PROMPT | image1=base crop"
+    }
+  },
+  "72": {
+    "class_type": "KSampler",
+    "inputs": {
+      "seed": 18071042,
+      "steps": 40,
+      "cfg": 1.0,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 1.0,
+      "model": [
+        "70",
+        0
+      ],
+      "positive": [
+        "71",
+        0
+      ],
+      "negative": [
+        "71",
+        1
+      ],
+      "latent_image": [
+        "71",
+        2
+      ]
+    },
+    "_meta": {
+      "title": "40 steps | CFG 1 | Euler/simple | fixed seed"
+    }
+  },
+  "73": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "72",
+        0
+      ],
+      "vae": [
+        "6",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Decode native matching 64-channel latent"
+    }
+  },
+  "74": {
+    "class_type": "Q21NOpaqueImage",
+    "inputs": {
+      "image": [
+        "73",
+        0
+      ],
+      "background": [
+        "67",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Flatten generated alpha over source crop"
+    }
+  },
+  "75": {
+    "class_type": "AUSBOSS_NODES_StitchInpaint",
+    "inputs": {
+      "fix_edge_halo": false,
+      "color_match": 0.0,
+      "seam": "classic",
+      "stitcher": [
+        "67",
+        2
+      ],
+      "inpainted": [
+        "74",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Original-size stitch | color match OFF"
+    }
+  },
+  "76": {
+    "class_type": "Q21NAuditPreservation",
+    "inputs": {
+      "original": [
+        "2",
+        0
+      ],
+      "edited": [
+        "75",
+        0
+      ],
+      "blend_mask": [
+        "75",
+        1
+      ]
+    },
+    "_meta": {
+      "title": "Assert exact protected RGB pixels"
+    }
+  },
+  "77": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "filename_prefix": "Qwen21_Native/90_AB_Head_Native_vs_BFS/bfs_1/image",
+      "images": [
+        "76",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Save separate candidate PNG"
+    }
+  },
+  "78": {
+    "class_type": "PreviewImage",
+    "inputs": {
+      "images": [
+        "74",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Inspect generated crop at native resolution"
+    }
+  },
+  "79": {
+    "class_type": "Q21NComparePanel",
+    "inputs": {
+      "label": "RAW: 90_AB_Head_Native_vs_BFS/bfs_1",
+      "before": [
+        "67",
+        0
+      ],
+      "after": [
+        "74",
+        0
+      ],
+      "reference": [
+        "68",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "RAW crop / generated crop / reference (before protection)"
+    }
+  },
+  "80": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "filename_prefix": "Qwen21_Native/90_AB_Head_Native_vs_BFS/bfs_1/comparison/image",
+      "images": [
+        "79",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Save separate candidate PNG"
+    }
+  }
+}

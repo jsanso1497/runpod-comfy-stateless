@@ -1,0 +1,309 @@
+{
+  "version": "1.1.0",
+  "workflows": [
+    {
+      "file": "00_START_HERE_Scene_Face_Body.json",
+      "category": "Native edits",
+      "purpose": "One masked native replacement with separate facial identity and physique.",
+      "requires": "identity",
+      "hint": "",
+      "reference_loaders": 3
+    },
+    {
+      "file": "01_Person_Multi_Reference.json",
+      "category": "Native edits",
+      "purpose": "Two face and two body references with explicit ownership.",
+      "requires": "identity",
+      "hint": "",
+      "reference_loaders": 5
+    },
+    {
+      "file": "02_Person_Keep_Scene_Wardrobe.json",
+      "category": "Native edits",
+      "purpose": "Identity and physique replacement without importing reference clothing.",
+      "requires": "identity",
+      "hint": "",
+      "reference_loaders": 3
+    },
+    {
+      "file": "03_Person_Transfer_Body_Wardrobe.json",
+      "category": "Native edits",
+      "purpose": "Transfer the body reference's clothing with separately anchored face.",
+      "requires": "identity",
+      "hint": "",
+      "reference_loaders": 3
+    },
+    {
+      "file": "04_Person_Separate_Wardrobe_Reference.json",
+      "category": "Native edits",
+      "purpose": "Separate scene, face, physique and wardrobe sources.",
+      "requires": "identity",
+      "hint": "",
+      "reference_loaders": 4
+    },
+    {
+      "file": "05_Body_Only_Hard_Protect_Head.json",
+      "category": "Native edits",
+      "purpose": "Body edit with an explicit pixel-locked head protection mask.",
+      "requires": "identity",
+      "hint": "The second scene loader MUST use the identical original and a painted head/face protection mask. That region is restored exactly after stitching.",
+      "reference_loaders": 3
+    },
+    {
+      "file": "06_Body_And_Wardrobe_Hard_Protect_Head.json",
+      "category": "Native edits",
+      "purpose": "Body plus reference outfit with the original head pixel-locked.",
+      "requires": "identity",
+      "hint": "",
+      "reference_loaders": 3
+    },
+    {
+      "file": "07_Head_One_Reference.json",
+      "category": "Identity",
+      "purpose": "Minimal native head replacement from one genuine face anchor.",
+      "requires": "identity",
+      "hint": "",
+      "reference_loaders": 2
+    },
+    {
+      "file": "08_Head_Three_Identity_References.json",
+      "category": "Identity",
+      "purpose": "Head replacement with one primary face and two supporting views.",
+      "requires": "identity",
+      "hint": "",
+      "reference_loaders": 4
+    },
+    {
+      "file": "09_Face_Only_Keep_Hair.json",
+      "category": "Identity",
+      "purpose": "Face edit while preserving the existing hairstyle and head outline.",
+      "requires": "identity",
+      "hint": "Paint the face only, leaving hair outside the feather. Image3 is supporting identity evidence only.",
+      "reference_loaders": 3
+    },
+    {
+      "file": "10_Head_Hair_And_Hairline.json",
+      "category": "Identity",
+      "purpose": "Complete head, hair and hairline replacement from identity references.",
+      "requires": "identity",
+      "hint": "Mask the complete old and new hair silhouette, ears and required neck transition.",
+      "reference_loaders": 3
+    },
+    {
+      "file": "11_Profile_Angle_Matched_Identity.json",
+      "category": "Identity",
+      "purpose": "Primary identity plus an actual angle-matched profile reference.",
+      "requires": "identity",
+      "hint": "",
+      "reference_loaders": 3
+    },
+    {
+      "file": "12_Rescue_Likeness_From_Originals.json",
+      "category": "Identity",
+      "purpose": "Replace a drifted face using original photographs, not the drifted render.",
+      "requires": "identity",
+      "hint": "",
+      "reference_loaders": 3
+    },
+    {
+      "file": "13_Expression_Image2_Only.json",
+      "category": "Expression",
+      "purpose": "Transfer expression while taking all likeness from the base image.",
+      "requires": "identity",
+      "hint": "",
+      "reference_loaders": 2
+    },
+    {
+      "file": "14_Identity_And_Expression_Separate_Refs.json",
+      "category": "Expression",
+      "purpose": "Face identity from image2, expression only from image3.",
+      "requires": "identity",
+      "hint": "",
+      "reference_loaders": 3
+    },
+    {
+      "file": "15_Expression_Text_Only.json",
+      "category": "Expression",
+      "purpose": "Expression-only editing without additional reference images.",
+      "requires": "identity",
+      "hint": "Replace the smile description with your desired expression.",
+      "reference_loaders": 1
+    },
+    {
+      "file": "16_Local_Repair_No_Reference.json",
+      "category": "Repair",
+      "purpose": "Small cleanup using only the accepted image.",
+      "requires": "identity",
+      "hint": "Replace the generic defect description with exactly what needs repair.",
+      "reference_loaders": 1
+    },
+    {
+      "file": "17_Local_Repair_With_Anatomy_Reference.json",
+      "category": "Repair",
+      "purpose": "No-LoRA counterpart to the previous local repair workflow.",
+      "requires": "identity",
+      "hint": "",
+      "reference_loaders": 2
+    },
+    {
+      "file": "18_Hand_And_Wrist_Repair.json",
+      "category": "Repair",
+      "purpose": "Local hand anatomy and wrist connection correction.",
+      "requires": "identity",
+      "hint": "",
+      "reference_loaders": 2
+    },
+    {
+      "file": "19_Limb_Perspective_Repair.json",
+      "category": "Repair",
+      "purpose": "Correct arm or leg proportions in the existing camera perspective.",
+      "requires": "identity",
+      "hint": "",
+      "reference_loaders": 2
+    },
+    {
+      "file": "20_Neck_Head_Seam_Repair.json",
+      "category": "Repair",
+      "purpose": "Repair the neck transition without intentionally replacing the face.",
+      "requires": "identity",
+      "hint": "Mask neck and seam only; keep the accepted face outside the feather.",
+      "reference_loaders": 2
+    },
+    {
+      "file": "21_Skin_Texture_Light_Touch.json",
+      "category": "Repair",
+      "purpose": "Conservative texture repair from an original close-up.",
+      "requires": "identity",
+      "hint": "Generated pores and microdetail are not recovered evidence; compare against the original.",
+      "reference_loaders": 2
+    },
+    {
+      "file": "22_Wardrobe_Only_Keep_Person.json",
+      "category": "Wardrobe",
+      "purpose": "Change clothing while retaining the existing person and pose.",
+      "requires": "identity",
+      "hint": "",
+      "reference_loaders": 2
+    },
+    {
+      "file": "23_Sequential_Body_Then_Head_Native.json",
+      "category": "Sequential",
+      "purpose": "Two native passes with hard head protection during body editing.",
+      "requires": "identity",
+      "hint": "",
+      "reference_loaders": 5
+    },
+    {
+      "file": "24_Two_Heads_Sequential.json",
+      "category": "Multi-person",
+      "purpose": "Two-person replacement with explicit identity ownership.",
+      "requires": "identity",
+      "hint": "Change left/right instructions for one-pass mode. Serial edits are the recommended baseline.",
+      "reference_loaders": 4
+    },
+    {
+      "file": "25_Two_Full_People_Sequential.json",
+      "category": "Multi-person",
+      "purpose": "Two-person replacement with explicit identity ownership.",
+      "requires": "identity",
+      "hint": "Change left/right instructions for one-pass mode. Serial edits are the recommended baseline.",
+      "reference_loaders": 6
+    },
+    {
+      "file": "26_Two_People_One_Pass_EXPERIMENTAL.json",
+      "category": "Multi-person",
+      "purpose": "Two-person replacement with explicit identity ownership.",
+      "requires": "identity",
+      "hint": "Change left/right instructions for one-pass mode. Serial edits are the recommended baseline.",
+      "reference_loaders": 6
+    },
+    {
+      "file": "27_Described_Scene_Face_Plus_Body.json",
+      "category": "Source and new scene",
+      "purpose": "Generate a new scene from separately assigned face and body references.",
+      "requires": "identity",
+      "hint": "",
+      "reference_loaders": 2
+    },
+    {
+      "file": "28_Source_Prep_Fitted_Clothing_CANDIDATE.json",
+      "category": "Source and new scene",
+      "purpose": "Optional synthetic body-reference normalization, never ground truth.",
+      "requires": "identity",
+      "hint": "",
+      "reference_loaders": 2
+    },
+    {
+      "file": "29_Reference_Crop_Export_NO_GENERATION.json",
+      "category": "Source and new scene",
+      "purpose": "Extract genuine reference detail without a generative model.",
+      "requires": "identity",
+      "hint": "",
+      "reference_loaders": 1
+    },
+    {
+      "file": "30_Head_High_Detail_4MP_50Steps.json",
+      "category": "Quality tests",
+      "purpose": "Higher-resolution head-crop comparison, not an automatic quality upgrade.",
+      "requires": "identity",
+      "hint": "More memory and time. Compare likeness with 07/08 before preferring this result.",
+      "reference_loaders": 3
+    },
+    {
+      "file": "31_Head_Lean_1MP_BF16.json",
+      "category": "Quality tests",
+      "purpose": "Lower crop-memory variant retaining the same BF16 weights.",
+      "requires": "identity",
+      "hint": "",
+      "reference_loaders": 2
+    },
+    {
+      "file": "32_Head_Three_Seed_Comparison.json",
+      "category": "Comparisons",
+      "purpose": "Three seeds with every other setting held constant.",
+      "requires": "identity",
+      "hint": "",
+      "reference_loaders": 2
+    },
+    {
+      "file": "33_Final_Lanczos_No_Model.json",
+      "category": "Finish",
+      "purpose": "Non-generative enlargement without any added model.",
+      "requires": "identity",
+      "hint": "",
+      "reference_loaders": 1
+    },
+    {
+      "file": "34_SeedVR2_Full_Frame_7B_FP16.json",
+      "category": "Finish",
+      "purpose": "Optional full-frame generative upscaling.",
+      "requires": "upscale",
+      "hint": "",
+      "reference_loaders": 1
+    },
+    {
+      "file": "35_SeedVR2_Local_Protected_Finish.json",
+      "category": "Finish",
+      "purpose": "Optional generative enhancement of a local patch.",
+      "requires": "upscale",
+      "hint": "",
+      "reference_loaders": 1
+    },
+    {
+      "file": "90_AB_Head_Native_vs_BFS.json",
+      "category": "Comparisons",
+      "purpose": "Matched native/adapter comparison; not an assertion of superior likeness.",
+      "requires": "bfs_optional",
+      "hint": "",
+      "reference_loaders": 2
+    },
+    {
+      "file": "91_AB_Body_Native_vs_BFS.json",
+      "category": "Comparisons",
+      "purpose": "Matched native/adapter comparison; not an assertion of superior likeness.",
+      "requires": "bfs_optional",
+      "hint": "",
+      "reference_loaders": 2
+    }
+  ]
+}

@@ -1,0 +1,693 @@
+{
+  "last_node_id": 11,
+  "last_link_id": 14,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "Note",
+      "pos": [
+        0,
+        -400
+      ],
+      "size": [
+        1430,
+        290
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "Note"
+      },
+      "widgets_values": [
+        "OPTIONAL UPSCALE PROFILE. Requires SeedVR2 7B FP16 and its VAE. Approve the native image first; this synthesizes detail and can change identity. Noise and compilation are OFF. Short edge 2048, long edge capped at 4096. It can downsize a larger image, so skip full-frame enhancement when already large enough. Local mode stitches the enhanced patch into the unchanged native-size scene; it does not increase the whole image dimensions. Enable tiled VAE only if needed for memory."
+      ],
+      "title": "35_SeedVR2_Local_Protected_Finish"
+    },
+    {
+      "id": 2,
+      "type": "LoadImage",
+      "pos": [
+        0,
+        0
+      ],
+      "size": [
+        330,
+        350
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            1,
+            11
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "links": [
+            2
+          ],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "qwen21_native_handoff/head_latest.png",
+        "image"
+      ],
+      "title": "ACCEPTED native image | mask enhancement region"
+    },
+    {
+      "id": 3,
+      "type": "Q21NMaskGuard",
+      "pos": [
+        460,
+        0
+      ],
+      "size": [
+        330,
+        184
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 1
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": 2
+        },
+        {
+          "name": "mask_source",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "original_scene",
+          "type": "IMAGE",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            3
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "links": [
+            4
+          ],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Q21NMaskGuard"
+      },
+      "widgets_values": [
+        "Paint enhancement region"
+      ],
+      "title": "Choose local enhancement region"
+    },
+    {
+      "id": 4,
+      "type": "AUSBOSS_NODES_CropForInpaint",
+      "pos": [
+        850,
+        0
+      ],
+      "size": [
+        330,
+        496
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 3
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            5
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "links": [],
+          "slot_index": 1
+        },
+        {
+          "name": "ausboss_stitcher",
+          "type": "AUSBOSS_STITCHER",
+          "links": [
+            9
+          ],
+          "slot_index": 2
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "AUSBOSS_NODES_CropForInpaint"
+      },
+      "widgets_values": [
+        1.5,
+        16,
+        32,
+        0,
+        0,
+        0,
+        0.0,
+        false,
+        32,
+        1.0,
+        "bicubic",
+        0,
+        0,
+        0,
+        0,
+        true
+      ],
+      "title": "Local patch + context | 1 MP"
+    },
+    {
+      "id": 5,
+      "type": "AUSBOSS_NODES_FreeMemory",
+      "pos": [
+        1280,
+        0
+      ],
+      "size": [
+        330,
+        120
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "value",
+          "type": "*",
+          "link": 5
+        }
+      ],
+      "outputs": [
+        {
+          "name": "*",
+          "type": "*",
+          "links": [
+            6
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "AUSBOSS_NODES_FreeMemory"
+      },
+      "widgets_values": [],
+      "title": "Release Qwen before SeedVR2"
+    },
+    {
+      "id": 6,
+      "type": "SeedVR2LoadDiTModel",
+      "pos": [
+        1280,
+        220
+      ],
+      "size": [
+        330,
+        262
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "torch_compile_args",
+          "type": "TORCH_COMPILE_ARGS",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "seedvr2_dit",
+          "type": "SEEDVR2_DIT",
+          "links": [
+            7
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SeedVR2LoadDiTModel"
+      },
+      "widgets_values": [
+        "seedvr2_ema_7b_fp16.safetensors",
+        "cuda:0",
+        0,
+        false,
+        "cpu",
+        false,
+        "sdpa"
+      ],
+      "title": "7B FP16 | SDPA | CPU offload"
+    },
+    {
+      "id": 7,
+      "type": "SeedVR2LoadVAEModel",
+      "pos": [
+        1280,
+        610
+      ],
+      "size": [
+        330,
+        366
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "torch_compile_args",
+          "type": "TORCH_COMPILE_ARGS",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "seedvr2_vae",
+          "type": "SEEDVR2_VAE",
+          "links": [
+            8
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SeedVR2LoadVAEModel"
+      },
+      "widgets_values": [
+        "ema_vae_fp16.safetensors",
+        "cuda:0",
+        false,
+        1024,
+        128,
+        false,
+        1024,
+        128,
+        "false",
+        "cpu",
+        false
+      ],
+      "title": "FP16 VAE | untiled quality baseline"
+    },
+    {
+      "id": 8,
+      "type": "SeedVR2VideoUpscaler",
+      "pos": [
+        1790,
+        0
+      ],
+      "size": [
+        330,
+        392
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 6
+        },
+        {
+          "name": "dit",
+          "type": "SEEDVR2_DIT",
+          "link": 7
+        },
+        {
+          "name": "vae",
+          "type": "SEEDVR2_VAE",
+          "link": 8
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            10
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SeedVR2VideoUpscaler"
+      },
+      "widgets_values": [
+        18071042,
+        2048,
+        4096,
+        1,
+        false,
+        0,
+        0,
+        "lab",
+        0.0,
+        0.0,
+        "cpu",
+        false
+      ],
+      "title": "Still image | batch 1 | no added noise"
+    },
+    {
+      "id": 9,
+      "type": "AUSBOSS_NODES_StitchInpaint",
+      "pos": [
+        2340,
+        0
+      ],
+      "size": [
+        330,
+        158
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "stitcher",
+          "type": "AUSBOSS_STITCHER",
+          "link": 9
+        },
+        {
+          "name": "inpainted",
+          "type": "IMAGE",
+          "link": 10
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            12
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "links": [
+            13
+          ],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "AUSBOSS_NODES_StitchInpaint"
+      },
+      "widgets_values": [
+        false,
+        0.0,
+        "classic"
+      ],
+      "title": "Stitch at original scene size"
+    },
+    {
+      "id": 10,
+      "type": "Q21NAuditPreservation",
+      "pos": [
+        2800,
+        0
+      ],
+      "size": [
+        330,
+        158
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "original",
+          "type": "IMAGE",
+          "link": 11
+        },
+        {
+          "name": "edited",
+          "type": "IMAGE",
+          "link": 12
+        },
+        {
+          "name": "blend_mask",
+          "type": "MASK",
+          "link": 13
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            14
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "string",
+          "type": "STRING",
+          "links": [],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Q21NAuditPreservation"
+      },
+      "widgets_values": [],
+      "title": "Assert unchanged protected scene"
+    },
+    {
+      "id": 11,
+      "type": "SaveImage",
+      "pos": [
+        3250,
+        0
+      ],
+      "size": [
+        330,
+        120
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 14
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "SaveImage"
+      },
+      "widgets_values": [
+        "Qwen21_Native/35_SeedVR2_Local_Protected_Finish/image"
+      ],
+      "title": "Save separate candidate PNG"
+    }
+  ],
+  "links": [
+    [
+      1,
+      2,
+      0,
+      3,
+      0,
+      "IMAGE"
+    ],
+    [
+      2,
+      2,
+      1,
+      3,
+      1,
+      "MASK"
+    ],
+    [
+      3,
+      3,
+      0,
+      4,
+      0,
+      "IMAGE"
+    ],
+    [
+      4,
+      3,
+      1,
+      4,
+      1,
+      "MASK"
+    ],
+    [
+      5,
+      4,
+      0,
+      5,
+      0,
+      "IMAGE"
+    ],
+    [
+      6,
+      5,
+      0,
+      8,
+      0,
+      "IMAGE"
+    ],
+    [
+      7,
+      6,
+      0,
+      8,
+      1,
+      "SEEDVR2_DIT"
+    ],
+    [
+      8,
+      7,
+      0,
+      8,
+      2,
+      "SEEDVR2_VAE"
+    ],
+    [
+      9,
+      4,
+      2,
+      9,
+      0,
+      "AUSBOSS_STITCHER"
+    ],
+    [
+      10,
+      8,
+      0,
+      9,
+      1,
+      "IMAGE"
+    ],
+    [
+      11,
+      2,
+      0,
+      10,
+      0,
+      "IMAGE"
+    ],
+    [
+      12,
+      9,
+      0,
+      10,
+      1,
+      "IMAGE"
+    ],
+    [
+      13,
+      9,
+      1,
+      10,
+      2,
+      "MASK"
+    ],
+    [
+      14,
+      10,
+      0,
+      11,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "groups": [
+    {
+      "id": 1,
+      "title": "YOUR SOURCES / PAINTED MASKS",
+      "bounding": [
+        -20,
+        -60,
+        425,
+        900
+      ],
+      "color": "#365b75",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "id": 2,
+      "title": "BASE BF16 WEIGHTS",
+      "bounding": [
+        440,
+        -60,
+        370,
+        690
+      ],
+      "color": "#365b75",
+      "font_size": 24,
+      "flags": {}
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.6,
+      "offset": [
+        50,
+        50
+      ]
+    },
+    "qwen21_native_suite": {
+      "version": "1.1.0",
+      "title": "35_SeedVR2_Local_Protected_Finish"
+    }
+  },
+  "version": 0.4
+}

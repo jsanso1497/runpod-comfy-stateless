@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "release": "2.1.0",
+  "default_image_tag": "ghcr.io/jsanso1497/runpod-comfy-qwen21-photo:unified-v2.1.0",
+  "base": "existing qwen21_photo_edit Dockerfile and start.sh must remain the build and runtime foundations",
+  "workflows": {
+    "qwen_photo_sam31": ["Qwen21_Photo_2K_SAM3_BF16.json", "Qwen21_Photo_2K_SAM3_INT8.json"],
+    "native_qwen_default_count": 34,
+    "torso_lock": [
+      "36_Sports_Bra_Torso_Landmark_Lock.json",
+      "36A_Check_Masks_Only_NO_MODELS.json",
+      "37_Torso_Skin_Seam_Repair_Locked.json",
+      "38_Aligned_Photographic_Patch_NO_AI.json"
+    ],
+    "total_default_workflows": 40,
+    "optional_native_seedvr2_and_bfs_variants_not_installed_by_default": 4
+  },
+  "models": {
+    "default_precision": "bf16",
+    "download_at_startup": true,
+    "photo_sam31_enabled": true,
+    "qwen_bf16_single_shared_weight_set": true,
+    "bf16_native_required": true,
+    "bfs_enabled_by_default": false
+  },
+  "runtime": {
+    "port_http": 8188,
+    "docker_entrypoint_override": false,
+    "live_node_schema_check_required": true,
+    "verify_actual_user_directory": true,
+    "default_stateless_container_disk_gb": 160,
+    "gpu_starting_target_vram_gb": 48
+  },
+  "preserve": [
+    "original qwen21_photo_edit/Dockerfile",
+    "original qwen21_photo_edit/start.sh",
+    "original SAM3 UI and photo masking functions",
+    "existing model quality/sampler/reference roles",
+    "hard-protected torso/abdomen pixels",
+    "all nonunified GHCR tags"
+  ]
+}

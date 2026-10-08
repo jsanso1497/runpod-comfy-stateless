@@ -1,0 +1,571 @@
+{
+  "release": "2.1.0",
+  "includes": {
+    "photo_ui_in_existing_repo": 2,
+    "native_default": 34,
+    "torso_lock": 4,
+    "native_total_sources": 38
+  },
+  "files": {
+    ".github/workflows/build-qwen21-unified.yml": {
+      "sha256": "7d3c60108f905ee01fe4e7c666640fdea0d06e669608872cc4bcdb727622c8aa",
+      "bytes": 2940
+    },
+    "APPLY_QWEN_UNIFIED.py": {
+      "sha256": "8d2ab01ceb729c5b2ed73629e5f724c1f1f4028c0532c2ef3736d2d5a82db826",
+      "bytes": 8605
+    },
+    "START_HERE_UNIFIED.md": {
+      "sha256": "dbba41a152a4d47bf12b867108793314bce3bf0eb5fd985d527126fc3da5cb29",
+      "bytes": 8890
+    },
+    "qwen21_native/.dockerignore": {
+      "sha256": "3b7e4795b9429140b1ebb33a0f2c41f10795607004b7862d0da9bf360b69eb08",
+      "bytes": 93
+    },
+    "qwen21_native/.gitignore": {
+      "sha256": "245b2a23a74e081ed443cfa5a80726ef0323e6362cf969de5d2b723b4aa8cf02",
+      "bytes": 141
+    },
+    "qwen21_native/Dockerfile": {
+      "sha256": "e5a2e0d416633fb93bf5b67669a49e71fe58b04831b4ed5c1dfeecee3b457400",
+      "bytes": 2790
+    },
+    "qwen21_native/README.md": {
+      "sha256": "65f85ed010ca4ebc36f317d140f1e8979b712331cfb8175362b6604c0f37b882",
+      "bytes": 10767
+    },
+    "qwen21_native/addons/torso_lock/INSTALL.py": {
+      "sha256": "5cab7b1e8506bde364650515d5d04f53b395abdf8ecef499b266168643469f36",
+      "bytes": 4626
+    },
+    "qwen21_native/addons/torso_lock/README.md": {
+      "sha256": "0677620ec806ff665ba0348e58d120abd8a32ddf71b76e8da35e68de345278b6",
+      "bytes": 10238
+    },
+    "qwen21_native/addons/torso_lock/api_workflows/36A_Check_Masks_Only_NO_MODELS.api.json": {
+      "sha256": "e0f3d1a2e50df61911abbcba04874c129c77b11a2297cc3f77f49afe02a842d3",
+      "bytes": 1343
+    },
+    "qwen21_native/addons/torso_lock/api_workflows/36_Sports_Bra_Torso_Landmark_Lock.api.json": {
+      "sha256": "ef4de3e37cff3718eceaef714bb613fe91f3cb60b630ca84ad26c1edce7e5c6c",
+      "bytes": 7156
+    },
+    "qwen21_native/addons/torso_lock/api_workflows/37_Torso_Skin_Seam_Repair_Locked.api.json": {
+      "sha256": "cce6f463abfd3cc064bda4e4a19df9ae548073e470e25f400572c25ed4a80e77",
+      "bytes": 7018
+    },
+    "qwen21_native/addons/torso_lock/api_workflows/38_Aligned_Photographic_Patch_NO_AI.api.json": {
+      "sha256": "34a4bcb5d3ff2831d1fdcae2454fefa649f51d713a900065090363ce59f08415",
+      "bytes": 2475
+    },
+    "qwen21_native/addons/torso_lock/config/catalog.json": {
+      "sha256": "45a1a7a8cd81682dcb60bfbf811d493c702d88b0cbd897c21589949ea6d93e9d",
+      "bytes": 601
+    },
+    "qwen21_native/addons/torso_lock/custom_nodes/qwen21_torso_tools/__init__.py": {
+      "sha256": "31d76dbaa2f412cfcf42a48df6276d7f6cb5f526992869530731c3ae9eaef0f6",
+      "bytes": 20518
+    },
+    "qwen21_native/addons/torso_lock/docs/SOURCES.md": {
+      "sha256": "988e9adcd447bd03a4181123c0f9b3c66d83ed201ce841fabb2c863e1e635398",
+      "bytes": 1003
+    },
+    "qwen21_native/addons/torso_lock/docs/VALIDATION.md": {
+      "sha256": "76d276c5de0bdd25424df4ec9e2553baf8c45dd948a6cb4a829209f83007e6a5",
+      "bytes": 1818
+    },
+    "qwen21_native/addons/torso_lock/docs/validation_logs/addon_tests.txt": {
+      "sha256": "8d6d0c5ef1f3d796a1afd8c6c94cfbef3f50354997be6b13a56680d0bfc1545e",
+      "bytes": 99
+    },
+    "qwen21_native/addons/torso_lock/docs/validation_logs/environment.json": {
+      "sha256": "3a7c0ecb144c9ace3fcaad3dfdc2b9a31ddcdc6ab3d0e4c504e31aca78544e5b",
+      "bytes": 160
+    },
+    "qwen21_native/addons/torso_lock/docs/validation_logs/integration_tests.txt": {
+      "sha256": "633ad52465dc344fab1ce8dd27a95e1ae4f85e7a117d354bf94c2cbed15eaeb5",
+      "bytes": 260
+    },
+    "qwen21_native/addons/torso_lock/docs/validation_logs/workflow_validation.txt": {
+      "sha256": "afb35b68b8451f04b95a75069139e72cabb3415f1fc36215ae97ec97a09b8705",
+      "bytes": 209
+    },
+    "qwen21_native/addons/torso_lock/scripts/build_workflows.py": {
+      "sha256": "9d2f3f43e85a37b8b6667ba5fc69b0877d4359ebb388fb486c06ae81b1864295",
+      "bytes": 15046
+    },
+    "qwen21_native/addons/torso_lock/scripts/validate_workflows.py": {
+      "sha256": "51fea6d828858dacd3046bf734a66107f1b2defb25fe7e6e75c08851a2aa9e35",
+      "bytes": 7434
+    },
+    "qwen21_native/addons/torso_lock/tests/test_torso_lock.py": {
+      "sha256": "577a3ea95f61543de800908fb90b51d87b99c52ab6470e0f9440de35a65a2667",
+      "bytes": 14874
+    },
+    "qwen21_native/addons/torso_lock/workflows/36A_Check_Masks_Only_NO_MODELS.json": {
+      "sha256": "785c4a8e483b451b2e0cba9a73d1ebbc88c01df03a1197865816bd5079687a47",
+      "bytes": 6930
+    },
+    "qwen21_native/addons/torso_lock/workflows/36_Sports_Bra_Torso_Landmark_Lock.json": {
+      "sha256": "5e66a2179568b0fab24eda2769c56f11e42e0d63705f56c0a7a997618b9c1aad",
+      "bytes": 27300
+    },
+    "qwen21_native/addons/torso_lock/workflows/37_Torso_Skin_Seam_Repair_Locked.json": {
+      "sha256": "950f29de3397c5cdcafdf0b768a3443813c3f493064f9ce751d6fc7f01bd8eba",
+      "bytes": 26839
+    },
+    "qwen21_native/addons/torso_lock/workflows/38_Aligned_Photographic_Patch_NO_AI.json": {
+      "sha256": "a0ad54d07caf2e243857561be48e03ac35121b66e881afcdb2e1a37bbebc9ae2",
+      "bytes": 11847
+    },
+    "qwen21_native/api_workflows/00_START_HERE_Scene_Face_Body.api.json": {
+      "sha256": "a0b76667829035e892e431b29847af0748b3e227c2c36d4fa542bc36209c8d0b",
+      "bytes": 7147
+    },
+    "qwen21_native/api_workflows/01_Person_Multi_Reference.api.json": {
+      "sha256": "658ff854a23c97bf741c5068835e0b141a6ab167f22bb769988c11f3cf3cbdbd",
+      "bytes": 8247
+    },
+    "qwen21_native/api_workflows/02_Person_Keep_Scene_Wardrobe.api.json": {
+      "sha256": "072b95f02f8dde8ff53a9c4e142bbabf7e69996d5376b1c50244b001be63cfe1",
+      "bytes": 7261
+    },
+    "qwen21_native/api_workflows/03_Person_Transfer_Body_Wardrobe.api.json": {
+      "sha256": "f85f37cc985e6f028f2e6ef7e7a3d93ecee1d0a47f531fd05e15beee4b56b1c7",
+      "bytes": 7190
+    },
+    "qwen21_native/api_workflows/04_Person_Separate_Wardrobe_Reference.api.json": {
+      "sha256": "d88d67e013dcb61be8a799714506bb332c15416ab31b10fb652af17901bea731",
+      "bytes": 7674
+    },
+    "qwen21_native/api_workflows/05_Body_Only_Hard_Protect_Head.api.json": {
+      "sha256": "2dbe69f655455e323764c2f64e943caed45d8bf365cbee01ca756c2857590512",
+      "bytes": 7448
+    },
+    "qwen21_native/api_workflows/06_Body_And_Wardrobe_Hard_Protect_Head.api.json": {
+      "sha256": "4dbfd0d8650e7207c5d14f4c8796930edbd9e7cbfcf1eceeed1a4fafa4fd6f69",
+      "bytes": 7492
+    },
+    "qwen21_native/api_workflows/07_Head_One_Reference.api.json": {
+      "sha256": "d3ab1eb72a21e8c38315bdf78311d8afdacac6e704f9e0a01d1d879d45dc6277",
+      "bytes": 6537
+    },
+    "qwen21_native/api_workflows/08_Head_Three_Identity_References.api.json": {
+      "sha256": "bd1e79dd3acc0be91d2f778659632773b19c41d88e6484d37bfb4985d7ec5aa8",
+      "bytes": 7702
+    },
+    "qwen21_native/api_workflows/09_Face_Only_Keep_Hair.api.json": {
+      "sha256": "9876367414e4cf07e875e532cf9f6324266e2e5701595f45a3bdb268c43cb0dd",
+      "bytes": 7158
+    },
+    "qwen21_native/api_workflows/10_Head_Hair_And_Hairline.api.json": {
+      "sha256": "e8613682257f5a1a3ebc8e85c9fcea2150e40dfc1188f5fc4603633e7e5a9ca1",
+      "bytes": 7198
+    },
+    "qwen21_native/api_workflows/11_Profile_Angle_Matched_Identity.api.json": {
+      "sha256": "50f2564a5ef72fbe73e3bedd8624f06d07ce3d23b0166c669545b3ff14d0e299",
+      "bytes": 7256
+    },
+    "qwen21_native/api_workflows/12_Rescue_Likeness_From_Originals.api.json": {
+      "sha256": "bc01498b6cf9348a26d9ea58cda0b79ddc5ff921e77d1efea9fe41daa88e2c1f",
+      "bytes": 7305
+    },
+    "qwen21_native/api_workflows/13_Expression_Image2_Only.api.json": {
+      "sha256": "dde43356d017db2760006dc48fc90b28582c0943a0031c8210ca363229cfff5e",
+      "bytes": 6575
+    },
+    "qwen21_native/api_workflows/14_Identity_And_Expression_Separate_Refs.api.json": {
+      "sha256": "734cbf00c131bbf5ad1e3af346c221913d0efb470e277daa7783f37288b3c734",
+      "bytes": 7266
+    },
+    "qwen21_native/api_workflows/15_Expression_Text_Only.api.json": {
+      "sha256": "0d39f9adb2e815bc3a9243764fa6a9c7f3eb8f232b9991349734d01d864597e9",
+      "bytes": 5675
+    },
+    "qwen21_native/api_workflows/16_Local_Repair_No_Reference.api.json": {
+      "sha256": "12c9c44aba2d2a8115640aae35281ee03197e3fed70a505cc5514dbdbf879cd7",
+      "bytes": 5672
+    },
+    "qwen21_native/api_workflows/17_Local_Repair_With_Anatomy_Reference.api.json": {
+      "sha256": "800c4c0152ca6c8db3c241515914221b0710f09bb2126da1bcca6db984ea5148",
+      "bytes": 6279
+    },
+    "qwen21_native/api_workflows/18_Hand_And_Wrist_Repair.api.json": {
+      "sha256": "756b442633c10c36ed22a4263de298207babe99802d2f146f7edcd08ba5a2ba6",
+      "bytes": 6282
+    },
+    "qwen21_native/api_workflows/19_Limb_Perspective_Repair.api.json": {
+      "sha256": "6c146d537dd467e82284412aecc820a5ecbdb40626da2f9667f7c8f0b30e9b7c",
+      "bytes": 6272
+    },
+    "qwen21_native/api_workflows/20_Neck_Head_Seam_Repair.api.json": {
+      "sha256": "355797d80e549ef6e5505cf81be026b1b330a6493bf1ea4a86dbde2920ea5958",
+      "bytes": 6238
+    },
+    "qwen21_native/api_workflows/21_Skin_Texture_Light_Touch.api.json": {
+      "sha256": "9dc44bcc26e2ba3f68b8bf7b669abf6606a26534ff647d4c922bbd7ef430837e",
+      "bytes": 6302
+    },
+    "qwen21_native/api_workflows/22_Wardrobe_Only_Keep_Person.api.json": {
+      "sha256": "5bde97373ae28bf6bada88a90b989e7579a19809d1a02f26acec26be1edf6e4e",
+      "bytes": 6440
+    },
+    "qwen21_native/api_workflows/23_Sequential_Body_Then_Head_Native.api.json": {
+      "sha256": "55830f7453e79b06fb87a03e3635336c3a94c339fc7bbccf0952938567a584d8",
+      "bytes": 15219
+    },
+    "qwen21_native/api_workflows/24_Two_Heads_Sequential.api.json": {
+      "sha256": "50fc96b734df937d60b3d2e21912183904e9e28d3506aac55a16b10d8384e893",
+      "bytes": 14282
+    },
+    "qwen21_native/api_workflows/25_Two_Full_People_Sequential.api.json": {
+      "sha256": "7bcd904dc041d4a2be801ab8e6a5960ad7cd2d3d6c1c4c464c30651a64fcef32",
+      "bytes": 15472
+    },
+    "qwen21_native/api_workflows/26_Two_People_One_Pass_EXPERIMENTAL.api.json": {
+      "sha256": "7d9a28fc02f3e261465edbce7290699132152119c480e0b8316a8616ece0ecd1",
+      "bytes": 8751
+    },
+    "qwen21_native/api_workflows/27_Described_Scene_Face_Plus_Body.api.json": {
+      "sha256": "5d72c7ce3d1a93c328d13f549366816cac473816e1700f4ce9b17e832ca50a3a",
+      "bytes": 4478
+    },
+    "qwen21_native/api_workflows/28_Source_Prep_Fitted_Clothing_CANDIDATE.api.json": {
+      "sha256": "1ecee7a72a03e666fe7c41b2aba9488fda69c451fdaf4526aea789ecde9aae4f",
+      "bytes": 4603
+    },
+    "qwen21_native/api_workflows/29_Reference_Crop_Export_NO_GENERATION.api.json": {
+      "sha256": "73b167d81ab78a119aa7a7719fd5bc9989e536310a8a6de75a1c2f63b6a319d0",
+      "bytes": 1956
+    },
+    "qwen21_native/api_workflows/30_Head_High_Detail_4MP_50Steps.api.json": {
+      "sha256": "b7d29f475bead2a831dd33f285f38d4b32e3581f66d65e1d5e0f148de4986466",
+      "bytes": 7116
+    },
+    "qwen21_native/api_workflows/31_Head_Lean_1MP_BF16.api.json": {
+      "sha256": "a427d605ef9a63bc2daf404de2d654fc8c25c39fe31ec58f58019bf2c9d0c5b3",
+      "bytes": 6537
+    },
+    "qwen21_native/api_workflows/32_Head_Three_Seed_Comparison.api.json": {
+      "sha256": "b3629b833684b0178b1b87e8d4ab99f88b85b46f751f9663301ecb1511ade17d",
+      "bytes": 17104
+    },
+    "qwen21_native/api_workflows/33_Final_Lanczos_No_Model.api.json": {
+      "sha256": "2db44dfed2af39be47bed6b12dc6855b3dcfd230d8f70143e54cad5776bde137",
+      "bytes": 687
+    },
+    "qwen21_native/api_workflows/34_SeedVR2_Full_Frame_7B_FP16.api.json": {
+      "sha256": "bb7bf0848751652689ad0fb3cd4577d27ea157f5d1ab95769e86920202ce0b83",
+      "bytes": 2165
+    },
+    "qwen21_native/api_workflows/35_SeedVR2_Local_Protected_Finish.api.json": {
+      "sha256": "d62851b03c41d0a88c170981b2f34f567699b610e31c1024680858b91e881a77",
+      "bytes": 3803
+    },
+    "qwen21_native/api_workflows/90_AB_Head_Native_vs_BFS.api.json": {
+      "sha256": "353722c9f293a96674bf26bb1fee627c3376cbdd8f6ea87b162bda7f14468d6f",
+      "bytes": 28784
+    },
+    "qwen21_native/api_workflows/91_AB_Body_Native_vs_BFS.api.json": {
+      "sha256": "fa2d238e58a8e459e7b8e76fba1cf42d2773cae0c81445fac8975a5481a3ed01",
+      "bytes": 28409
+    },
+    "qwen21_native/config/ci_workflow.yml": {
+      "sha256": "4c5d20d2b1927b3c89495c2aba2e6582e2ad07af41cb97457d788dbbb3826a66",
+      "bytes": 2861
+    },
+    "qwen21_native/config/models.json": {
+      "sha256": "1f4b9c79b311de3fecd4f4e8e778c82fa333b1ebb448498463b23748fe5e772e",
+      "bytes": 2880
+    },
+    "qwen21_native/config/runpod-template-identity.json": {
+      "sha256": "966523c97def07a6f989777ebeb3ca620d2edbc527ffe90bd36be1a42167986e",
+      "bytes": 706
+    },
+    "qwen21_native/config/runpod-template-upscale.json": {
+      "sha256": "953b6ff7a585d557e6bfe45284526e55bc3392860bca0fbdb34bf0f4031a558f",
+      "bytes": 719
+    },
+    "qwen21_native/config/upstream.json": {
+      "sha256": "f6571bf2aefabb0f2b5815ff7c26fca3cc3401476bc53bc8d2d20999a1a0478c",
+      "bytes": 699
+    },
+    "qwen21_native/config/workflow_catalog.json": {
+      "sha256": "4f6b39b2db84c594cc100fd985c0919c2b0d558617d81ec012f8c0260cd0f8cc",
+      "bytes": 10784
+    },
+    "qwen21_native/custom_nodes/qwen21_native_tools/__init__.py": {
+      "sha256": "6c71304d53ec3706bcacb321037051030b335c94aac99cbda082fd9b1ba9b985",
+      "bytes": 16198
+    },
+    "qwen21_native/docs/EDITABLE_PROMPTS.md": {
+      "sha256": "6b299b8b313fd5d2e71a0d9f894a80a8c7bd4a2d422cb0462ed2928b20185df5",
+      "bytes": 24856
+    },
+    "qwen21_native/docs/SOURCES.md": {
+      "sha256": "917634dd0f1a9514badc430ba4c504474a4a97d8ebf4aec798d08dabf20d38ef",
+      "bytes": 1181
+    },
+    "qwen21_native/docs/VALIDATION.md": {
+      "sha256": "2b981ea6dd125c6fea388df8b9320465d12bef75cda5227e4a081e83e9eece45",
+      "bytes": 2011
+    },
+    "qwen21_native/docs/WORKFLOW_INDEX.md": {
+      "sha256": "b50c284e63ed7bcdf403bdc551f21260f2e04b04d1a98af8daa5414b8ef96d61",
+      "bytes": 15310
+    },
+    "qwen21_native/docs/validation_logs/graph_validation.txt": {
+      "sha256": "304e5a6e2a3f6a49fe8c85ea52c01f6c32a74c28c914f9045e18c5a31e518876",
+      "bytes": 1566
+    },
+    "qwen21_native/docs/validation_logs/unit_tests.txt": {
+      "sha256": "a45fff76696323b248dccee04e47db08fa8d38ad9446f2c0d3e153ca797c47ae",
+      "bytes": 179
+    },
+    "qwen21_native/scripts/build_workflows.py": {
+      "sha256": "4fc012cbaf0faa9ac24e0459e6988b8fa7b1e09c455476d13c5e5004529a3bc9",
+      "bytes": 39818
+    },
+    "qwen21_native/scripts/checkout_sources.py": {
+      "sha256": "dd9ab1aa9308d33b05a5233cd5e764f5e4db47a97178863df7fa1bbb5bcf6085",
+      "bytes": 1528
+    },
+    "qwen21_native/scripts/download_models.py": {
+      "sha256": "e85defb8079ee8abbe2b52a18ae2e34f39c4615fc0dec39697b8253728660c12",
+      "bytes": 8487
+    },
+    "qwen21_native/scripts/install_into_comfy.py": {
+      "sha256": "884754bd4879e760aff36badccea23a2fb54f8cee86069fcea3636e4ef8d88c3",
+      "bytes": 2888
+    },
+    "qwen21_native/scripts/patch_seedvr2_cpu_schema.py": {
+      "sha256": "26f46eff88875867aea713805bec90bdd0156b35beb8dbbb93004cdb065412de",
+      "bytes": 1730
+    },
+    "qwen21_native/scripts/serve_checked.py": {
+      "sha256": "b97b74afcb9b79f66677aab2c90cc177ecde77a6a234b0bbe097d1526a74be9a",
+      "bytes": 3597
+    },
+    "qwen21_native/scripts/start.sh": {
+      "sha256": "ae33802107f1a1d82911801fbd022cdda50d3cdfab448258483dea2347a2e1d8",
+      "bytes": 2534
+    },
+    "qwen21_native/scripts/validate_workflows.py": {
+      "sha256": "e892920f11dd7cd515a99db6e34918bb9e8e4505f7179e6d513283974fb32fc1",
+      "bytes": 7896
+    },
+    "qwen21_native/tests/test_downloader.py": {
+      "sha256": "1dd65c232335c0a7e2039329317f0aee37b73412bf3b862e709b4e23a3d101d6",
+      "bytes": 4238
+    },
+    "qwen21_native/tests/test_helpers_and_graphs.py": {
+      "sha256": "bf7e6154d4975846248c6d783087c8efc7f1430d95e79799c389e6d89cc64c06",
+      "bytes": 7237
+    },
+    "qwen21_native/tests/test_seedvr2_cpu_schema_patch.py": {
+      "sha256": "c3658f63755350c0011a82eee5c30eaaa7ba571ed957781fffc3438f64073da9",
+      "bytes": 1762
+    },
+    "qwen21_native/tests/test_static.py": {
+      "sha256": "06487267931f254c45ba04a0f55ef79dcb59e8e888927ccd82917a77f917b65e",
+      "bytes": 4433
+    },
+    "qwen21_native/workflows/00_START_HERE_Scene_Face_Body.json": {
+      "sha256": "279da67d9c6db5a38c72b4010255663d547b8b2cb2b1caa755190ad2d7548f9e",
+      "bytes": 24375
+    },
+    "qwen21_native/workflows/01_Person_Multi_Reference.json": {
+      "sha256": "7e6e43814302606f29a73276e52d3989a029a222e50847a6483310ceb6f2d57b",
+      "bytes": 28138
+    },
+    "qwen21_native/workflows/02_Person_Keep_Scene_Wardrobe.json": {
+      "sha256": "ed4d4d8a5352f4c3c31a8b50f7d3fce3d7bcf97a5b03b4039d2e6a3cf106e301",
+      "bytes": 24485
+    },
+    "qwen21_native/workflows/03_Person_Transfer_Body_Wardrobe.json": {
+      "sha256": "501767ae537295b7b122bcab9633a9d8f0865ffc79bb54987e2e54ebdaede883",
+      "bytes": 24413
+    },
+    "qwen21_native/workflows/04_Person_Separate_Wardrobe_Reference.json": {
+      "sha256": "a29ced9e195b53d14f3222581caef9c4abc7d5d6ddda603bc43e7179d0ab15f8",
+      "bytes": 26217
+    },
+    "qwen21_native/workflows/05_Body_Only_Hard_Protect_Head.json": {
+      "sha256": "90fcf3ec189acc79b9465e5c429aceca8294b5871d100e8012e0bc3ac7d6a242",
+      "bytes": 26173
+    },
+    "qwen21_native/workflows/06_Body_And_Wardrobe_Hard_Protect_Head.json": {
+      "sha256": "b984f2e646f23aa5b3fe89a1c9720919a420e4f618e0394be3b3d16c0438173c",
+      "bytes": 26084
+    },
+    "qwen21_native/workflows/07_Head_One_Reference.json": {
+      "sha256": "d4d456cb4cdeac95059dd048f2f599e18dfe2442b5dab3ac0bf92d48f072c38d",
+      "bytes": 22385
+    },
+    "qwen21_native/workflows/08_Head_Three_Identity_References.json": {
+      "sha256": "136b1cbdc6ba88d9bb54961ba0d018451c5dc31a25ae4cddd0169cbc74106285",
+      "bytes": 26265
+    },
+    "qwen21_native/workflows/09_Face_Only_Keep_Hair.json": {
+      "sha256": "bcefdb28142a98a7a94c02d1a91f268aef08c7351f2fb9fe9d050caaa1396821",
+      "bytes": 24466
+    },
+    "qwen21_native/workflows/10_Head_Hair_And_Hairline.json": {
+      "sha256": "60465fa659067ddfa00f7f4f8ebac472b17d98ad3cab31561dd892f43499e64b",
+      "bytes": 24497
+    },
+    "qwen21_native/workflows/11_Profile_Angle_Matched_Identity.json": {
+      "sha256": "bee7beca537d47fb85484ae3b7127fe19cca08124c5438c496aa6ccdb6f95b81",
+      "bytes": 24470
+    },
+    "qwen21_native/workflows/12_Rescue_Likeness_From_Originals.json": {
+      "sha256": "f1c903e3f1fbd5ee28d2249e99e39081cf416d74a3cd7b5277369b67c6a9751c",
+      "bytes": 24539
+    },
+    "qwen21_native/workflows/13_Expression_Image2_Only.json": {
+      "sha256": "4ef243a2da8f19f3508f3a48d726adf8196cf307410aecebd5d69e9c91615af5",
+      "bytes": 22437
+    },
+    "qwen21_native/workflows/14_Identity_And_Expression_Separate_Refs.json": {
+      "sha256": "7514c7dd8a614737b9844758902b05440cfdffe81c5dc8223132c0ee04100dcb",
+      "bytes": 24469
+    },
+    "qwen21_native/workflows/15_Expression_Text_Only.json": {
+      "sha256": "957f57a709beefd069e0e29de598cd3092b05cf5ded7e2fe250ea40c8186707a",
+      "bytes": 20198
+    },
+    "qwen21_native/workflows/16_Local_Repair_No_Reference.json": {
+      "sha256": "5139e1410cd934ffe7476053a16256eb2794c823cd7bafa63ce1c5a3c18e91ad",
+      "bytes": 20179
+    },
+    "qwen21_native/workflows/17_Local_Repair_With_Anatomy_Reference.json": {
+      "sha256": "0945d3eebbcdbd88fd5a51222db120ca96ee51147357088d65a59e740fbd91f3",
+      "bytes": 22138
+    },
+    "qwen21_native/workflows/18_Hand_And_Wrist_Repair.json": {
+      "sha256": "69a033109ca8854451bb42b7aec8ae6613e84a3f43b7b5c97eeace9dd2b69c3c",
+      "bytes": 22113
+    },
+    "qwen21_native/workflows/19_Limb_Perspective_Repair.json": {
+      "sha256": "035263df7adc94d77e25882746165e3dc52b5deb7a2b90632ca91d80ff9dfc71",
+      "bytes": 22135
+    },
+    "qwen21_native/workflows/20_Neck_Head_Seam_Repair.json": {
+      "sha256": "d147f4d3573620494e8862fa30e41abcfda454481a79a5a4790dbbef721efad6",
+      "bytes": 22171
+    },
+    "qwen21_native/workflows/21_Skin_Texture_Light_Touch.json": {
+      "sha256": "f10466ac62f2e578302d97c17bffb765f997cf648d2692b452f6e48998cab10c",
+      "bytes": 22231
+    },
+    "qwen21_native/workflows/22_Wardrobe_Only_Keep_Person.json": {
+      "sha256": "11b11b165b5f47dd6c2cdbeba9f4804d70d70da66825895b4631bad40b603032",
+      "bytes": 22295
+    },
+    "qwen21_native/workflows/23_Sequential_Body_Then_Head_Native.json": {
+      "sha256": "e58a56ec14aaac59bc889dd14e2fa31c642a653716d108b08ae62eb7cdd26121",
+      "bytes": 50451
+    },
+    "qwen21_native/workflows/24_Two_Heads_Sequential.json": {
+      "sha256": "14edd2498309236c99d6205c1bafc82d3c0b514a9ed1a246e55ff08174bcc530",
+      "bytes": 47813
+    },
+    "qwen21_native/workflows/25_Two_Full_People_Sequential.json": {
+      "sha256": "5b27ed865b713eb4e8de786d2b0d439159e6f2f1382cf719e38952b5172d4531",
+      "bytes": 51712
+    },
+    "qwen21_native/workflows/26_Two_People_One_Pass_EXPERIMENTAL.json": {
+      "sha256": "48eea866d03007e2ed288f8dd0abded4fa970b350828f8d0345b11622fcba55b",
+      "bytes": 31166
+    },
+    "qwen21_native/workflows/27_Described_Scene_Face_Plus_Body.json": {
+      "sha256": "89a7c2e48dd873f35a906d3f2cde85f12f5310a613f7bc4f33e0b6b3d0bec8eb",
+      "bytes": 16092
+    },
+    "qwen21_native/workflows/28_Source_Prep_Fitted_Clothing_CANDIDATE.json": {
+      "sha256": "78c6e5e9c23eb4c892637178bff547dd58b13fd4ad180842f84b6761e8413620",
+      "bytes": 16231
+    },
+    "qwen21_native/workflows/29_Reference_Crop_Export_NO_GENERATION.json": {
+      "sha256": "45dcf533e274c4b44889f360650d43102c9464d26d8425461735c5055f14fac7",
+      "bytes": 7387
+    },
+    "qwen21_native/workflows/30_Head_High_Detail_4MP_50Steps.json": {
+      "sha256": "5abea26f2c0142ebd4d7f87e59898e63b02025cba6cbbc752327f191da4e3b68",
+      "bytes": 24426
+    },
+    "qwen21_native/workflows/31_Head_Lean_1MP_BF16.json": {
+      "sha256": "4409516a5760f274ae83446ca54a03e3972a256ec0ff58e8873a6c9e8e4852d0",
+      "bytes": 22379
+    },
+    "qwen21_native/workflows/32_Head_Three_Seed_Comparison.json": {
+      "sha256": "f52cca9c72362bb40d1e0de778415a73c47e93c2b4fc1d0dfad0ca14ab94e701",
+      "bytes": 54545
+    },
+    "qwen21_native/workflows/33_Final_Lanczos_No_Model.json": {
+      "sha256": "ea1bb77ca098e569b678173707b520ccf1a67eeaf98f0b89554ff91eb90792c1",
+      "bytes": 3526
+    },
+    "qwen21_native/workflows/34_SeedVR2_Full_Frame_7B_FP16.json": {
+      "sha256": "159357c23780a2b4844d7ea25b7355612e41daf920fccb7a3d86a9184da8e460",
+      "bytes": 6808
+    },
+    "qwen21_native/workflows/35_SeedVR2_Local_Protected_Finish.json": {
+      "sha256": "9270bbda942accd7ae4037b81154c52a1a89f04a717d9f9360b2294db15e99f1",
+      "bytes": 12001
+    },
+    "qwen21_native/workflows/90_AB_Head_Native_vs_BFS.json": {
+      "sha256": "21d13a897502c4fe44a3d32f45c2a2381d6122fe332333d97c144c194e96b5b0",
+      "bytes": 90720
+    },
+    "qwen21_native/workflows/91_AB_Body_Native_vs_BFS.json": {
+      "sha256": "7efde4c4c75d2c3a1d6f2f8f273a1e695050d1af7d88ad8990fa5c74a36fd158",
+      "bytes": 90345
+    },
+    "qwen21_unified/config/RELEASE_CONTRACT.json": {
+      "sha256": "4e7c6d20963d88795c9058c076882935abdf4e2e69566e455a2b3e3165071060",
+      "bytes": 1505
+    },
+    "qwen21_unified/config/runpod-template.json": {
+      "sha256": "dc23c33e1f72c12194960ec495bb38ad3e33b73f078b409a9f9b57bc78e4886c",
+      "bytes": 934
+    },
+    "qwen21_unified/scripts/build_install.py": {
+      "sha256": "1b33738c4555e4aca158f24884d043121dffd8fbad3f0f2cea56c79837454a7e",
+      "bytes": 3903
+    },
+    "qwen21_unified/scripts/entry.sh": {
+      "sha256": "c4839bd165d02ea2820ca88873bd63ae1a060ac3d744d99e061d0442cca2c1b7",
+      "bytes": 1153
+    },
+    "qwen21_unified/scripts/filter_requirements.py": {
+      "sha256": "a71d3e56ff39caf7d6c3ba6cab0de1fa49c27c12054e34171f77f1de751432cf",
+      "bytes": 1925
+    },
+    "qwen21_unified/scripts/generate_dockerfile.py": {
+      "sha256": "8cd3ec369180a223b945d5c3bf3cf91e186ef606df57cbd59845433d0eb62e0f",
+      "bytes": 4289
+    },
+    "qwen21_unified/scripts/runtime_prepare.py": {
+      "sha256": "fa6b72405403fa9efb47b5125b839c7105f6daca78a9b09deeee0c30810c9032",
+      "bytes": 3471
+    },
+    "qwen21_unified/scripts/supervise.py": {
+      "sha256": "b004fdd6340c5cb49a83d14e80e62f55d4cfefeffab27158981ebf31a1b3c7ae",
+      "bytes": 5318
+    },
+    "qwen21_unified/scripts/verify_bundle.py": {
+      "sha256": "01025b7280b7a1022c20f78e941203fef0e8159d9d059541d5911b213cf319d5",
+      "bytes": 2526
+    },
+    "qwen21_unified/tests/test_apply_overlay.py": {
+      "sha256": "998a8f617725bb61321ab6428c8b18a113fbac7fea0df2b7adfb43180d079f58",
+      "bytes": 7719
+    },
+    "qwen21_unified/tests/test_unified_package.py": {
+      "sha256": "5410dba13bcc2b8570d23a69995b0c903e6d15469a42cc6ae52683e306a658f4",
+      "bytes": 5457
+    }
+  }
+}
