@@ -1,7 +1,0 @@
-{
-  "tasks": 57,
-  "workflow_files": 69,
-  "source_dispositions": 82,
-  "errors": [],
-  "test_scope": "static only; no GPU, Docker build or provider download"
-}
