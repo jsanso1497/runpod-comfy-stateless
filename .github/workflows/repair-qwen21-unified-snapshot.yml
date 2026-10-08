@@ -26,6 +26,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Generate missing Photo-derived unified Dockerfile safely
+        run: |
+          set -Eeuo pipefail
+          if test -f qwen21_photo_edit/Dockerfile.unified; then
+            python qwen21_unified/scripts/generate_dockerfile.py --repo . --check
+          else
+            python qwen21_unified/scripts/generate_dockerfile.py --repo .
+          fi
       - name: Audit unified package and propose snapshot-only updates
         run: |
           set -Eeuo pipefail
@@ -37,18 +45,23 @@ jobs:
           python qwen21_unified/scripts/verify_bundle.py --repo .
           python qwen21_native/scripts/validate_workflows.py --profile upscale --include-bfs
           python qwen21_native/addons/torso_lock/scripts/validate_workflows.py
-      - name: Commit ONLY SOURCE_SNAPSHOT.json
+      - name: Commit verified manifest and generated unified Dockerfile
         run: |
           set -Eeuo pipefail
-          if git diff --quiet -- SOURCE_SNAPSHOT.json; then
-            echo "SOURCE_SNAPSHOT.json already accurate; no commit needed"
+          git add -- SOURCE_SNAPSHOT.json qwen21_photo_edit/Dockerfile.unified
+          if git diff --cached --quiet; then
+            echo "Verified manifest and unified Dockerfile already committed; no update needed"
             exit 0
           fi
+          git diff --cached --name-only
+          # No source code, weights, workflows, or other paths are permitted in this commit.
+          while IFS= read -r path; do
+            case "$path" in
+              SOURCE_SNAPSHOT.json|qwen21_photo_edit/Dockerfile.unified) ;;
+              *) echo "Refusing to commit unrelated file: $path" >&2; exit 1 ;;
+            esac
+          done < <(git diff --cached --name-only)
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add SOURCE_SNAPSHOT.json
-          git diff --cached --name-only
-          git diff --cached --name-only | grep -Fx 'SOURCE_SNAPSHOT.json'
-          test "$(git diff --cached --name-only | wc -l)" -eq 1
-          git commit -m "Register verified Qwen unified sources in snapshot [skip ci]"
+          git commit -m "Repair unified source snapshot and Dockerfile [skip ci]"
           git push origin "HEAD:${GITHUB_REF_NAME}"

@@ -3,6 +3,8 @@ import hashlib
 import importlib.util
 import json
 import shutil
+import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -83,6 +85,34 @@ class SnapshotRepairTests(unittest.TestCase):
 
     def tearDown(self):
         self.tmp.cleanup()
+
+    def test_action_bootstraps_missing_generated_dockerfile(self):
+        # Reproduces the uploaded October 8 GitHub repair failure exactly.
+        generated = self.root / "qwen21_photo_edit/Dockerfile.unified"
+        generated.unlink()
+        self.assertFalse(generated.exists())
+        manifest_original = self.snapshot.read_bytes()
+        generate = self.root / "qwen21_unified/scripts/generate_dockerfile.py"
+        subprocess.run([sys.executable, str(generate), "--repo", str(self.root)], check=True)
+        self.assertTrue(generated.is_file())
+        # Dry-run should not modify the snapshot or any unrelated sources.
+        repair.reconcile(self.root, write=False)
+        self.assertEqual(self.snapshot.read_bytes(), manifest_original)
+        repair.reconcile(self.root, write=True)
+        updated = json.loads(self.snapshot.read_text())["files"]
+        self.assertEqual(updated["qwen21_photo_edit/Dockerfile.unified"], repair.digest(generated))
+        self.assertTrue(generated.read_text().startswith("FROM pytorch/"))
+
+    def test_repair_workflow_generates_before_audit_and_stages_dockerfile(self):
+        action = (Path(__file__).resolve().parents[2]
+                  / ".github/workflows/repair-qwen21-unified-snapshot.yml").read_text()
+        self.assertLess(action.index("Generate missing Photo-derived unified Dockerfile safely"),
+                        action.index("Audit unified package"))
+        self.assertIn("generate_dockerfile.py --repo . --check", action)
+        self.assertIn("generate_dockerfile.py --repo .\n", action)
+        self.assertIn("git add -- SOURCE_SNAPSHOT.json qwen21_photo_edit/Dockerfile.unified", action)
+        self.assertIn("SOURCE_SNAPSHOT.json|qwen21_photo_edit/Dockerfile.unified", action)
+        self.assertIn("python qwen21_native/addons/torso_lock/scripts/validate_workflows.py", action)
 
     def test_dry_run_is_read_only(self):
         before = self.snapshot.read_bytes()
