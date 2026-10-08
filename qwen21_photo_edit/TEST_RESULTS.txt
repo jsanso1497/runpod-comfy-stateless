@@ -1,0 +1,44 @@
+test_1500_mask_example (test_photo_edit.GeometryTests.test_1500_mask_example) ... ok
+test_2500_mask_example (test_photo_edit.GeometryTests.test_2500_mask_example) ... ok
+test_bad_generated_dimensions (test_photo_edit.GeometryTests.test_bad_generated_dimensions) ... ok
+test_bad_generated_values (test_photo_edit.GeometryTests.test_bad_generated_values) ... ok
+test_bad_mask_shape (test_photo_edit.GeometryTests.test_bad_mask_shape) ... ok
+test_budget_grid (test_photo_edit.GeometryTests.test_budget_grid) ... ok
+test_dimensions_bad (test_photo_edit.GeometryTests.test_dimensions_bad) ... ok
+test_frame_edge_and_hole (test_photo_edit.GeometryTests.test_frame_edge_and_hole) ... ok
+test_invalid_mask_values (test_photo_edit.GeometryTests.test_invalid_mask_values) ... ok
+test_native_grid_does_not_resize (test_photo_edit.GeometryTests.test_native_grid_does_not_resize) ... ok
+test_no_mask (test_photo_edit.GeometryTests.test_no_mask) ... ok
+test_padding_is_removed_before_resize (test_photo_edit.GeometryTests.test_padding_is_removed_before_resize) ... ok
+test_reference_does_not_upscale_or_stretch (test_photo_edit.GeometryTests.test_reference_does_not_upscale_or_stretch) ... ok
+test_roundtrip_protection (test_photo_edit.GeometryTests.test_roundtrip_protection) ... ok
+test_source_rejects_video (test_photo_edit.GeometryTests.test_source_rejects_video) ... ok
+test_work_does_not_alias_source (test_photo_edit.GeometryTests.test_work_does_not_alias_source) ... ok
+test_add_manual (test_photo_edit.MaskTests.test_add_manual) ... ok
+test_empty_sam_never_falls_back (test_photo_edit.MaskTests.test_empty_sam_never_falls_back) ... ok
+test_instance_selection (test_photo_edit.MaskTests.test_instance_selection) ... ok
+test_manual_never_imports_sam (test_photo_edit.MaskTests.test_manual_never_imports_sam) ... ok
+test_missing_correction_mask (test_photo_edit.MaskTests.test_missing_correction_mask) ... ok
+test_missing_manual_mask (test_photo_edit.MaskTests.test_missing_manual_mask) ... ok
+test_restrict_after_growth (test_photo_edit.MaskTests.test_restrict_after_growth) ... ok
+test_sam_delegation_and_release (test_photo_edit.MaskTests.test_sam_delegation_and_release) ... ok
+test_subtract_after_growth_preserves_protected_region (test_photo_edit.MaskTests.test_subtract_after_growth_preserves_protected_region) ... ok
+test_disabled_reference_needs_no_files_or_core (test_photo_edit.NodeTests.test_disabled_reference_needs_no_files_or_core) ... ok
+test_lazy_preview_requests_no_result (test_photo_edit.NodeTests.test_lazy_preview_requests_no_result) ... ok
+test_lora_chaining (test_photo_edit.NodeTests.test_lora_chaining) ... ok
+test_loras_off_calls_no_loader (test_photo_edit.NodeTests.test_loras_off_calls_no_loader) ... ok
+test_native_qwen_encoder_uses_prepared_images_without_resizing (test_photo_edit.NodeTests.test_native_qwen_encoder_uses_prepared_images_without_resizing) ... ok
+test_nine_references (test_photo_edit.NodeTests.test_nine_references) ... ok
+test_nonexistent_image_tag_rejected (test_photo_edit.NodeTests.test_nonexistent_image_tag_rejected) ... ok
+test_real_png_roundtrip_and_preview_no_export (test_photo_edit.NodeTests.test_real_png_roundtrip_and_preview_no_export) ... ok
+test_reference_gap_rejected (test_photo_edit.NodeTests.test_reference_gap_rejected) ... ok
+test_rgba_is_composited_on_source_not_black (test_photo_edit.NodeTests.test_rgba_is_composited_on_source_not_black) ... ok
+test_file_completeness_checks (test_photo_edit.WorkflowTests.test_file_completeness_checks) ... ok
+test_graph_connections_and_widgets (test_photo_edit.WorkflowTests.test_graph_connections_and_widgets) ... ok
+test_no_automatic_global_upgrader (test_photo_edit.WorkflowTests.test_no_automatic_global_upgrader) ... ok
+test_ui_nonserialized_compare (test_photo_edit.WorkflowTests.test_ui_nonserialized_compare) ... ok
+
+----------------------------------------------------------------------
+Ran 39 tests in 0.112s
+
+OK
