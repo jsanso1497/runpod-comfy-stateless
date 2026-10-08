@@ -1,5 +1,5 @@
 {
-  "imageName": "ghcr.io/jsanso1497/runpod-comfy-qwen21-photo:unified-v2.1.1",
+  "imageName": "ghcr.io/jsanso1497/runpod-comfy-qwen21-photo:unified-v2.1.2",
   "name": "Qwen 2.1 Photo 2K SAM3 + Native + Torso Lock",
   "category": "NVIDIA",
   "containerDiskInGb": 160,

@@ -81,10 +81,17 @@ def check_schema(ui,api,info,check_files=False):
                 require(0<=val[1]<len(output),f'{source}: invalid output slot')
                 actual=output[val[1]]
                 require(want==actual or '*' in (want,actual),f'{typ}.{name}: expected {want}, got {actual}')
-            elif isinstance(want,list):
-                is_file=name in file_choices or name=='model' and typ.startswith('SeedVR2')
+            elif isinstance(want,list) or want=='COMBO':
+                # Legacy dropdowns are represented by the list itself.
+                # ComfyUI V3 io.Combo.Input serializes to ["COMBO", {"options": [...]}].
+                # Both are widgets, not wiring sockets. Do not mistake a V3
+                # dropdown for a missing control, and validate its choices.
+                opts=inputs[name][1] if len(inputs[name])>1 and isinstance(inputs[name][1],dict) else {}
+                choices=want if isinstance(want,list) else opts.get('options')
+                require(isinstance(choices,list) and bool(choices),f'{typ}.{name}: missing COMBO options')
+                is_file=name in file_choices or (name=='model' and typ.startswith('SeedVR2'))
                 if check_files or not is_file:
-                    require(val in want,f'{typ}.{name}: {val!r} not in runtime options')
+                    require(val in choices,f'{typ}.{name}: {val!r} not in runtime options')
             elif want in ('INT','FLOAT','STRING','BOOLEAN'):
                 valid={'INT':isinstance(val,int) and not isinstance(val,bool),
                     'FLOAT':isinstance(val,(int,float)) and not isinstance(val,bool),'STRING':isinstance(val,str),'BOOLEAN':isinstance(val,bool)}
@@ -96,7 +103,7 @@ def check_schema(ui,api,info,check_files=False):
         widgets=[]
         for name,desc in inputs.items():
             t=desc[0];opts=desc[1] if len(desc)>1 and isinstance(desc[1],dict) else {}
-            if not opts.get('forceInput') and (isinstance(t,list) or t in ('INT','FLOAT','STRING','BOOLEAN')):widgets.append(name)
+            if not opts.get('forceInput') and (isinstance(t,list) or t in ('COMBO','INT','FLOAT','STRING','BOOLEAN')):widgets.append(name)
         expected=[x for x in S[typ][2] if x not in ('upload','control_after_generate')]
         require(widgets==expected,f'{typ}: UI widget order differs: runtime {widgets}, saved {expected}')
 

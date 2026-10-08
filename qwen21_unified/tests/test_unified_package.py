@@ -85,11 +85,102 @@ class Tests(unittest.TestCase):
         self.assertEqual(count,0)
     def test_unified_template_contract(self):
         template=json.loads((ROOT/'qwen21_unified/config/runpod-template.json').read_text())
-        self.assertIn(':unified-v2.1.1',template['imageName'])
+        self.assertIn(':unified-v2.1.2',template['imageName'])
         self.assertIn('8188/http',template['ports'])
         self.assertEqual(template['dockerEntrypoint'],[])
         self.assertEqual(template['env']['QWEN_PHOTO_MODEL_PRECISION'],'bf16')
         self.assertEqual(template['env']['QWEN_PHOTO_DOWNLOAD_SAM'],'1')
         self.assertGreaterEqual(template['containerDiskInGb'],150)
+
+
+class TestQwen21ComfyV3ComboCompatibility(unittest.TestCase):
+    """Regression: ComfyUI V3 io.Combo inputs are COMBO widgets in /object_info."""
+
+    @staticmethod
+    def validator(relative):
+        import importlib.util
+        import sys
+        from unittest.mock import patch
+        path=ROOT/relative
+        # Both packages have a build_workflows.py module; import one at a time
+        # without leaking an unrelated module's static node schema to the other.
+        spec=importlib.util.spec_from_file_location('schema_regression_validator', path)
+        module=importlib.util.module_from_spec(spec)
+        with patch.dict(sys.modules, {'build_workflows': None}):
+            # A None sys.modules entry blocks import, so import the file explicitly
+            # and temporarily supply the right one under its expected name.
+            schema_spec=importlib.util.spec_from_file_location('build_workflows',path.parent/'build_workflows.py')
+            schema_module=importlib.util.module_from_spec(schema_spec)
+            schema_spec.loader.exec_module(schema_module)
+            sys.modules['build_workflows']=schema_module
+            spec.loader.exec_module(module)
+        return module
+
+    @staticmethod
+    def inputs_and_info(style='v3'):
+        api={
+            '1':{'class_type':'UNETLoader','inputs':{'unet_name':'qwen_image_2.1_bf16.safetensors','weight_dtype':'default'}},
+            '2':{'class_type':'QwenImage21Cache','inputs':{'model':['1',0],'device':'auto','dtype':'default'}},
+        }
+        if style=='v3':
+            device=['COMBO',{'options':['auto','gpu','cpu','off'],'default':'auto'}]
+            dtype=['COMBO',{'options':['default','int8','int4'],'default':'default'}]
+        else:
+            device=[['auto','gpu','cpu','off'],{'default':'auto'}]
+            dtype=[['default','int8','int4'],{'default':'default'}]
+        info={
+            'UNETLoader':{
+                'input':{'required':{
+                    'unet_name':[['qwen_image_2.1_bf16.safetensors'],{}],
+                    'weight_dtype':[['default','fp8_e4m3fn'],{}],
+                }},'output':['MODEL'],
+            },
+            'QwenImage21Cache':{'input':{'required':{'model':['MODEL',{}],'device':device,'dtype':dtype}},'output':['MODEL']},
+        }
+        return api,info
+
+    def test_native_v3_combo_device_dtype_pass(self):
+        module=self.validator('qwen21_native/scripts/validate_workflows.py')
+        api,info=self.inputs_and_info()
+        module.check_schema({},api,info)
+
+    def test_torso_v3_combo_device_dtype_pass(self):
+        module=self.validator('qwen21_native/addons/torso_lock/scripts/validate_workflows.py')
+        api,info=self.inputs_and_info()
+        module.check_schema({},api,info)
+
+    def test_legacy_dropdown_unchanged(self):
+        for path in ('qwen21_native/scripts/validate_workflows.py',
+                     'qwen21_native/addons/torso_lock/scripts/validate_workflows.py'):
+            module=self.validator(path)
+            api,info=self.inputs_and_info('legacy')
+            module.check_schema({},api,info)
+
+    def test_v3_combo_rejects_invalid_device(self):
+        for path in ('qwen21_native/scripts/validate_workflows.py',
+                     'qwen21_native/addons/torso_lock/scripts/validate_workflows.py'):
+            module=self.validator(path)
+            api,info=self.inputs_and_info()
+            api['2']['inputs']['device']='invented'
+            with self.assertRaisesRegex(ValueError,'not in runtime options'):
+                module.check_schema({},api,info)
+
+    def test_v3_combo_rejects_missing_options(self):
+        for path in ('qwen21_native/scripts/validate_workflows.py',
+                     'qwen21_native/addons/torso_lock/scripts/validate_workflows.py'):
+            module=self.validator(path)
+            api,info=self.inputs_and_info()
+            info['QwenImage21Cache']['input']['required']['dtype']=['COMBO',{}]
+            with self.assertRaisesRegex(ValueError,'missing COMBO options'):
+                module.check_schema({},api,info)
+
+    def test_v3_combo_respects_force_input(self):
+        for path in ('qwen21_native/scripts/validate_workflows.py',
+                     'qwen21_native/addons/torso_lock/scripts/validate_workflows.py'):
+            module=self.validator(path)
+            api,info=self.inputs_and_info()
+            info['QwenImage21Cache']['input']['required']['device'][1]['forceInput']=True
+            with self.assertRaisesRegex(ValueError,'UI widget order differs'):
+                module.check_schema({},api,info)
 
 if __name__=='__main__':unittest.main()

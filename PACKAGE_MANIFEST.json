@@ -1,5 +1,5 @@
 {
-  "release": "2.1.1",
+  "release": "2.1.2",
   "includes": {
     "photo_ui_in_existing_repo": 2,
     "native_default": 34,
@@ -8,7 +8,7 @@
   },
   "files": {
     ".github/workflows/build-qwen21-unified.yml": {
-      "sha256": "640332168c91ef6f5b0853b66b449a3145b6333daeb1b46be34f157cd983eab0",
+      "sha256": "0904ad76c4821a4272c608e6640392c8efb83fb0bb01c87a0cea01287c5878b7",
       "bytes": 2940
     },
     ".github/workflows/repair-qwen21-unified-snapshot.yml": {
@@ -20,8 +20,8 @@
       "bytes": 8605
     },
     "START_HERE_UNIFIED.md": {
-      "sha256": "0af564c012d67e6d16d255ac2c3958aac9390e620d4a3cffe1e6f3c448a02885",
-      "bytes": 8941
+      "sha256": "13338a9b994fe9399a5870057dc985de8bf4ebed149ec2dd956e7a58eeb7a6ae",
+      "bytes": 10894
     },
     "qwen21_native/.dockerignore": {
       "sha256": "3b7e4795b9429140b1ebb33a0f2c41f10795607004b7862d0da9bf360b69eb08",
@@ -100,8 +100,8 @@
       "bytes": 15046
     },
     "qwen21_native/addons/torso_lock/scripts/validate_workflows.py": {
-      "sha256": "51fea6d828858dacd3046bf734a66107f1b2defb25fe7e6e75c08851a2aa9e35",
-      "bytes": 7434
+      "sha256": "136966d073e4c52a355808333c7b91bcf416aeb2b3f803a4517717728d90aff0",
+      "bytes": 8067
     },
     "qwen21_native/addons/torso_lock/tests/test_torso_lock.py": {
       "sha256": "577a3ea95f61543de800908fb90b51d87b99c52ab6470e0f9440de35a65a2667",
@@ -356,8 +356,8 @@
       "bytes": 2534
     },
     "qwen21_native/scripts/validate_workflows.py": {
-      "sha256": "e892920f11dd7cd515a99db6e34918bb9e8e4505f7179e6d513283974fb32fc1",
-      "bytes": 7896
+      "sha256": "b12abe0009cf9dca8cfde1fd163d4000c81fb7b6af9d68a50e7fcd5617df9686",
+      "bytes": 8529
     },
     "qwen21_native/tests/test_downloader.py": {
       "sha256": "1dd65c232335c0a7e2039329317f0aee37b73412bf3b862e709b4e23a3d101d6",
@@ -528,11 +528,11 @@
       "bytes": 90345
     },
     "qwen21_unified/config/RELEASE_CONTRACT.json": {
-      "sha256": "a8afaf6baf965c392e64e6ddc8a72ac295377bfd44b9a2746d87aea0c2ccde1b",
+      "sha256": "91a920e2120f02200dbc949656ac747cd0fb82874a58a9d83f698b79287b0b29",
       "bytes": 1523
     },
     "qwen21_unified/config/runpod-template.json": {
-      "sha256": "085676ce145ae9ba8eb23b60c0b30a97e15e02ffb4d897e801ef348d097837ce",
+      "sha256": "78a3f0ae3d49f52648885fc06050bf235b3da1f758037bdf5fc5d1e65ab8aa36",
       "bytes": 942
     },
     "qwen21_unified/scripts/build_install.py": {
@@ -580,8 +580,8 @@
       "bytes": 12986
     },
     "qwen21_unified/tests/test_unified_package.py": {
-      "sha256": "2645ae406b12256576f25bb724243c40eb0dc39927856e6608ff684c3b9940f3",
-      "bytes": 5457
+      "sha256": "35214b8d9cbd018d82fd9a077f5dc95d720ee624da4e9aff0f717349c9bdc2a5",
+      "bytes": 10021
     }
   }
 }
