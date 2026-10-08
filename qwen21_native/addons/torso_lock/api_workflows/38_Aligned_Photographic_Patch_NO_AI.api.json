@@ -1,0 +1,137 @@
+{
+  "2": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "scene.png"
+    },
+    "_meta": {
+      "title": "A | ORIGINAL SCENE: paint clothing / newly exposed skin EDIT mask"
+    }
+  },
+  "3": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "scene.png"
+    },
+    "_meta": {
+      "title": "B | ORIGINAL PHOTO: paint exposed ABDOMEN / NAVEL to PROTECT"
+    }
+  },
+  "4": {
+    "class_type": "Q21TPrepareMasks",
+    "inputs": {
+      "mode": "first_pass_same_scene",
+      "inward_feather_px": 8,
+      "protection_padding_px": 0,
+      "base_image": [
+        "2",
+        0
+      ],
+      "edit_mask": [
+        "2",
+        1
+      ],
+      "original_image": [
+        "3",
+        0
+      ],
+      "protect_mask": [
+        "3",
+        1
+      ]
+    },
+    "_meta": {
+      "title": "Mask boundaries: inward feather only | protection wins"
+    }
+  },
+  "5": {
+    "class_type": "PreviewImage",
+    "inputs": {
+      "images": [
+        "4",
+        4
+      ]
+    },
+    "_meta": {
+      "title": "MASK CHECK ONLY | orange=edit | cyan=locked original"
+    }
+  },
+  "6": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "aligned_torso_candidate.png"
+    },
+    "_meta": {
+      "title": "C | ALREADY ALIGNED full-scene composite | identical canvas"
+    }
+  },
+  "7": {
+    "class_type": "Q21TFinalize",
+    "inputs": {
+      "base_locked": [
+        "4",
+        0
+      ],
+      "original_image": [
+        "3",
+        0
+      ],
+      "candidate": [
+        "6",
+        0
+      ],
+      "paste_alpha": [
+        "4",
+        2
+      ],
+      "hard_protection": [
+        "4",
+        3
+      ],
+      "mask_report": [
+        "4",
+        5
+      ]
+    },
+    "_meta": {
+      "title": "FINAL PIXEL LOCK + exact preservation audit"
+    }
+  },
+  "8": {
+    "class_type": "Q21TSaveVerified",
+    "inputs": {
+      "filename_prefix": "Qwen21_Torso/38_Aligned_Photographic_Patch_NO_AI/final",
+      "image": [
+        "7",
+        0
+      ],
+      "comparison": [
+        "7",
+        1
+      ],
+      "edit_matte": [
+        "7",
+        2
+      ],
+      "audit_json": [
+        "7",
+        3
+      ]
+    },
+    "_meta": {
+      "title": "SAVE THIS: verified final + matching audit / mask / comparison"
+    }
+  },
+  "9": {
+    "class_type": "PreviewImage",
+    "inputs": {
+      "images": [
+        "7",
+        1
+      ]
+    },
+    "_meta": {
+      "title": "BASE / VERIFIED FINAL | after stitch and protection"
+    }
+  }
+}

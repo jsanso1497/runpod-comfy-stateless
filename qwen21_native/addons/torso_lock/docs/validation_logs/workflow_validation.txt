@@ -1,0 +1,5 @@
+PASS 36_Sports_Bra_Torso_Landmark_Lock.json
+PASS 36A_Check_Masks_Only_NO_MODELS.json
+PASS 37_Torso_Skin_Seam_Repair_Locked.json
+PASS 38_Aligned_Photographic_Patch_NO_AI.json
+4 UI/API workflow pairs validated.

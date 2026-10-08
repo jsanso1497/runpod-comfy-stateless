@@ -1,0 +1,1498 @@
+{
+  "last_node_id": 23,
+  "last_link_id": 39,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "Note",
+      "title": "37_Torso_Skin_Seam_Repair_Locked | READ BEFORE FIRST QUEUE",
+      "pos": [
+        0,
+        -470
+      ],
+      "size": [
+        2350,
+        360
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "Note"
+      },
+      "widgets_values": [
+        "FOLLOW-UP ONLY: Image A is your accepted result, image B remains the original photograph. Paint only the new skin/seam error in A. The protected original pixels are restored before and after this refinement. Do not queue automatically; use only when needed.\n\nA: Load the scene and paint an EDIT mask over the old top, the new garment silhouette, and the skin to reveal. Include a small transition margin to remove old cloth/shadows. B: Load the SAME original photo and paint PROTECT over the already-visible abdomen including the belly button. Leave only a narrow transition at the old hem editable. White in B means KEEP, not edit. Do not paint the RGB layer. Protection wins wherever masks overlap.\n\nOrange preview = editable; cyan = original pixels locked. Qwen sees the unmarked context crop including the protected abdomen, not this colored preview or the masks. The final composite is capped inside A and restores B after stitching. No navel detection or 3D registration is performed. Check the final for duplicate/invented details."
+      ]
+    },
+    {
+      "id": 2,
+      "type": "LoadImage",
+      "title": "A | ACCEPTED CANDIDATE: paint only the skin/seam to repair",
+      "pos": [
+        0,
+        0
+      ],
+      "size": [
+        390,
+        390
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            1
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "links": [
+            2
+          ],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "torso_accepted.png",
+        "image"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "LoadImage",
+      "title": "B | ORIGINAL PHOTO: paint exposed ABDOMEN / NAVEL to PROTECT",
+      "pos": [
+        0,
+        500
+      ],
+      "size": [
+        390,
+        390
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            3,
+            28
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "links": [
+            4
+          ],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "scene.png",
+        "image"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "Q21TPrepareMasks",
+      "title": "Mask boundaries: inward feather only | protection wins",
+      "pos": [
+        1020,
+        0
+      ],
+      "size": [
+        380,
+        330
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "base_image",
+          "type": "IMAGE",
+          "link": 1
+        },
+        {
+          "name": "edit_mask",
+          "type": "MASK",
+          "link": 2
+        },
+        {
+          "name": "original_image",
+          "type": "IMAGE",
+          "link": 3
+        },
+        {
+          "name": "protect_mask",
+          "type": "MASK",
+          "link": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "base_with_original_lock",
+          "type": "IMAGE",
+          "links": [
+            6,
+            27
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "context_union_mask",
+          "type": "MASK",
+          "links": [
+            7
+          ],
+          "slot_index": 1
+        },
+        {
+          "name": "strict_paste_alpha",
+          "type": "MASK",
+          "links": [
+            30
+          ],
+          "slot_index": 2
+        },
+        {
+          "name": "hard_protection",
+          "type": "MASK",
+          "links": [
+            31
+          ],
+          "slot_index": 3
+        },
+        {
+          "name": "mask_preview",
+          "type": "IMAGE",
+          "links": [
+            5
+          ],
+          "slot_index": 4
+        },
+        {
+          "name": "mask_report",
+          "type": "STRING",
+          "links": [
+            32
+          ],
+          "slot_index": 5
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Q21TPrepareMasks"
+      },
+      "widgets_values": [
+        "refine_accepted_candidate",
+        8,
+        0
+      ]
+    },
+    {
+      "id": 5,
+      "type": "PreviewImage",
+      "title": "MASK CHECK ONLY | orange=edit | cyan=locked original",
+      "pos": [
+        1020,
+        450
+      ],
+      "size": [
+        380,
+        430
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 5
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 6,
+      "type": "LoadImage",
+      "title": "C | REQUIRED: closest-angle GENUINE torso photograph",
+      "pos": [
+        510,
+        0
+      ],
+      "size": [
+        390,
+        390
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            9
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "links": [],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "torso_primary.png",
+        "image"
+      ]
+    },
+    {
+      "id": 7,
+      "type": "Q21TOptionalImage",
+      "title": "D | OPTIONAL: second genuine torso angle",
+      "pos": [
+        510,
+        480
+      ],
+      "size": [
+        390,
+        390
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            10
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Q21TOptionalImage"
+      },
+      "widgets_values": [
+        "__none__",
+        "image"
+      ]
+    },
+    {
+      "id": 8,
+      "type": "Q21TOptionalImage",
+      "title": "E | OPTIONAL: third useful torso angle",
+      "pos": [
+        510,
+        960
+      ],
+      "size": [
+        390,
+        390
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            11
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Q21TOptionalImage"
+      },
+      "widgets_values": [
+        "__none__",
+        "image"
+      ]
+    },
+    {
+      "id": 9,
+      "type": "AUSBOSS_NODES_CropForInpaint",
+      "title": "CONTEXT = edit + protected abdomen | 2 MP | full scene stays native",
+      "pos": [
+        1460,
+        0
+      ],
+      "size": [
+        380,
+        640
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 6
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            8,
+            24
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "links": [],
+          "slot_index": 1
+        },
+        {
+          "name": "stitcher",
+          "type": "AUSBOSS_STITCHER",
+          "links": [
+            25
+          ],
+          "slot_index": 2
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "AUSBOSS_NODES_CropForInpaint"
+      },
+      "widgets_values": [
+        1.2,
+        0,
+        32,
+        0,
+        0,
+        0,
+        0.0,
+        false,
+        64,
+        2.0,
+        "bicubic",
+        0,
+        0,
+        0,
+        0,
+        true
+      ]
+    },
+    {
+      "id": 10,
+      "type": "Q21TTorsoReferences",
+      "title": "GARMENT / LOCAL INSTRUCTION | reference numbers assigned automatically",
+      "pos": [
+        1900,
+        0
+      ],
+      "size": [
+        530,
+        660
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "base_crop",
+          "type": "IMAGE",
+          "link": 8
+        },
+        {
+          "name": "primary_torso",
+          "type": "IMAGE",
+          "link": 9
+        },
+        {
+          "name": "secondary_torso",
+          "type": "IMAGE",
+          "link": 10
+        },
+        {
+          "name": "third_torso",
+          "type": "IMAGE",
+          "link": 11
+        },
+        {
+          "name": "garment",
+          "type": "IMAGE",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "ordered_images",
+          "type": "Q21T_REFERENCES",
+          "links": [
+            15
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "compiled_prompt",
+          "type": "STRING",
+          "links": [
+            16,
+            34
+          ],
+          "slot_index": 1
+        },
+        {
+          "name": "reference_roles",
+          "type": "STRING",
+          "links": [
+            33
+          ],
+          "slot_index": 2
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Q21TTorsoReferences"
+      },
+      "widgets_values": [
+        "repair_skin_seam",
+        "A plain black full-coverage athletic sports bra with natural fit, without added padding or push-up reshaping.",
+        "Correct only the visible seam or skin-tone mismatch; keep accepted anatomy and the sports bra unchanged.",
+        1.0
+      ]
+    },
+    {
+      "id": 11,
+      "type": "UNETLoader",
+      "title": "Qwen 2.1 BF16 | NO LoRA",
+      "pos": [
+        1900,
+        790
+      ],
+      "size": [
+        360,
+        141
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "links": [
+            12
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "UNETLoader"
+      },
+      "widgets_values": [
+        "qwen_image_2.1_bf16.safetensors",
+        "default"
+      ]
+    },
+    {
+      "id": 12,
+      "type": "CLIPLoader",
+      "title": "Qwen3-VL 8B BF16 | qwen_image",
+      "pos": [
+        1900,
+        990
+      ],
+      "size": [
+        360,
+        169
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "links": [
+            13
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPLoader"
+      },
+      "widgets_values": [
+        "qwen3vl_8b_bf16.safetensors",
+        "qwen_image",
+        "default"
+      ]
+    },
+    {
+      "id": 13,
+      "type": "VAELoader",
+      "title": "Qwen 2.1 VAE BF16",
+      "pos": [
+        1900,
+        1210
+      ],
+      "size": [
+        360,
+        120
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "vae",
+          "type": "VAE",
+          "links": [
+            14,
+            22
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAELoader"
+      },
+      "widgets_values": [
+        "qwen_image_2.1_vae_bf16.safetensors"
+      ]
+    },
+    {
+      "id": 14,
+      "type": "QwenImage21Cache",
+      "title": "Lossless KV cache",
+      "pos": [
+        2500,
+        790
+      ],
+      "size": [
+        360,
+        141
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 12
+        }
+      ],
+      "outputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "links": [
+            17
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "QwenImage21Cache"
+      },
+      "widgets_values": [
+        "auto",
+        "default"
+      ]
+    },
+    {
+      "id": 15,
+      "type": "Q21TNativeEncode",
+      "title": "Native edit: resolution=0 | matching empty latent",
+      "pos": [
+        2500,
+        0
+      ],
+      "size": [
+        365,
+        240
+      ],
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 13
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 14
+        },
+        {
+          "name": "ordered_images",
+          "type": "Q21T_REFERENCES",
+          "link": 15
+        },
+        {
+          "name": "prompt",
+          "type": "STRING",
+          "link": 16
+        }
+      ],
+      "outputs": [
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "links": [
+            18
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "negative",
+          "type": "CONDITIONING",
+          "links": [
+            19
+          ],
+          "slot_index": 1
+        },
+        {
+          "name": "matching_empty_latent",
+          "type": "LATENT",
+          "links": [
+            20
+          ],
+          "slot_index": 2
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Q21TNativeEncode"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 16,
+      "type": "KSampler",
+      "title": "40 steps | Euler/simple | CFG 1 | fixed seed",
+      "pos": [
+        2910,
+        0
+      ],
+      "size": [
+        360,
+        340
+      ],
+      "flags": {},
+      "order": 15,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 17
+        },
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 18
+        },
+        {
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 19
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 20
+        }
+      ],
+      "outputs": [
+        {
+          "name": "latent",
+          "type": "LATENT",
+          "links": [
+            21
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "KSampler"
+      },
+      "widgets_values": [
+        18071042,
+        "fixed",
+        40,
+        1.0,
+        "euler",
+        "simple",
+        1.0
+      ]
+    },
+    {
+      "id": 17,
+      "type": "VAEDecode",
+      "title": "Decode native crop",
+      "pos": [
+        2910,
+        440
+      ],
+      "size": [
+        360,
+        141
+      ],
+      "flags": {},
+      "order": 16,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 21
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 22
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            23
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAEDecode"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 18,
+      "type": "Q21TOpaqueCrop",
+      "title": "Flatten alpha over SOURCE CROP",
+      "pos": [
+        2910,
+        650
+      ],
+      "size": [
+        360,
+        141
+      ],
+      "flags": {},
+      "order": 17,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "generated",
+          "type": "IMAGE",
+          "link": 23
+        },
+        {
+          "name": "source_crop",
+          "type": "IMAGE",
+          "link": 24
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            26
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Q21TOpaqueCrop"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 19,
+      "type": "AUSBOSS_NODES_StitchInpaint",
+      "title": "Reproject crop only | no tone matching or outward feather",
+      "pos": [
+        3310,
+        0
+      ],
+      "size": [
+        340,
+        230
+      ],
+      "flags": {},
+      "order": 18,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "stitcher",
+          "type": "AUSBOSS_STITCHER",
+          "link": 25
+        },
+        {
+          "name": "inpainted",
+          "type": "IMAGE",
+          "link": 26
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            29
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "blend_mask",
+          "type": "MASK",
+          "links": [],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "AUSBOSS_NODES_StitchInpaint"
+      },
+      "widgets_values": [
+        false,
+        0.0,
+        "classic"
+      ]
+    },
+    {
+      "id": 20,
+      "type": "Q21TFinalize",
+      "title": "FINAL PIXEL LOCK + exact preservation audit",
+      "pos": [
+        3680,
+        0
+      ],
+      "size": [
+        380,
+        340
+      ],
+      "flags": {},
+      "order": 19,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "base_locked",
+          "type": "IMAGE",
+          "link": 27
+        },
+        {
+          "name": "original_image",
+          "type": "IMAGE",
+          "link": 28
+        },
+        {
+          "name": "candidate",
+          "type": "IMAGE",
+          "link": 29
+        },
+        {
+          "name": "paste_alpha",
+          "type": "MASK",
+          "link": 30
+        },
+        {
+          "name": "hard_protection",
+          "type": "MASK",
+          "link": 31
+        },
+        {
+          "name": "mask_report",
+          "type": "STRING",
+          "link": 32
+        },
+        {
+          "name": "reference_roles",
+          "type": "STRING",
+          "link": 33
+        },
+        {
+          "name": "compiled_prompt",
+          "type": "STRING",
+          "link": 34
+        }
+      ],
+      "outputs": [
+        {
+          "name": "VERIFIED_FINAL",
+          "type": "IMAGE",
+          "links": [
+            35
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "final_comparison",
+          "type": "IMAGE",
+          "links": [
+            36,
+            39
+          ],
+          "slot_index": 1
+        },
+        {
+          "name": "actual_edit_matte",
+          "type": "IMAGE",
+          "links": [
+            37
+          ],
+          "slot_index": 2
+        },
+        {
+          "name": "audit_json",
+          "type": "STRING",
+          "links": [
+            38
+          ],
+          "slot_index": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Q21TFinalize"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 21,
+      "type": "Q21TSaveVerified",
+      "title": "SAVE THIS: verified final + matching audit / mask / comparison",
+      "pos": [
+        4160,
+        0
+      ],
+      "size": [
+        410,
+        360
+      ],
+      "flags": {},
+      "order": 20,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 35
+        },
+        {
+          "name": "edit_matte",
+          "type": "IMAGE",
+          "link": 37
+        },
+        {
+          "name": "comparison",
+          "type": "IMAGE",
+          "link": 36
+        },
+        {
+          "name": "audit_json",
+          "type": "STRING",
+          "link": 38
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "Q21TSaveVerified"
+      },
+      "widgets_values": [
+        "Qwen21_Torso/37_Torso_Skin_Seam_Repair_Locked/final"
+      ]
+    },
+    {
+      "id": 22,
+      "type": "PreviewImage",
+      "title": "BASE / VERIFIED FINAL | after stitch and protection",
+      "pos": [
+        3680,
+        440
+      ],
+      "size": [
+        850,
+        520
+      ],
+      "flags": {},
+      "order": 21,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 39
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 23,
+      "type": "Note",
+      "title": "QUALITY / MASK NOTES",
+      "pos": [
+        1460,
+        770
+      ],
+      "size": [
+        380,
+        550
+      ],
+      "flags": {},
+      "order": 22,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "Note"
+      },
+      "widgets_values": [
+        "The union mask on Crop For Inpaint sets CONTEXT only. Keep its blend/grow/blur at 0. Final paste uses the separate strict alpha from Prepare Masks.\n\nDenoise 1.0 is intentional: the native encoder provides an empty matching latent. Lowering it is not a preservation slider.\n\nStart with 2 MP. Try 4 MP only as a comparison; never resize the whole scene or globally upscale the final when pixel preservation matters.\n\nLeave optional refs at __none__. If a garment photo is supplied it controls the outfit; otherwise edit garment_description. The actual compiled prompt and reference roles are saved in the audit JSON."
+      ]
+    }
+  ],
+  "links": [
+    [
+      1,
+      2,
+      0,
+      4,
+      0,
+      "IMAGE"
+    ],
+    [
+      2,
+      2,
+      1,
+      4,
+      1,
+      "MASK"
+    ],
+    [
+      3,
+      3,
+      0,
+      4,
+      2,
+      "IMAGE"
+    ],
+    [
+      4,
+      3,
+      1,
+      4,
+      3,
+      "MASK"
+    ],
+    [
+      5,
+      4,
+      4,
+      5,
+      0,
+      "IMAGE"
+    ],
+    [
+      6,
+      4,
+      0,
+      9,
+      0,
+      "IMAGE"
+    ],
+    [
+      7,
+      4,
+      1,
+      9,
+      1,
+      "MASK"
+    ],
+    [
+      8,
+      9,
+      0,
+      10,
+      0,
+      "IMAGE"
+    ],
+    [
+      9,
+      6,
+      0,
+      10,
+      1,
+      "IMAGE"
+    ],
+    [
+      10,
+      7,
+      0,
+      10,
+      2,
+      "IMAGE"
+    ],
+    [
+      11,
+      8,
+      0,
+      10,
+      3,
+      "IMAGE"
+    ],
+    [
+      12,
+      11,
+      0,
+      14,
+      0,
+      "MODEL"
+    ],
+    [
+      13,
+      12,
+      0,
+      15,
+      0,
+      "CLIP"
+    ],
+    [
+      14,
+      13,
+      0,
+      15,
+      1,
+      "VAE"
+    ],
+    [
+      15,
+      10,
+      0,
+      15,
+      2,
+      "Q21T_REFERENCES"
+    ],
+    [
+      16,
+      10,
+      1,
+      15,
+      3,
+      "STRING"
+    ],
+    [
+      17,
+      14,
+      0,
+      16,
+      0,
+      "MODEL"
+    ],
+    [
+      18,
+      15,
+      0,
+      16,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      19,
+      15,
+      1,
+      16,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      20,
+      15,
+      2,
+      16,
+      3,
+      "LATENT"
+    ],
+    [
+      21,
+      16,
+      0,
+      17,
+      0,
+      "LATENT"
+    ],
+    [
+      22,
+      13,
+      0,
+      17,
+      1,
+      "VAE"
+    ],
+    [
+      23,
+      17,
+      0,
+      18,
+      0,
+      "IMAGE"
+    ],
+    [
+      24,
+      9,
+      0,
+      18,
+      1,
+      "IMAGE"
+    ],
+    [
+      25,
+      9,
+      2,
+      19,
+      0,
+      "AUSBOSS_STITCHER"
+    ],
+    [
+      26,
+      18,
+      0,
+      19,
+      1,
+      "IMAGE"
+    ],
+    [
+      27,
+      4,
+      0,
+      20,
+      0,
+      "IMAGE"
+    ],
+    [
+      28,
+      3,
+      0,
+      20,
+      1,
+      "IMAGE"
+    ],
+    [
+      29,
+      19,
+      0,
+      20,
+      2,
+      "IMAGE"
+    ],
+    [
+      30,
+      4,
+      2,
+      20,
+      3,
+      "MASK"
+    ],
+    [
+      31,
+      4,
+      3,
+      20,
+      4,
+      "MASK"
+    ],
+    [
+      32,
+      4,
+      5,
+      20,
+      5,
+      "STRING"
+    ],
+    [
+      33,
+      10,
+      2,
+      20,
+      6,
+      "STRING"
+    ],
+    [
+      34,
+      10,
+      1,
+      20,
+      7,
+      "STRING"
+    ],
+    [
+      35,
+      20,
+      0,
+      21,
+      0,
+      "IMAGE"
+    ],
+    [
+      36,
+      20,
+      1,
+      21,
+      2,
+      "IMAGE"
+    ],
+    [
+      37,
+      20,
+      2,
+      21,
+      1,
+      "IMAGE"
+    ],
+    [
+      38,
+      20,
+      3,
+      21,
+      3,
+      "STRING"
+    ],
+    [
+      39,
+      20,
+      1,
+      22,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "groups": [
+    {
+      "id": 1,
+      "title": "A + B: MATCHED SCENES / MASKS",
+      "bounding": [
+        -25,
+        -60,
+        455,
+        1030
+      ],
+      "color": "#365b75",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "id": 2,
+      "title": "MASKS AND HARD BOUNDARIES",
+      "bounding": [
+        990,
+        -60,
+        430,
+        990
+      ],
+      "color": "#365b75",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "id": 3,
+      "title": "FINAL, NEVER THE RAW GENERATED CROP",
+      "bounding": [
+        3650,
+        -60,
+        960,
+        1080
+      ],
+      "color": "#365b75",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "id": 4,
+      "title": "C TO F: GENUINE REFERENCES",
+      "bounding": [
+        480,
+        -60,
+        440,
+        1470
+      ],
+      "color": "#365b75",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "id": 5,
+      "title": "PREPARED NATIVE QWEN EDIT",
+      "bounding": [
+        1870,
+        -60,
+        580,
+        1440
+      ],
+      "color": "#365b75",
+      "font_size": 24,
+      "flags": {}
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.45,
+      "offset": [
+        30,
+        430
+      ]
+    },
+    "qwen21_torso_lock": {
+      "version": "1.0.0",
+      "title": "37_Torso_Skin_Seam_Repair_Locked"
+    }
+  },
+  "version": 0.4
+}

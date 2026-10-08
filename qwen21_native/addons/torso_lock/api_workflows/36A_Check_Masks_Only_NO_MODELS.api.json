@@ -1,0 +1,72 @@
+{
+  "2": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "scene.png"
+    },
+    "_meta": {
+      "title": "A | ORIGINAL SCENE: paint clothing / newly exposed skin EDIT mask"
+    }
+  },
+  "3": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "scene.png"
+    },
+    "_meta": {
+      "title": "B | ORIGINAL PHOTO: paint exposed ABDOMEN / NAVEL to PROTECT"
+    }
+  },
+  "4": {
+    "class_type": "Q21TPrepareMasks",
+    "inputs": {
+      "mode": "first_pass_same_scene",
+      "inward_feather_px": 8,
+      "protection_padding_px": 0,
+      "base_image": [
+        "2",
+        0
+      ],
+      "edit_mask": [
+        "2",
+        1
+      ],
+      "original_image": [
+        "3",
+        0
+      ],
+      "protect_mask": [
+        "3",
+        1
+      ]
+    },
+    "_meta": {
+      "title": "Mask boundaries: inward feather only | protection wins"
+    }
+  },
+  "5": {
+    "class_type": "PreviewImage",
+    "inputs": {
+      "images": [
+        "4",
+        4
+      ]
+    },
+    "_meta": {
+      "title": "MASK CHECK ONLY | orange=edit | cyan=locked original"
+    }
+  },
+  "6": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "filename_prefix": "Qwen21_Torso/mask_check/preview",
+      "images": [
+        "4",
+        4
+      ]
+    },
+    "_meta": {
+      "title": "Save mask layout preview ONLY"
+    }
+  }
+}

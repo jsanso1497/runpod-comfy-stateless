@@ -1,0 +1,352 @@
+{
+  "last_node_id": 6,
+  "last_link_id": 6,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "Note",
+      "title": "CHECK BEFORE SPENDING GPU TIME",
+      "pos": [
+        0,
+        -400
+      ],
+      "size": [
+        1800,
+        290
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "Note"
+      },
+      "widgets_values": [
+        "A: Load the scene and paint an EDIT mask over the old top, the new garment silhouette, and the skin to reveal. Include a small transition margin to remove old cloth/shadows. B: Load the SAME original photo and paint PROTECT over the already-visible abdomen including the belly button. Leave only a narrow transition at the old hem editable. White in B means KEEP, not edit. Do not paint the RGB layer. Protection wins wherever masks overlap.\n\nOrange preview = editable; cyan = original pixels locked. Qwen sees the unmarked context crop including the protected abdomen, not this colored preview or the masks. The final composite is capped inside A and restores B after stitching. No navel detection or 3D registration is performed. Check the final for duplicate/invented details.\n\nThis workflow does not load or sample a model. Copy the two painted Load Image nodes into workflow 36, or select their saved masked PNGs there."
+      ]
+    },
+    {
+      "id": 2,
+      "type": "LoadImage",
+      "title": "A | ORIGINAL SCENE: paint clothing / newly exposed skin EDIT mask",
+      "pos": [
+        0,
+        0
+      ],
+      "size": [
+        390,
+        390
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            1
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "links": [
+            2
+          ],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "scene.png",
+        "image"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "LoadImage",
+      "title": "B | ORIGINAL PHOTO: paint exposed ABDOMEN / NAVEL to PROTECT",
+      "pos": [
+        0,
+        500
+      ],
+      "size": [
+        390,
+        390
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            3
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "links": [
+            4
+          ],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "scene.png",
+        "image"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "Q21TPrepareMasks",
+      "title": "Mask boundaries: inward feather only | protection wins",
+      "pos": [
+        1020,
+        0
+      ],
+      "size": [
+        380,
+        330
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "base_image",
+          "type": "IMAGE",
+          "link": 1
+        },
+        {
+          "name": "edit_mask",
+          "type": "MASK",
+          "link": 2
+        },
+        {
+          "name": "original_image",
+          "type": "IMAGE",
+          "link": 3
+        },
+        {
+          "name": "protect_mask",
+          "type": "MASK",
+          "link": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "base_with_original_lock",
+          "type": "IMAGE",
+          "links": [],
+          "slot_index": 0
+        },
+        {
+          "name": "context_union_mask",
+          "type": "MASK",
+          "links": [],
+          "slot_index": 1
+        },
+        {
+          "name": "strict_paste_alpha",
+          "type": "MASK",
+          "links": [],
+          "slot_index": 2
+        },
+        {
+          "name": "hard_protection",
+          "type": "MASK",
+          "links": [],
+          "slot_index": 3
+        },
+        {
+          "name": "mask_preview",
+          "type": "IMAGE",
+          "links": [
+            5,
+            6
+          ],
+          "slot_index": 4
+        },
+        {
+          "name": "mask_report",
+          "type": "STRING",
+          "links": [],
+          "slot_index": 5
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Q21TPrepareMasks"
+      },
+      "widgets_values": [
+        "first_pass_same_scene",
+        8,
+        0
+      ]
+    },
+    {
+      "id": 5,
+      "type": "PreviewImage",
+      "title": "MASK CHECK ONLY | orange=edit | cyan=locked original",
+      "pos": [
+        1020,
+        450
+      ],
+      "size": [
+        380,
+        430
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 5
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 6,
+      "type": "SaveImage",
+      "title": "Save mask layout preview ONLY",
+      "pos": [
+        1490,
+        0
+      ],
+      "size": [
+        360,
+        120
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 6
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "SaveImage"
+      },
+      "widgets_values": [
+        "Qwen21_Torso/mask_check/preview"
+      ]
+    }
+  ],
+  "links": [
+    [
+      1,
+      2,
+      0,
+      4,
+      0,
+      "IMAGE"
+    ],
+    [
+      2,
+      2,
+      1,
+      4,
+      1,
+      "MASK"
+    ],
+    [
+      3,
+      3,
+      0,
+      4,
+      2,
+      "IMAGE"
+    ],
+    [
+      4,
+      3,
+      1,
+      4,
+      3,
+      "MASK"
+    ],
+    [
+      5,
+      4,
+      4,
+      5,
+      0,
+      "IMAGE"
+    ],
+    [
+      6,
+      4,
+      4,
+      6,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "groups": [
+    {
+      "id": 1,
+      "title": "A + B: MATCHED SCENES / MASKS",
+      "bounding": [
+        -25,
+        -60,
+        455,
+        1030
+      ],
+      "color": "#365b75",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "id": 2,
+      "title": "MASKS AND HARD BOUNDARIES",
+      "bounding": [
+        990,
+        -60,
+        430,
+        990
+      ],
+      "color": "#365b75",
+      "font_size": 24,
+      "flags": {}
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.45,
+      "offset": [
+        30,
+        430
+      ]
+    },
+    "qwen21_torso_lock": {
+      "version": "1.0.0",
+      "title": "36A_Check_Masks_Only_NO_MODELS"
+    }
+  },
+  "version": 0.4
+}
