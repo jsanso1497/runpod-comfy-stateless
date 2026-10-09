@@ -28,3 +28,10 @@ class EverydayOptionalLoRA:
         patched, _ = comfy.sd.load_lora_for_models(model, None, state, strength_model, 0.0)
         return (patched,)
 NODE_CLASS_MAPPINGS={"EverydayOptionalLoRA":EverydayOptionalLoRA}
+
+# Additive registration: preserve the pre-existing optional LoRA node unchanged.
+from .green_suit import NODE_CLASS_MAPPINGS as _GREEN_SUIT_CLASSES
+from .green_suit import NODE_DISPLAY_NAME_MAPPINGS as _GREEN_SUIT_NAMES
+NODE_CLASS_MAPPINGS.update(_GREEN_SUIT_CLASSES)
+NODE_DISPLAY_NAME_MAPPINGS = dict(_GREEN_SUIT_NAMES)
+WEB_DIRECTORY = './web'

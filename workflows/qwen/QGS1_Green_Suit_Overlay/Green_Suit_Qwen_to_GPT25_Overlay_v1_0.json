@@ -1,0 +1,732 @@
+{
+  "last_node_id": 13,
+  "last_link_id": 13,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "LoadImage",
+      "pos": [
+        20,
+        90
+      ],
+      "size": [
+        360,
+        570
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            1
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": [
+            2
+          ],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "",
+        "image"
+      ],
+      "title": "SOURCE / IMAGE 1: original identity + wardrobe + background"
+    },
+    {
+      "id": 2,
+      "type": "WBGSBodyMask",
+      "pos": [
+        440,
+        90
+      ],
+      "size": [
+        370,
+        390
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "source",
+          "type": "IMAGE",
+          "link": 1
+        },
+        {
+          "name": "manual_protection",
+          "type": "MASK",
+          "link": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "source_and_masks",
+          "type": "WB_GS_MASK",
+          "links": [
+            3,
+            11
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "edit_mask",
+          "type": "MASK",
+          "links": [],
+          "slot_index": 1
+        },
+        {
+          "name": "mask_preview",
+          "type": "IMAGE",
+          "links": [],
+          "slot_index": 2
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "WBGSBodyMask"
+      },
+      "widgets_values": [
+        "person",
+        "hair",
+        0.35,
+        -1,
+        true,
+        3,
+        8,
+        6
+      ],
+      "title": "01 | SAM whole person minus hair"
+    },
+    {
+      "id": 3,
+      "type": "WBGSQwenSuit",
+      "pos": [
+        870,
+        90
+      ],
+      "size": [
+        480,
+        820
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "source_and_masks",
+          "type": "WB_GS_MASK",
+          "link": 3
+        },
+        {
+          "name": "prompt_enhancer",
+          "type": "WB_QWEN_PROMPT",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "qwen_result",
+          "type": "WB_GS_QWEN",
+          "links": [
+            4
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "green_suit_original_size",
+          "type": "IMAGE",
+          "links": [],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "WBGSQwenSuit"
+      },
+      "widgets_values": [
+        "Edit <image1> to create a precise green-suit geometry reference of the same person.\nReplace all visible clothing and visible skin of the selected person, including the face, neck, hands and feet wherever present in this crop, with one continuous opaque chroma-green lycra bodysuit. The face is covered by fitted green fabric following its existing surface contours. Leave all hair completely uncovered and unchanged, including the hairline and loose strands.\nUse smooth fitted matte stretch fabric with subtle realistic folds and shading, no logos, no patterns, no transparency and no loose garment volume. Follow the person's existing anatomy and visible contours; do not idealize, enlarge, slim, lengthen or invent hidden anatomy.\nKeep exactly the same body pose, head angle, body rotation, perspective, body proportions, subject position, camera distance, framing and canvas boundaries. Do not crop, zoom, recenter, mirror, outpaint or reveal any part outside the existing image. Preserve occlusions and the background. Replace vacated clothing volume with the consistent surrounding background, not additional body parts. Change only the selected person; hair and everything outside the editable mask are protected by compositing.",
+        12345,
+        40,
+        128,
+        2
+      ],
+      "title": "02 | Qwen Image 2.1 BF16: green lycra"
+    },
+    {
+      "id": 4,
+      "type": "WBGS4KReference",
+      "pos": [
+        1410,
+        90
+      ],
+      "size": [
+        410,
+        250
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "qwen_result",
+          "type": "WB_GS_QWEN",
+          "link": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "reference_package",
+          "type": "WB_GS_REFERENCE",
+          "links": [
+            5,
+            8,
+            12
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "green_reference_4k",
+          "type": "IMAGE",
+          "links": [],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "WBGS4KReference"
+      },
+      "widgets_values": [
+        "SeedVR2 7B FP16",
+        42
+      ],
+      "title": "03 | 4K geometry reference: 2720 x 4080"
+    },
+    {
+      "id": 5,
+      "type": "WBGSPartnerInputs",
+      "pos": [
+        1870,
+        90
+      ],
+      "size": [
+        370,
+        170
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "reference_package",
+          "type": "WB_GS_REFERENCE",
+          "link": 5
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image_1_original",
+          "type": "IMAGE",
+          "links": [
+            6
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "image_2_green_geometry",
+          "type": "IMAGE",
+          "links": [
+            7
+          ],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "WBGSPartnerInputs"
+      },
+      "widgets_values": [],
+      "title": "04a | Two ordered images for Comfy Partner"
+    },
+    {
+      "id": 12,
+      "type": "OpenAIGPTImageNodeV2",
+      "pos": [
+        2300,
+        90
+      ],
+      "size": [
+        540,
+        850
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image_1",
+          "type": "IMAGE",
+          "link": 6
+        },
+        {
+          "name": "image_2",
+          "type": "IMAGE",
+          "link": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            9
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "OpenAIGPTImageNodeV2"
+      },
+      "widgets_values": [
+        "Create one realistic edited photograph from the two attached images. Their roles are deliberately different.\n\nIMAGE 1 is the exclusive appearance reference: use the same person's facial identity, individual facial features, skin tone, age, expression, gaze, hair, hairstyle, hairline, original clothing, clothing colors, fabric textures, accessories, background and lighting from IMAGE 1. Do not invent a new person or blend identities.\n\nIMAGE 2 is only the geometric template. Its green fabric is a temporary geometry aid, not wardrobe to reproduce. Transfer the visible body shape, silhouette, body proportions, relative sizes, pose, head and body turn angles, perspective, limb placement, occlusions, subject scale, framing, crop and exact location from IMAGE 2. Reconstruct the appearance from IMAGE 1 on this geometry.\n\nRegister the output to the full canvas of IMAGE 2. Keep all corresponding body contour points and anatomical landmarks at the same normalized pixel coordinates. Match the head top, hair outline, shoulders, elbows, wrists, hips, knees and feet only where they are actually visible. The silhouette should overlay IMAGE 2 without translation, scaling, rotation or perspective adjustment. Preserve the exact intersections with every canvas edge. Show no more and no less of the person than IMAGE 2 shows. Do not zoom out, zoom in, center the subject, mirror, crop, expand the scene, or complete off-frame body parts.\n\nRestore the original wardrobe from IMAGE 1, fitted to the geometric envelope in IMAGE 2. Do not retain the green suit, its artificial facial covering, green reflections, or green color spill. Do not take identity, clothing design, colors or background from IMAGE 2. When loose original clothing conflicts with the target silhouette, keep its design and texture but fit its visible outline to IMAGE 2; do not copy the original loose silhouette.\n\nKeep the original background and original hair from IMAGE 1 at their existing coordinates. Preserve the facial expression and gaze from IMAGE 1 while matching the visible head angle in IMAGE 2. Output a single finished 2:3 portrait photograph, not a comparison, collage, diagram, overlay or mask. Treat exact geometric registration as a requirement, not an approximate pose suggestion.",
+        "gpt-image-2.5-sunburst",
+        1,
+        0,
+        "Custom",
+        2336,
+        3504,
+        "opaque",
+        "max"
+      ],
+      "title": "04b | Comfy Partner GPT 2.5 Sunburst (login required)"
+    },
+    {
+      "id": 13,
+      "type": "WBGSPartnerResult",
+      "pos": [
+        2890,
+        90
+      ],
+      "size": [
+        380,
+        170
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "reference_package",
+          "type": "WB_GS_REFERENCE",
+          "link": 8
+        },
+        {
+          "name": "gpt_image",
+          "type": "IMAGE",
+          "link": 9
+        }
+      ],
+      "outputs": [
+        {
+          "name": "gpt_result",
+          "type": "WB_GS_API",
+          "links": [
+            10
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "raw_gpt_native",
+          "type": "IMAGE",
+          "links": [],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "WBGSPartnerResult"
+      },
+      "widgets_values": [],
+      "title": "04c | Capture partner output"
+    },
+    {
+      "id": 6,
+      "type": "WBGSFinalize",
+      "pos": [
+        3320,
+        90
+      ],
+      "size": [
+        420,
+        240
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "gpt_result",
+          "type": "WB_GS_API",
+          "link": 10
+        }
+      ],
+      "outputs": [
+        {
+          "name": "final_package",
+          "type": "WB_GS_FINAL",
+          "links": [
+            13
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "locked_native",
+          "type": "IMAGE",
+          "links": [],
+          "slot_index": 1
+        },
+        {
+          "name": "locked_4k",
+          "type": "IMAGE",
+          "links": [],
+          "slot_index": 2
+        },
+        {
+          "name": "diagnostics",
+          "type": "STRING",
+          "links": [],
+          "slot_index": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "WBGSFinalize"
+      },
+      "widgets_values": [
+        2,
+        true
+      ],
+      "title": "05 | Exact protected pixels + silhouette diagnostics"
+    },
+    {
+      "id": 7,
+      "type": "WBGSReviewCompare",
+      "pos": [
+        3780,
+        90
+      ],
+      "size": [
+        570,
+        1160
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "source_and_masks",
+          "type": "WB_GS_MASK",
+          "link": 11
+        },
+        {
+          "name": "reference_package",
+          "type": "WB_GS_REFERENCE",
+          "link": 12
+        },
+        {
+          "name": "final_package",
+          "type": "WB_GS_FINAL",
+          "link": 13
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "WBGSReviewCompare"
+      },
+      "widgets_values": [
+        "1 - Inspect SAM mask only",
+        "GreenSuit/Progression"
+      ],
+      "title": "START / FINISH HERE | Run stage and compare progression"
+    },
+    {
+      "id": 8,
+      "type": "Note",
+      "pos": [
+        20,
+        -260
+      ],
+      "size": [
+        790,
+        250
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "Note"
+      },
+      "widgets_values": [
+        "Upload one 2:3 source image at left. The same original is GPT IMAGE 1; its generated green-suit version becomes IMAGE 2.\n\nAt the final compare node: 1 = SAM mask only. 2 = Qwen + 4K reference. 3 = full GPT edit. Mode 3 consumes Comfy Credits when the native Partner node runs. Leave both seeds fixed while reviewing.\n\nA painted mask on Load Image ADDS PROTECTION. It is not an edit mask. Check hair and the person selection before continuing. Face/skin are included in the green-suit stage."
+      ],
+      "title": "READ FIRST | staged runs prevent accidental API charges"
+    },
+    {
+      "id": 9,
+      "type": "Note",
+      "pos": [
+        870,
+        -260
+      ],
+      "size": [
+        950,
+        250
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "Note"
+      },
+      "widgets_values": [
+        "Qwen preserves the original canvas and changes the person to fitted opaque green lycra. Native source dimensions are preserved after stitching. The 4K reference is 2720 x 4080, an exact 2:3 canvas. Original hair and outside-mask pixels are restored after the upscale.\n\nBoth model prompts are editable. The Qwen prompt-enhancer socket is optional and disconnected to retain precise role instructions. No reduced-precision variants or new local checkpoints are introduced."
+      ],
+      "title": "REFERENCE RULES | no zoom, no reframing, no extra body parts"
+    },
+    {
+      "id": 10,
+      "type": "Note",
+      "pos": [
+        1880,
+        -260
+      ],
+      "size": [
+        1040,
+        250
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "Note"
+      },
+      "widgets_values": [
+        "GPT: gpt-image-2.5-sunburst, quality=max, native 2336 x 3504. This is the largest exact 2:3 size under the documented API limits; high-resolution output is experimental. Comfy Partner authentication uses your logged-in Comfy account and Comfy Credits; no OpenAI API key is required.\n\nPrompting cannot guarantee pixel-perfect internal pose or identity. Raw GPT, matte-constrained native, and matte-constrained 4K outputs are saved separately. Matte clipping does not fill missing limbs or fix internal pose. Loose original clothes are refitted to the target silhouette. Review the A/B overlay and the diagnostic report."
+      ],
+      "title": "API + OVERLAY LIMITS | read before approving an output"
+    },
+    {
+      "id": 11,
+      "type": "Note",
+      "pos": [
+        2980,
+        -260
+      ],
+      "size": [
+        570,
+        250
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "Note"
+      },
+      "widgets_values": [
+        "Choose any two saved stages in the final node. Use wipe or 50% overlay. Turn on full-resolution sources for closer inspection, or open either image at full size.\n\nTo deliberately request another paid GPT image, increment new_variation. Identical image bytes and API settings reuse the local disk cache. Transport failures can still be billed; there are no automatic retries.\n\nDo not add other connected OUTPUT nodes upstream unless you intend to bypass the staged-run gate."
+      ],
+      "title": "COMPARE | images, not new generations"
+    }
+  ],
+  "links": [
+    [
+      1,
+      1,
+      0,
+      2,
+      0,
+      "IMAGE"
+    ],
+    [
+      2,
+      1,
+      1,
+      2,
+      1,
+      "MASK"
+    ],
+    [
+      3,
+      2,
+      0,
+      3,
+      0,
+      "WB_GS_MASK"
+    ],
+    [
+      4,
+      3,
+      0,
+      4,
+      0,
+      "WB_GS_QWEN"
+    ],
+    [
+      5,
+      4,
+      0,
+      5,
+      0,
+      "WB_GS_REFERENCE"
+    ],
+    [
+      6,
+      5,
+      0,
+      12,
+      0,
+      "IMAGE"
+    ],
+    [
+      7,
+      5,
+      1,
+      12,
+      1,
+      "IMAGE"
+    ],
+    [
+      8,
+      4,
+      0,
+      13,
+      0,
+      "WB_GS_REFERENCE"
+    ],
+    [
+      9,
+      12,
+      0,
+      13,
+      1,
+      "IMAGE"
+    ],
+    [
+      10,
+      13,
+      0,
+      6,
+      0,
+      "WB_GS_API"
+    ],
+    [
+      11,
+      2,
+      0,
+      7,
+      0,
+      "WB_GS_MASK"
+    ],
+    [
+      12,
+      4,
+      0,
+      7,
+      1,
+      "WB_GS_REFERENCE"
+    ],
+    [
+      13,
+      6,
+      0,
+      7,
+      2,
+      "WB_GS_FINAL"
+    ]
+  ],
+  "groups": [
+    {
+      "id": 1,
+      "title": "SOURCE + MASK",
+      "bounding": [
+        -5,
+        25,
+        845,
+        900
+      ],
+      "color": "#365b75",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "id": 2,
+      "title": "LOCAL QWEN + 4K REFERENCE",
+      "bounding": [
+        850,
+        25,
+        995,
+        970
+      ],
+      "color": "#37634a",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "id": 3,
+      "title": "GPT EDIT + REGISTRATION CHECK",
+      "bounding": [
+        1860,
+        25,
+        1085,
+        1080
+      ],
+      "color": "#65527b",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "id": 4,
+      "title": "RUN CONTROL + PROGRESSION",
+      "bounding": [
+        2960,
+        25,
+        620,
+        1260
+      ],
+      "color": "#806438",
+      "font_size": 24,
+      "flags": {}
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.42,
+      "offset": [
+        110,
+        360
+      ]
+    },
+    "workbench": {
+      "task_id": "QGS1",
+      "version": "1.0.0",
+      "quality": "hq",
+      "source_commit": "6b9a111740e08badc95970827e14e20efbfe3eca",
+      "validation": "CPU/static tests only; GPU, API and frontend integration untested"
+    }
+  },
+  "version": 0.4
+}

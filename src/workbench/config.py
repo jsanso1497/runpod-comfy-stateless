@@ -11,7 +11,24 @@ FEATURES = ('sam', 'seedvr2', 'ollama')
 SECRET_KEYS = ('HF_TOKEN', 'CIVITAI_TOKEN', 'hf_token', 'civit_token', 'WB_LORA_URLS', 'WB_CHECKPOINTS', 'WB_PASSWORD')
 
 def read_catalog(name: str):
-    return json.loads((ROOT / 'catalog' / name).read_text(encoding='utf-8'))
+    value = json.loads((ROOT / 'catalog' / name).read_text(encoding='utf-8'))
+    # One explicit additive catalog, so the main catalog and private libraries
+    # stay untouched. The runtime sidebar and factory copier both use this path.
+    addon = ROOT / 'catalog' / 'tasks.green-suit.json'
+    if name == 'tasks.json' and addon.is_file():
+        ids = {task['id'] for task in value['tasks']}
+        for task in json.loads(addon.read_text(encoding='utf-8'))['tasks']:
+            if task['id'] in ids:
+                raise ValueError('Duplicate add-on task ID: ' + task['id'])
+            if task['id'] != 'QGS1' or task['workspaces'] != ['qwen']:
+                raise ValueError('Unexpected green-suit add-on task or workspace.')
+            if set(task['requires']) - {'qwen', 'sam', 'seedvr2'}:
+                raise ValueError('Unsupported green-suit task dependency.')
+            for variant in task['variants']:
+                safe_path(ROOT, variant['file'])
+            value['tasks'].append(task)
+            ids.add(task['id'])
+    return value
 
 def csv(value: str) -> list[str]:
     return list(dict.fromkeys(x.strip() for x in value.split(',') if x.strip()))

@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "tasks": [
+    {
+      "id": "QGS1",
+      "title": "Green suit template -> GPT identity overlay",
+      "description": "SAM person minus hair, Qwen BF16 green suit, SeedVR2 4K reference, native logged-in Comfy Partner GPT 2.5 edit and progression comparison. No OpenAI key.",
+      "family": "qwen",
+      "category": "tasks",
+      "workspaces": [
+        "qwen"
+      ],
+      "requires": [
+        "qwen",
+        "sam",
+        "seedvr2"
+      ],
+      "sources": [],
+      "status": "CPU/static validated; GPU and Partner login run required",
+      "variants": [
+        {
+          "label": "HQ + GPT Sunburst",
+          "file": "workflows/qwen/QGS1_Green_Suit_Overlay/Green_Suit_Qwen_to_GPT25_Overlay_v1_0.json",
+          "source": "green-suit-add-on"
+        }
+      ]
+    }
+  ]
+}
