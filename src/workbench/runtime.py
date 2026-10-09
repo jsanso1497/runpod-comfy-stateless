@@ -8,8 +8,8 @@ from filelock import FileLock, Timeout as LockTimeout
 from .config import (ROOT, atomic_json, child_environment, data_root, model_config, model_root,
  read_catalog, requested_groups, resolve_secret_aliases, safe_path, selected_tasks, state_root, workspace)
 from .assets import prepare_private, prepare_standard
+from . import http_gateway
 
-HOP_HEADERS={'connection','keep-alive','proxy-authenticate','proxy-authorization','te','trailers','transfer-encoding','upgrade','authorization','host','content-length'}
 
 def authorized(header: str, password: str) -> bool:
     try:
@@ -21,20 +21,20 @@ def authorized(header: str, password: str) -> bool:
 
 @web.middleware
 async def security(request,handler):
-    if request.path=='/healthz':return web.json_response({'gateway':'running','workspace':workspace()})
-    if not authorized(request.headers.get('Authorization',''),request.app['password']):
-        return web.Response(status=401,text='Workbench authentication required.',headers={'WWW-Authenticate':'Basic realm="Comfy Workbench", charset="UTF-8"','Cache-Control':'no-store'})
-    if request.method not in ('GET','HEAD','OPTIONS') or request.headers.get('Upgrade','').lower()=='websocket':
-        origin=request.headers.get('Origin')
-        if request.headers.get('Sec-Fetch-Site')=='cross-site' or (origin and urlsplit(origin).netloc not in {request.host,request.headers.get('X-Forwarded-Host',request.host).split(',')[0].strip()}):
-            return web.Response(status=403,text='Cross-origin writes are not allowed.')
-    try:response=await handler(request)
-    except (ValueError,KeyError,FileNotFoundError) as exc:
-        return web.json_response({'error':'Invalid request or unavailable local resource.'},status=400)
-    response.headers['X-Content-Type-Options']='nosniff'
-    response.headers['Referrer-Policy']='no-referrer'
-    response.headers['Cache-Control']='no-store'
-    return response
+    mode = request.app.get(http_gateway.AUTH_MODE_KEY, request.app.get('auth_mode', 'basic'))
+    if request.path == '/healthz':
+        return web.json_response({'gateway': 'running', 'workspace': workspace(),
+                                  'auth_mode': mode, 'access_version': http_gateway.ACCESS_VERSION})
+    if mode != 'none' and not authorized(request.headers.get('Authorization',''), request.app.get(http_gateway.PASSWORD_KEY, request.app.get('password', ''))):
+        return web.Response(status=401, text='Workbench authentication required.',
+            headers={'WWW-Authenticate': 'Basic realm="Comfy Workbench", charset="UTF-8"',
+                     'Cache-Control': 'no-store'})
+    if not http_gateway.same_origin(request):
+        return web.Response(status=403, text='Cross-origin writes are not allowed.')
+    try:
+        return await handler(request)
+    except (ValueError, KeyError, FileNotFoundError):
+        return web.json_response({'error': 'Invalid request or unavailable local resource.'}, status=400)
 
 
 def configure_files()->dict[str,str]:
@@ -173,30 +173,20 @@ class Runtime:
                 rows.append({'path':str(p.relative_to(root)),'bytes':p.stat().st_size})
         return web.json_response({'kind':kind,'files':rows,'limit':2000})
     async def proxy(self,request):
-        url='http://127.0.0.1:8189'+request.rel_url.path_qs
-        headers={k:v for k,v in request.headers.items() if k.lower() not in HOP_HEADERS and k.lower()!='origin'}
-        if request.headers.get('Upgrade','').lower()=='websocket':
-            try:upstream=await self.session.ws_connect(url,headers=headers,heartbeat=30,max_msg_size=0)
-            except Exception:return web.Response(status=503,text='ComfyUI is starting or has stopped. Check the Pod logs.')
-            downstream=web.WebSocketResponse(heartbeat=30,max_msg_size=0);await downstream.prepare(request)
-            async def relay(a,b):
-                async for msg in a:
-                    if msg.type==WSMsgType.TEXT:await b.send_str(msg.data)
-                    elif msg.type==WSMsgType.BINARY:await b.send_bytes(msg.data)
-                    elif msg.type in (WSMsgType.CLOSE,WSMsgType.CLOSED,WSMsgType.ERROR):break
-            jobs=[asyncio.create_task(relay(downstream,upstream)),asyncio.create_task(relay(upstream,downstream))]
-            await asyncio.wait(jobs,return_when=asyncio.FIRST_COMPLETED)
-            for j in jobs:j.cancel()
-            await upstream.close();await downstream.close();return downstream
+        return await http_gateway.proxy(request, self.session)
+    async def ready(self,request):
+        ready = False
         try:
-            async with self.session.request(request.method,url,headers=headers,data=request.content.iter_chunked(1024*1024),allow_redirects=False) as upstream:
-                response=web.StreamResponse(status=upstream.status,headers={k:v for k,v in upstream.headers.items() if k.lower() not in HOP_HEADERS})
-                await response.prepare(request)
-                async for chunk in upstream.content.iter_chunked(1024*1024):await response.write(chunk)
-                await response.write_eof();return response
-        except (OSError,asyncio.TimeoutError):return web.Response(status=503,text='ComfyUI is starting or has stopped. Check the Pod logs.')
+            async with self.session.get('http://127.0.0.1:8189/system_stats',
+                                        timeout=ClientTimeout(total=5)) as response:
+                ready = response.status == 200
+        except Exception:
+            pass
+        return web.json_response({'gateway': 'running', 'comfy_ready': ready,
+                                  'access_version': http_gateway.ACCESS_VERSION},
+                                 status=200 if ready else 503)
     async def startup(self,app):
-        self.session=ClientSession(timeout=ClientTimeout(total=None,sock_connect=10),auto_decompress=False,headers={'Accept-Encoding':'identity'})
+        self.session=http_gateway.session()
         self.start_comfy()
         self.job=asyncio.create_task(self.prepare(requested_groups(),True))
     async def cleanup(self,app):
@@ -208,11 +198,20 @@ class Runtime:
                 except subprocess.TimeoutExpired:proc.kill()
         if self.session:await self.session.close()
 
-def make_app(password:str,runtime:Runtime|None=None):
-    if len(password)<16:raise ValueError('WB_PASSWORD must resolve to a secret of at least 16 characters. Username: workbench.')
-    app=web.Application(middlewares=[security],client_max_size=2*1024**3)
-    app['password']=password;r=runtime or Runtime()
-    app.router.add_get('/healthz',lambda req:web.json_response({'gateway':'running'}))
+def make_app(password:str='',runtime:Runtime|None=None,auth_mode:str|None=None):
+    mode = http_gateway.auth_mode(auth_mode)
+    if mode == 'basic' and len(password)<16:
+        raise ValueError('WB_PASSWORD must resolve to a secret of at least 16 characters. Username: workbench.')
+    app=web.Application(middlewares=[security],client_max_size=2*1024**3,
+                        handler_args={'auto_decompress': False})
+    app[http_gateway.PASSWORD_KEY]=password if mode == 'basic' else ''
+    app[http_gateway.AUTH_MODE_KEY]=mode
+    app.on_response_prepare.append(http_gateway.on_prepare)
+    r=runtime or Runtime()
+    async def health(req):
+        return web.json_response({'gateway': 'running'})
+    app.router.add_get('/healthz',health)
+    app.router.add_get('/readyz',r.ready)
     app.router.add_get('/_workbench/catalog',r.catalog);app.router.add_get('/_workbench/status',r.status)
     app.router.add_post('/_workbench/prepare',r.prepare_request);app.router.add_get('/_workbench/workflow',r.graph)
     app.router.add_get('/_workbench/files',r.files)
@@ -223,10 +222,18 @@ def make_app(password:str,runtime:Runtime|None=None):
     app.on_startup.append(r.startup);app.on_cleanup.append(r.cleanup);return app
 
 def main():
+    mode = http_gateway.auth_mode()
+    # A stale/removed RunPod password-secret binding must not block no-login mode.
+    # This affects only the Workbench password, not HF/Civitai/private libraries.
+    if mode == 'none':
+        os.environ.pop('WB_PASSWORD', None)
+        print('[WORKBENCH ACCESS 1.2.0] NO LOGIN on port 8188. Anyone with the URL can access this Pod.', flush=True)
+    else:
+        print('[WORKBENCH ACCESS 1.2.0] Password protection enabled on port 8188.', flush=True)
     resolve_secret_aliases()
     image_workspace=(ROOT/'BUILD_WORKSPACE').read_text().strip()
     if workspace()!=image_workspace:raise ValueError('Selected workspace does not match this image. Use the matching RunPod image.')
     selected_tasks();requested_groups()
-    web.run_app(make_app(os.environ.get('WB_PASSWORD','')),host='0.0.0.0',port=8188,access_log=None)
+    web.run_app(make_app(os.environ.get('WB_PASSWORD',''),auth_mode=mode),host='0.0.0.0',port=8188,access_log=None)
 
 if __name__=='__main__':main()

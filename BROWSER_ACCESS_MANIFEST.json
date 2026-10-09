@@ -1,0 +1,56 @@
+{
+  "version": "1.2.0",
+  "repository": "jsanso1497/runpod-comfy-stateless",
+  "baseline_commit": "5b480a648e8efb7dbb5f7482fdec6be1e26f6b9b",
+  "installation": "Merge these files into the existing repository. Delete nothing.",
+  "files": [
+    {
+      "path": "BROWSER_ACCESS_START_HERE.md",
+      "operation": "add",
+      "sha256": "4c9e7b25450ea8b248e825ae5e6f6142030308b294c29da74fabbc6f4a3a4cff"
+    },
+    {
+      "path": "Dockerfile",
+      "operation": "replace",
+      "sha256": "f8acbf03b1d269a9ebddf9b5eec6b6042043d97c2a4fcf08cee0752e56d04dcd"
+    },
+    {
+      "path": "reports/browser-access-test-output.txt",
+      "operation": "add",
+      "sha256": "fb22ae9833ebd9dec5ec8e65a63ffa2f9b0560bd14f712dda01256b75e66546c"
+    },
+    {
+      "path": "reports/browser-access-validation.json",
+      "operation": "add",
+      "sha256": "7149f42ab3e70a87399cfb3ebc157d2944af9a90df20446aa3509b45feabdb07"
+    },
+    {
+      "path": "scripts/test_browser_access.py",
+      "operation": "add",
+      "sha256": "c8047f67f768507886c389a706b7e7a655ce37b1c60b3ad993d1dd131e98e663"
+    },
+    {
+      "path": "src/workbench/http_gateway.py",
+      "operation": "add",
+      "sha256": "0cfa96c9b275f3e20ab7e0dd27e765bdd8b8d8176fc573107437ec54fdbce282"
+    },
+    {
+      "path": "src/workbench/runtime.py",
+      "operation": "replace",
+      "sha256": "307a59369a18b84ad7ae398de00b9eb605702d206662efb9fbdf2ba076833d54"
+    },
+    {
+      "path": "tests/test_http_gateway.py",
+      "operation": "add",
+      "sha256": "56ab94af4229d8dac72c0db2da0a23bc0b068de13cb92abb7471cbdfee7ab513"
+    }
+  ],
+  "required_runpod_environment": {
+    "WB_AUTH_MODE": "none"
+  },
+  "new_authentication_default": "basic; no-login mode requires explicit opt-in",
+  "changes_model_weights": false,
+  "changes_workflow_json": false,
+  "requires_rebuild": "qwen",
+  "pushed_to_github": false
+}

@@ -1,0 +1,59 @@
+{
+  "release": "RunPod Browser Access Fix 1.2.0",
+  "baseline_commit": "5b480a648e8efb7dbb5f7482fdec6be1e26f6b9b",
+  "baseline_verified_git_blobs": {
+    "Dockerfile": "b9ba2719671ee435c7dca257c8232f92ecacec8d",
+    "src/workbench/runtime.py": "c46f7e97e19385e3992fd943d034ecde15ff2f47"
+  },
+  "environment": {
+    "python": "3.13.5",
+    "aiohttp": "3.13.3"
+  },
+  "local_http_websocket_regression": {
+    "passed": 42,
+    "failed": 0,
+    "scope": "Real local HTTP/WebSocket servers; runtime model/config preparation and upstream ComfyUI simulated."
+  },
+  "unchanged_runtime_functions": [
+    "authorized",
+    "configure_files",
+    "Runtime.__init__",
+    "Runtime.start_comfy",
+    "Runtime.start_ollama",
+    "Runtime.prepare",
+    "Runtime.nodes",
+    "Runtime.status",
+    "Runtime.catalog",
+    "Runtime.prepare_request",
+    "Runtime.graph",
+    "Runtime.files",
+    "Runtime.cleanup"
+  ],
+  "changed_runtime_functions": [
+    "security",
+    "Runtime.proxy",
+    "Runtime.startup",
+    "make_app",
+    "main"
+  ],
+  "added_runtime_functions": [
+    "Runtime.ready"
+  ],
+  "syntax_check": "passed",
+  "browser_smoke": {
+    "status": "blocked",
+    "reason": "Local Chromium policy rejected test navigation to loopback with ERR_BLOCKED_BY_ADMINISTRATOR. No browser pass claimed."
+  },
+  "full_repository_ci": "not run in this environment; run Validate repository after upload",
+  "docker_built": false,
+  "runpod_tested": false,
+  "gpu_tested": false,
+  "paid_api_called": false,
+  "model_workflow_catalog_files_modified": false,
+  "git_pushed": false,
+  "notes": [
+    "No original user credential included.",
+    "No model quality or workflow JSON change.",
+    "No root-cause claim about the exact live Chrome error."
+  ]
+}
