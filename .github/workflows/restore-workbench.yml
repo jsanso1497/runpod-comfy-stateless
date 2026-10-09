@@ -1,0 +1,72 @@
+name: Restore Workbench files (keep Green Suit)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: workbench-file-recovery-main
+  cancel-in-progress: false
+
+jobs:
+  restore:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout full repository history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Restore exactly the paths removed in the accidental upload
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          BASE=6b9a111740e08badc95970827e14e20efbfe3eca
+          BAD=6652d4cfb0e8736b8128b6b1cc7a970efb3deaeb
+          git cat-file -e "${BASE}^{commit}"
+          git cat-file -e "${BAD}^{commit}"
+          git merge-base --is-ancestor "$BAD" HEAD
+
+          # Compare the two known commits, NOT BASE to current HEAD. This avoids
+          # restoring unrelated files that someone may have deleted later.
+          mapfile -d '' -t deleted < <(git diff --diff-filter=D --name-only -z "$BASE" "$BAD")
+          if [ "${#deleted[@]}" -ne 182 ]; then
+            echo "Unexpected deletion count: ${#deleted[@]} (expected 182). Aborting."
+            exit 1
+          fi
+
+          missing=()
+          for path in "${deleted[@]}"; do
+            if [ ! -e "$path" ] && [ ! -L "$path" ]; then
+              missing+=("$path")
+            fi
+          done
+          echo "Restoring ${#missing[@]} missing files; existing files will not be overwritten."
+          if [ "${#missing[@]}" -gt 0 ]; then
+            git restore --source="$BASE" --staged --worktree -- "${missing[@]}"
+          fi
+          test -f scripts/build_site.py
+          test -f scripts/validate.py
+          test -f catalog/tasks.json
+          test -f catalog/models.json
+          test -f src/nodes/qwen_photo/__init__.py
+          test -f src/nodes/everyday/green_suit.py
+          test -f catalog/tasks.green-suit.json
+          test -f workflows/qwen/QGS1_Green_Suit_Overlay/Green_Suit_Qwen_to_GPT25_Overlay_v1_0.json
+          python scripts/build_site.py
+          python scripts/validate.py
+          git diff --exit-code -- site/index.html site/catalog.json
+          git diff --cached --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          if ! git diff --cached --quiet; then
+            git commit -m 'Restore 182 deleted Workbench files while retaining Green Suit'
+            git push origin HEAD:main
+          else
+            echo 'Nothing to restore. Repository files are already present.'
+          fi
+          echo 'Restore complete. Run Validate repository and Build HQ workspace (qwen).'
