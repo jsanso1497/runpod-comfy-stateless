@@ -1,0 +1,382 @@
+{
+  "last_node_id": 7,
+  "last_link_id": 5,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "Note",
+      "pos": [
+        0,
+        -400
+      ],
+      "size": [
+        1430,
+        290
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "Note"
+      },
+      "widgets_values": [
+        "Source integration reference workflow, 7B FP16. No identity replacement or other finishing model. Restoration synthesizes detail and can alter likeness. Review output before accepting it. This file is the standard baseline, not a promise of lossless enhancement. GPU validation pending."
+      ],
+      "title": "34_SeedVR2_Full_Frame_7B_FP16"
+    },
+    {
+      "id": 2,
+      "type": "LoadImage",
+      "pos": [
+        0,
+        0
+      ],
+      "size": [
+        330,
+        350
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            1
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "links": [],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "",
+        "image"
+      ],
+      "title": "ACCEPTED native image"
+    },
+    {
+      "id": 3,
+      "type": "AUSBOSS_NODES_FreeMemory",
+      "pos": [
+        1280,
+        0
+      ],
+      "size": [
+        330,
+        120
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "value",
+          "type": "*",
+          "link": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "*",
+          "type": "*",
+          "links": [
+            2
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "AUSBOSS_NODES_FreeMemory"
+      },
+      "widgets_values": [],
+      "title": "Release Qwen before SeedVR2"
+    },
+    {
+      "id": 4,
+      "type": "SeedVR2LoadDiTModel",
+      "pos": [
+        1280,
+        220
+      ],
+      "size": [
+        330,
+        262
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "torch_compile_args",
+          "type": "TORCH_COMPILE_ARGS",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "seedvr2_dit",
+          "type": "SEEDVR2_DIT",
+          "links": [
+            3
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SeedVR2LoadDiTModel"
+      },
+      "widgets_values": [
+        "seedvr2_ema_7b_fp16.safetensors",
+        "cuda:0",
+        0,
+        false,
+        "cpu",
+        false,
+        "sdpa"
+      ],
+      "title": "7B FP16 | SDPA | CPU offload"
+    },
+    {
+      "id": 5,
+      "type": "SeedVR2LoadVAEModel",
+      "pos": [
+        1280,
+        610
+      ],
+      "size": [
+        330,
+        366
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "torch_compile_args",
+          "type": "TORCH_COMPILE_ARGS",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "seedvr2_vae",
+          "type": "SEEDVR2_VAE",
+          "links": [
+            4
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SeedVR2LoadVAEModel"
+      },
+      "widgets_values": [
+        "ema_vae_fp16.safetensors",
+        "cuda:0",
+        false,
+        1024,
+        128,
+        false,
+        1024,
+        128,
+        "false",
+        "cpu",
+        false
+      ],
+      "title": "FP16 VAE | untiled quality baseline"
+    },
+    {
+      "id": 6,
+      "type": "SeedVR2VideoUpscaler",
+      "pos": [
+        1790,
+        0
+      ],
+      "size": [
+        330,
+        392
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 2
+        },
+        {
+          "name": "dit",
+          "type": "SEEDVR2_DIT",
+          "link": 3
+        },
+        {
+          "name": "vae",
+          "type": "SEEDVR2_VAE",
+          "link": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            5
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SeedVR2VideoUpscaler"
+      },
+      "widgets_values": [
+        18071042,
+        2048,
+        4096,
+        1,
+        false,
+        0,
+        0,
+        "lab",
+        0.0,
+        0.0,
+        "cpu",
+        false
+      ],
+      "title": "Still image | batch 1 | no added noise"
+    },
+    {
+      "id": 7,
+      "type": "SaveImage",
+      "pos": [
+        3250,
+        0
+      ],
+      "size": [
+        330,
+        120
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 5
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "SaveImage"
+      },
+      "widgets_values": [
+        "Restoration/Standard_HQ"
+      ],
+      "title": "Save separate candidate PNG"
+    }
+  ],
+  "links": [
+    [
+      1,
+      2,
+      0,
+      3,
+      0,
+      "IMAGE"
+    ],
+    [
+      2,
+      3,
+      0,
+      6,
+      0,
+      "IMAGE"
+    ],
+    [
+      3,
+      4,
+      0,
+      6,
+      1,
+      "SEEDVR2_DIT"
+    ],
+    [
+      4,
+      5,
+      0,
+      6,
+      2,
+      "SEEDVR2_VAE"
+    ],
+    [
+      5,
+      6,
+      0,
+      7,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "groups": [
+    {
+      "id": 1,
+      "title": "YOUR SOURCES / PAINTED MASKS",
+      "bounding": [
+        -20,
+        -60,
+        425,
+        900
+      ],
+      "color": "#365b75",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "id": 2,
+      "title": "BASE BF16 WEIGHTS",
+      "bounding": [
+        440,
+        -60,
+        370,
+        690
+      ],
+      "color": "#365b75",
+      "font_size": 24,
+      "flags": {}
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.6,
+      "offset": [
+        50,
+        50
+      ]
+    },
+    "qwen21_native_suite": {
+      "version": "1.1.0",
+      "title": "34_SeedVR2_Full_Frame_7B_FP16"
+    },
+    "workbench": {
+      "task_id": "R01",
+      "quality": "hq",
+      "source": "qwen21_native/workflows/34_SeedVR2_Full_Frame_7B_FP16.json",
+      "validation": "static source adaptation; GPU untested"
+    }
+  },
+  "version": 0.4
+}

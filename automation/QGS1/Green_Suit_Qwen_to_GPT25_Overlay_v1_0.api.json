@@ -1,0 +1,167 @@
+{
+  "1": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "REPLACE_WITH_UPLOADED_IMAGE.png"
+    },
+    "_meta": {
+      "title": "SOURCE / IMAGE 1: original identity + wardrobe + background"
+    }
+  },
+  "2": {
+    "class_type": "WBGSBodyMask",
+    "inputs": {
+      "person_prompt": "person",
+      "hair_prompt": "hair",
+      "threshold": 0.35,
+      "person_index": -1,
+      "hair_required": true,
+      "hair_guard_pixels": 3,
+      "edit_expand_pixels": 8,
+      "edit_feather_pixels": 6,
+      "source": [
+        "1",
+        0
+      ],
+      "manual_protection": [
+        "1",
+        1
+      ]
+    },
+    "_meta": {
+      "title": "01 | SAM whole person minus hair"
+    }
+  },
+  "3": {
+    "class_type": "WBGSQwenSuit",
+    "inputs": {
+      "prompt": "Edit <image1> to create a precise green-suit geometry reference of the same person.\nReplace all visible clothing and visible skin of the selected person, including the face, neck, hands and feet wherever present in this crop, with one continuous opaque chroma-green lycra bodysuit. The face is covered by fitted green fabric following its existing surface contours. Leave all hair completely uncovered and unchanged, including the hairline and loose strands.\nUse smooth fitted matte stretch fabric with subtle realistic folds and shading, no logos, no patterns, no transparency and no loose garment volume. Follow the person's existing anatomy and visible contours; do not idealize, enlarge, slim, lengthen or invent hidden anatomy.\nKeep exactly the same body pose, head angle, body rotation, perspective, body proportions, subject position, camera distance, framing and canvas boundaries. Do not crop, zoom, recenter, mirror, outpaint or reveal any part outside the existing image. Preserve occlusions and the background. Replace vacated clothing volume with the consistent surrounding background, not additional body parts. Change only the selected person; hair and everything outside the editable mask are protected by compositing.",
+      "seed": 12345,
+      "steps": 40,
+      "context_pixels": 128,
+      "feather_pixels": 2,
+      "source_and_masks": [
+        "2",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "02 | Qwen Image 2.1 BF16: green lycra"
+    }
+  },
+  "4": {
+    "class_type": "WBGS4KReference",
+    "inputs": {
+      "upscale_method": "SeedVR2 7B FP16",
+      "seed": 42,
+      "qwen_result": [
+        "3",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "03 | 4K geometry reference: 2720 x 4080"
+    }
+  },
+  "5": {
+    "class_type": "WBGSPartnerInputs",
+    "inputs": {
+      "reference_package": [
+        "4",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "04a | Two ordered images for Comfy Partner"
+    }
+  },
+  "12": {
+    "class_type": "OpenAIGPTImageNodeV2",
+    "inputs": {
+      "prompt": "Create one realistic edited photograph from the two attached images. Their roles are deliberately different.\n\nIMAGE 1 is the exclusive appearance reference: use the same person's facial identity, individual facial features, skin tone, age, expression, gaze, hair, hairstyle, hairline, original clothing, clothing colors, fabric textures, accessories, background and lighting from IMAGE 1. Do not invent a new person or blend identities.\n\nIMAGE 2 is only the geometric template. Its green fabric is a temporary geometry aid, not wardrobe to reproduce. Transfer the visible body shape, silhouette, body proportions, relative sizes, pose, head and body turn angles, perspective, limb placement, occlusions, subject scale, framing, crop and exact location from IMAGE 2. Reconstruct the appearance from IMAGE 1 on this geometry.\n\nRegister the output to the full canvas of IMAGE 2. Keep all corresponding body contour points and anatomical landmarks at the same normalized pixel coordinates. Match the head top, hair outline, shoulders, elbows, wrists, hips, knees and feet only where they are actually visible. The silhouette should overlay IMAGE 2 without translation, scaling, rotation or perspective adjustment. Preserve the exact intersections with every canvas edge. Show no more and no less of the person than IMAGE 2 shows. Do not zoom out, zoom in, center the subject, mirror, crop, expand the scene, or complete off-frame body parts.\n\nRestore the original wardrobe from IMAGE 1, fitted to the geometric envelope in IMAGE 2. Do not retain the green suit, its artificial facial covering, green reflections, or green color spill. Do not take identity, clothing design, colors or background from IMAGE 2. When loose original clothing conflicts with the target silhouette, keep its design and texture but fit its visible outline to IMAGE 2; do not copy the original loose silhouette.\n\nKeep the original background and original hair from IMAGE 1 at their existing coordinates. Preserve the facial expression and gaze from IMAGE 1 while matching the visible head angle in IMAGE 2. Output a single finished 2:3 portrait photograph, not a comparison, collage, diagram, overlay or mask. Treat exact geometric registration as a requirement, not an approximate pose suggestion.",
+      "model": {
+        "model": "gpt-image-2.5-sunburst",
+        "size": "Custom",
+        "custom_width": 2336,
+        "custom_height": 3504,
+        "background": "opaque",
+        "quality": "max",
+        "images": {
+          "image_1": [
+            "5",
+            0
+          ],
+          "image_2": [
+            "5",
+            1
+          ]
+        }
+      },
+      "n": 1,
+      "seed": 0,
+      "image_1": [
+        "5",
+        0
+      ],
+      "image_2": [
+        "5",
+        1
+      ]
+    },
+    "_meta": {
+      "title": "04b | Comfy Partner GPT 2.5 Sunburst (login required)"
+    }
+  },
+  "13": {
+    "class_type": "WBGSPartnerResult",
+    "inputs": {
+      "reference_package": [
+        "4",
+        0
+      ],
+      "gpt_image": [
+        "12",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "04c | Capture partner output"
+    }
+  },
+  "6": {
+    "class_type": "WBGSFinalize",
+    "inputs": {
+      "edge_feather_pixels": 2,
+      "measure_raw_silhouette": true,
+      "gpt_result": [
+        "13",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "05 | Exact protected pixels + silhouette diagnostics"
+    }
+  },
+  "7": {
+    "class_type": "WBGSReviewCompare",
+    "inputs": {
+      "run_mode": "1 - Inspect SAM mask only",
+      "filename_prefix": "GreenSuit/Progression",
+      "source_and_masks": [
+        "2",
+        0
+      ],
+      "reference_package": [
+        "4",
+        0
+      ],
+      "final_package": [
+        "6",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "START / FINISH HERE | Run stage and compare progression"
+    }
+  }
+}

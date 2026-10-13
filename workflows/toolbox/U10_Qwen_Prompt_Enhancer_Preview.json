@@ -1,0 +1,202 @@
+{
+  "last_node_id": 3,
+  "last_link_id": 2,
+  "version": 0.4,
+  "config": {},
+  "extra": {},
+  "groups": [],
+  "nodes": [
+    {
+      "id": 1,
+      "type": "LoadImage",
+      "pos": [
+        50,
+        350
+      ],
+      "size": [
+        350,
+        380
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            1
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": [],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "example.png",
+        "image"
+      ],
+      "title": "1 | Original image / image1"
+    },
+    {
+      "id": 2,
+      "type": "WBQwenPromptControl",
+      "pos": [
+        50,
+        40
+      ],
+      "size": [
+        440,
+        240
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "prompt_enhancer",
+          "type": "WB_QWEN_PROMPT",
+          "links": [
+            2
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "WBQwenPromptControl"
+      },
+      "widgets_values": [
+        false,
+        42,
+        ""
+      ],
+      "title": "2 | Turn ON to preview official I2I enhancement"
+    },
+    {
+      "id": 3,
+      "type": "WBQwenPromptPreview",
+      "pos": [
+        580,
+        40
+      ],
+      "size": [
+        620,
+        420
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "prompt_enhancer",
+          "type": "WB_QWEN_PROMPT",
+          "link": 2
+        },
+        {
+          "name": "image_1",
+          "type": "IMAGE",
+          "link": 1
+        },
+        {
+          "name": "image_2",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "image_3",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "image_4",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "image_5",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "image_6",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "image_7",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "image_8",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "image_9",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "image_10",
+          "type": "IMAGE",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "effective_prompt",
+          "type": "STRING",
+          "links": [],
+          "slot_index": 0
+        },
+        {
+          "name": "original_prompt",
+          "type": "STRING",
+          "links": [],
+          "slot_index": 1
+        },
+        {
+          "name": "enhancement_report",
+          "type": "STRING",
+          "links": [],
+          "slot_index": 2
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "WBQwenPromptPreview"
+      },
+      "widgets_values": [
+        "Describe the requested edit. Keep all unrelated details unchanged."
+      ],
+      "title": "3 | Enter edit; optional images 2-10 must match your workflow order"
+    }
+  ],
+  "links": [
+    [
+      1,
+      1,
+      0,
+      3,
+      1,
+      "IMAGE"
+    ],
+    [
+      2,
+      2,
+      0,
+      3,
+      0,
+      "WB_QWEN_PROMPT"
+    ]
+  ]
+}

@@ -1,0 +1,3014 @@
+{
+  "last_node_id": 48,
+  "last_link_id": 82,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "Note",
+      "pos": [
+        0,
+        -400
+      ],
+      "size": [
+        1430,
+        290
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "Note"
+      },
+      "widgets_values": [
+        "Paint on the MASK layer of the scene loader, not the RGB paint layer. White is editable. Qwen receives the complete context crop, NOT this mask; only AusBoss crop/stitch localizes the final change. Include the full old and intended new silhouette plus any shadows you need to change. Exclude foreground occluders. Do not assume a prompt provides pixel protection. Pixels outside the actual feathered blend footprint are audited.\nLoad the identical original scene in both scene loaders. Body mask excludes the head; head mask also protects the original head during pass 1. Pass 2 uses the generated body result. If the intended head moves beyond the prepainted mask, use 05 then 08 separately. Handoffs are generated candidates, not accepted truth."
+      ],
+      "title": "NATIVE BODY > NATIVE HEAD | separate approval is safer"
+    },
+    {
+      "id": 2,
+      "type": "LoadImage",
+      "pos": [
+        0,
+        0
+      ],
+      "size": [
+        330,
+        350
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            1,
+            21,
+            24,
+            25,
+            29,
+            43,
+            76
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "links": [
+            2
+          ],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "scene.png",
+        "image"
+      ],
+      "title": "ORIGINAL scene | BODY edit mask"
+    },
+    {
+      "id": 3,
+      "type": "LoadImage",
+      "pos": [
+        0,
+        450
+      ],
+      "size": [
+        330,
+        350
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            5
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "links": [],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "body_front.png",
+        "image"
+      ],
+      "title": "BODY reference only"
+    },
+    {
+      "id": 4,
+      "type": "LoadImage",
+      "pos": [
+        0,
+        900
+      ],
+      "size": [
+        330,
+        350
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            23,
+            42
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "links": [
+            22,
+            41
+          ],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "scene.png",
+        "image"
+      ],
+      "title": "SAME original scene | HEAD edit and protection mask"
+    },
+    {
+      "id": 5,
+      "type": "LoadImage",
+      "pos": [
+        0,
+        1350
+      ],
+      "size": [
+        330,
+        350
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            46
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "links": [],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "face_primary.png",
+        "image"
+      ],
+      "title": "PRIMARY real face identity"
+    },
+    {
+      "id": 6,
+      "type": "LoadImage",
+      "pos": [
+        0,
+        1800
+      ],
+      "size": [
+        330,
+        350
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            47
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "links": [],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "face_angle.png",
+        "image"
+      ],
+      "title": "Supporting genuine face angle"
+    },
+    {
+      "id": 7,
+      "type": "WBQwenUNETLoader",
+      "pos": [
+        460,
+        0
+      ],
+      "size": [
+        330,
+        132
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "links": [
+            6,
+            48
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "WBQwenUNETLoader"
+      },
+      "widgets_values": [
+        "qwen_image_2.1_bf16.safetensors",
+        "default"
+      ],
+      "title": "BASE Qwen 2.1 BF16 | no LoRA by default"
+    },
+    {
+      "id": 8,
+      "type": "WBQwenCLIPLoader",
+      "pos": [
+        460,
+        200
+      ],
+      "size": [
+        330,
+        158
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "links": [
+            7,
+            49
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "WBQwenCLIPLoader"
+      },
+      "widgets_values": [
+        "qwen3vl_8b_bf16.safetensors",
+        "qwen_image",
+        "default"
+      ],
+      "title": "Qwen3-VL 8B BF16 | qwen_image"
+    },
+    {
+      "id": 9,
+      "type": "WBQwenVAELoader",
+      "pos": [
+        460,
+        400
+      ],
+      "size": [
+        330,
+        120
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "vae",
+          "type": "VAE",
+          "links": [
+            8,
+            16,
+            50,
+            59
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "WBQwenVAELoader"
+      },
+      "widgets_values": [
+        "qwen_image_2.1_vae_bf16.safetensors"
+      ],
+      "title": "Qwen 2.1 VAE BF16"
+    },
+    {
+      "id": 10,
+      "type": "Q21NMaskGuard",
+      "pos": [
+        850,
+        0
+      ],
+      "size": [
+        330,
+        184
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 1
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": 2
+        },
+        {
+          "name": "mask_source",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "original_scene",
+          "type": "IMAGE",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            3
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "links": [
+            4
+          ],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Q21NMaskGuard"
+      },
+      "widgets_values": [
+        "Paint the intended edit region"
+      ],
+      "title": "Check mask and source dimensions"
+    },
+    {
+      "id": 11,
+      "type": "AUSBOSS_NODES_CropForInpaint",
+      "pos": [
+        1260,
+        590
+      ],
+      "size": [
+        365,
+        610
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 3
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            9,
+            18,
+            35
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "links": [],
+          "slot_index": 1
+        },
+        {
+          "name": "ausboss_stitcher",
+          "type": "AUSBOSS_STITCHER",
+          "links": [
+            19
+          ],
+          "slot_index": 2
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "AUSBOSS_NODES_CropForInpaint"
+      },
+      "widgets_values": [
+        1.6,
+        16,
+        32,
+        0,
+        0,
+        0,
+        0.0,
+        false,
+        32,
+        2.0,
+        "bicubic",
+        0,
+        0,
+        0,
+        0,
+        true
+      ],
+      "title": "AusBoss | 2 MP crop | never resize full scene"
+    },
+    {
+      "id": 12,
+      "type": "Q21NResizeBudget",
+      "pos": [
+        850,
+        600
+      ],
+      "size": [
+        330,
+        132
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 5
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            10,
+            37
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "int",
+          "type": "INT",
+          "links": [],
+          "slot_index": 1
+        },
+        {
+          "name": "int",
+          "type": "INT",
+          "links": [],
+          "slot_index": 2
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Q21NResizeBudget"
+      },
+      "widgets_values": [
+        1.0,
+        false
+      ],
+      "title": "Reference 2 | <= 1 MP | no detail invented"
+    },
+    {
+      "id": 13,
+      "type": "QwenImage21Cache",
+      "pos": [
+        1350,
+        190
+      ],
+      "size": [
+        330,
+        132
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 6
+        }
+      ],
+      "outputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "links": [
+            11
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "QwenImage21Cache"
+      },
+      "widgets_values": [
+        "auto",
+        "default"
+      ],
+      "title": "Lossless KV cache | auto / default"
+    },
+    {
+      "id": 14,
+      "type": "Q21NEncodeReferences",
+      "pos": [
+        1800,
+        0
+      ],
+      "size": [
+        510,
+        570
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 7
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 8
+        },
+        {
+          "name": "image_1",
+          "type": "IMAGE",
+          "link": 9
+        },
+        {
+          "name": "image_2",
+          "type": "IMAGE",
+          "link": 10
+        },
+        {
+          "name": "image_3",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "image_4",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "image_5",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "image_6",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "image_7",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "image_8",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "prompt_enhancer",
+          "type": "WB_QWEN_PROMPT",
+          "link": 81
+        }
+      ],
+      "outputs": [
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "links": [
+            12
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "links": [
+            13
+          ],
+          "slot_index": 1
+        },
+        {
+          "name": "latent",
+          "type": "LATENT",
+          "links": [
+            14
+          ],
+          "slot_index": 2
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Q21NEncodeReferences"
+      },
+      "widgets_values": [
+        "Edit only the centered person's body in <image1> using the physique and proportions evidenced by <image2>. Preserve the existing head and face. Project the referenced physique into the current pose, foreshortening and contact points; do not copy apparent limb lengths or camera scale. Preserve the existing outfit and adapt its fit naturally. Preserve the camera viewpoint, perspective, pose, lighting, scene layout and unrelated people and objects from <image1>. Do not copy any reference background, framing or camera angle. Natural photographic texture; no beauty retouching or idealization."
+      ],
+      "title": "EDIT THIS PROMPT | image1=base crop"
+    },
+    {
+      "id": 15,
+      "type": "KSampler",
+      "pos": [
+        2400,
+        0
+      ],
+      "size": [
+        340,
+        330
+      ],
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 11
+        },
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 12
+        },
+        {
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 13
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 14
+        }
+      ],
+      "outputs": [
+        {
+          "name": "latent",
+          "type": "LATENT",
+          "links": [
+            15
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "KSampler"
+      },
+      "widgets_values": [
+        18071042,
+        "fixed",
+        40,
+        1.0,
+        "euler",
+        "simple",
+        1.0
+      ],
+      "title": "40 steps | CFG 1 | Euler/simple | fixed seed"
+    },
+    {
+      "id": 16,
+      "type": "VAEDecode",
+      "pos": [
+        2400,
+        390
+      ],
+      "size": [
+        330,
+        132
+      ],
+      "flags": {},
+      "order": 15,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 15
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 16
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            17
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAEDecode"
+      },
+      "widgets_values": [],
+      "title": "Decode native matching 64-channel latent"
+    },
+    {
+      "id": 17,
+      "type": "Q21NOpaqueImage",
+      "pos": [
+        2400,
+        560
+      ],
+      "size": [
+        330,
+        132
+      ],
+      "flags": {},
+      "order": 16,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 17
+        },
+        {
+          "name": "background",
+          "type": "IMAGE",
+          "link": 18
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            20,
+            34,
+            36
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Q21NOpaqueImage"
+      },
+      "widgets_values": [],
+      "title": "Flatten generated alpha over source crop"
+    },
+    {
+      "id": 18,
+      "type": "AUSBOSS_NODES_StitchInpaint",
+      "pos": [
+        2850,
+        0
+      ],
+      "size": [
+        330,
+        158
+      ],
+      "flags": {},
+      "order": 17,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "stitcher",
+          "type": "AUSBOSS_STITCHER",
+          "link": 19
+        },
+        {
+          "name": "inpainted",
+          "type": "IMAGE",
+          "link": 20
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            26
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "links": [
+            27
+          ],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "AUSBOSS_NODES_StitchInpaint"
+      },
+      "widgets_values": [
+        false,
+        0.0,
+        "classic"
+      ],
+      "title": "Original-size stitch | color match OFF"
+    },
+    {
+      "id": 19,
+      "type": "Q21NMaskGuard",
+      "pos": [
+        2850,
+        220
+      ],
+      "size": [
+        330,
+        184
+      ],
+      "flags": {},
+      "order": 18,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 21
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": 22
+        },
+        {
+          "name": "mask_source",
+          "type": "IMAGE",
+          "link": 23
+        },
+        {
+          "name": "original_scene",
+          "type": "IMAGE",
+          "link": 24
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [],
+          "slot_index": 0
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "links": [
+            28
+          ],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Q21NMaskGuard"
+      },
+      "widgets_values": [
+        "Paint head/face to protect"
+      ],
+      "title": "Verify hard-protection mask comes from same original"
+    },
+    {
+      "id": 20,
+      "type": "Q21NProtectRegion",
+      "pos": [
+        2850,
+        420
+      ],
+      "size": [
+        330,
+        184
+      ],
+      "flags": {},
+      "order": 19,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "original",
+          "type": "IMAGE",
+          "link": 25
+        },
+        {
+          "name": "edited",
+          "type": "IMAGE",
+          "link": 26
+        },
+        {
+          "name": "blend_mask",
+          "type": "MASK",
+          "link": 27
+        },
+        {
+          "name": "protection",
+          "type": "MASK",
+          "link": 28
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            30
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "links": [
+            31,
+            74
+          ],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Q21NProtectRegion"
+      },
+      "widgets_values": [],
+      "title": "HARD PIXEL LOCK overrides edits and feather"
+    },
+    {
+      "id": 21,
+      "type": "Q21NAuditPreservation",
+      "pos": [
+        2850,
+        650
+      ],
+      "size": [
+        330,
+        158
+      ],
+      "flags": {},
+      "order": 20,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "original",
+          "type": "IMAGE",
+          "link": 29
+        },
+        {
+          "name": "edited",
+          "type": "IMAGE",
+          "link": 30
+        },
+        {
+          "name": "blend_mask",
+          "type": "MASK",
+          "link": 31
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            32,
+            33,
+            39
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "string",
+          "type": "STRING",
+          "links": [],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Q21NAuditPreservation"
+      },
+      "widgets_values": [],
+      "title": "Assert exact protected RGB pixels"
+    },
+    {
+      "id": 22,
+      "type": "SaveImage",
+      "pos": [
+        3440,
+        0
+      ],
+      "size": [
+        330,
+        120
+      ],
+      "flags": {},
+      "order": 21,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 32
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "SaveImage"
+      },
+      "widgets_values": [
+        "Qwen21_Native/23_Sequential_Body_Then_Head_Native/body/image"
+      ],
+      "title": "Save separate candidate PNG"
+    },
+    {
+      "id": 23,
+      "type": "Q21NWriteHandoff",
+      "pos": [
+        3440,
+        180
+      ],
+      "size": [
+        330,
+        120
+      ],
+      "flags": {},
+      "order": 22,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 33
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Q21NWriteHandoff"
+      },
+      "widgets_values": [
+        "body"
+      ],
+      "title": "Update body_latest.png | candidate, not auto-approved"
+    },
+    {
+      "id": 24,
+      "type": "PreviewImage",
+      "pos": [
+        3440,
+        400
+      ],
+      "size": [
+        350,
+        340
+      ],
+      "flags": {},
+      "order": 23,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 34
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": [],
+      "title": "Inspect generated crop at native resolution"
+    },
+    {
+      "id": 25,
+      "type": "Q21NComparePanel",
+      "pos": [
+        3850,
+        0
+      ],
+      "size": [
+        330,
+        158
+      ],
+      "flags": {},
+      "order": 24,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "before",
+          "type": "IMAGE",
+          "link": 35
+        },
+        {
+          "name": "after",
+          "type": "IMAGE",
+          "link": 36
+        },
+        {
+          "name": "reference",
+          "type": "IMAGE",
+          "link": 37
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            38
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Q21NComparePanel"
+      },
+      "widgets_values": [
+        "RAW: 23_Sequential_Body_Then_Head_Native/body"
+      ],
+      "title": "RAW crop / generated crop / reference (before protection)"
+    },
+    {
+      "id": 26,
+      "type": "SaveImage",
+      "pos": [
+        4260,
+        0
+      ],
+      "size": [
+        330,
+        120
+      ],
+      "flags": {},
+      "order": 25,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 38
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "SaveImage"
+      },
+      "widgets_values": [
+        "Qwen21_Native/23_Sequential_Body_Then_Head_Native/body/comparison/image"
+      ],
+      "title": "Save separate candidate PNG"
+    },
+    {
+      "id": 27,
+      "type": "AUSBOSS_NODES_FreeMemory",
+      "pos": [
+        460,
+        2050
+      ],
+      "size": [
+        330,
+        120
+      ],
+      "flags": {},
+      "order": 26,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "value",
+          "type": "*",
+          "link": 39
+        }
+      ],
+      "outputs": [
+        {
+          "name": "*",
+          "type": "*",
+          "links": [
+            40,
+            64
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "AUSBOSS_NODES_FreeMemory"
+      },
+      "widgets_values": [],
+      "title": "Release cached models after body result"
+    },
+    {
+      "id": 28,
+      "type": "Q21NMaskGuard",
+      "pos": [
+        850,
+        2250
+      ],
+      "size": [
+        330,
+        184
+      ],
+      "flags": {},
+      "order": 27,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 40
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": 41
+        },
+        {
+          "name": "mask_source",
+          "type": "IMAGE",
+          "link": 42
+        },
+        {
+          "name": "original_scene",
+          "type": "IMAGE",
+          "link": 43
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            44
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "links": [
+            45
+          ],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Q21NMaskGuard"
+      },
+      "widgets_values": [
+        "Paint the intended edit region"
+      ],
+      "title": "Check mask and source dimensions"
+    },
+    {
+      "id": 29,
+      "type": "AUSBOSS_NODES_CropForInpaint",
+      "pos": [
+        1260,
+        2840
+      ],
+      "size": [
+        365,
+        610
+      ],
+      "flags": {},
+      "order": 28,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 44
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": 45
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            51,
+            61,
+            70
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "links": [],
+          "slot_index": 1
+        },
+        {
+          "name": "ausboss_stitcher",
+          "type": "AUSBOSS_STITCHER",
+          "links": [
+            62
+          ],
+          "slot_index": 2
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "AUSBOSS_NODES_CropForInpaint"
+      },
+      "widgets_values": [
+        1.6,
+        16,
+        32,
+        0,
+        0,
+        0,
+        0.0,
+        false,
+        32,
+        2.0,
+        "bicubic",
+        0,
+        0,
+        0,
+        0,
+        true
+      ],
+      "title": "AusBoss | 2 MP crop | never resize full scene"
+    },
+    {
+      "id": 30,
+      "type": "Q21NResizeBudget",
+      "pos": [
+        850,
+        2850
+      ],
+      "size": [
+        330,
+        132
+      ],
+      "flags": {},
+      "order": 29,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 46
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            52,
+            72
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "int",
+          "type": "INT",
+          "links": [],
+          "slot_index": 1
+        },
+        {
+          "name": "int",
+          "type": "INT",
+          "links": [],
+          "slot_index": 2
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Q21NResizeBudget"
+      },
+      "widgets_values": [
+        1.0,
+        false
+      ],
+      "title": "Reference 2 | <= 1 MP | no detail invented"
+    },
+    {
+      "id": 31,
+      "type": "Q21NResizeBudget",
+      "pos": [
+        850,
+        3015
+      ],
+      "size": [
+        330,
+        132
+      ],
+      "flags": {},
+      "order": 30,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 47
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            53
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "int",
+          "type": "INT",
+          "links": [],
+          "slot_index": 1
+        },
+        {
+          "name": "int",
+          "type": "INT",
+          "links": [],
+          "slot_index": 2
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Q21NResizeBudget"
+      },
+      "widgets_values": [
+        1.0,
+        false
+      ],
+      "title": "Reference 3 | <= 1 MP | no detail invented"
+    },
+    {
+      "id": 32,
+      "type": "QwenImage21Cache",
+      "pos": [
+        1350,
+        2440
+      ],
+      "size": [
+        330,
+        132
+      ],
+      "flags": {},
+      "order": 31,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 48
+        }
+      ],
+      "outputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "links": [
+            54
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "QwenImage21Cache"
+      },
+      "widgets_values": [
+        "auto",
+        "default"
+      ],
+      "title": "Lossless KV cache | auto / default"
+    },
+    {
+      "id": 33,
+      "type": "Q21NEncodeReferences",
+      "pos": [
+        1800,
+        2250
+      ],
+      "size": [
+        510,
+        570
+      ],
+      "flags": {},
+      "order": 32,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 49
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 50
+        },
+        {
+          "name": "image_1",
+          "type": "IMAGE",
+          "link": 51
+        },
+        {
+          "name": "image_2",
+          "type": "IMAGE",
+          "link": 52
+        },
+        {
+          "name": "image_3",
+          "type": "IMAGE",
+          "link": 53
+        },
+        {
+          "name": "image_4",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "image_5",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "image_6",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "image_7",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "image_8",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "prompt_enhancer",
+          "type": "WB_QWEN_PROMPT",
+          "link": 82
+        }
+      ],
+      "outputs": [
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "links": [
+            55
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "links": [
+            56
+          ],
+          "slot_index": 1
+        },
+        {
+          "name": "latent",
+          "type": "LATENT",
+          "links": [
+            57
+          ],
+          "slot_index": 2
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Q21NEncodeReferences"
+      },
+      "widgets_values": [
+        "Edit the centered person's head and face in <image1> to be the exact person in <image2>. <image2> is the sole primary facial identity anchor. Reproduce that exact person rather than a lookalike or a blend with the old face. Preserve the referenced person's natural asymmetry and apparent age. Fit that identity to the head rotation, expression, gaze and head-to-body scale in <image1>. Keep the body and clothing unchanged. Preserve the camera viewpoint, perspective, pose, lighting, scene layout and unrelated people and objects from <image1>. Do not copy any reference background, framing or camera angle. Natural photographic texture; no beauty retouching or idealization. <image3> only clarifies the same person's identity from another view; do not blend faces."
+      ],
+      "title": "EDIT THIS PROMPT | image1=base crop"
+    },
+    {
+      "id": 34,
+      "type": "KSampler",
+      "pos": [
+        2400,
+        2250
+      ],
+      "size": [
+        340,
+        330
+      ],
+      "flags": {},
+      "order": 33,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 54
+        },
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 55
+        },
+        {
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 56
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 57
+        }
+      ],
+      "outputs": [
+        {
+          "name": "latent",
+          "type": "LATENT",
+          "links": [
+            58
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "KSampler"
+      },
+      "widgets_values": [
+        18071042,
+        "fixed",
+        40,
+        1.0,
+        "euler",
+        "simple",
+        1.0
+      ],
+      "title": "40 steps | CFG 1 | Euler/simple | fixed seed"
+    },
+    {
+      "id": 35,
+      "type": "VAEDecode",
+      "pos": [
+        2400,
+        2640
+      ],
+      "size": [
+        330,
+        132
+      ],
+      "flags": {},
+      "order": 34,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 58
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 59
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            60
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAEDecode"
+      },
+      "widgets_values": [],
+      "title": "Decode native matching 64-channel latent"
+    },
+    {
+      "id": 36,
+      "type": "Q21NOpaqueImage",
+      "pos": [
+        2400,
+        2810
+      ],
+      "size": [
+        330,
+        132
+      ],
+      "flags": {},
+      "order": 35,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 60
+        },
+        {
+          "name": "background",
+          "type": "IMAGE",
+          "link": 61
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            63,
+            69,
+            71
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Q21NOpaqueImage"
+      },
+      "widgets_values": [],
+      "title": "Flatten generated alpha over source crop"
+    },
+    {
+      "id": 37,
+      "type": "AUSBOSS_NODES_StitchInpaint",
+      "pos": [
+        2850,
+        2250
+      ],
+      "size": [
+        330,
+        158
+      ],
+      "flags": {},
+      "order": 36,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "stitcher",
+          "type": "AUSBOSS_STITCHER",
+          "link": 62
+        },
+        {
+          "name": "inpainted",
+          "type": "IMAGE",
+          "link": 63
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            65
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "links": [
+            66,
+            75
+          ],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "AUSBOSS_NODES_StitchInpaint"
+      },
+      "widgets_values": [
+        false,
+        0.0,
+        "classic"
+      ],
+      "title": "Original-size stitch | color match OFF"
+    },
+    {
+      "id": 38,
+      "type": "Q21NAuditPreservation",
+      "pos": [
+        2850,
+        2900
+      ],
+      "size": [
+        330,
+        158
+      ],
+      "flags": {},
+      "order": 37,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "original",
+          "type": "IMAGE",
+          "link": 64
+        },
+        {
+          "name": "edited",
+          "type": "IMAGE",
+          "link": 65
+        },
+        {
+          "name": "blend_mask",
+          "type": "MASK",
+          "link": 66
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            67,
+            68,
+            77
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "string",
+          "type": "STRING",
+          "links": [],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Q21NAuditPreservation"
+      },
+      "widgets_values": [],
+      "title": "Assert exact protected RGB pixels"
+    },
+    {
+      "id": 39,
+      "type": "SaveImage",
+      "pos": [
+        3440,
+        2250
+      ],
+      "size": [
+        330,
+        120
+      ],
+      "flags": {},
+      "order": 38,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 67
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "SaveImage"
+      },
+      "widgets_values": [
+        "Qwen21_Native/23_Sequential_Body_Then_Head_Native/head/image"
+      ],
+      "title": "Save separate candidate PNG"
+    },
+    {
+      "id": 40,
+      "type": "Q21NWriteHandoff",
+      "pos": [
+        3440,
+        2430
+      ],
+      "size": [
+        330,
+        120
+      ],
+      "flags": {},
+      "order": 39,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 68
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Q21NWriteHandoff"
+      },
+      "widgets_values": [
+        "head"
+      ],
+      "title": "Update head_latest.png | candidate, not auto-approved"
+    },
+    {
+      "id": 41,
+      "type": "PreviewImage",
+      "pos": [
+        3440,
+        2650
+      ],
+      "size": [
+        350,
+        340
+      ],
+      "flags": {},
+      "order": 40,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 69
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": [],
+      "title": "Inspect generated crop at native resolution"
+    },
+    {
+      "id": 42,
+      "type": "Q21NComparePanel",
+      "pos": [
+        3850,
+        2250
+      ],
+      "size": [
+        330,
+        158
+      ],
+      "flags": {},
+      "order": 41,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "before",
+          "type": "IMAGE",
+          "link": 70
+        },
+        {
+          "name": "after",
+          "type": "IMAGE",
+          "link": 71
+        },
+        {
+          "name": "reference",
+          "type": "IMAGE",
+          "link": 72
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            73
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Q21NComparePanel"
+      },
+      "widgets_values": [
+        "RAW: 23_Sequential_Body_Then_Head_Native/head"
+      ],
+      "title": "RAW crop / generated crop / reference (before protection)"
+    },
+    {
+      "id": 43,
+      "type": "SaveImage",
+      "pos": [
+        4260,
+        2250
+      ],
+      "size": [
+        330,
+        120
+      ],
+      "flags": {},
+      "order": 42,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 73
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "SaveImage"
+      },
+      "widgets_values": [
+        "Qwen21_Native/23_Sequential_Body_Then_Head_Native/head/comparison/image"
+      ],
+      "title": "Save separate candidate PNG"
+    },
+    {
+      "id": 44,
+      "type": "Q21NMaskUnion",
+      "pos": [
+        2850,
+        3650
+      ],
+      "size": [
+        330,
+        132
+      ],
+      "flags": {},
+      "order": 43,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "a",
+          "type": "MASK",
+          "link": 74
+        },
+        {
+          "name": "b",
+          "type": "MASK",
+          "link": 75
+        }
+      ],
+      "outputs": [
+        {
+          "name": "mask",
+          "type": "MASK",
+          "links": [
+            78
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Q21NMaskUnion"
+      },
+      "widgets_values": [],
+      "title": "Union of both effective blend footprints"
+    },
+    {
+      "id": 45,
+      "type": "Q21NAuditPreservation",
+      "pos": [
+        3440,
+        3650
+      ],
+      "size": [
+        330,
+        158
+      ],
+      "flags": {},
+      "order": 44,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "original",
+          "type": "IMAGE",
+          "link": 76
+        },
+        {
+          "name": "edited",
+          "type": "IMAGE",
+          "link": 77
+        },
+        {
+          "name": "blend_mask",
+          "type": "MASK",
+          "link": 78
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            79,
+            80
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "string",
+          "type": "STRING",
+          "links": [],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Q21NAuditPreservation"
+      },
+      "widgets_values": [],
+      "title": "Final audit against original scene"
+    },
+    {
+      "id": 46,
+      "type": "SaveImage",
+      "pos": [
+        3850,
+        3650
+      ],
+      "size": [
+        330,
+        120
+      ],
+      "flags": {},
+      "order": 45,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 79
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "SaveImage"
+      },
+      "widgets_values": [
+        "Qwen21_Native/23_Sequential_Body_Then_Head_Native/final/image"
+      ],
+      "title": "Save separate candidate PNG"
+    },
+    {
+      "id": 47,
+      "type": "Q21NWriteHandoff",
+      "pos": [
+        3850,
+        3830
+      ],
+      "size": [
+        330,
+        120
+      ],
+      "flags": {},
+      "order": 46,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 80
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Q21NWriteHandoff"
+      },
+      "widgets_values": [
+        "final"
+      ],
+      "title": "Update final_latest.png | candidate, not auto-approved"
+    },
+    {
+      "id": 48,
+      "type": "WBQwenPromptControl",
+      "title": "Qwen I2I prompt enhancer | OFF = original prompt",
+      "pos": [
+        0.0,
+        -750.0
+      ],
+      "size": [
+        455,
+        240
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "prompt_enhancer",
+          "type": "WB_QWEN_PROMPT",
+          "links": [
+            81,
+            82
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "WBQwenPromptControl"
+      },
+      "widgets_values": [
+        false,
+        42,
+        ""
+      ]
+    }
+  ],
+  "links": [
+    [
+      1,
+      2,
+      0,
+      10,
+      0,
+      "IMAGE"
+    ],
+    [
+      2,
+      2,
+      1,
+      10,
+      1,
+      "MASK"
+    ],
+    [
+      3,
+      10,
+      0,
+      11,
+      0,
+      "IMAGE"
+    ],
+    [
+      4,
+      10,
+      1,
+      11,
+      1,
+      "MASK"
+    ],
+    [
+      5,
+      3,
+      0,
+      12,
+      0,
+      "IMAGE"
+    ],
+    [
+      6,
+      7,
+      0,
+      13,
+      0,
+      "MODEL"
+    ],
+    [
+      7,
+      8,
+      0,
+      14,
+      0,
+      "CLIP"
+    ],
+    [
+      8,
+      9,
+      0,
+      14,
+      1,
+      "VAE"
+    ],
+    [
+      9,
+      11,
+      0,
+      14,
+      2,
+      "IMAGE"
+    ],
+    [
+      10,
+      12,
+      0,
+      14,
+      3,
+      "IMAGE"
+    ],
+    [
+      11,
+      13,
+      0,
+      15,
+      0,
+      "MODEL"
+    ],
+    [
+      12,
+      14,
+      0,
+      15,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      13,
+      14,
+      1,
+      15,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      14,
+      14,
+      2,
+      15,
+      3,
+      "LATENT"
+    ],
+    [
+      15,
+      15,
+      0,
+      16,
+      0,
+      "LATENT"
+    ],
+    [
+      16,
+      9,
+      0,
+      16,
+      1,
+      "VAE"
+    ],
+    [
+      17,
+      16,
+      0,
+      17,
+      0,
+      "IMAGE"
+    ],
+    [
+      18,
+      11,
+      0,
+      17,
+      1,
+      "IMAGE"
+    ],
+    [
+      19,
+      11,
+      2,
+      18,
+      0,
+      "AUSBOSS_STITCHER"
+    ],
+    [
+      20,
+      17,
+      0,
+      18,
+      1,
+      "IMAGE"
+    ],
+    [
+      21,
+      2,
+      0,
+      19,
+      0,
+      "IMAGE"
+    ],
+    [
+      22,
+      4,
+      1,
+      19,
+      1,
+      "MASK"
+    ],
+    [
+      23,
+      4,
+      0,
+      19,
+      2,
+      "IMAGE"
+    ],
+    [
+      24,
+      2,
+      0,
+      19,
+      3,
+      "IMAGE"
+    ],
+    [
+      25,
+      2,
+      0,
+      20,
+      0,
+      "IMAGE"
+    ],
+    [
+      26,
+      18,
+      0,
+      20,
+      1,
+      "IMAGE"
+    ],
+    [
+      27,
+      18,
+      1,
+      20,
+      2,
+      "MASK"
+    ],
+    [
+      28,
+      19,
+      1,
+      20,
+      3,
+      "MASK"
+    ],
+    [
+      29,
+      2,
+      0,
+      21,
+      0,
+      "IMAGE"
+    ],
+    [
+      30,
+      20,
+      0,
+      21,
+      1,
+      "IMAGE"
+    ],
+    [
+      31,
+      20,
+      1,
+      21,
+      2,
+      "MASK"
+    ],
+    [
+      32,
+      21,
+      0,
+      22,
+      0,
+      "IMAGE"
+    ],
+    [
+      33,
+      21,
+      0,
+      23,
+      0,
+      "IMAGE"
+    ],
+    [
+      34,
+      17,
+      0,
+      24,
+      0,
+      "IMAGE"
+    ],
+    [
+      35,
+      11,
+      0,
+      25,
+      0,
+      "IMAGE"
+    ],
+    [
+      36,
+      17,
+      0,
+      25,
+      1,
+      "IMAGE"
+    ],
+    [
+      37,
+      12,
+      0,
+      25,
+      2,
+      "IMAGE"
+    ],
+    [
+      38,
+      25,
+      0,
+      26,
+      0,
+      "IMAGE"
+    ],
+    [
+      39,
+      21,
+      0,
+      27,
+      0,
+      "IMAGE"
+    ],
+    [
+      40,
+      27,
+      0,
+      28,
+      0,
+      "IMAGE"
+    ],
+    [
+      41,
+      4,
+      1,
+      28,
+      1,
+      "MASK"
+    ],
+    [
+      42,
+      4,
+      0,
+      28,
+      2,
+      "IMAGE"
+    ],
+    [
+      43,
+      2,
+      0,
+      28,
+      3,
+      "IMAGE"
+    ],
+    [
+      44,
+      28,
+      0,
+      29,
+      0,
+      "IMAGE"
+    ],
+    [
+      45,
+      28,
+      1,
+      29,
+      1,
+      "MASK"
+    ],
+    [
+      46,
+      5,
+      0,
+      30,
+      0,
+      "IMAGE"
+    ],
+    [
+      47,
+      6,
+      0,
+      31,
+      0,
+      "IMAGE"
+    ],
+    [
+      48,
+      7,
+      0,
+      32,
+      0,
+      "MODEL"
+    ],
+    [
+      49,
+      8,
+      0,
+      33,
+      0,
+      "CLIP"
+    ],
+    [
+      50,
+      9,
+      0,
+      33,
+      1,
+      "VAE"
+    ],
+    [
+      51,
+      29,
+      0,
+      33,
+      2,
+      "IMAGE"
+    ],
+    [
+      52,
+      30,
+      0,
+      33,
+      3,
+      "IMAGE"
+    ],
+    [
+      53,
+      31,
+      0,
+      33,
+      4,
+      "IMAGE"
+    ],
+    [
+      54,
+      32,
+      0,
+      34,
+      0,
+      "MODEL"
+    ],
+    [
+      55,
+      33,
+      0,
+      34,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      56,
+      33,
+      1,
+      34,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      57,
+      33,
+      2,
+      34,
+      3,
+      "LATENT"
+    ],
+    [
+      58,
+      34,
+      0,
+      35,
+      0,
+      "LATENT"
+    ],
+    [
+      59,
+      9,
+      0,
+      35,
+      1,
+      "VAE"
+    ],
+    [
+      60,
+      35,
+      0,
+      36,
+      0,
+      "IMAGE"
+    ],
+    [
+      61,
+      29,
+      0,
+      36,
+      1,
+      "IMAGE"
+    ],
+    [
+      62,
+      29,
+      2,
+      37,
+      0,
+      "AUSBOSS_STITCHER"
+    ],
+    [
+      63,
+      36,
+      0,
+      37,
+      1,
+      "IMAGE"
+    ],
+    [
+      64,
+      27,
+      0,
+      38,
+      0,
+      "IMAGE"
+    ],
+    [
+      65,
+      37,
+      0,
+      38,
+      1,
+      "IMAGE"
+    ],
+    [
+      66,
+      37,
+      1,
+      38,
+      2,
+      "MASK"
+    ],
+    [
+      67,
+      38,
+      0,
+      39,
+      0,
+      "IMAGE"
+    ],
+    [
+      68,
+      38,
+      0,
+      40,
+      0,
+      "IMAGE"
+    ],
+    [
+      69,
+      36,
+      0,
+      41,
+      0,
+      "IMAGE"
+    ],
+    [
+      70,
+      29,
+      0,
+      42,
+      0,
+      "IMAGE"
+    ],
+    [
+      71,
+      36,
+      0,
+      42,
+      1,
+      "IMAGE"
+    ],
+    [
+      72,
+      30,
+      0,
+      42,
+      2,
+      "IMAGE"
+    ],
+    [
+      73,
+      42,
+      0,
+      43,
+      0,
+      "IMAGE"
+    ],
+    [
+      74,
+      20,
+      1,
+      44,
+      0,
+      "MASK"
+    ],
+    [
+      75,
+      37,
+      1,
+      44,
+      1,
+      "MASK"
+    ],
+    [
+      76,
+      2,
+      0,
+      45,
+      0,
+      "IMAGE"
+    ],
+    [
+      77,
+      38,
+      0,
+      45,
+      1,
+      "IMAGE"
+    ],
+    [
+      78,
+      44,
+      0,
+      45,
+      2,
+      "MASK"
+    ],
+    [
+      79,
+      45,
+      0,
+      46,
+      0,
+      "IMAGE"
+    ],
+    [
+      80,
+      45,
+      0,
+      47,
+      0,
+      "IMAGE"
+    ],
+    [
+      81,
+      48,
+      0,
+      14,
+      10,
+      "WB_QWEN_PROMPT"
+    ],
+    [
+      82,
+      48,
+      0,
+      33,
+      10,
+      "WB_QWEN_PROMPT"
+    ]
+  ],
+  "groups": [
+    {
+      "id": 1,
+      "title": "YOUR SOURCES / PAINTED MASKS",
+      "bounding": [
+        -20,
+        -60,
+        425,
+        2250
+      ],
+      "color": "#365b75",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "id": 2,
+      "title": "BASE BF16 WEIGHTS",
+      "bounding": [
+        440,
+        -60,
+        370,
+        690
+      ],
+      "color": "#365b75",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "id": 3,
+      "title": "OPTIONAL PROMPT ENHANCER | one toggle for every pass",
+      "bounding": [
+        -20.0,
+        -795.0,
+        495,
+        310
+      ],
+      "color": "#365b75",
+      "font_size": 20,
+      "flags": {}
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.6,
+      "offset": [
+        50,
+        50
+      ]
+    },
+    "qwen21_native_suite": {
+      "version": "1.1.0",
+      "title": "23_Sequential_Body_Then_Head_Native"
+    },
+    "workbench": {
+      "task_id": "Q23",
+      "quality": "hq",
+      "source": "qwen21_native/workflows/23_Sequential_Body_Then_Head_Native.json",
+      "validation": "static source adaptation; GPU untested"
+    },
+    "workbench_prompt_enhancer": {
+      "version": 1,
+      "controller": 48,
+      "default": "off",
+      "passes": 2
+    }
+  },
+  "version": 0.4
+}

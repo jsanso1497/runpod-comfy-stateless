@@ -1,0 +1,8 @@
+const assert=require('node:assert/strict');const fs=require('node:fs');const path=require('node:path');const R=path.join(__dirname,'..');const C=JSON.parse(fs.readFileSync(path.join(R,'site/catalog.json')));const L=require('../site/logic.js');let n=0;
+for(const m of C.models){const p=L.plan(C,m.id,m.default_tasks,[],{});assert.equal(p.environment.HF_TOKEN,'{{ RUNPOD_SECRET_hf_token }}');assert.equal(p.environment.CIVITAI_TOKEN,'{{ RUNPOD_SECRET_civit_token }}');assert.equal(p.http_ports,'8188');assert.equal(p.container_start_command,'');assert.match(p.image,RegExp(':'+m.id+'-hq$'));assert.ok(p.container_disk_gb>=m.storage_gb);n+=6;for(const t of C.tasks.filter(t=>t.workspaces.includes(m.id))){const p=L.plan(C,m.id,[t.id],[],{});for(const g of t.requires)assert.ok(p.asset_groups.includes(g));n++;}}
+const h=L.plan(C,'h3',['H08'],[],{});assert.ok(h.asset_groups.includes('ollama'));assert.ok(h.estimated_model_download_gb>250);n+=2;
+assert.throws(()=>L.plan(C,'qwen',['H11'],[],{}));assert.throws(()=>L.plan(C,'flux',['F01'],['sam'],{}));assert.throws(()=>L.plan(C,'qwen',['Q01'],[],{repository:'https://bad/url'}));n+=3;
+const privatePlan=L.plan(C,'qwen',['Q01'],[],{loras:true,checkpoints:true,storage:'persistent'});assert.equal(privatePlan.container_disk_gb,80);assert.equal(privatePlan.environment.WB_LORA_URLS,'{{ RUNPOD_SECRET_comfy_loras }}');assert.equal(privatePlan.environment.WB_CHECKPOINTS,'{{ RUNPOD_SECRET_comfy_checkpoints }}');n+=3;
+console.log(n+' configurator assertions passed.');
+// Keep the prompt-preview extension checks in the existing browser-free CI job.
+require('./test_prompt_preview.cjs');

@@ -1,0 +1,1142 @@
+{
+  "id": "e9e00b2c-481b-5284-b9c5-8839c73f9200",
+  "revision": 0,
+  "last_node_id": 22,
+  "last_link_id": 27,
+  "nodes": [
+    {
+      "id": 2,
+      "type": "SafeH3UNETLoader",
+      "title": "MiniMax H3 Ref2VA - full BF16",
+      "pos": [
+        20,
+        440
+      ],
+      "size": [
+        400,
+        110
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            2
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SafeH3UNETLoader",
+        "cnr_id": "comfy-core",
+        "ver": "0.38.0"
+      },
+      "widgets_values": [
+        "minimax_h3_ref2va_bf16.safetensors",
+        "default"
+      ],
+      "widgets_values_named": {
+        "unet_name": "minimax_h3_ref2va_bf16.safetensors",
+        "weight_dtype": "default"
+      }
+    },
+    {
+      "id": 3,
+      "type": "SafeH3CLIPLoader",
+      "title": "Qwen3-VL 32B - full BF16",
+      "pos": [
+        20,
+        610
+      ],
+      "size": [
+        400,
+        130
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            22
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SafeH3CLIPLoader",
+        "cnr_id": "comfy-core",
+        "ver": "0.38.0"
+      },
+      "widgets_values": [
+        "qwen3vl_32b_minimax_h3_bf16.safetensors",
+        "minimax",
+        "default"
+      ],
+      "widgets_values_named": {
+        "clip_name": "qwen3vl_32b_minimax_h3_bf16.safetensors",
+        "type": "minimax",
+        "device": "default"
+      }
+    },
+    {
+      "id": 4,
+      "type": "SafeH3VideoVAELoader",
+      "title": "H3 video VAE FP16",
+      "pos": [
+        20,
+        800
+      ],
+      "size": [
+        400,
+        90
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            15,
+            23
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SafeH3VideoVAELoader",
+        "cnr_id": "comfy-core",
+        "ver": "0.38.0"
+      },
+      "widgets_values": [
+        "minimax_h3_video_vae_fp16.safetensors"
+      ],
+      "widgets_values_named": {
+        "vae_name": "minimax_h3_video_vae_fp16.safetensors"
+      }
+    },
+    {
+      "id": 5,
+      "type": "SafeH3AudioVAELoader",
+      "title": "H3 audio VAE FP32",
+      "pos": [
+        20,
+        950
+      ],
+      "size": [
+        400,
+        90
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            17
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SafeH3AudioVAELoader",
+        "cnr_id": "comfy-core",
+        "ver": "0.38.0"
+      },
+      "widgets_values": [
+        "minimax_h3_audio_vae_fp32.safetensors"
+      ],
+      "widgets_values_named": {
+        "vae_name": "minimax_h3_audio_vae_fp32.safetensors"
+      }
+    },
+    {
+      "id": 6,
+      "type": "EverydayOptionalLoRA",
+      "title": "Optional FULL-model H3 LoRA - OFF",
+      "pos": [
+        485,
+        565
+      ],
+      "size": [
+        390,
+        170
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            6,
+            8
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "EverydayOptionalLoRA"
+      },
+      "widgets_values": [
+        false,
+        "None",
+        0.6
+      ],
+      "widgets_values_named": {
+        "enabled": false,
+        "lora_name": "None",
+        "strength_model": 0.6
+      }
+    },
+    {
+      "id": 8,
+      "type": "RandomNoise",
+      "title": "Fixed seed",
+      "pos": [
+        1040,
+        25
+      ],
+      "size": [
+        295,
+        115
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "NOISE",
+          "type": "NOISE",
+          "links": [
+            9
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "RandomNoise",
+        "cnr_id": "comfy-core",
+        "ver": "0.38.0"
+      },
+      "widgets_values": [
+        42,
+        "fixed"
+      ],
+      "widgets_values_named": {
+        "noise_seed": 42,
+        "control_after_generate": "fixed"
+      }
+    },
+    {
+      "id": 9,
+      "type": "BasicGuider",
+      "title": "Standard H3 conditioning",
+      "pos": [
+        1040,
+        190
+      ],
+      "size": [
+        310,
+        90
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 6
+        },
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "link": 25
+        }
+      ],
+      "outputs": [
+        {
+          "name": "GUIDER",
+          "type": "GUIDER",
+          "links": [
+            10
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BasicGuider",
+        "cnr_id": "comfy-core",
+        "ver": "0.38.0"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 10,
+      "type": "KSamplerSelect",
+      "title": "Standard sampler - no Turbo LoRA",
+      "pos": [
+        1040,
+        335
+      ],
+      "size": [
+        310,
+        90
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "SAMPLER",
+          "type": "SAMPLER",
+          "links": [
+            11
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "KSamplerSelect",
+        "cnr_id": "comfy-core",
+        "ver": "0.38.0"
+      },
+      "widgets_values": [
+        "res_multistep"
+      ],
+      "widgets_values_named": {
+        "sampler_name": "res_multistep"
+      }
+    },
+    {
+      "id": 11,
+      "type": "BasicScheduler",
+      "title": "Quality schedule",
+      "pos": [
+        1040,
+        485
+      ],
+      "size": [
+        310,
+        150
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 8
+        }
+      ],
+      "outputs": [
+        {
+          "name": "SIGMAS",
+          "type": "SIGMAS",
+          "links": [
+            12
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BasicScheduler",
+        "cnr_id": "comfy-core",
+        "ver": "0.38.0"
+      },
+      "widgets_values": [
+        "normal",
+        25,
+        1.0
+      ],
+      "widgets_values_named": {
+        "scheduler": "normal",
+        "steps": 25,
+        "denoise": 1.0
+      }
+    },
+    {
+      "id": 12,
+      "type": "SamplerCustomAdvanced",
+      "title": "3. Generate video + audio",
+      "pos": [
+        1430,
+        160
+      ],
+      "size": [
+        340,
+        200
+      ],
+      "flags": {},
+      "order": 15,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "noise",
+          "type": "NOISE",
+          "link": 9
+        },
+        {
+          "name": "guider",
+          "type": "GUIDER",
+          "link": 10
+        },
+        {
+          "name": "sampler",
+          "type": "SAMPLER",
+          "link": 11
+        },
+        {
+          "name": "sigmas",
+          "type": "SIGMAS",
+          "link": 12
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 26
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "LATENT",
+          "links": [
+            14,
+            16
+          ]
+        },
+        {
+          "name": "denoised_output",
+          "type": "LATENT",
+          "links": []
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SamplerCustomAdvanced",
+        "cnr_id": "comfy-core",
+        "ver": "0.38.0"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 13,
+      "type": "VAEDecode",
+      "title": "Decode video",
+      "pos": [
+        1430,
+        450
+      ],
+      "size": [
+        310,
+        90
+      ],
+      "flags": {},
+      "order": 16,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 14
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 15
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            18
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAEDecode",
+        "cnr_id": "comfy-core",
+        "ver": "0.38.0"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 14,
+      "type": "VAEDecodeAudio",
+      "title": "Decode audio",
+      "pos": [
+        1430,
+        610
+      ],
+      "size": [
+        310,
+        90
+      ],
+      "flags": {},
+      "order": 17,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 16
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 17
+        }
+      ],
+      "outputs": [
+        {
+          "name": "AUDIO",
+          "type": "AUDIO",
+          "links": [
+            19
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAEDecodeAudio",
+        "cnr_id": "comfy-core",
+        "ver": "0.38.0"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 15,
+      "type": "CreateVideo",
+      "title": "24 fps",
+      "pos": [
+        1820,
+        470
+      ],
+      "size": [
+        310,
+        130
+      ],
+      "flags": {},
+      "order": 18,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 18
+        },
+        {
+          "name": "audio",
+          "type": "AUDIO",
+          "link": 19,
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "VIDEO",
+          "type": "VIDEO",
+          "links": [
+            20
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CreateVideo",
+        "cnr_id": "comfy-core",
+        "ver": "0.38.0"
+      },
+      "widgets_values": [
+        24.0
+      ],
+      "widgets_values_named": {
+        "fps": 24.0
+      }
+    },
+    {
+      "id": 16,
+      "type": "SaveVideo",
+      "title": "4. Output video",
+      "pos": [
+        2200,
+        25
+      ],
+      "size": [
+        560,
+        590
+      ],
+      "flags": {},
+      "order": 19,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "video",
+          "type": "VIDEO",
+          "link": 20
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "SaveVideo",
+        "cnr_id": "comfy-core",
+        "ver": "0.38.0"
+      },
+      "widgets_values": [
+        "video/H3_Saved_RefMods_Quality",
+        "mp4",
+        "h264"
+      ],
+      "widgets_values_named": {
+        "filename_prefix": "video/H3_Saved_RefMods_Quality",
+        "format": "mp4",
+        "codec": "h264"
+      }
+    },
+    {
+      "id": 17,
+      "type": "Note",
+      "title": "H3 requirements and limits",
+      "pos": [
+        480,
+        830
+      ],
+      "size": [
+        1450,
+        290
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "Note"
+      },
+      "widgets_values": [
+        "REUSE SAVED REFERENCES. Choose files in Load H3 RefMods; slot order determines labels. One-image saved mods are <Picture N>; old stacked/image-sequence mods may be <Video N>. This workflow reconstructs saved pixels for Qwen through the VAE and ALREADY attaches visual refs in RefMod Text Encode. Do NOT also add Apply H3 RefMod. For the closest link to the original pixels, keep using 22 with original images. No Turbo; 25-step BF16 generation. Copies 1, full strength, no random reference selection. Adjust prompt to the selected subjects."
+      ]
+    },
+    {
+      "id": 18,
+      "type": "MiniMaxH3RefModsLoader",
+      "title": "1. Select saved subject references in order",
+      "pos": [
+        0,
+        900
+      ],
+      "size": [
+        420,
+        800
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "mods",
+          "type": "H3_REF_MODS",
+          "links": [
+            21
+          ]
+        },
+        {
+          "name": "prompt_hint",
+          "type": "STRING",
+          "links": []
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "MiniMaxH3RefModsLoader"
+      },
+      "widgets_values": [
+        true,
+        "(none)",
+        1.0,
+        1,
+        "(none)",
+        1.0,
+        1,
+        "(none)",
+        1.0,
+        1,
+        "(none)",
+        1.0,
+        1,
+        "(none)",
+        1.0,
+        1,
+        "(none)",
+        1.0,
+        1,
+        "(none)",
+        1.0,
+        1,
+        "(none)",
+        1.0,
+        1,
+        131072,
+        "Visual",
+        1.0,
+        1.0,
+        "Visual",
+        1.0,
+        1.0,
+        "Visual",
+        1.0,
+        1.0,
+        "Visual",
+        1.0,
+        1.0,
+        "Visual",
+        1.0,
+        1.0,
+        "Visual",
+        1.0,
+        1.0,
+        "Visual",
+        1.0,
+        1.0,
+        "Visual",
+        1.0,
+        1.0
+      ],
+      "widgets_values_named": {
+        "show_info": true,
+        "mod_1": "(none)",
+        "strength_1": 1.0,
+        "copies_1": 1,
+        "mod_2": "(none)",
+        "strength_2": 1.0,
+        "copies_2": 1,
+        "mod_3": "(none)",
+        "strength_3": 1.0,
+        "copies_3": 1,
+        "mod_4": "(none)",
+        "strength_4": 1.0,
+        "copies_4": 1,
+        "mod_5": "(none)",
+        "strength_5": 1.0,
+        "copies_5": 1,
+        "mod_6": "(none)",
+        "strength_6": 1.0,
+        "copies_6": 1,
+        "mod_7": "(none)",
+        "strength_7": 1.0,
+        "copies_7": 1,
+        "mod_8": "(none)",
+        "strength_8": 1.0,
+        "copies_8": 1,
+        "max_total_tokens": 131072,
+        "components_1": "Visual",
+        "visual_strength_1": 1.0,
+        "audio_strength_1": 1.0,
+        "components_2": "Visual",
+        "visual_strength_2": 1.0,
+        "audio_strength_2": 1.0,
+        "components_3": "Visual",
+        "visual_strength_3": 1.0,
+        "audio_strength_3": 1.0,
+        "components_4": "Visual",
+        "visual_strength_4": 1.0,
+        "audio_strength_4": 1.0,
+        "components_5": "Visual",
+        "visual_strength_5": 1.0,
+        "audio_strength_5": 1.0,
+        "components_6": "Visual",
+        "visual_strength_6": 1.0,
+        "audio_strength_6": 1.0,
+        "components_7": "Visual",
+        "visual_strength_7": 1.0,
+        "audio_strength_7": 1.0,
+        "components_8": "Visual",
+        "visual_strength_8": 1.0,
+        "audio_strength_8": 1.0
+      }
+    },
+    {
+      "id": 19,
+      "type": "QualityCheckRefModBundle",
+      "title": "Require a selected reference",
+      "pos": [
+        460,
+        930
+      ],
+      "size": [
+        250,
+        100
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "mods",
+          "type": "H3_REF_MODS",
+          "link": 21
+        }
+      ],
+      "outputs": [
+        {
+          "name": "mods",
+          "type": "H3_REF_MODS",
+          "links": [
+            24
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "QualityCheckRefModBundle"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 20,
+      "type": "MiniMaxH3RefModTextEncode",
+      "title": "2. Prompt using the saved-reference labels",
+      "pos": [
+        770,
+        900
+      ],
+      "size": [
+        530,
+        340
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 22
+        },
+        {
+          "name": "mods",
+          "type": "H3_REF_MODS",
+          "link": 24
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 23,
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "links": [
+            25
+          ]
+        },
+        {
+          "name": "reference_map",
+          "type": "STRING",
+          "links": [
+            27
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "MiniMaxH3RefModTextEncode"
+      },
+      "widgets_values": [
+        "Use <Picture 1> as the identity of the only person. Preserve their face, age, hair, proportions and clothing. A continuous photorealistic medium shot in soft window light, with a subtle natural head movement. No speech, music, additional people, or text.",
+        24.0,
+        131072
+      ],
+      "widgets_values_named": {
+        "prompt": "Use <Picture 1> as the identity of the only person. Preserve their face, age, hair, proportions and clothing. A continuous photorealistic medium shot in soft window light, with a subtle natural head movement. No speech, music, additional people, or text.",
+        "reference_fps": 24.0,
+        "max_total_tokens": 131072
+      }
+    },
+    {
+      "id": 21,
+      "type": "EmptyMiniMaxH3LatentAV",
+      "title": "3. Shot size and frame count",
+      "pos": [
+        780,
+        1340
+      ],
+      "size": [
+        330,
+        150
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            26
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "EmptyMiniMaxH3LatentAV"
+      },
+      "widgets_values": [
+        1344,
+        768,
+        124
+      ],
+      "widgets_values_named": {
+        "width": 1344,
+        "height": 768,
+        "length": 124
+      }
+    },
+    {
+      "id": 22,
+      "type": "PreviewAny",
+      "title": "Check reference numbering",
+      "pos": [
+        1360,
+        900
+      ],
+      "size": [
+        440,
+        270
+      ],
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "source",
+          "type": "STRING",
+          "link": 27
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": []
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewAny"
+      },
+      "widgets_values": []
+    }
+  ],
+  "links": [
+    [
+      2,
+      2,
+      0,
+      6,
+      0,
+      "MODEL"
+    ],
+    [
+      6,
+      6,
+      0,
+      9,
+      0,
+      "MODEL"
+    ],
+    [
+      8,
+      6,
+      0,
+      11,
+      0,
+      "MODEL"
+    ],
+    [
+      9,
+      8,
+      0,
+      12,
+      0,
+      "NOISE"
+    ],
+    [
+      10,
+      9,
+      0,
+      12,
+      1,
+      "GUIDER"
+    ],
+    [
+      11,
+      10,
+      0,
+      12,
+      2,
+      "SAMPLER"
+    ],
+    [
+      12,
+      11,
+      0,
+      12,
+      3,
+      "SIGMAS"
+    ],
+    [
+      14,
+      12,
+      0,
+      13,
+      0,
+      "LATENT"
+    ],
+    [
+      15,
+      4,
+      0,
+      13,
+      1,
+      "VAE"
+    ],
+    [
+      16,
+      12,
+      0,
+      14,
+      0,
+      "LATENT"
+    ],
+    [
+      17,
+      5,
+      0,
+      14,
+      1,
+      "VAE"
+    ],
+    [
+      18,
+      13,
+      0,
+      15,
+      0,
+      "IMAGE"
+    ],
+    [
+      19,
+      14,
+      0,
+      15,
+      1,
+      "AUDIO"
+    ],
+    [
+      20,
+      15,
+      0,
+      16,
+      0,
+      "VIDEO"
+    ],
+    [
+      21,
+      18,
+      0,
+      19,
+      0,
+      "H3_REF_MODS"
+    ],
+    [
+      22,
+      3,
+      0,
+      20,
+      0,
+      "CLIP"
+    ],
+    [
+      23,
+      4,
+      0,
+      20,
+      2,
+      "VAE"
+    ],
+    [
+      24,
+      19,
+      0,
+      20,
+      1,
+      "H3_REF_MODS"
+    ],
+    [
+      25,
+      20,
+      0,
+      9,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      26,
+      21,
+      0,
+      12,
+      4,
+      "LATENT"
+    ],
+    [
+      27,
+      20,
+      1,
+      22,
+      0,
+      "STRING"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.62,
+      "offset": [
+        45,
+        65
+      ]
+    },
+    "everyday": {
+      "profile": "h3",
+      "version": "3.0.0",
+      "requires_user_upload": true,
+      "comfy_ref": "65787d668397d230bf5839d69a0a7239e2dad378"
+    },
+    "refmod_quality": "saved_refs_attached_once",
+    "workbench": {
+      "task_id": "H04",
+      "quality": "hq",
+      "source": "config/workflows/23_H3_Saved_RefMods_Quality.json",
+      "validation": "static source adaptation; GPU untested"
+    }
+  },
+  "version": 0.4
+}

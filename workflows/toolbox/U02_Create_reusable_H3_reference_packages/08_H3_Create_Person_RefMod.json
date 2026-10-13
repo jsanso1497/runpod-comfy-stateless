@@ -1,0 +1,763 @@
+{
+  "id": "9d6e2d6b-3d75-44ef-8d8a-580e69b4cb40",
+  "revision": 0,
+  "last_node_id": 15,
+  "last_link_id": 14,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "LoadImage",
+      "title": "1. PRIMARY HEADSHOT - face and hair",
+      "pos": [
+        0,
+        0
+      ],
+      "size": [
+        370,
+        430
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            1
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": []
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values_named": {
+        "image": "",
+        "upload": "image"
+      },
+      "widgets_values": [
+        "",
+        "image"
+      ]
+    },
+    {
+      "id": 2,
+      "type": "QualityOptionalBodyImage",
+      "title": "BODY 1 - main outfit + body proportions",
+      "pos": [
+        0,
+        480
+      ],
+      "size": [
+        370,
+        320
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            2
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "QualityOptionalBodyImage"
+      },
+      "widgets_values_named": {
+        "image": "(none)",
+        "upload": "image"
+      },
+      "widgets_values": [
+        "(none)",
+        "image"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "QualityOptionalBodyImage",
+      "title": "BODY 2 - optional alternate view; same person",
+      "pos": [
+        0,
+        850
+      ],
+      "size": [
+        370,
+        320
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            3
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "QualityOptionalBodyImage"
+      },
+      "widgets_values_named": {
+        "image": "(none)",
+        "upload": "image"
+      },
+      "widgets_values": [
+        "(none)",
+        "image"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "QualityOptionalBodyImage",
+      "title": "BODY 3 - optional alternate view; same person",
+      "pos": [
+        0,
+        1220
+      ],
+      "size": [
+        370,
+        320
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            4
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "QualityOptionalBodyImage"
+      },
+      "widgets_values_named": {
+        "image": "(none)",
+        "upload": "image"
+      },
+      "widgets_values": [
+        "(none)",
+        "image"
+      ]
+    },
+    {
+      "id": 5,
+      "type": "QualityOptionalBodyImage",
+      "title": "BODY 4 - optional alternate view; same person",
+      "pos": [
+        0,
+        1590
+      ],
+      "size": [
+        370,
+        320
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            5
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "QualityOptionalBodyImage"
+      },
+      "widgets_values_named": {
+        "image": "(none)",
+        "upload": "image"
+      },
+      "widgets_values": [
+        "(none)",
+        "image"
+      ]
+    },
+    {
+      "id": 6,
+      "type": "QualityOptionalBodyImage",
+      "title": "BODY 5 - optional alternate view; same person",
+      "pos": [
+        420,
+        480
+      ],
+      "size": [
+        370,
+        320
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            6
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "QualityOptionalBodyImage"
+      },
+      "widgets_values_named": {
+        "image": "(none)",
+        "upload": "image"
+      },
+      "widgets_values": [
+        "(none)",
+        "image"
+      ]
+    },
+    {
+      "id": 7,
+      "type": "QualityOptionalBodyImage",
+      "title": "BODY 6 - optional alternate view; same person",
+      "pos": [
+        420,
+        850
+      ],
+      "size": [
+        370,
+        320
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            7
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "QualityOptionalBodyImage"
+      },
+      "widgets_values_named": {
+        "image": "(none)",
+        "upload": "image"
+      },
+      "widgets_values": [
+        "(none)",
+        "image"
+      ]
+    },
+    {
+      "id": 8,
+      "type": "QualityOptionalBodyImage",
+      "title": "BODY 7 - optional alternate view; same person",
+      "pos": [
+        420,
+        1220
+      ],
+      "size": [
+        370,
+        320
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            8
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "QualityOptionalBodyImage"
+      },
+      "widgets_values_named": {
+        "image": "(none)",
+        "upload": "image"
+      },
+      "widgets_values": [
+        "(none)",
+        "image"
+      ]
+    },
+    {
+      "id": 9,
+      "type": "QualityOptionalBodyImage",
+      "title": "BODY 8 - optional alternate view; same person",
+      "pos": [
+        420,
+        1590
+      ],
+      "size": [
+        370,
+        320
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            9
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "QualityOptionalBodyImage"
+      },
+      "widgets_values_named": {
+        "image": "(none)",
+        "upload": "image"
+      },
+      "widgets_values": [
+        "(none)",
+        "image"
+      ]
+    },
+    {
+      "id": 10,
+      "type": "QualityPersonReferenceSet",
+      "title": "2. ONE PERSON - name the reference set",
+      "pos": [
+        860,
+        0
+      ],
+      "size": [
+        420,
+        300
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "headshot",
+          "type": "IMAGE",
+          "link": 1
+        },
+        {
+          "name": "body_1",
+          "type": "IMAGE",
+          "link": 2
+        },
+        {
+          "name": "body_2",
+          "type": "IMAGE",
+          "link": 3
+        },
+        {
+          "name": "body_3",
+          "type": "IMAGE",
+          "link": 4
+        },
+        {
+          "name": "body_4",
+          "type": "IMAGE",
+          "link": 5
+        },
+        {
+          "name": "body_5",
+          "type": "IMAGE",
+          "link": 6
+        },
+        {
+          "name": "body_6",
+          "type": "IMAGE",
+          "link": 7
+        },
+        {
+          "name": "body_7",
+          "type": "IMAGE",
+          "link": 8
+        },
+        {
+          "name": "body_8",
+          "type": "IMAGE",
+          "link": 9
+        }
+      ],
+      "outputs": [
+        {
+          "name": "person_references",
+          "type": "H3_PERSON_REFERENCES",
+          "links": [
+            11
+          ]
+        },
+        {
+          "name": "reference_map",
+          "type": "STRING",
+          "links": [
+            10
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "QualityPersonReferenceSet"
+      },
+      "widgets_values_named": {
+        "person_label": "test_person"
+      },
+      "widgets_values": [
+        "test_person"
+      ]
+    },
+    {
+      "id": 11,
+      "type": "PreviewAny",
+      "title": "Check: all images map to ONE person",
+      "pos": [
+        860,
+        370
+      ],
+      "size": [
+        430,
+        350
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "source",
+          "type": "STRING",
+          "link": 10
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": []
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewAny"
+      }
+    },
+    {
+      "id": 12,
+      "type": "SafeH3VideoVAELoader",
+      "title": "H3 video VAE only - no diffusion model",
+      "pos": [
+        1340,
+        0
+      ],
+      "size": [
+        400,
+        90
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            12
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SafeH3VideoVAELoader"
+      },
+      "widgets_values_named": {
+        "vae_name": "minimax_h3_video_vae_fp16.safetensors"
+      },
+      "widgets_values": [
+        "minimax_h3_video_vae_fp16.safetensors"
+      ]
+    },
+    {
+      "id": 13,
+      "type": "QualityCreatePersonRefMod",
+      "title": "4. Save ONE person bundle - full reference per view",
+      "pos": [
+        1840,
+        0
+      ],
+      "size": [
+        480,
+        250
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "references",
+          "type": "H3_PERSON_REFERENCES",
+          "link": 11
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 12
+        }
+      ],
+      "outputs": [
+        {
+          "name": "person_mods",
+          "type": "H3_REF_MODS",
+          "links": [
+            14
+          ]
+        },
+        {
+          "name": "saved_details",
+          "type": "STRING",
+          "links": [
+            13
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "QualityCreatePersonRefMod"
+      },
+      "widgets_values_named": {
+        "ref_resolution": 2048,
+        "max_total_tokens": 131072,
+        "save": true
+      },
+      "widgets_values": [
+        2048,
+        131072,
+        true
+      ]
+    },
+    {
+      "id": 14,
+      "type": "PreviewAny",
+      "title": "Saved person bundle and role map",
+      "pos": [
+        1840,
+        310
+      ],
+      "size": [
+        480,
+        350
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "source",
+          "type": "STRING",
+          "link": 13
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": []
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewAny"
+      }
+    },
+    {
+      "id": 15,
+      "type": "QualityExportRefMods",
+      "title": "5. DOWNLOAD person bundle backup ZIP",
+      "pos": [
+        2400,
+        80
+      ],
+      "size": [
+        440,
+        220
+      ],
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "after",
+          "type": "H3_REF_MODS",
+          "link": 14
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": []
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "QualityExportRefMods"
+      }
+    }
+  ],
+  "links": [
+    [
+      1,
+      1,
+      0,
+      10,
+      0,
+      "IMAGE"
+    ],
+    [
+      2,
+      2,
+      0,
+      10,
+      1,
+      "IMAGE"
+    ],
+    [
+      3,
+      3,
+      0,
+      10,
+      2,
+      "IMAGE"
+    ],
+    [
+      4,
+      4,
+      0,
+      10,
+      3,
+      "IMAGE"
+    ],
+    [
+      5,
+      5,
+      0,
+      10,
+      4,
+      "IMAGE"
+    ],
+    [
+      6,
+      6,
+      0,
+      10,
+      5,
+      "IMAGE"
+    ],
+    [
+      7,
+      7,
+      0,
+      10,
+      6,
+      "IMAGE"
+    ],
+    [
+      8,
+      8,
+      0,
+      10,
+      7,
+      "IMAGE"
+    ],
+    [
+      9,
+      9,
+      0,
+      10,
+      8,
+      "IMAGE"
+    ],
+    [
+      10,
+      10,
+      1,
+      11,
+      0,
+      "STRING"
+    ],
+    [
+      11,
+      10,
+      0,
+      13,
+      0,
+      "H3_PERSON_REFERENCES"
+    ],
+    [
+      12,
+      12,
+      0,
+      13,
+      1,
+      "VAE"
+    ],
+    [
+      13,
+      13,
+      1,
+      14,
+      0,
+      "STRING"
+    ],
+    [
+      14,
+      13,
+      0,
+      15,
+      0,
+      "H3_REF_MODS"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.48,
+      "offset": [
+        15,
+        15
+      ]
+    },
+    "everyday": {
+      "profile": "h3",
+      "version": "3.2.0",
+      "requires_user_upload": true
+    },
+    "single_person_h3": "create",
+    "workbench": {
+      "task_id": "U02",
+      "quality": "hq",
+      "source": "config/workflows/08_H3_Create_Person_RefMod.json",
+      "validation": "static source adaptation; GPU untested"
+    }
+  },
+  "version": 0.4
+}
