@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "tasks": [{
+    "id": "U11",
+    "title": "Smart visual prompt studio - text only",
+    "description": "Give 1-8 images and a short request. Writes an image-aware edit, new-scene, standalone recreation or description prompt. Optional image-role hints. Exports only .txt; no image generation.",
+    "family": "toolbox",
+    "category": "Toolbox",
+    "workspaces": ["qwen"],
+    "requires": ["ollama"],
+    "sources": [],
+    "status": "integration candidate; live vision/GPU validation pending",
+    "required_nodes": ["WBPromptStudioImage", "WBQwenPromptStudio"],
+    "variants": [{
+      "label": "Qwen Smart Prompt Studio - 8 optional image slots",
+      "file": "workflows/toolbox/U11_Qwen_Smart_Prompt_Studio.json",
+      "source": "Workbench standalone visual prompt studio 1.0.0"
+    }]
+  }]
+}

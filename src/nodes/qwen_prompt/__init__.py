@@ -48,3 +48,9 @@ NODE_CLASS_MAPPINGS = {'WBQwenPromptControl': WBQwenPromptControl, 'WBQwenPrompt
 NODE_DISPLAY_NAME_MAPPINGS = {'WBQwenPromptControl': 'Qwen | Vision Prompt Enhancer Select / ON / OFF',
                               'WBQwenPromptPreview': 'Qwen | Preview Enhanced Prompt Only'}
 WEB_DIRECTORY = './web'
+
+# Prompt Studio is separate from the existing automatic edit enhancer.
+from workbench.prompt_studio_nodes import NODE_CLASS_MAPPINGS as _STUDIO_CLASSES
+from workbench.prompt_studio_nodes import NODE_DISPLAY_NAME_MAPPINGS as _STUDIO_NAMES
+NODE_CLASS_MAPPINGS.update(_STUDIO_CLASSES)
+NODE_DISPLAY_NAME_MAPPINGS.update(_STUDIO_NAMES)

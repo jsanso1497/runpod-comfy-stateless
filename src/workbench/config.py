@@ -63,6 +63,9 @@ def read_catalog(name: str):
     if name in ('models.json', 'tasks.json', 'assets.json'):
         from .qwen_prompt_catalog import apply
         value = apply(name, value)
+    if name == 'tasks.json':
+        from .prompt_studio_catalog import append_tasks
+        append_tasks(value, ROOT)
     return value
 
 def csv(value: str) -> list[str]:
