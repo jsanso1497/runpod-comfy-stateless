@@ -1,11 +1,13 @@
-"""Optional official Qwen I2I prompt enhancement using native ComfyUI inference.
+"""Shared prompt enhancement for existing Qwen image workflows.
 
-No imports of inference libraries, network access, or model loads occur on the
-OFF path. The input images are read-only and retain their downstream ordering.
+ON uses the selected local full-precision abliterated vision model. OFF is exact
+pass-through and does not inspect images, resolve model settings or access a
+service. Legacy official-checkpoint utilities remain for integrity tests and
+migration, but are never an automatic fallback.
 """
 from __future__ import annotations
 from collections import OrderedDict
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 import gc
 import hashlib
 import json
@@ -13,6 +15,7 @@ import re
 import threading
 from .config import model_root, read_catalog, safe_path
 
+# Legacy official asset identities, retained for cached-asset verification only.
 MODEL_ID = 'Qwen/Qwen-Image-2.1-PE-I2I'
 REVISION = '72927bc08afc99b7888ceb7d7d51a12db3700bbd'
 GROUP = 'qwen_pe_i2i'
@@ -20,32 +23,20 @@ MAX_NEW_TOKENS = 24000
 _LOCK = threading.RLock()
 _CACHE: OrderedDict[str, tuple[str, dict]] = OrderedDict()
 _VERIFIED: set[tuple] = set()
-
-# This is an integration constraint, not a replacement for Qwen's system prompt.
-INTEGRATION_RULES = '''\n\nWorkbench integration requirements:
-The user's image tags and explicit reference-role assignments are authoritative.
-The provided images are exactly those used in this edit pass, in the same order.
-Some are working crops; do not describe missing full-scene context as visible.
-Preserve all explicit identity, wardrobe, pose, perspective and preservation
-constraints. Never add a global beautification or style change unless requested.
-Preserve quoted text, LoRA trigger strings, and the listed keep-exact terms
-verbatim when they occur in the user's instruction. Clarify only the requested
-changes. Do not invent a new edit, subject, reference, or additional operation.
-The workflow owns mask geometry, pixel protection, size and aspect ratio.
-Do not attempt to control those settings through rewritten prose. Output Qwen's
-three-field JSON object. Do not include these integration instructions as image
-content.''' 
-
+INTEGRATION_RULES = '''\nWorkbench requirements: preserve image tags, reference-role assignments,
+identity, wardrobe, pose, perspective, exclusions and literal/LoRA trigger text.
+Only clarify requested changes. The workflow owns geometry. Output the official
+three-field JSON without reasoning.'''
 
 class EnhancementError(ValueError):
-    """An actionable error that does not expose prompts or model reasoning."""
-
+    """An actionable error without private prompts or model reasoning."""
 
 @dataclass(frozen=True)
 class Options:
     enabled: bool = False
     seed: int = 42
     keep_exact: str = ''
+    repair_error: str = ''
 
     @classmethod
     def from_value(cls, value=None):
@@ -67,13 +58,13 @@ class Options:
 
 
 def parse_response(raw: str, original: str, image_count: int, keep_exact: str = '') -> dict:
-    """Extract only the final JSON. Reject truncation, missing locks and bad tags."""
+    """Strict validator. The caller retries invalid output, never relaxes locks."""
     if not isinstance(raw, str):
-        raise EnhancementError('The enhancer returned no text. Turn it OFF or retry.')
+        raise EnhancementError('The enhancer returned no text.')
     if '</think>' in raw:
         answer = raw.rsplit('</think>', 1)[1].strip()
     elif '<think>' in raw:
-        raise EnhancementError('Enhancer thinking was truncated before its final answer. Retry or turn it OFF.')
+        raise EnhancementError('Enhancer thinking was truncated before its final answer.')
     else:
         answer = raw.strip()
     answer = re.sub(r'^```(?:json)?\s*', '', answer, flags=re.I)
@@ -81,10 +72,10 @@ def parse_response(raw: str, original: str, image_count: int, keep_exact: str = 
     try:
         result = json.loads(answer)
     except (ValueError, TypeError):
-        raise EnhancementError('The enhancer did not return complete valid JSON. Retry or turn it OFF; no image was generated.') from None
+        raise EnhancementError('The enhancer did not return complete valid JSON.') from None
     fields = {'rewritten_prompt', 'wh_ratio', 'ratio_follow'}
     if not isinstance(result, dict) or set(result) != fields or any(not isinstance(result[k], str) for k in fields):
-        raise EnhancementError('Enhancer response has an invalid schema. No rewritten prompt was applied.')
+        raise EnhancementError('Enhancer response has an invalid schema.')
     rewritten = result['rewritten_prompt'].strip()
     if not rewritten or len(rewritten) > 64000 or '<think>' in rewritten or '</think>' in rewritten:
         raise EnhancementError('Enhancer final prompt is empty, too long, or includes reasoning.')
@@ -97,17 +88,16 @@ def parse_response(raw: str, original: str, image_count: int, keep_exact: str = 
         raise EnhancementError('Enhancer ratio-follow reference is invalid.')
     tags = {int(x) for x in re.findall(r'<image(\d+)>', rewritten + ' ' + follow)}
     if any(n < 1 or n > image_count for n in tags):
-        raise EnhancementError('Enhancer referenced an image that is not connected. No rewritten prompt was applied.')
+        raise EnhancementError('Enhancer referenced an image that is not connected.')
     source_tags = {int(x) for x in re.findall(r'<image(\d+)>', original)}
     prompt_tags = {int(x) for x in re.findall(r'<image(\d+)>', rewritten)}
     if image_count > 1 and not source_tags.issubset(prompt_tags):
-        raise EnhancementError('Enhancer omitted a reference tag used by your original prompt. Review the instruction or turn it OFF.')
-    # Literal text and explicit LoRA syntax are checked rather than silently re-added.
+        raise EnhancementError('Enhancer omitted a reference tag used by the original prompt.')
     locked = re.findall(r'"(?:\\.|[^"\\])*"', original)
     locked += re.findall(r'<lora:[^>]+>', original, flags=re.I)
     locked += [term.strip() for term in keep_exact.splitlines() if term.strip() and term.strip() in original]
     if any(term not in rewritten for term in locked):
-        raise EnhancementError('Enhancer changed or omitted locked text or a LoRA trigger. Retry, revise the prompt, or turn it OFF.')
+        raise EnhancementError('Enhancer changed or omitted locked text or a LoRA trigger.')
     result['rewritten_prompt'] = rewritten
     return result
 
@@ -126,13 +116,13 @@ def _ordered_images(images: dict) -> list:
             raise EnhancementError('Each enhancer reference must contain exactly one RGB or RGBA image.')
         if not torch.isfinite(image).all():
             raise EnhancementError('An enhancer reference contains invalid pixels.')
-        # No concatenation, resize, crop, or reordering. Mixed aspect ratios remain intact.
         ordered.append(image[..., :3])
     return ordered
 
 
 def _cache_key(prompt, images, options):
-    h = hashlib.sha256(json.dumps([REVISION, prompt, options.seed, options.keep_exact], ensure_ascii=False).encode())
+    from .qwen_prompt_local import cache_identity
+    h = hashlib.sha256(json.dumps([cache_identity(), prompt, options.seed, options.keep_exact], ensure_ascii=False).encode())
     for image in images:
         value = image.detach().float().cpu().contiguous()
         h.update(str(tuple(value.shape)).encode())
@@ -140,6 +130,76 @@ def _cache_key(prompt, images, options):
     return h.hexdigest()
 
 
+def _generate(prompt, images, options):
+    from .qwen_prompt_local import generate
+    return generate(prompt, images, options)
+
+
+def enhance_edit_prompt(prompt: str, images: dict, settings=None) -> tuple[str, dict]:
+    options = Options.from_value(settings)
+    if not options.enabled:
+        return prompt, {'enabled': False, 'original_prompt': prompt, 'effective_prompt': prompt,
+                        'status': 'OFF: original prompt unchanged', 'cache_hit': False, 'fallback_used': False}
+    if not isinstance(prompt, str) or not prompt.strip():
+        raise EnhancementError('Enter an edit instruction before enabling the enhancer.')
+    ordered = _ordered_images(images)
+    if any(int(n) > len(ordered) or int(n) < 1 for n in re.findall(r'<image(\d+)>', prompt)):
+        raise EnhancementError('Original prompt names a missing reference image.')
+    from . import qwen_prompt_local as local
+    key = _cache_key(prompt, ordered, options)
+    with _LOCK:
+        if key in _CACHE:
+            effective, report = _CACHE.pop(key)
+            _CACHE[key] = (effective, report)
+            return effective, {**report, 'cache_hit': True}
+        result = None
+        validation_error = ''
+        attempts = 0
+        for attempt in range(2):
+            attempts += 1
+            attempt_options = replace(options, repair_error=validation_error)
+            try:
+                raw = _generate(prompt, ordered, attempt_options)
+                result = parse_response(raw, prompt, len(ordered), options.keep_exact)
+                break
+            except (EnhancementError, local.InvalidReply) as exc:
+                validation_error = str(exc)
+            except local.LocalServiceError as exc:
+                # A wrong/missing/text-only/quantized model or a service/memory
+                # problem is not a rewrite error. Keep it explicit, not hidden.
+                raise EnhancementError(str(exc)) from None
+        if result is None and local.failure_mode() == 'error':
+            raise EnhancementError('Prompt rewrite failed validation twice. ' + validation_error)
+        fallback = result is None
+        effective = prompt if fallback else result['rewritten_prompt']
+        model = local.selected_model()
+        status = ('WARNING: rewrite failed validation twice; ORIGINAL prompt used unchanged.' if fallback
+                  else 'ON: local ' + local.PRESETS[model]['label'] + ('; repaired rewrite' if attempts == 2 else ''))
+        report = {'enabled': True, 'backend': 'ollama', 'model': model, 'revision': local.VERSION,
+                  'precision': local.PRESETS[model]['precision'], 'seed': options.seed,
+                  'image_count': len(ordered), 'original_prompt': prompt, 'effective_prompt': effective,
+                  'suggested_wh_ratio': '' if fallback else result['wh_ratio'],
+                  'suggested_ratio_follow': '' if fallback else result['ratio_follow'],
+                  'ratio_applied': False, 'cache_hit': False, 'status': status,
+                  'fallback_used': fallback, 'attempts': attempts, 'retry_count': attempts - 1,
+                  'validation_warning': validation_error if fallback else ''}
+        if fallback:
+            # No prompt text, image, URL or reasoning is logged. A failed rewrite
+            # is not cached, so the next queue can recover rather than stick.
+            print('[Qwen prompt enhancer] ' + status, flush=True)
+        else:
+            _CACHE[key] = (effective, report)
+            while len(_CACHE) > 8:
+                _CACHE.popitem(last=False)
+        return effective, dict(report)
+
+
+def ui_result(outputs: tuple, report: dict):
+    return {'ui': {'qwen_prompt': [report]}, 'result': outputs}
+
+
+# Legacy native utilities are retained for verifying existing official assets.
+# They are NOT selected by the ON path and NOT used when Ollama fails.
 def _installed_assets():
     from .provider_downloads import file_hash
     rows = [a for a in read_catalog('assets.json')['assets'] if a['group'] == GROUP]
@@ -147,17 +207,17 @@ def _installed_assets():
     for row in rows:
         path = safe_path(model_root(), row['destination'])
         if not path.is_file():
-            raise EnhancementError('Official Qwen I2I enhancer assets are not ready. In Workbench > Toolbox, open U10 and click Prepare assets. Keep the enhancer OFF to run without them.')
+            raise EnhancementError('Legacy official Qwen enhancer assets are not installed. U10 now uses local Ollama; enable the new backend or turn enhancement OFF.')
         stat = path.stat()
         signature = (str(path), stat.st_size, stat.st_mtime_ns, stat.st_ctime_ns, row.get('sha256'))
         if row.get('sha256') and signature not in _VERIFIED:
             if file_hash(path) != row['sha256']:
-                raise EnhancementError('Enhancer checkpoint checksum failed. Prepare U10 assets again; no substitute model will be used.')
+                raise EnhancementError('Enhancer checkpoint checksum failed.')
             _VERIFIED.add(signature)
         files[row['filename']] = path
     needed = [f'model-{i:05d}.safetensors' for i in range(1, 5)] + ['system_prompt.txt', 'model.safetensors.index.json']
     if any(name not in files for name in needed):
-        raise EnhancementError('The enhancer asset catalog is incomplete. Apply the complete update and rebuild Qwen.')
+        raise EnhancementError('The legacy enhancer asset catalog is incomplete.')
     return files
 
 
@@ -177,13 +237,11 @@ def _load_model(files):
         del part
     if set(state) != set(index) or sd.detect_te_model(state) != sd.TEModel.QWEN35_9B:
         raise EnhancementError('The loaded checkpoint is not the complete Qwen3.5-VL 9B enhancer.')
-    # Merge all four original state dictionaries in RAM, without quantization or
-    # another 19 GB merged file. Loading a single shard as an encoder is invalid.
     return sd.load_text_encoder_state_dicts([state], clip_type=sd.CLIPType.QWEN_IMAGE,
                                            model_options={}, disable_dynamic=True)
 
 
-def _generate(prompt, images, options):
+def _generate_official(prompt, images, options):
     import comfy.model_management as mm
     import torch
     files = _installed_assets()
@@ -192,8 +250,6 @@ def _generate(prompt, images, options):
     if terms:
         system += '\nKeep-exact terms for this pass: ' + json.dumps(terms, ensure_ascii=False)
     clip = None
-    # Inference is sequential: release GPU residency before and after PE, leaving
-    # ComfyUI to restore the downstream model when the encoder/sampler runs.
     mm.unload_all_models()
     try:
         clip = _load_model(files)
@@ -209,38 +265,3 @@ def _generate(prompt, images, options):
         del clip
         gc.collect()
         mm.soft_empty_cache()
-
-
-def enhance_edit_prompt(prompt: str, images: dict, settings=None) -> tuple[str, dict]:
-    options = Options.from_value(settings)
-    if not options.enabled:
-        # Byte-for-byte prompt pass-through. Do not even inspect the image tensors.
-        return prompt, {'enabled': False, 'original_prompt': prompt, 'effective_prompt': prompt,
-                        'status': 'OFF: original prompt unchanged', 'cache_hit': False}
-    if not isinstance(prompt, str) or not prompt.strip():
-        raise EnhancementError('Enter an edit instruction before enabling the enhancer.')
-    ordered = _ordered_images(images)
-    if any(int(n) > len(ordered) or int(n) < 1 for n in re.findall(r'<image(\d+)>', prompt)):
-        raise EnhancementError('Original prompt names a missing reference image.')
-    key = _cache_key(prompt, ordered, options)
-    with _LOCK:
-        if key in _CACHE:
-            effective, report = _CACHE.pop(key)
-            _CACHE[key] = (effective, report)
-            return effective, {**report, 'cache_hit': True}
-        result = parse_response(_generate(prompt, ordered, options), prompt, len(ordered), options.keep_exact)
-        effective = result['rewritten_prompt']
-        report = {'enabled': True, 'model': MODEL_ID, 'revision': REVISION, 'precision': 'BF16',
-                  'seed': options.seed, 'image_count': len(ordered), 'original_prompt': prompt,
-                  'effective_prompt': effective, 'suggested_wh_ratio': result['wh_ratio'],
-                  'suggested_ratio_follow': result['ratio_follow'], 'ratio_applied': False,
-                  'cache_hit': False, 'status': 'ON: official Qwen I2I BF16; workflow geometry unchanged'}
-        _CACHE[key] = (effective, report)
-        while len(_CACHE) > 8:
-            _CACHE.popitem(last=False)
-        return effective, dict(report)
-
-
-def ui_result(outputs: tuple, report: dict):
-    """Only original/final prose is exposed. Raw model reasoning is discarded."""
-    return {'ui': {'qwen_prompt': [report]}, 'result': outputs}

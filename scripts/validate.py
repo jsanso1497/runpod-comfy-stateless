@@ -3,6 +3,9 @@
 from pathlib import Path
 import argparse,ast,hashlib,json,re,sys
 ROOT=Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(ROOT/'src'))
+from workbench.config import read_catalog, FAMILIES
+
 def validate_graph(graph,path='graph'):
  errors=[];ids=[n['id'] for n in graph['nodes']];nodes={n['id']:n for n in graph['nodes']};links={l[0]:l for l in graph.get('links',[])}
  if len(ids)!=len(nodes):errors.append(f'{path}: duplicate node IDs')
@@ -23,7 +26,7 @@ def validate_graph(graph,path='graph'):
  return errors
 
 def run():
- errors=[];tasks=json.loads((ROOT/'catalog/tasks.json').read_text())['tasks'];models=json.loads((ROOT/'catalog/models.json').read_text())['models']
+ errors=[];tasks=read_catalog('tasks.json')['tasks'];models=read_catalog('models.json')['models']
  required=['.github/workflows/build.yml','.github/workflows/ci.yml','.github/workflows/pages.yml','.gitignore','.dockerignore','.env.example']
  for name in required:
   if not (ROOT/name).is_file():errors.append('Missing upload file: '+name+'; restore it from the Mac/browser guide')
@@ -31,7 +34,7 @@ def run():
  if len(ids)!=len(set(ids)):errors.append('Duplicate task IDs')
  if set(ids)&{'Q29','Q30','Q31','Q32','Q33','D02','D03'}:errors.append('Removed task is active')
  for m in models:
-  if m['id'] not in ('qwen','flux','h3','restoration'):errors.append('Unexpected model')
+  if m['id'] not in FAMILIES:errors.append('Unexpected model')
   for id in m['default_tasks']:
    if id not in ids:errors.append('Missing default task')
   if not re.fullmatch('[a-f0-9]{40}',m['comfy_commit']):errors.append('Unpinned Comfy commit')
@@ -44,7 +47,7 @@ def run():
    if not p.is_file():errors.append('Missing workflow: '+file);continue
    graph=json.loads(p.read_text());errors.extend(validate_graph(graph,file))
    for n in graph['nodes']:
-    if 'Krea' in n['type'] or 'Torso' in n['type']:errors.append('Removed node in '+file)
+    if 'Torso' in n['type'] or ('Krea' in n['type'] and t['workspaces']!=['krea']):errors.append('Removed or incompatible node in '+file)
     for value in n.get('widgets_values',[]):
      if isinstance(value,str) and (re.search(r'\.safetensors$',value) and re.search(r'(int8|fp8|nvfp4|gguf)',value,re.I)):
       errors.append('Quantized weight selection in '+file)

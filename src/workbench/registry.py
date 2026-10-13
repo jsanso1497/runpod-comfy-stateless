@@ -9,6 +9,7 @@ FAMILY_SIGNATURES = {
     'flux': 'flux2-klein-9b-distilled',
     'h3': 'minimax-h3-ref2va',
     'restoration': 'seedvr2-7b',
+    'krea': 'krea2',
 }
 
 def private_records() -> list[dict]:

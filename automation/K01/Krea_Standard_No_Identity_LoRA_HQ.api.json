@@ -1,0 +1,236 @@
+{
+  "1": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": ""
+    },
+    "_meta": {
+      "title": "1. SOURCE photo to edit"
+    }
+  },
+  "2": {
+    "class_type": "WBKreaReference",
+    "inputs": {
+      "enabled": false,
+      "image": "none",
+      "role": "Face and identity of the replacement subject"
+    },
+    "_meta": {
+      "title": "Optional reference 1: enable after upload"
+    }
+  },
+  "3": {
+    "class_type": "WBKreaReference",
+    "inputs": {
+      "enabled": false,
+      "image": "none",
+      "role": "Body proportions of the same subject"
+    },
+    "_meta": {
+      "title": "Optional reference 2: enable after upload"
+    }
+  },
+  "4": {
+    "class_type": "WBKreaReference",
+    "inputs": {
+      "enabled": false,
+      "image": "none",
+      "role": "Additional view of the same subject"
+    },
+    "_meta": {
+      "title": "Optional reference 3: enable after upload"
+    }
+  },
+  "5": {
+    "class_type": "WBKreaReference",
+    "inputs": {
+      "enabled": false,
+      "image": "none",
+      "role": "Clothing or object details only"
+    },
+    "_meta": {
+      "title": "Optional reference 4: enable after upload"
+    }
+  },
+  "6": {
+    "class_type": "WBKreaPrepare",
+    "inputs": {
+      "megapixels": 1.9,
+      "source": [
+        "1",
+        0
+      ],
+      "reference_1": [
+        "2",
+        0
+      ],
+      "reference_2": [
+        "3",
+        0
+      ],
+      "reference_3": [
+        "4",
+        0
+      ],
+      "reference_4": [
+        "5",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "2. Source + reference roles"
+    }
+  },
+  "7": {
+    "class_type": "WBKreaStandardPrompt",
+    "inputs": {
+      "instruction": "Describe the target photograph you want, using the enabled references only for their assigned appearance details.",
+      "enhance": true,
+      "ollama_model": "qwen3.8:27b-bf16",
+      "trigger_words": "",
+      "max_tokens": 768,
+      "editing_inputs": [
+        "6",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "3. Target photograph + visual prompt enhancer"
+    }
+  },
+  "8": {
+    "class_type": "WBKreaModels",
+    "inputs": {
+      "checkpoint": "krea2_raw_bf16.safetensors",
+      "text_encoder": "qwen3vl_4b_bf16.safetensors",
+      "vae_name": "qwen_image_vae.safetensors",
+      "sampling_preset": "Auto",
+      "custom_steps": 20,
+      "custom_cfg": 3.0,
+      "ready_prompt": [
+        "7",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "4. Krea checkpoint + sampling preset"
+    }
+  },
+  "9": {
+    "class_type": "WBKreaOptionalLoRAs",
+    "inputs": {
+      "model": [
+        "8",
+        0
+      ],
+      "lora_1": "none",
+      "strength_1": 1.0,
+      "lora_2": "none",
+      "strength_2": 1.0
+    },
+    "_meta": {
+      "title": "5. Optional LoRAs; no Identity Edit adapter"
+    }
+  },
+  "10": {
+    "class_type": "WBKreaStandardCondition",
+    "inputs": {
+      "model": [
+        "9",
+        0
+      ],
+      "clip": [
+        "8",
+        1
+      ],
+      "editing_inputs": [
+        "6",
+        0
+      ],
+      "prompt": [
+        "7",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "6. Native text-only Krea conditioning"
+    }
+  },
+  "11": {
+    "class_type": "KSampler",
+    "inputs": {
+      "seed": 12345,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 1.0,
+      "model": [
+        "10",
+        0
+      ],
+      "positive": [
+        "10",
+        1
+      ],
+      "negative": [
+        "10",
+        2
+      ],
+      "latent_image": [
+        "10",
+        3
+      ],
+      "steps": [
+        "8",
+        3
+      ],
+      "cfg": [
+        "8",
+        4
+      ]
+    },
+    "_meta": {
+      "title": "7. Generate the edited photograph"
+    }
+  },
+  "12": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "11",
+        0
+      ],
+      "vae": [
+        "8",
+        2
+      ]
+    },
+    "_meta": {
+      "title": "8. Decode"
+    }
+  },
+  "13": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "filename_prefix": "Krea_Standard_No_Identity",
+      "images": [
+        "12",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "9. Final image"
+    }
+  },
+  "14": {
+    "class_type": "PreviewImage",
+    "inputs": {
+      "images": [
+        "6",
+        1
+      ]
+    },
+    "_meta": {
+      "title": "Reference sheet sent to Krea"
+    }
+  }
+}

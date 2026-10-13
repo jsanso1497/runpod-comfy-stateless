@@ -1,6 +1,7 @@
 """Build only source-pinned software. No private inputs or model weights are accepted."""
 from pathlib import Path
 import importlib.metadata as md,json,os,shutil,subprocess,sys
+from workbench.config import read_catalog
 ROOT=Path('/opt/workbench');COMFY=Path('/opt/ComfyUI')
 def run(*args,**kwargs):subprocess.run(args,check=True,**kwargs)
 def clone(url,commit,dest):
@@ -12,7 +13,7 @@ def clone(url,commit,dest):
  if actual!=commit:raise ValueError('Pinned checkout mismatch.')
  shutil.rmtree(dest/'.git')
 def main():
- name=sys.argv[1];cat=json.loads((ROOT/'catalog/models.json').read_text());model=next(m for m in cat['models'] if m['id']==name)
+ name=sys.argv[1];cat=read_catalog('models.json');model=next(m for m in cat['models'] if m['id']==name)
  constraints=Path('/tmp/torch-constraints.txt')
  pins=[]
  for package in ('torch','torchvision','torchaudio'):
@@ -26,7 +27,6 @@ def main():
   row=cat['external_nodes'][id];dest=COMFY/'custom_nodes'/row['directory'];clone(row['url'],row['commit'],dest)
   if (dest/'requirements.txt').exists():pip('-r',str(dest/'requirements.txt'))
   if id=='h3-refpack':run(sys.executable,str(ROOT/'deploy/patch_refpack_local.py'),str(dest))
- # No old base-image inheritance and no catch-all COPY of the uploaded source tree.
  for id in model['local_nodes']+['workbench_tools','workbench_ui']:
   dest=COMFY/'custom_nodes'/('Workbench_'+id)
   dest.symlink_to(ROOT/'src/nodes'/id,target_is_directory=True)

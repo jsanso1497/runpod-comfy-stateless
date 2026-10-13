@@ -6,14 +6,14 @@ import re
 from pathlib import Path
 
 ROOT = Path(os.environ.get('WB_ROOT', Path(__file__).resolve().parents[2]))
-FAMILIES = ('qwen', 'flux', 'h3', 'restoration')
+FAMILIES = ('qwen', 'flux', 'h3', 'restoration', 'krea')
 FEATURES = ('sam', 'seedvr2', 'ollama')
 SECRET_KEYS = ('HF_TOKEN', 'CIVITAI_TOKEN', 'hf_token', 'civit_token', 'WB_LORA_URLS', 'WB_CHECKPOINTS', 'WB_PASSWORD')
 
 def read_catalog(name: str):
     value = json.loads((ROOT / 'catalog' / name).read_text(encoding='utf-8'))
-    # One explicit additive catalog, so the main catalog and private libraries
-    # stay untouched. The runtime sidebar and factory copier both use this path.
+    if name == 'assets.json':
+        value.setdefault('ollama_by_workspace', {})['h3'] = dict(value['ollama'])
     addon = ROOT / 'catalog' / 'tasks.green-suit.json'
     if name == 'tasks.json' and addon.is_file():
         ids = {task['id'] for task in value['tasks']}
@@ -28,6 +28,41 @@ def read_catalog(name: str):
                 safe_path(ROOT, variant['file'])
             value['tasks'].append(task)
             ids.add(task['id'])
+    addon = ROOT / 'catalog' / 'krea.json'
+    if addon.is_file() and name in ('models.json', 'tasks.json', 'assets.json'):
+        krea = json.loads(addon.read_text(encoding='utf-8'))
+        if krea['model']['id'] != 'krea' or krea['task']['workspaces'] != ['krea']:
+            raise ValueError('Invalid Krea add-on workspace.')
+        if name == 'models.json':
+            if any(m['id'] == 'krea' for m in value['models']):
+                raise ValueError('Duplicate Krea workspace.')
+            value['models'].append(krea['model'])
+            for key, row in krea['external_nodes'].items():
+                if key in value['external_nodes']:
+                    raise ValueError('Duplicate external-node identifier: ' + key)
+                value['external_nodes'][key] = row
+        elif name == 'tasks.json':
+            if any(t['id'] == krea['task']['id'] for t in value['tasks']):
+                raise ValueError('Duplicate Krea task.')
+            for variant in krea['task']['variants']:
+                safe_path(ROOT, variant['file'])
+            value['tasks'].append(krea['task'])
+        else:
+            ids = {a['id'] for a in value['assets']}
+            destinations = {a['destination'] for a in value['assets']}
+            for asset in krea['assets']:
+                if asset['id'] in ids or asset['destination'] in destinations:
+                    raise ValueError('Duplicate Krea asset.')
+                if asset['family'] != 'krea' or asset['group'] != 'krea':
+                    raise ValueError('Invalid Krea asset family.')
+                value['assets'].append(asset)
+                ids.add(asset['id']); destinations.add(asset['destination'])
+            value.setdefault('ollama_by_workspace', {})['krea'] = krea['ollama']
+            if os.environ.get('WB_WORKSPACE') == 'krea':
+                value['ollama'] = krea['ollama']
+    if name in ('models.json', 'tasks.json', 'assets.json'):
+        from .qwen_prompt_catalog import apply
+        value = apply(name, value)
     return value
 
 def csv(value: str) -> list[str]:
@@ -36,7 +71,7 @@ def csv(value: str) -> list[str]:
 def workspace() -> str:
     value = os.environ.get('WB_WORKSPACE', 'qwen')
     if value not in FAMILIES:
-        raise ValueError('WB_WORKSPACE must be qwen, flux, h3, or restoration.')
+        raise ValueError('WB_WORKSPACE must be one of: ' + ', '.join(FAMILIES))
     return value
 
 def model_config(name: str | None = None) -> dict:
@@ -78,7 +113,6 @@ def model_root() -> Path:
     return data_root() / 'models'
 
 def resolve_secret_aliases() -> None:
-    # Secret *names* in RunPod need not match variable names inside the container.
     for target, alias in [('HF_TOKEN','hf_token'), ('CIVITAI_TOKEN','civit_token')]:
         if not os.environ.get(target) and os.environ.get(alias):
             os.environ[target] = os.environ[alias]

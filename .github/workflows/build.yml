@@ -7,7 +7,7 @@ on:
         required: true
         default: qwen
         type: choice
-        options: [qwen, flux, h3, restoration, all]
+        options: [qwen, flux, h3, restoration, krea, all]
 permissions:
   contents: read
   packages: write
@@ -22,7 +22,7 @@ jobs:
           SELECTION: ${{ inputs.workspace }}
         run: |
           if [ "$SELECTION" = all ]; then
-            echo 'matrix=["qwen","flux","h3","restoration"]' >> "$GITHUB_OUTPUT"
+            echo 'matrix=["qwen","flux","h3","restoration","krea"]' >> "$GITHUB_OUTPUT"
           else
             echo "matrix=[\"$SELECTION\"]" >> "$GITHUB_OUTPUT"
           fi

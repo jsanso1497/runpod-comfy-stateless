@@ -104,13 +104,30 @@ class Runtime:
                 private_report=await asyncio.to_thread(prepare_private) if private else {}
                 if 'ollama' in groups:
                     await self.start_ollama()
-                    for name in read_catalog('assets.json')['ollama']['models']:
+                    expected = read_catalog('assets.json')['ollama']['models']
+                    details_by_name = {}
+                    for name in expected:
                         async with self.session.post('http://127.0.0.1:11434/api/pull',json={'model':name,'stream':False},timeout=ClientTimeout(total=None,sock_read=14400)) as resp:
                             data=await resp.json()
-                            if resp.status!=200 or data.get('error'):raise ValueError('Local F16 prompt model could not be prepared.')
+                            if resp.status!=200 or data.get('error'):raise ValueError('Local full-precision prompt model could not be prepared.')
+                        if workspace() == 'qwen':
+                            from .qwen_prompt_local import verify_model
+                            async with self.session.post('http://127.0.0.1:11434/api/show',json={'model':name},timeout=ClientTimeout(total=120)) as resp:
+                                details=await resp.json()
+                                if resp.status!=200:raise ValueError('Prompt-model metadata is unavailable.')
+                                verify_model(details,name)
+                                details_by_name[name]=details.get('details',{})
                     async with self.session.get('http://127.0.0.1:11434/api/tags') as resp:
                         tags=await resp.json()
-                    atomic_json(state_root()/'ollama-status.json',{'models':[{'name':m['name'],'digest':m.get('digest'),'size':m.get('size')} for m in tags.get('models',[]) if m['name'] in read_catalog('assets.json')['ollama']['models']]})
+                    by_name={m['name'].casefold():m for m in tags.get('models',[])}
+                    records=[]
+                    for name in expected:
+                        entry=by_name.get(name.casefold())
+                        if entry is None:raise ValueError('A prepared prompt model is missing from Ollama.')
+                        records.append({'name':name,'digest':entry.get('digest'),'size':entry.get('size'),
+                                        'details':details_by_name.get(name,entry.get('details',{}))})
+                    atomic_json(state_root()/'ollama-status.json',{'models':records})
+
             self.job_state.update(state='finished',failures=len(report.get('failures',[]))+len(private_report.get('failures',[])))
         except asyncio.CancelledError:raise
         except Exception:
@@ -127,15 +144,19 @@ class Runtime:
         installed={r['id'] for r in asset.get('installed',[]) if (model_root()/r['destination']).is_file()}
         requirements=read_catalog('assets.json')['assets']
         ollama_path=state_root()/'ollama-status.json';helpers=json.loads(ollama_path.read_text()).get('models',[]) if ollama_path.exists() else []
+        expected_helpers={name.casefold() for name in read_catalog('assets.json')['ollama']['models']}
+        installed_helpers={m['name'].casefold() for m in helpers}
         for task in read_catalog('tasks.json')['tasks']:
             if workspace() not in task['workspaces']:continue
             needed=[a['id'] for a in requirements if a['group'] in task['requires']]
             missing_assets=[id for id in needed if id not in installed]
-            if 'ollama' in task['requires'] and len(helpers)<2:missing_assets.append('ollama-f16-helpers')
+            if 'ollama' in task['requires']:
+                missing_assets.extend('ollama:'+name for name in sorted(expected_helpers-installed_helpers))
             variants=[]
             for v in task['variants']:
                 graph=json.loads((ROOT/v['file']).read_text())
-                missing_nodes=sorted({n['type'] for n in graph['nodes'] if n['type'] not in schema and n['type'] not in ('Note','MarkdownNote','Reroute','PrimitiveNode')}) if schema else ['ComfyUI is starting']
+                required_nodes={n['type'] for n in graph['nodes']}|set(task.get('required_nodes',[]))
+                missing_nodes=sorted(required_nodes-set(schema)-{'Note','MarkdownNote','Reroute','PrimitiveNode'}) if schema else ['ComfyUI is starting']
                 variants.append({'file':v['file'],'missing_nodes':missing_nodes,'state':'ready' if not missing_nodes and not missing_assets else 'unavailable'})
             rows.append({'id':task['id'],'missing_assets':missing_assets,'variants':variants})
         return web.json_response({'workspace':workspace(),'comfy_running':bool(schema),'tasks':rows,'preparation':self.job_state,'gpu_validation':'not certified','release':read_catalog('release.json')})

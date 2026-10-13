@@ -1,9 +1,0 @@
-{
-  "version": "0.1.2",
-  "name": "Comfy Workbench HQ",
-  "status": "source-candidate",
-  "published_images": {},
-  "gpu_validation": {},
-  "repository_default": "jsanso1497/runpod-comfy-stateless",
-  "built_from": "User-uploaded HQ 0.1.1 repository; optional official Qwen I2I BF16 prompt enhancement"
-}

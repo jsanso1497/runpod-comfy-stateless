@@ -1,0 +1,155 @@
+{
+  "schema_version": 1,
+  "model": {
+    "id": "krea",
+    "name": "Krea 2 Image Edit",
+    "short": "Krea",
+    "precision": "BF16 + full edit LoRA",
+    "kind": "Image editing + reference transfer",
+    "description": "One source, up to four labeled references, two optional LoRAs, compatible checkpoint switching and Qwen 3.8 27B BF16 enhancement.",
+    "accent": "orange",
+    "comfy_commit": "52f98af2e2e42c421070a3e147c161c47cdeaf22",
+    "external_nodes": [
+      "krea2edit"
+    ],
+    "local_nodes": [
+      "krea_edit"
+    ],
+    "toolbox": [
+      "ollama"
+    ],
+    "default_tasks": [
+      "K01"
+    ],
+    "default_groups": [
+      "krea",
+      "ollama"
+    ],
+    "ram_gb": 128,
+    "vram_gb": 80,
+    "storage_gb": 250,
+    "hardware_note": "Planning target, not a measured minimum. Qwen 3.8 27B BF16 uses about 56 GB of disk and unloads before Krea generation. Both Raw and Turbo BF16 are included. Extra references use a sheet within the upstream two-image editor, not independent native N-image conditioning."
+  },
+  "task": {
+    "id": "K01",
+    "title": "Image edit with multiple references, LoRAs and Qwen enhancement",
+    "description": "One source plus 0-4 optional, role-labeled references. Raw/Turbo BF16, two extra LoRAs and Qwen 3.8 27B BF16 ON by default. Two or more references are combined into a visible reference sheet. Two variants: Identity Edit and standard native Krea without Identity Edit LoRA (prompt-guided generation only).",
+    "sources": [
+      "https://github.com/lbouaraba/comfyui-krea2edit"
+    ],
+    "family": "krea",
+    "category": "tasks",
+    "requires": [
+      "krea",
+      "ollama"
+    ],
+    "workspaces": [
+      "krea"
+    ],
+    "status": "integration candidate; GPU validation pending",
+    "variants": [
+      {
+        "label": "Krea Edit HQ - multi-reference",
+        "file": "workflows/krea/K01/Krea_Edit_Multi_Reference_HQ.json",
+        "source": "Workbench integration of Krea2 Identity Edit v1.2"
+      },
+      {
+        "label": "Krea Standard - No Identity Edit LoRA (prompt-guided generation)",
+        "file": "workflows/krea/K01/Krea_Standard_No_Identity_LoRA_HQ.json",
+        "source": "Native Krea text conditioning, no Identity Edit adapter"
+      }
+    ],
+    "required_nodes": [
+      "Krea2EditModelPatch",
+      "Krea2EditGroundedEncode"
+    ],
+    "optional_prompt_enhancement": {
+      "model": "qwen3.8:27b-bf16",
+      "precision": "BF16",
+      "default": "on"
+    }
+  },
+  "assets": [
+    {
+      "id": "krea-krea2_raw_bf16",
+      "family": "krea",
+      "group": "krea",
+      "repo_id": "Comfy-Org/Krea-2",
+      "filename": "diffusion_models/krea2_raw_bf16.safetensors",
+      "revision": "main",
+      "destination": "diffusion_models/krea2_raw_bf16.safetensors",
+      "sha256": "f99bb0ff8e362b77342bc4994e0c50906fe7ef7074864b181b7d48d2fa6d03d7",
+      "estimated_bytes": 26300000000,
+      "integrity_source": "Hugging Face file SHA256 verified 2026-10-12; enforced at download",
+      "verification": "Weights not downloaded or GPU-tested here"
+    },
+    {
+      "id": "krea-krea2_turbo_bf16",
+      "family": "krea",
+      "group": "krea",
+      "repo_id": "Comfy-Org/Krea-2",
+      "filename": "diffusion_models/krea2_turbo_bf16.safetensors",
+      "revision": "main",
+      "destination": "diffusion_models/krea2_turbo_bf16.safetensors",
+      "sha256": "78bbf8f4165eda19cea3cb06c78089221932a39e2eed8af9da741f942c47ffb3",
+      "estimated_bytes": 26300000000,
+      "integrity_source": "Hugging Face file SHA256 verified 2026-10-12; enforced at download",
+      "verification": "Weights not downloaded or GPU-tested here"
+    },
+    {
+      "id": "krea-qwen3vl_4b_bf16",
+      "family": "krea",
+      "group": "krea",
+      "repo_id": "Comfy-Org/Krea-2",
+      "filename": "text_encoders/qwen3vl_4b_bf16.safetensors",
+      "revision": "main",
+      "destination": "text_encoders/qwen3vl_4b_bf16.safetensors",
+      "sha256": "36f3ff447ef59201722e8f9ce6020c9819fdcfba6aa2608c4e09b1c0ce114e34",
+      "estimated_bytes": 8880000000,
+      "integrity_source": "Hugging Face file SHA256 verified 2026-10-12; enforced at download",
+      "verification": "Weights not downloaded or GPU-tested here"
+    },
+    {
+      "id": "krea-qwen_image_vae",
+      "family": "krea",
+      "group": "krea",
+      "repo_id": "Comfy-Org/Krea-2",
+      "filename": "vae/qwen_image_vae.safetensors",
+      "revision": "main",
+      "destination": "vae/qwen_image_vae.safetensors",
+      "sha256": "a70580f0213e67967ee9c95f05bb400e8fb08307e017a924bf3441223e023d1f",
+      "estimated_bytes": 254000000,
+      "integrity_source": "Hugging Face file SHA256 verified 2026-10-12; enforced at download",
+      "verification": "Weights not downloaded or GPU-tested here"
+    },
+    {
+      "id": "krea-krea2_identity_edit_v1_2",
+      "family": "krea",
+      "group": "krea",
+      "repo_id": "conradlocke/krea2-identity-edit",
+      "filename": "krea2_identity_edit_v1_2.safetensors",
+      "revision": "main",
+      "destination": "loras/krea2_identity_edit_v1_2.safetensors",
+      "sha256": "6adf9a69cc9502d286db7b69964d37da7e9cfe4b05b4d004bc275f087d3fd3cf",
+      "estimated_bytes": 1830000000,
+      "integrity_source": "Hugging Face file SHA256 verified 2026-10-12; enforced at download",
+      "verification": "Weights not downloaded or GPU-tested here"
+    }
+  ],
+  "external_nodes": {
+    "krea2edit": {
+      "url": "https://github.com/lbouaraba/comfyui-krea2edit.git",
+      "commit": "86f886dac23013d88996e3a2e99093ba44d322fb",
+      "directory": "comfyui-krea2edit"
+    }
+  },
+  "ollama": {
+    "models": [
+      "qwen3.8:27b-bf16"
+    ],
+    "estimated_bytes": 56000000000,
+    "precision": "BF16",
+    "note": "Official Ollama tag; the runtime records the resolved digest. No silent quantized fallback.",
+    "group": "ollama"
+  }
+}
