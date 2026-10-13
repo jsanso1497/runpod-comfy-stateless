@@ -148,17 +148,22 @@
       "short": "Krea",
       "precision": "BF16 + full edit LoRA",
       "kind": "Image editing + reference transfer",
-      "description": "One source, up to four labeled references, two optional LoRAs, compatible checkpoint switching and Qwen 3.8 27B BF16 enhancement.",
+      "description": "Identity Edit, text-only Standard, and optional protected masked editing. Uses the same selected full-precision vision helper as Qwen, with reference roles, rewrite validation, and explicit model unloading.",
       "accent": "orange",
       "comfy_commit": "52f98af2e2e42c421070a3e147c161c47cdeaf22",
       "external_nodes": [
-        "krea2edit"
+        "krea2edit",
+        "seedvr2"
       ],
       "local_nodes": [
-        "krea_edit"
+        "krea_edit",
+        "qwen_prompt"
       ],
       "toolbox": [
-        "ollama"
+        "ollama",
+        "sam",
+        "seedvr2",
+        "qwen_pe_i2i"
       ],
       "default_tasks": [
         "K01"
@@ -170,7 +175,7 @@
       "ram_gb": 128,
       "vram_gb": 80,
       "storage_gb": 250,
-      "hardware_note": "Planning target, not a measured minimum. Qwen 3.8 27B BF16 uses about 56 GB of disk and unloads before Krea generation. Both Raw and Turbo BF16 are included. Extra references use a sheet within the upstream two-image editor, not independent native N-image conditioning."
+      "hardware_note": "Planning target, not a measured minimum. The selected full-precision vision helper runs before Krea and must unload. Both Raw and Turbo BF16 remain available. Generation stays at or below 2 MP. SAM, SeedVR2 and official PE-I2I assets are optional. Extra references use a sheet in the upstream two-image editor. GPU validation pending."
     }
   ],
   "tasks": [
@@ -1854,7 +1859,7 @@
     {
       "id": "K01",
       "title": "Image edit with multiple references, LoRAs and Qwen enhancement",
-      "description": "One source plus 0-4 optional, role-labeled references. Raw/Turbo BF16, two extra LoRAs and Qwen 3.8 27B BF16 ON by default. Two or more references are combined into a visible reference sheet. Two variants: Identity Edit and standard native Krea without Identity Edit LoRA (prompt-guided generation only).",
+      "description": "One source and 0-4 role-labeled references, Raw/Turbo BF16, two optional LoRAs and the shared full-precision Qwen vision helper. Choose full-frame Identity Edit, text-only Standard, or masked crop/stitch with manual/SAM selection and a preview-first safety gate.",
       "sources": [
         "https://github.com/lbouaraba/comfyui-krea2edit"
       ],
@@ -1878,6 +1883,11 @@
           "label": "Krea Standard - No Identity Edit LoRA (prompt-guided generation)",
           "file": "workflows/krea/K01/Krea_Standard_No_Identity_LoRA_HQ.json",
           "source": "Native Krea text conditioning, no Identity Edit adapter"
+        },
+        {
+          "label": "Krea Masked Photo - manual/SAM, preview, protected stitch",
+          "file": "workflows/krea/K01/Krea_Masked_Photo_HQ.json",
+          "source": "Workbench Krea integration with shared photo geometry"
         }
       ],
       "required_nodes": [
@@ -1885,9 +1895,10 @@
         "Krea2EditGroundedEncode"
       ],
       "optional_prompt_enhancement": {
-        "model": "qwen3.8:27b-bf16",
+        "model": "huihui_ai/Qwen3.8-abliterated:27b-bf16",
         "precision": "BF16",
-        "default": "on"
+        "default": "on",
+        "backend": "ollama"
       }
     },
     {
@@ -1897,7 +1908,8 @@
       "family": "toolbox",
       "category": "Toolbox",
       "workspaces": [
-        "qwen"
+        "qwen",
+        "krea"
       ],
       "requires": [
         "ollama"
@@ -2269,12 +2281,27 @@
     },
     "krea": {
       "models": [
-        "qwen3.8:27b-bf16"
+        "huihui_ai/Qwen3.8-abliterated:27b-bf16"
       ],
-      "estimated_bytes": 56000000000,
+      "label": "Qwen3.8 27B Abliterated BF16 (vision)",
       "precision": "BF16",
-      "note": "Official Ollama tag; the runtime records the resolved digest. No silent quantized fallback.",
-      "group": "ollama"
+      "estimated_bytes": 56000000000,
+      "group": "ollama",
+      "note": "Only the selected full-precision vision model is downloaded. Inference is sequential with the image model.",
+      "available_models": [
+        {
+          "model": "huihui_ai/Qwen3.8-abliterated:27b-bf16",
+          "label": "Qwen3.8 27B Abliterated BF16 (vision)",
+          "precision": "BF16",
+          "estimated_bytes": 56000000000
+        },
+        {
+          "model": "huihui_ai/qwen3-vl-abliterated:32b-instruct-fp16",
+          "label": "Qwen3-VL 32B Instruct Abliterated FP16 (vision)",
+          "precision": "F16",
+          "estimated_bytes": 67000000000
+        }
+      ]
     },
     "qwen": {
       "models": [

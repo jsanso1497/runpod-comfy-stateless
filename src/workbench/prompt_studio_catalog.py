@@ -1,4 +1,4 @@
-"""Read one explicit additive prompt-only task, without changing existing tasks."""
+"""Read the explicit prompt-only task; expose its shared helper in Qwen and Krea."""
 from __future__ import annotations
 import json
 from pathlib import Path
@@ -22,4 +22,5 @@ def append_tasks(value: dict, root: Path) -> None:
         raise ValueError('Duplicate prompt studio task U11.')
     for variant in task['variants']:
         safe_path(root, variant['file'])
+    task['workspaces'] = ['qwen', 'krea']
     value['tasks'].append(task)

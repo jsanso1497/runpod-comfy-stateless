@@ -1,4 +1,4 @@
-"""Additive Qwen helper migration without replacing public/private model catalogs."""
+"""Additive vision helper migration without replacing public/private catalogs."""
 from __future__ import annotations
 import os
 from .qwen_prompt_local import helper_config
@@ -32,6 +32,9 @@ def apply(name: str, value: dict) -> dict:
                 task['description'] = 'Use the selector on the existing enhancer control to preview either Qwen3.8 27B BF16 vision or official Qwen Image 2.1 PE-I2I BF16. Prepare qwen_pe_i2i from Toolbox before using official mode.'
     elif name == 'assets.json':
         value.setdefault('ollama_by_workspace', {})['qwen'] = helper
+    from .krea_catalog import apply as apply_krea
+    value = apply_krea(name, value)
+    if name == 'assets.json':
         selected = os.environ.get('WB_WORKSPACE', 'qwen')
         if selected in value['ollama_by_workspace']:
             value['ollama'] = value['ollama_by_workspace'][selected]

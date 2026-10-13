@@ -1,4 +1,4 @@
-"""Krea 2 reference editing with local, sequential Qwen 3.8 enhancement.
+"""Krea 2 reference editing with shared Qwen vision and optional photo tools.
 
 The upstream editor has TWO native image inputs. Extra references are visibly
 combined into a labeled reference sheet, never claimed as native N-image support.
@@ -7,20 +7,18 @@ from __future__ import annotations
 import base64
 import hashlib
 import io
-import json
 import math
 import re
-import urllib.error
-import urllib.request
 import numpy as np
 import torch
 from PIL import Image, ImageDraw
 import folder_paths
 import nodes
-import comfy.model_management as mm
 from workbench import registry
+from .prompt_nodes import WBKreaPrompt, WBKreaStandardPrompt
+from .photo_nodes import load_srgb
 
-MODEL = 'qwen3.8:27b-bf16'
+MODEL = 'auto'
 EDIT_ADAPTER = 'krea2_identity_edit_v1_2.safetensors'
 NONE = 'none'
 CATEGORY = 'Workbench/Krea 2'
@@ -37,8 +35,10 @@ def canvas_size(width: int, height: int, megapixels: float) -> tuple[int, int]:
 
 
 def pil_image(image):
-    if image.ndim != 4 or image.shape[0] != 1:
-        raise ValueError('Each source/reference must be one still image, not a batch.')
+    if image.ndim != 4 or image.shape[0] != 1 or image.shape[-1] not in (3, 4):
+        raise ValueError('Each source/reference must be one still RGB/RGBA image, not a batch.')
+    if not torch.isfinite(image).all():
+        raise ValueError('Source/reference contains invalid pixels.')
     return Image.fromarray((image[0, :, :, :3].detach().cpu().clamp(0, 1).numpy() * 255).round().astype(np.uint8))
 
 
@@ -69,6 +69,7 @@ def make_board(refs):
 
 
 def vision_image(image):
+    """Legacy utility retained for saved integrations; runtime uses shared VLM I/O."""
     photo = pil_image(image)
     photo.thumbnail((1024, 1024), Image.Resampling.LANCZOS)
     buf = io.BytesIO()
@@ -77,6 +78,7 @@ def vision_image(image):
 
 
 def clean_response(data):
+    """Legacy response parser, retained for callers outside the workflow nodes."""
     if data.get('error') or data.get('done_reason') in ('length', 'max_tokens'):
         raise RuntimeError('Qwen enhancement failed or was truncated. Increase max_tokens or disable enhancement explicitly.')
     text = str(data.get('message', {}).get('content', '')).strip()
@@ -95,7 +97,7 @@ class WBKreaReference:
         if not files:
             from pathlib import Path
             root = Path(folder_paths.get_input_directory())
-            files = sorted(str(p.relative_to(root)) for p in root.rglob('*') if p.is_file() and p.suffix.lower() in ('.png', '.jpg', '.jpeg', '.webp'))
+            files = sorted(str(p.relative_to(root)) for p in root.rglob('*') if p.is_file() and p.suffix.lower() in ('.png', '.jpg', '.jpeg', '.webp', '.bmp', '.tif', '.tiff'))
         return {'required': {'enabled': ('BOOLEAN', {'default': False}),
                              'image': ([NONE] + files, {'image_upload': True}),
                              'role': ('STRING', {'default': 'facial identity', 'multiline': True})}}
@@ -123,7 +125,7 @@ class WBKreaReference:
             return (None,)
         if image == NONE:
             raise ValueError('Select a photo for the enabled reference.')
-        photo = nodes.LoadImage().load_image(image)[0]
+        photo = load_srgb(image)[0]
         pil_image(photo)
         return ({'image': photo, 'role': role.strip() or 'appearance reference'},)
 
@@ -144,76 +146,6 @@ class WBKreaPrepare:
         package = {'source': source, 'references': refs, 'board': board, 'roles': roles,
                    'size': canvas_size(photo.width, photo.height, megapixels)}
         return package, board if board is not None else source
-
-
-class WBKreaPrompt:
-    @classmethod
-    def INPUT_TYPES(cls):
-        return {'required': {'editing_inputs': ('WB_KREA_PACKAGE',),
-            'instruction': ('STRING', {'default': 'Describe the change you want to make to the source photo.', 'multiline': True}),
-            'enhance': ('BOOLEAN', {'default': True}),
-            'ollama_model': ('STRING', {'default': MODEL}),
-            'trigger_words': ('STRING', {'default': '', 'multiline': True}),
-            'max_tokens': ('INT', {'default': 768, 'min': 128, 'max': 2048, 'step': 64})}}
-    RETURN_TYPES = ('STRING',)
-    RETURN_NAMES = ('final_edit_instruction',)
-    FUNCTION = 'enhance_prompt'
-    CATEGORY = CATEGORY
-    def enhance_prompt(self, editing_inputs, instruction, enhance, ollama_model, trigger_words, max_tokens, _native_generation=False):
-        if not instruction.strip():
-            raise ValueError('Write an editing instruction.')
-        p = editing_inputs
-        layout = 'Edit the first image as one coherent photograph, preserving everything not requested to change.'
-        if p['references']:
-            layout += ' Use the second image only as visual references, not as an output layout. ' + p['roles'] + '.'
-        if _native_generation:
-            layout = 'Describe one complete target photograph. The image generator sees text only, not the source or reference images.'
-        text = instruction.strip()
-        if enhance:
-            mm.unload_all_models()
-            mm.soft_empty_cache()
-            system = ('Rewrite the requested image edit as one concise, specific instruction for Krea 2 Identity Edit. '
-                      'The attached images are source first, then individual references in numbered order. '
-                      'Use the supplied roles exactly; do not combine different identities, invent a new scene, '
-                      'beautify a face, or add an unrequested style. Preserve the requested pose, expression and exclusions. '
-                      'The final editor receives only source plus reference sheet; refer to R1, R2, R3 or R4, not image 3 or image 4. '
-                      'Do not describe the reference sheet as the desired composition. '
-                      'Return only the editing instruction, without analysis, headings or quotation marks.')
-            if _native_generation:
-                system = ('Write a complete, standalone text-to-image prompt for Krea 2. '
-                          'You see the source first, then the individual reference images. '
-                          'The image generator will see NONE of these images. Use the supplied roles to describe the requested target. '
-                          'Describe visible appearance, composition, pose, clothing, setting and lighting needed for the requested result. '
-                          'Do not issue editing commands such as replace, keep the original, or use image 2. '
-                          'Do not mention image numbers, R labels, reference sheets or input photographs in the output. '
-                          'Do not invent unrelated details or merge different people. Return only the target-image prompt.')
-                layout += ' Reference roles for your analysis only: ' + p['roles']
-            payload = {'model': ollama_model.strip(), 'stream': False, 'think': False, 'keep_alive': 0,
-                'messages': [{'role': 'system', 'content': system},
-                    {'role': 'user', 'content': layout + '\nRequested edit: ' + instruction,
-                     'images': [vision_image(p['source'])] + [vision_image(r['image']) for r in p['references']]}],
-                'options': {'temperature': .2, 'seed': 0, 'num_ctx': 16384, 'num_predict': max_tokens}}
-            req = urllib.request.Request('http://127.0.0.1:11434/api/chat', data=json.dumps(payload).encode(),
-                                         headers={'Content-Type': 'application/json'}, method='POST')
-            try:
-                with urllib.request.urlopen(req, timeout=1800) as response:
-                    raw = response.read(1_000_001)
-                if len(raw) > 1_000_000:
-                    raise ValueError('Oversized response')
-                text = clean_response(json.loads(raw))
-            except (OSError, ValueError, urllib.error.URLError) as exc:
-                raise RuntimeError('Local Qwen enhancement is unavailable. Prepare Ollama in Workbench, verify the selected model, or turn enhance OFF. No external API is used.') from exc
-        final = text if _native_generation else layout + '\n' + text
-        if trigger_words.strip():
-            final += '\n' + trigger_words.strip()
-        return {'ui': {'text': [final]}, 'result': (final,)}
-
-
-class WBKreaStandardPrompt(WBKreaPrompt):
-    """Visual analysis produces a self-contained prompt for a text-only generator."""
-    def enhance_prompt(self, editing_inputs, instruction, enhance, ollama_model, trigger_words, max_tokens):
-        return super().enhance_prompt(editing_inputs, instruction, enhance, ollama_model,
-                                      trigger_words, max_tokens, _native_generation=True)
 
 
 class WBKreaOptionalLoRAs:
@@ -322,7 +254,6 @@ class WBKreaCondition:
         encoder = nodes.NODE_CLASS_MAPPINGS['Krea2EditGroundedEncode']()
         positive = encoder.encode(clip, prompt, image=p['source'], image_b=p['board'], grounding_px=grounding_px)[0]
         negative = encoder.encode(clip, '', image=p['source'], image_b=p['board'], grounding_px=grounding_px)[0]
-        # Pixel path overrides the initial latent; pre-encode both real images BEFORE sampling.
         patched = nodes.NODE_CLASS_MAPPINGS['Krea2EditModelPatch']().patch(
             model, source_latent=latent, vae=vae, source_image=p['source'], source_image_b=p['board'],
             target_latent=latent, fit_mode='fit', ref_boost_a=scene_strength,
@@ -330,9 +261,7 @@ class WBKreaCondition:
         return patched, positive, negative, latent
 
 
-
 class WBKreaStandardCondition:
-    """Native Krea text conditioning, without the Identity Edit adapter or patch."""
     @classmethod
     def INPUT_TYPES(cls):
         return {'required': {'model': ('MODEL',), 'clip': ('CLIP',),
@@ -349,8 +278,23 @@ class WBKreaStandardCondition:
         negative = encoder.encode(clip, '')[0]
         return model, positive, negative, latent
 
-NODE_CLASS_MAPPINGS = {cls.__name__: cls for cls in (WBKreaReference, WBKreaPrepare, WBKreaPrompt, WBKreaModels, WBKreaLoRAs, WBKreaCondition, WBKreaStandardCondition, WBKreaStandardPrompt, WBKreaOptionalLoRAs)}
-NODE_DISPLAY_NAME_MAPPINGS = {'WBKreaReference': 'Krea Optional Reference', 'WBKreaPrepare': 'Krea Source + Reference Sheet',
-    'WBKreaPrompt': 'Qwen 3.8 27B - Krea Prompt Enhancer', 'WBKreaModels': 'Krea Checkpoint + Correct Encoder',
-    'WBKreaLoRAs': 'Krea Edit Adapter + Optional LoRAs', 'WBKreaCondition': 'Krea FIT Editing Conditioning', 'WBKreaStandardCondition': 'Krea Standard Native Conditioning (no Edit LoRA)', 'WBKreaStandardPrompt': 'Krea Standard Target-Image Prompt', 'WBKreaOptionalLoRAs': 'Krea Optional LoRAs (no Identity Edit)' }
+
+NODE_CLASS_MAPPINGS = {cls.__name__: cls for cls in (WBKreaReference, WBKreaPrepare,
+    WBKreaPrompt, WBKreaModels, WBKreaLoRAs, WBKreaCondition, WBKreaStandardCondition,
+    WBKreaStandardPrompt, WBKreaOptionalLoRAs)}
+NODE_DISPLAY_NAME_MAPPINGS = {
+    'WBKreaReference': 'Krea Optional Reference', 'WBKreaPrepare': 'Krea Source + Reference Sheet',
+    'WBKreaPrompt': 'Krea | Shared Qwen Vision Prompt Enhancer',
+    'WBKreaModels': 'Krea Checkpoint + Correct Encoder',
+    'WBKreaLoRAs': 'Krea Edit Adapter + Optional LoRAs',
+    'WBKreaCondition': 'Krea FIT Editing Conditioning',
+    'WBKreaStandardCondition': 'Krea Standard Native Conditioning (no Edit LoRA)',
+    'WBKreaStandardPrompt': 'Krea Standard Target-Image Prompt',
+    'WBKreaOptionalLoRAs': 'Krea Optional LoRAs (no Identity Edit)'}
+from .photo_nodes import NODE_CLASS_MAPPINGS as _PHOTO_CLASSES, NODE_DISPLAY_NAME_MAPPINGS as _PHOTO_NAMES
+NODE_CLASS_MAPPINGS.update(_PHOTO_CLASSES)
+NODE_DISPLAY_NAME_MAPPINGS.update(_PHOTO_NAMES)
+# Compatibility alias for the shared source-mask Toolbox; no Qwen generator is registered.
+NODE_CLASS_MAPPINGS['Q21PhotoMask'] = _PHOTO_CLASSES['WBKreaMask']
+NODE_DISPLAY_NAME_MAPPINGS['Q21PhotoMask'] = 'Krea | Shared Manual / SAM 3.1 Mask'
 WEB_DIRECTORY = './web'

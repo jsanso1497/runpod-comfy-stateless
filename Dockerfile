@@ -19,7 +19,10 @@ COPY deploy/ ./deploy/
 COPY workflows/ ./workflows/
 COPY automation/ ./automation/
 COPY site/ ./site/
-RUN python deploy/build.py "$WB_WORKSPACE" \
+COPY scripts/build_site.py scripts/build_krea_workflow.py ./scripts/
+RUN python scripts/build_krea_workflow.py \
+    && python scripts/build_site.py \
+    && python deploy/build.py "$WB_WORKSPACE" \
     && python -m compileall -q src \
     && python -c 'from av.video.reformatter import ColorPrimaries, ColorRange, ColorTrc; import workbench.assets, workbench.runtime; from workbench.http_gateway import ACCESS_VERSION, AUTH_MODE_KEY; assert ACCESS_VERSION == "1.2.0"; app = workbench.runtime.make_app(auth_mode="none"); assert app[AUTH_MODE_KEY] == "none"'
 # Optional local helpers are executable here, but no model is downloaded at build time.

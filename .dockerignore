@@ -28,7 +28,9 @@ Thumbs.db
 tests
 reports
 docs
-scripts
+scripts/*
+!scripts/build_site.py
+!scripts/build_krea_workflow.py
 *.zip
 *.bundle
 .env.example
