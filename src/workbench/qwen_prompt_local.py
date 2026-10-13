@@ -17,13 +17,13 @@ import urllib.request
 from pathlib import Path
 
 VERSION = 'qwen-local-pe-1.0.0'
-DEFAULT_MODEL = 'huihui_ai/qwen3-vl-abliterated:32b-instruct-fp16'
-ALTERNATE_MODEL = 'huihui_ai/Qwen3.8-abliterated:27b-bf16'
+DEFAULT_MODEL = 'huihui_ai/Qwen3.8-abliterated:27b-bf16'
+ALTERNATE_MODEL = 'huihui_ai/qwen3-vl-abliterated:32b-instruct-fp16'
 PRESETS = {
-    DEFAULT_MODEL: {'label': 'Qwen3-VL 32B Instruct Abliterated FP16',
-                    'precision': 'F16', 'estimated_bytes': 67_000_000_000},
-    ALTERNATE_MODEL: {'label': 'Qwen3.8 27B Abliterated BF16',
-                      'precision': 'BF16', 'estimated_bytes': 56_000_000_000},
+    DEFAULT_MODEL: {'label': 'Qwen3.8 27B Abliterated BF16 (vision)',
+                    'precision': 'BF16', 'estimated_bytes': 56_000_000_000},
+    ALTERNATE_MODEL: {'label': 'Qwen3-VL 32B Instruct Abliterated FP16 (vision)',
+                      'precision': 'F16', 'estimated_bytes': 67_000_000_000},
 }
 BASE_URL = 'http://127.0.0.1:11434'
 SCHEMA = {'type': 'object', 'properties': {'rewritten_prompt': {'type': 'string'}},

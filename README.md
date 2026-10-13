@@ -23,7 +23,11 @@ Every model has a `00_Standard_HQ` baseline. These are source-native baselines o
 
 **58 catalog entries, 70 editable workflow files, and a disposition for all 82 original source workflows.** The catalog contains 51 retained task choices, four Standard HQ entries, two standalone SAM tools and a Qwen prompt-preview tool. See [the task catalog](docs/tasks.md) and [migration details](docs/migration.md).
 
-## Qwen prompt-enhancement update (0.1.2)
+## Current Qwen prompt enhancer: Qwen3.8 vision + official PE-I2I
+
+The default enhancer is **Qwen3.8 27B Abliterated BF16 with vision**. The existing Qwen prompt control also offers **Official Qwen Image 2.1 PE-I2I BF16** in a new optional backend dropdown; prepare `qwen_pe_i2i` via Workbench Toolbox (about 19 GB extra) to use it. The default local VLM needs about 56 GB of storage. Both modes inspect the source and ordered reference images. Existing OFF toggles remain OFF. Invalid rewrites retry once, then visibly fall back to the original prompt without changing masks, geometry or references. [Exact configuration and model differences](docs/qwen-prompt-local.md). Rebuild the `qwen` image after applying the update. GPU inference is not yet certified.
+
+## Previous prompt-enhancement update (0.1.2, superseded)
 
 All Qwen generation templates now include an optional **official Qwen I2I BF16 prompt enhancer**, OFF by default, with a shared switch across every edit pass. Prompts stay in their existing fields. Masks, references, negative prompts and generation settings stay unchanged. **Toolbox U10** previews a rewrite without image generation. [Usage, storage and validation details](docs/qwen-prompt-enhancer.md).
 

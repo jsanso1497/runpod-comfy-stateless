@@ -186,7 +186,7 @@ def test_catalog_merges_without_replacing_other_families(tmp_path,monkeypatch):
     monkeypatch.setattr(config,'ROOT',tmp_path)
     monkeypatch.setenv('WB_WORKSPACE','qwen')
     assets=config.read_catalog('assets.json')
-    assert assets['ollama']['models']==['huihui_ai/qwen3-vl-abliterated:32b-instruct-fp16']
+    assert assets['ollama']['models']==['huihui_ai/Qwen3.8-abliterated:27b-bf16']
     assert assets['ollama_by_workspace']['h3']['models']==['existing-f16-a','existing-f16-b']
     assert [m['id'] for m in config.read_catalog('models.json')['models']]==['qwen','krea']
     assert [t['id'] for t in config.read_catalog('tasks.json')['tasks']]==['Q01','K01']

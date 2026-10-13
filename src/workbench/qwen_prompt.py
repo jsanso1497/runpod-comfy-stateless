@@ -1,9 +1,9 @@
 """Shared prompt enhancement for existing Qwen image workflows.
 
-ON uses the selected local full-precision abliterated vision model. OFF is exact
-pass-through and does not inspect images, resolve model settings or access a
-service. Legacy official-checkpoint utilities remain for integrity tests and
-migration, but are never an automatic fallback.
+ON uses an explicitly selected vision backend: local abliterated Qwen3.8 27B
+(default) or the official Qwen Image 2.1 PE-I2I BF16. OFF is exact pass-through
+and does not inspect images, resolve settings or access an inference service.
+Backend errors never switch to a different model silently.
 """
 from __future__ import annotations
 from collections import OrderedDict
@@ -15,10 +15,15 @@ import re
 import threading
 from .config import model_root, read_catalog, safe_path
 
+BACKEND_LOCAL = "Qwen3.8 27B (Ollama vision)"
+BACKEND_OFFICIAL = "Official Qwen Image 2.1 PE-I2I (BF16)"
+BACKEND_CHOICES = (BACKEND_LOCAL, BACKEND_OFFICIAL)
+
 # Legacy official asset identities, retained for cached-asset verification only.
 MODEL_ID = 'Qwen/Qwen-Image-2.1-PE-I2I'
 REVISION = '72927bc08afc99b7888ceb7d7d51a12db3700bbd'
 GROUP = 'qwen_pe_i2i'
+OFFICIAL_ASSET_DIR = 'prompt_enhancers/qwen_image_2_1_i2i'
 MAX_NEW_TOKENS = 24000
 _LOCK = threading.RLock()
 _CACHE: OrderedDict[str, tuple[str, dict]] = OrderedDict()
@@ -37,6 +42,7 @@ class Options:
     seed: int = 42
     keep_exact: str = ''
     repair_error: str = ''
+    backend: str = BACKEND_LOCAL
 
     @classmethod
     def from_value(cls, value=None):
@@ -54,7 +60,10 @@ class Options:
         terms = value.get('keep_exact', '')
         if not isinstance(terms, str) or len(terms) > 16000:
             raise EnhancementError('Keep-exact terms must be a text list under 16,000 characters.')
-        return cls(value.get('enabled', False), seed, terms)
+        backend = value.get('backend', BACKEND_LOCAL)
+        if backend not in BACKEND_CHOICES:
+            raise EnhancementError('Choose Qwen3.8 Ollama vision or the official Qwen Image 2.1 I2I prompt enhancer.')
+        return cls(value.get('enabled', False), seed, terms, '', backend)
 
 
 def parse_response(raw: str, original: str, image_count: int, keep_exact: str = '') -> dict:
@@ -120,9 +129,30 @@ def _ordered_images(images: dict) -> list:
     return ordered
 
 
+def _backend_identity(options):
+    if options.backend == BACKEND_LOCAL:
+        from .qwen_prompt_local import cache_identity
+        return cache_identity()
+    # Cached official replies must not conceal missing/replaced official weights.
+    # The hash changes when any asset changes, disappears, or is reinstalled.
+    root = model_root()
+    components = [MODEL_ID, REVISION, BACKEND_OFFICIAL]
+    # Exact known six-file official layout; no model load or catalog access
+    # solely to compute the cache identity.
+    for name in ([f'model-{i:05d}.safetensors' for i in range(1, 5)]
+                 + ['system_prompt.txt', 'model.safetensors.index.json']):
+        path = safe_path(root, OFFICIAL_ASSET_DIR + '/' + name)
+        try:
+            st = path.stat()
+            components.append([name, st.st_size, st.st_mtime_ns, st.st_ctime_ns])
+        except OSError:
+            components.append([name, 'missing'])
+    return json.dumps(components)
+
+
 def _cache_key(prompt, images, options):
-    from .qwen_prompt_local import cache_identity
-    h = hashlib.sha256(json.dumps([cache_identity(), prompt, options.seed, options.keep_exact], ensure_ascii=False).encode())
+    h = hashlib.sha256(json.dumps([_backend_identity(options), options.backend,
+                                   prompt, options.seed, options.keep_exact], ensure_ascii=False).encode())
     for image in images:
         value = image.detach().float().cpu().contiguous()
         h.update(str(tuple(value.shape)).encode())
@@ -130,7 +160,16 @@ def _cache_key(prompt, images, options):
     return h.hexdigest()
 
 
+class BackendSetupError(EnhancementError):
+    """Missing/corrupt weights must never trigger the unchanged-prompt fallback."""
+
+
 def _generate(prompt, images, options):
+    if options.backend == BACKEND_OFFICIAL:
+        try:
+            return _generate_official(prompt, images, options)
+        except EnhancementError as exc:
+            raise BackendSetupError(str(exc)) from None
     from .qwen_prompt_local import generate
     return generate(prompt, images, options)
 
@@ -162,6 +201,8 @@ def enhance_edit_prompt(prompt: str, images: dict, settings=None) -> tuple[str, 
                 raw = _generate(prompt, ordered, attempt_options)
                 result = parse_response(raw, prompt, len(ordered), options.keep_exact)
                 break
+            except BackendSetupError:
+                raise
             except (EnhancementError, local.InvalidReply) as exc:
                 validation_error = str(exc)
             except local.LocalServiceError as exc:
@@ -172,11 +213,14 @@ def enhance_edit_prompt(prompt: str, images: dict, settings=None) -> tuple[str, 
             raise EnhancementError('Prompt rewrite failed validation twice. ' + validation_error)
         fallback = result is None
         effective = prompt if fallback else result['rewritten_prompt']
-        model = local.selected_model()
+        is_official = options.backend == BACKEND_OFFICIAL
+        model = MODEL_ID if is_official else local.selected_model()
+        model_label = BACKEND_OFFICIAL if is_official else local.PRESETS[model]['label']
         status = ('WARNING: rewrite failed validation twice; ORIGINAL prompt used unchanged.' if fallback
-                  else 'ON: local ' + local.PRESETS[model]['label'] + ('; repaired rewrite' if attempts == 2 else ''))
-        report = {'enabled': True, 'backend': 'ollama', 'model': model, 'revision': local.VERSION,
-                  'precision': local.PRESETS[model]['precision'], 'seed': options.seed,
+                  else 'ON: ' + model_label + ('; repaired rewrite' if attempts == 2 else ''))
+        report = {'enabled': True, 'backend': 'official' if is_official else 'ollama',
+                  'model': model, 'revision': REVISION if is_official else local.VERSION,
+                  'precision': 'BF16' if is_official else local.PRESETS[model]['precision'], 'seed': options.seed,
                   'image_count': len(ordered), 'original_prompt': prompt, 'effective_prompt': effective,
                   'suggested_wh_ratio': '' if fallback else result['wh_ratio'],
                   'suggested_ratio_follow': '' if fallback else result['ratio_follow'],
@@ -207,7 +251,7 @@ def _installed_assets():
     for row in rows:
         path = safe_path(model_root(), row['destination'])
         if not path.is_file():
-            raise EnhancementError('Legacy official Qwen enhancer assets are not installed. U10 now uses local Ollama; enable the new backend or turn enhancement OFF.')
+            raise EnhancementError('Official PE-I2I weights are not installed. Prepare Toolbox qwen_pe_i2i in Workbench or set WB_TOOLBOX=qwen_pe_i2i and restart. You can also select Qwen3.8 or turn enhancement OFF.')
         stat = path.stat()
         signature = (str(path), stat.st_size, stat.st_mtime_ns, stat.st_ctime_ns, row.get('sha256'))
         if row.get('sha256') and signature not in _VERIFIED:
@@ -217,7 +261,7 @@ def _installed_assets():
         files[row['filename']] = path
     needed = [f'model-{i:05d}.safetensors' for i in range(1, 5)] + ['system_prompt.txt', 'model.safetensors.index.json']
     if any(name not in files for name in needed):
-        raise EnhancementError('The legacy enhancer asset catalog is incomplete.')
+        raise EnhancementError('Official PE-I2I asset catalog is incomplete. Restore catalog/assets.json before preparing qwen_pe_i2i.')
     return files
 
 
@@ -249,6 +293,10 @@ def _generate_official(prompt, images, options):
     terms = [t.strip() for t in options.keep_exact.splitlines() if t.strip() and t.strip() in prompt]
     if terms:
         system += '\nKeep-exact terms for this pass: ' + json.dumps(terms, ensure_ascii=False)
+    if options.repair_error:
+        system += ('\nPrevious rewritten prompt failed strict validation: '
+                   + options.repair_error
+                   + '. Retry from the original prompt; preserve all original tags, quoted literals and triggers.')
     clip = None
     mm.unload_all_models()
     try:

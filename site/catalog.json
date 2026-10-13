@@ -6,7 +6,7 @@
       "short": "Qwen",
       "precision": "BF16",
       "kind": "Image editing + generation",
-      "description": "Reference editing, identity, wardrobe, local repair and multi-person workflows. All generation templates include an optional official I2I prompt-enhancement toggle (OFF by default).",
+      "description": "Reference editing, identity, wardrobe and local repair. The existing prompt enhancer offers Qwen3.8 27B BF16 vision (default) or the official Qwen Image 2.1 PE-I2I BF16. OFF defaults are preserved.",
       "accent": "violet",
       "comfy_commit": "52f98af2e2e42c421070a3e147c161c47cdeaf22",
       "external_nodes": [
@@ -21,7 +21,9 @@
       ],
       "toolbox": [
         "sam",
-        "seedvr2"
+        "seedvr2",
+        "ollama",
+        "qwen_pe_i2i"
       ],
       "default_tasks": [
         "SQ",
@@ -29,12 +31,12 @@
       ],
       "default_groups": [
         "qwen",
-        "qwen_pe_i2i"
+        "ollama"
       ],
       "ram_gb": 128,
       "vram_gb": 80,
-      "storage_gb": 120,
-      "hardware_note": "Conservative planning target, not a measured minimum. Larger reference counts and 4 MP crops need a GPU smoke test. The official BF16 prompt enhancer adds approximately 19 GB of model storage and runs sequentially, not concurrently with generation. Enhancement memory and runtime remain unbenchmarked."
+      "storage_gb": 250,
+      "hardware_note": "Planning target, not a measured minimum. Local Qwen3.8 adds about 56 GB; enabling qwen_pe_i2i adds about 19 GB. The active helper unloads before Qwen image generation. Both paths require a live GPU test."
     },
     {
       "id": "flux",
@@ -139,6 +141,36 @@
       "vram_gb": 48,
       "storage_gb": 100,
       "hardware_note": "Large video batches and output resolution increase memory use. Validate against representative clips before production."
+    },
+    {
+      "id": "krea",
+      "name": "Krea 2 Image Edit",
+      "short": "Krea",
+      "precision": "BF16 + full edit LoRA",
+      "kind": "Image editing + reference transfer",
+      "description": "One source, up to four labeled references, two optional LoRAs, compatible checkpoint switching and Qwen 3.8 27B BF16 enhancement.",
+      "accent": "orange",
+      "comfy_commit": "52f98af2e2e42c421070a3e147c161c47cdeaf22",
+      "external_nodes": [
+        "krea2edit"
+      ],
+      "local_nodes": [
+        "krea_edit"
+      ],
+      "toolbox": [
+        "ollama"
+      ],
+      "default_tasks": [
+        "K01"
+      ],
+      "default_groups": [
+        "krea",
+        "ollama"
+      ],
+      "ram_gb": 128,
+      "vram_gb": 80,
+      "storage_gb": 250,
+      "hardware_note": "Planning target, not a measured minimum. Qwen 3.8 27B BF16 uses about 56 GB of disk and unloads before Krea generation. Both Raw and Turbo BF16 are included. Extra references use a sheet within the upstream two-image editor, not independent native N-image conditioning."
     }
   ],
   "tasks": [
@@ -197,9 +229,10 @@
         }
       ],
       "optional_prompt_enhancement": {
-        "model": "Qwen/Qwen-Image-2.1-PE-I2I",
+        "model": "huihui_ai/Qwen3.8-abliterated:27b-bf16",
         "precision": "BF16",
-        "default": "off"
+        "default": "off",
+        "backend": "ollama"
       }
     },
     {
@@ -232,9 +265,10 @@
         }
       ],
       "optional_prompt_enhancement": {
-        "model": "Qwen/Qwen-Image-2.1-PE-I2I",
+        "model": "huihui_ai/Qwen3.8-abliterated:27b-bf16",
         "precision": "BF16",
-        "default": "off"
+        "default": "off",
+        "backend": "ollama"
       }
     },
     {
@@ -261,9 +295,10 @@
         }
       ],
       "optional_prompt_enhancement": {
-        "model": "Qwen/Qwen-Image-2.1-PE-I2I",
+        "model": "huihui_ai/Qwen3.8-abliterated:27b-bf16",
         "precision": "BF16",
-        "default": "off"
+        "default": "off",
+        "backend": "ollama"
       }
     },
     {
@@ -290,9 +325,10 @@
         }
       ],
       "optional_prompt_enhancement": {
-        "model": "Qwen/Qwen-Image-2.1-PE-I2I",
+        "model": "huihui_ai/Qwen3.8-abliterated:27b-bf16",
         "precision": "BF16",
-        "default": "off"
+        "default": "off",
+        "backend": "ollama"
       }
     },
     {
@@ -319,9 +355,10 @@
         }
       ],
       "optional_prompt_enhancement": {
-        "model": "Qwen/Qwen-Image-2.1-PE-I2I",
+        "model": "huihui_ai/Qwen3.8-abliterated:27b-bf16",
         "precision": "BF16",
-        "default": "off"
+        "default": "off",
+        "backend": "ollama"
       }
     },
     {
@@ -348,9 +385,10 @@
         }
       ],
       "optional_prompt_enhancement": {
-        "model": "Qwen/Qwen-Image-2.1-PE-I2I",
+        "model": "huihui_ai/Qwen3.8-abliterated:27b-bf16",
         "precision": "BF16",
-        "default": "off"
+        "default": "off",
+        "backend": "ollama"
       }
     },
     {
@@ -377,9 +415,10 @@
         }
       ],
       "optional_prompt_enhancement": {
-        "model": "Qwen/Qwen-Image-2.1-PE-I2I",
+        "model": "huihui_ai/Qwen3.8-abliterated:27b-bf16",
         "precision": "BF16",
-        "default": "off"
+        "default": "off",
+        "backend": "ollama"
       }
     },
     {
@@ -419,9 +458,10 @@
         }
       ],
       "optional_prompt_enhancement": {
-        "model": "Qwen/Qwen-Image-2.1-PE-I2I",
+        "model": "huihui_ai/Qwen3.8-abliterated:27b-bf16",
         "precision": "BF16",
-        "default": "off"
+        "default": "off",
+        "backend": "ollama"
       }
     },
     {
@@ -448,9 +488,10 @@
         }
       ],
       "optional_prompt_enhancement": {
-        "model": "Qwen/Qwen-Image-2.1-PE-I2I",
+        "model": "huihui_ai/Qwen3.8-abliterated:27b-bf16",
         "precision": "BF16",
-        "default": "off"
+        "default": "off",
+        "backend": "ollama"
       }
     },
     {
@@ -477,9 +518,10 @@
         }
       ],
       "optional_prompt_enhancement": {
-        "model": "Qwen/Qwen-Image-2.1-PE-I2I",
+        "model": "huihui_ai/Qwen3.8-abliterated:27b-bf16",
         "precision": "BF16",
-        "default": "off"
+        "default": "off",
+        "backend": "ollama"
       }
     },
     {
@@ -506,9 +548,10 @@
         }
       ],
       "optional_prompt_enhancement": {
-        "model": "Qwen/Qwen-Image-2.1-PE-I2I",
+        "model": "huihui_ai/Qwen3.8-abliterated:27b-bf16",
         "precision": "BF16",
-        "default": "off"
+        "default": "off",
+        "backend": "ollama"
       }
     },
     {
@@ -535,9 +578,10 @@
         }
       ],
       "optional_prompt_enhancement": {
-        "model": "Qwen/Qwen-Image-2.1-PE-I2I",
+        "model": "huihui_ai/Qwen3.8-abliterated:27b-bf16",
         "precision": "BF16",
-        "default": "off"
+        "default": "off",
+        "backend": "ollama"
       }
     },
     {
@@ -564,9 +608,10 @@
         }
       ],
       "optional_prompt_enhancement": {
-        "model": "Qwen/Qwen-Image-2.1-PE-I2I",
+        "model": "huihui_ai/Qwen3.8-abliterated:27b-bf16",
         "precision": "BF16",
-        "default": "off"
+        "default": "off",
+        "backend": "ollama"
       }
     },
     {
@@ -593,9 +638,10 @@
         }
       ],
       "optional_prompt_enhancement": {
-        "model": "Qwen/Qwen-Image-2.1-PE-I2I",
+        "model": "huihui_ai/Qwen3.8-abliterated:27b-bf16",
         "precision": "BF16",
-        "default": "off"
+        "default": "off",
+        "backend": "ollama"
       }
     },
     {
@@ -622,9 +668,10 @@
         }
       ],
       "optional_prompt_enhancement": {
-        "model": "Qwen/Qwen-Image-2.1-PE-I2I",
+        "model": "huihui_ai/Qwen3.8-abliterated:27b-bf16",
         "precision": "BF16",
-        "default": "off"
+        "default": "off",
+        "backend": "ollama"
       }
     },
     {
@@ -651,9 +698,10 @@
         }
       ],
       "optional_prompt_enhancement": {
-        "model": "Qwen/Qwen-Image-2.1-PE-I2I",
+        "model": "huihui_ai/Qwen3.8-abliterated:27b-bf16",
         "precision": "BF16",
-        "default": "off"
+        "default": "off",
+        "backend": "ollama"
       }
     },
     {
@@ -686,9 +734,10 @@
         }
       ],
       "optional_prompt_enhancement": {
-        "model": "Qwen/Qwen-Image-2.1-PE-I2I",
+        "model": "huihui_ai/Qwen3.8-abliterated:27b-bf16",
         "precision": "BF16",
-        "default": "off"
+        "default": "off",
+        "backend": "ollama"
       }
     },
     {
@@ -715,9 +764,10 @@
         }
       ],
       "optional_prompt_enhancement": {
-        "model": "Qwen/Qwen-Image-2.1-PE-I2I",
+        "model": "huihui_ai/Qwen3.8-abliterated:27b-bf16",
         "precision": "BF16",
-        "default": "off"
+        "default": "off",
+        "backend": "ollama"
       }
     },
     {
@@ -744,9 +794,10 @@
         }
       ],
       "optional_prompt_enhancement": {
-        "model": "Qwen/Qwen-Image-2.1-PE-I2I",
+        "model": "huihui_ai/Qwen3.8-abliterated:27b-bf16",
         "precision": "BF16",
-        "default": "off"
+        "default": "off",
+        "backend": "ollama"
       }
     },
     {
@@ -773,9 +824,10 @@
         }
       ],
       "optional_prompt_enhancement": {
-        "model": "Qwen/Qwen-Image-2.1-PE-I2I",
+        "model": "huihui_ai/Qwen3.8-abliterated:27b-bf16",
         "precision": "BF16",
-        "default": "off"
+        "default": "off",
+        "backend": "ollama"
       }
     },
     {
@@ -802,9 +854,10 @@
         }
       ],
       "optional_prompt_enhancement": {
-        "model": "Qwen/Qwen-Image-2.1-PE-I2I",
+        "model": "huihui_ai/Qwen3.8-abliterated:27b-bf16",
         "precision": "BF16",
-        "default": "off"
+        "default": "off",
+        "backend": "ollama"
       }
     },
     {
@@ -831,9 +884,10 @@
         }
       ],
       "optional_prompt_enhancement": {
-        "model": "Qwen/Qwen-Image-2.1-PE-I2I",
+        "model": "huihui_ai/Qwen3.8-abliterated:27b-bf16",
         "precision": "BF16",
-        "default": "off"
+        "default": "off",
+        "backend": "ollama"
       }
     },
     {
@@ -860,9 +914,10 @@
         }
       ],
       "optional_prompt_enhancement": {
-        "model": "Qwen/Qwen-Image-2.1-PE-I2I",
+        "model": "huihui_ai/Qwen3.8-abliterated:27b-bf16",
         "precision": "BF16",
-        "default": "off"
+        "default": "off",
+        "backend": "ollama"
       }
     },
     {
@@ -889,9 +944,10 @@
         }
       ],
       "optional_prompt_enhancement": {
-        "model": "Qwen/Qwen-Image-2.1-PE-I2I",
+        "model": "huihui_ai/Qwen3.8-abliterated:27b-bf16",
         "precision": "BF16",
-        "default": "off"
+        "default": "off",
+        "backend": "ollama"
       }
     },
     {
@@ -918,9 +974,10 @@
         }
       ],
       "optional_prompt_enhancement": {
-        "model": "Qwen/Qwen-Image-2.1-PE-I2I",
+        "model": "huihui_ai/Qwen3.8-abliterated:27b-bf16",
         "precision": "BF16",
-        "default": "off"
+        "default": "off",
+        "backend": "ollama"
       }
     },
     {
@@ -947,9 +1004,10 @@
         }
       ],
       "optional_prompt_enhancement": {
-        "model": "Qwen/Qwen-Image-2.1-PE-I2I",
+        "model": "huihui_ai/Qwen3.8-abliterated:27b-bf16",
         "precision": "BF16",
-        "default": "off"
+        "default": "off",
+        "backend": "ollama"
       }
     },
     {
@@ -976,9 +1034,10 @@
         }
       ],
       "optional_prompt_enhancement": {
-        "model": "Qwen/Qwen-Image-2.1-PE-I2I",
+        "model": "huihui_ai/Qwen3.8-abliterated:27b-bf16",
         "precision": "BF16",
-        "default": "off"
+        "default": "off",
+        "backend": "ollama"
       }
     },
     {
@@ -1011,9 +1070,10 @@
         }
       ],
       "optional_prompt_enhancement": {
-        "model": "Qwen/Qwen-Image-2.1-PE-I2I",
+        "model": "huihui_ai/Qwen3.8-abliterated:27b-bf16",
         "precision": "BF16",
-        "default": "off"
+        "default": "off",
+        "backend": "ollama"
       }
     },
     {
@@ -1598,9 +1658,10 @@
         }
       ],
       "optional_prompt_enhancement": {
-        "model": "Qwen/Qwen-Image-2.1-PE-I2I",
+        "model": "huihui_ai/Qwen3.8-abliterated:27b-bf16",
         "precision": "BF16",
-        "default": "off"
+        "default": "off",
+        "backend": "ollama"
       }
     },
     {
@@ -1625,9 +1686,10 @@
         }
       ],
       "optional_prompt_enhancement": {
-        "model": "Qwen/Qwen-Image-2.1-PE-I2I",
+        "model": "huihui_ai/Qwen3.8-abliterated:27b-bf16",
         "precision": "BF16",
-        "default": "off"
+        "default": "off",
+        "backend": "ollama"
       }
     },
     {
@@ -1745,15 +1807,15 @@
     },
     {
       "id": "U10",
-      "title": "Preview an enhanced Qwen edit prompt",
-      "description": "Standalone official Qwen I2I BF16 prompt enhancement, with original/final text, reference images and an ON/OFF toggle. No Qwen image generation. Requires approximately 19 GB of enhancer files, included in the Qwen workspace defaults.",
+      "title": "Compare Qwen3.8 vision and official I2I enhanced prompts",
+      "description": "Use the selector on the existing enhancer control to preview either Qwen3.8 27B BF16 vision or official Qwen Image 2.1 PE-I2I BF16. Prepare qwen_pe_i2i from Toolbox before using official mode.",
       "family": "toolbox",
       "category": "Toolbox",
       "workspaces": [
         "qwen"
       ],
       "requires": [
-        "qwen_pe_i2i"
+        "ollama"
       ],
       "sources": [],
       "status": "new; GPU validation required",
@@ -1764,6 +1826,69 @@
           "source": "workbench-generated"
         }
       ]
+    },
+    {
+      "id": "QGS1",
+      "title": "Green suit template -> GPT identity overlay",
+      "description": "SAM person minus hair, Qwen BF16 green suit, SeedVR2 4K reference, native logged-in Comfy Partner GPT 2.5 edit and progression comparison. No OpenAI key.",
+      "family": "qwen",
+      "category": "tasks",
+      "workspaces": [
+        "qwen"
+      ],
+      "requires": [
+        "qwen",
+        "sam",
+        "seedvr2"
+      ],
+      "sources": [],
+      "status": "CPU/static validated; GPU and Partner login run required",
+      "variants": [
+        {
+          "label": "HQ + GPT Sunburst",
+          "file": "workflows/qwen/QGS1_Green_Suit_Overlay/Green_Suit_Qwen_to_GPT25_Overlay_v1_0.json",
+          "source": "green-suit-add-on"
+        }
+      ]
+    },
+    {
+      "id": "K01",
+      "title": "Image edit with multiple references, LoRAs and Qwen enhancement",
+      "description": "One source plus 0-4 optional, role-labeled references. Raw/Turbo BF16, two extra LoRAs and Qwen 3.8 27B BF16 ON by default. Two or more references are combined into a visible reference sheet. Two variants: Identity Edit and standard native Krea without Identity Edit LoRA (prompt-guided generation only).",
+      "sources": [
+        "https://github.com/lbouaraba/comfyui-krea2edit"
+      ],
+      "family": "krea",
+      "category": "tasks",
+      "requires": [
+        "krea",
+        "ollama"
+      ],
+      "workspaces": [
+        "krea"
+      ],
+      "status": "integration candidate; GPU validation pending",
+      "variants": [
+        {
+          "label": "Krea Edit HQ - multi-reference",
+          "file": "workflows/krea/K01/Krea_Edit_Multi_Reference_HQ.json",
+          "source": "Workbench integration of Krea2 Identity Edit v1.2"
+        },
+        {
+          "label": "Krea Standard - No Identity Edit LoRA (prompt-guided generation)",
+          "file": "workflows/krea/K01/Krea_Standard_No_Identity_LoRA_HQ.json",
+          "source": "Native Krea text conditioning, no Identity Edit adapter"
+        }
+      ],
+      "required_nodes": [
+        "Krea2EditModelPatch",
+        "Krea2EditGroundedEncode"
+      ],
+      "optional_prompt_enhancement": {
+        "model": "qwen3.8:27b-bf16",
+        "precision": "BF16",
+        "default": "on"
+      }
     }
   ],
   "assets": [
@@ -2015,16 +2140,140 @@
       "estimated_bytes": 62400,
       "integrity_source": "Git-blob SHA1 from pinned official repository metadata, verified before use",
       "verification": "Downloaded and verified at runtime; never reads private LoRA lists"
+    },
+    {
+      "id": "krea-krea2_raw_bf16",
+      "family": "krea",
+      "group": "krea",
+      "repo_id": "Comfy-Org/Krea-2",
+      "filename": "diffusion_models/krea2_raw_bf16.safetensors",
+      "revision": "main",
+      "destination": "diffusion_models/krea2_raw_bf16.safetensors",
+      "sha256": "f99bb0ff8e362b77342bc4994e0c50906fe7ef7074864b181b7d48d2fa6d03d7",
+      "estimated_bytes": 26300000000,
+      "integrity_source": "Hugging Face file SHA256 verified 2026-10-12; enforced at download",
+      "verification": "Weights not downloaded or GPU-tested here"
+    },
+    {
+      "id": "krea-krea2_turbo_bf16",
+      "family": "krea",
+      "group": "krea",
+      "repo_id": "Comfy-Org/Krea-2",
+      "filename": "diffusion_models/krea2_turbo_bf16.safetensors",
+      "revision": "main",
+      "destination": "diffusion_models/krea2_turbo_bf16.safetensors",
+      "sha256": "78bbf8f4165eda19cea3cb06c78089221932a39e2eed8af9da741f942c47ffb3",
+      "estimated_bytes": 26300000000,
+      "integrity_source": "Hugging Face file SHA256 verified 2026-10-12; enforced at download",
+      "verification": "Weights not downloaded or GPU-tested here"
+    },
+    {
+      "id": "krea-qwen3vl_4b_bf16",
+      "family": "krea",
+      "group": "krea",
+      "repo_id": "Comfy-Org/Krea-2",
+      "filename": "text_encoders/qwen3vl_4b_bf16.safetensors",
+      "revision": "main",
+      "destination": "text_encoders/qwen3vl_4b_bf16.safetensors",
+      "sha256": "36f3ff447ef59201722e8f9ce6020c9819fdcfba6aa2608c4e09b1c0ce114e34",
+      "estimated_bytes": 8880000000,
+      "integrity_source": "Hugging Face file SHA256 verified 2026-10-12; enforced at download",
+      "verification": "Weights not downloaded or GPU-tested here"
+    },
+    {
+      "id": "krea-qwen_image_vae",
+      "family": "krea",
+      "group": "krea",
+      "repo_id": "Comfy-Org/Krea-2",
+      "filename": "vae/qwen_image_vae.safetensors",
+      "revision": "main",
+      "destination": "vae/qwen_image_vae.safetensors",
+      "sha256": "a70580f0213e67967ee9c95f05bb400e8fb08307e017a924bf3441223e023d1f",
+      "estimated_bytes": 254000000,
+      "integrity_source": "Hugging Face file SHA256 verified 2026-10-12; enforced at download",
+      "verification": "Weights not downloaded or GPU-tested here"
+    },
+    {
+      "id": "krea-krea2_identity_edit_v1_2",
+      "family": "krea",
+      "group": "krea",
+      "repo_id": "conradlocke/krea2-identity-edit",
+      "filename": "krea2_identity_edit_v1_2.safetensors",
+      "revision": "main",
+      "destination": "loras/krea2_identity_edit_v1_2.safetensors",
+      "sha256": "6adf9a69cc9502d286db7b69964d37da7e9cfe4b05b4d004bc275f087d3fd3cf",
+      "estimated_bytes": 1830000000,
+      "integrity_source": "Hugging Face file SHA256 verified 2026-10-12; enforced at download",
+      "verification": "Weights not downloaded or GPU-tested here"
     }
   ],
   "ollama": {
-    "group": "ollama",
     "models": [
-      "huihui_ai/qwen3-vl-abliterated:32b-instruct-fp16",
-      "huihui_ai/qwen3-vl-abliterated:32b-thinking-fp16"
+      "huihui_ai/Qwen3.8-abliterated:27b-bf16"
     ],
-    "estimated_bytes": 134000000000,
-    "note": "F16 helper tags independently verified; actual manifest digests recorded at runtime. Models load sequentially, not together."
+    "label": "Qwen3.8 27B Abliterated BF16 (vision)",
+    "precision": "BF16",
+    "estimated_bytes": 56000000000,
+    "group": "ollama",
+    "note": "Only the selected full-precision vision model is downloaded. Inference is sequential with the image model.",
+    "available_models": [
+      {
+        "model": "huihui_ai/Qwen3.8-abliterated:27b-bf16",
+        "label": "Qwen3.8 27B Abliterated BF16 (vision)",
+        "precision": "BF16",
+        "estimated_bytes": 56000000000
+      },
+      {
+        "model": "huihui_ai/qwen3-vl-abliterated:32b-instruct-fp16",
+        "label": "Qwen3-VL 32B Instruct Abliterated FP16 (vision)",
+        "precision": "F16",
+        "estimated_bytes": 67000000000
+      }
+    ]
+  },
+  "ollama_by_workspace": {
+    "h3": {
+      "group": "ollama",
+      "models": [
+        "huihui_ai/qwen3-vl-abliterated:32b-instruct-fp16",
+        "huihui_ai/qwen3-vl-abliterated:32b-thinking-fp16"
+      ],
+      "estimated_bytes": 134000000000,
+      "note": "F16 helper tags independently verified; actual manifest digests recorded at runtime. Models load sequentially, not together."
+    },
+    "krea": {
+      "models": [
+        "qwen3.8:27b-bf16"
+      ],
+      "estimated_bytes": 56000000000,
+      "precision": "BF16",
+      "note": "Official Ollama tag; the runtime records the resolved digest. No silent quantized fallback.",
+      "group": "ollama"
+    },
+    "qwen": {
+      "models": [
+        "huihui_ai/Qwen3.8-abliterated:27b-bf16"
+      ],
+      "label": "Qwen3.8 27B Abliterated BF16 (vision)",
+      "precision": "BF16",
+      "estimated_bytes": 56000000000,
+      "group": "ollama",
+      "note": "Only the selected full-precision vision model is downloaded. Inference is sequential with the image model.",
+      "available_models": [
+        {
+          "model": "huihui_ai/Qwen3.8-abliterated:27b-bf16",
+          "label": "Qwen3.8 27B Abliterated BF16 (vision)",
+          "precision": "BF16",
+          "estimated_bytes": 56000000000
+        },
+        {
+          "model": "huihui_ai/qwen3-vl-abliterated:32b-instruct-fp16",
+          "label": "Qwen3-VL 32B Instruct Abliterated FP16 (vision)",
+          "precision": "F16",
+          "estimated_bytes": 67000000000
+        }
+      ]
+    }
   },
   "release": {
     "version": "0.1.2",

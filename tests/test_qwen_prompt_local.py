@@ -130,7 +130,7 @@ def test_success_cache_is_model_aware(monkeypatch):
 
 def test_manifest_replacement_invalidates_cache_identity(tmp_path):
     original = local.cache_identity()
-    path = tmp_path / 'ollama/manifests/registry.ollama.ai/huihui_ai/qwen3-vl-abliterated/32b-instruct-fp16'
+    path = tmp_path / 'ollama/manifests/registry.ollama.ai/huihui_ai/qwen3.8-abliterated/27b-bf16'
     path.parent.mkdir(parents=True)
     path.write_text('{"layers":[]}')
     changed = local.cache_identity()
@@ -138,7 +138,7 @@ def test_manifest_replacement_invalidates_cache_identity(tmp_path):
     assert len({original, changed, local.cache_identity()}) == 3
 
 
-@pytest.mark.parametrize('model,precision', [(local.DEFAULT_MODEL,'F16'),(local.ALTERNATE_MODEL,'BF16')])
+@pytest.mark.parametrize('model,precision', [(local.DEFAULT_MODEL,'BF16'),(local.ALTERNATE_MODEL,'F16')])
 def test_selected_model_metadata_verification(model, precision, monkeypatch):
     monkeypatch.setenv('WB_QWEN_PROMPT_MODEL', model)
     assert local.selected_model() == model
@@ -146,7 +146,7 @@ def test_selected_model_metadata_verification(model, precision, monkeypatch):
     assert local.helper_config()['models'] == [model]
 
 
-@pytest.mark.parametrize('caps,quant', [(['completion'],'F16'),(['vision'],'Q4_K_M'),(['vision'],'Q8_0'),(['vision'],''),(['vision'],'BF16')])
+@pytest.mark.parametrize('caps,quant', [(['completion'],'BF16'),(['vision'],'Q4_K_M'),(['vision'],'Q8_0'),(['vision'],''),(['vision'],'F16')])
 def test_incorrect_or_text_only_32b_model_is_rejected(caps, quant):
     with pytest.raises(local.LocalServiceError):
         local.verify_model({'capabilities':caps,'details':{'quantization_level':quant}},local.DEFAULT_MODEL)
@@ -167,7 +167,7 @@ def fake_ollama(monkeypatch):
     def request(path, payload=None, **kwargs):
         requests.append((path,payload));events.append(path)
         if path == '/api/show':
-            return {'capabilities':state['caps'],'details':{'quantization_level':'F16'}}
+            return {'capabilities':state['caps'],'details':{'quantization_level':local.PRESETS[local.DEFAULT_MODEL]['precision']}}
         if path == '/api/chat':
             return {k:state[k] for k in ('done','done_reason')} | {'message':{'content':state['content'],'thinking':'PRIVATE REASONING'}}
         if path == '/api/generate':return {'done':True}
@@ -251,7 +251,9 @@ def test_qwen_control_socket_and_widget_contract_is_unchanged():
     module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
     cls=module.WBQwenPromptControl
     assert list(cls.INPUT_TYPES()['required'])==['enabled','seed','keep_exact']
-    assert cls().configure(True,42,'Trigger')==({'enabled':True,'seed':42,'keep_exact':'Trigger'},)
+    assert cls().configure(True,42,'Trigger')==({'enabled':True,'seed':42,'keep_exact':'Trigger','backend':pe.BACKEND_LOCAL},)
+    assert 'backend' in cls.INPUT_TYPES()['optional']
+    assert cls().configure(True,42,'Trigger',pe.BACKEND_OFFICIAL)[0]['backend']==pe.BACKEND_OFFICIAL
 
 
 def test_two_krea_variants_are_preserved_and_different():
@@ -263,3 +265,119 @@ def test_two_krea_variants_are_preserved_and_different():
     assert not any(n['class_type'] in ('WBKreaCondition','WBKreaLoRAs') for n in standard.values())
     assert 'krea2_identity_edit_v1_2.safetensors' not in json.dumps(standard)
     assert any(n['class_type']=='WBKreaStandardCondition' for n in standard.values())
+
+
+# Dual-backend, regression and live-error boundary checks.
+def test_legacy_settings_default_to_newest_27b():
+    options = pe.Options.from_value({'enabled': True, 'seed': 7, 'keep_exact': 'id'})
+    assert options.backend == pe.BACKEND_LOCAL
+    assert local.DEFAULT_MODEL == 'huihui_ai/Qwen3.8-abliterated:27b-bf16'
+    assert pe.BACKEND_OFFICIAL in pe.BACKEND_CHOICES
+
+
+def test_invalid_backend_rejected_even_when_enabled(monkeypatch):
+    with pytest.raises(pe.EnhancementError, match='Choose Qwen3.8'):
+        pe.Options.from_value({'enabled': True, 'backend': 'unknown'})
+
+
+def test_official_backend_routes_into_native_generator(monkeypatch):
+    called = Mock(return_value=answer('Use <image1> with <image2>.'))
+    monkeypatch.setattr(pe, '_generate_official', called)
+    monkeypatch.setattr(local, 'generate', Mock(side_effect=AssertionError('no local Ollama in official mode')))
+    _, report = pe.enhance_edit_prompt('Use <image1> with <image2>.', images(),
+        {'enabled':True,'backend':pe.BACKEND_OFFICIAL})
+    assert called.call_count == 1
+    assert report['backend']=='official' and report['model']==pe.MODEL_ID
+    assert report['precision']=='BF16' and report['revision']==pe.REVISION
+
+
+def test_switching_backends_invalidates_cached_rewrites(monkeypatch):
+    monkeypatch.setattr(pe, '_generate_official', Mock(return_value=answer('Edit <image1>.')))
+    monkeypatch.setattr(local, 'generate', Mock(return_value=answer('Edit <image1>.')))
+    ref = images(1)
+    a=pe.enhance_edit_prompt('Edit <image1>.',ref,{'enabled':True})[1]
+    b=pe.enhance_edit_prompt('Edit <image1>.',ref,{'enabled':True,'backend':pe.BACKEND_OFFICIAL})[1]
+    c=pe.enhance_edit_prompt('Edit <image1>.',ref,{'enabled':True,'backend':pe.BACKEND_OFFICIAL})[1]
+    assert not a['cache_hit'] and not b['cache_hit'] and c['cache_hit']
+    assert b['model']==pe.MODEL_ID
+    assert local.generate.call_count==1 and pe._generate_official.call_count==1
+
+
+def test_official_missing_assets_never_silent_fallback(monkeypatch):
+    monkeypatch.setattr(pe, '_generate_official', Mock(side_effect=pe.EnhancementError('Official PE-I2I weights not installed.')))
+    with pytest.raises(pe.BackendSetupError,match='not installed'):
+        pe.enhance_edit_prompt('Edit <image1>.', images(1),
+            {'enabled':True,'backend':pe.BACKEND_OFFICIAL})
+    assert pe._generate_official.call_count==1
+
+
+def test_official_invalid_rewrite_retries_original_and_never_crosses_backend(monkeypatch):
+    generator=Mock(return_value=answer('Edit <image1>.'))
+    monkeypatch.setattr(pe,'_generate_official',generator)
+    monkeypatch.setattr(local,'generate',Mock(side_effect=AssertionError('must not cross backend')))
+    original='Edit <image1> with <image2>.'
+    effective,report=pe.enhance_edit_prompt(original, images(),
+        {'enabled':True,'backend':pe.BACKEND_OFFICIAL})
+    assert effective==original and report['fallback_used'] and report['attempts']==2
+    assert generator.call_count==2 and not local.generate.called
+
+
+def test_official_missing_assets_gives_actionable_toolbox_error(monkeypatch):
+    fake_downloads=types.ModuleType('workbench.provider_downloads')
+    fake_downloads.file_hash=lambda path: None
+    monkeypatch.setitem(sys.modules,'workbench.provider_downloads',fake_downloads)
+    monkeypatch.setattr(pe,'read_catalog',lambda _: {'assets':[
+        {'group':pe.GROUP,'destination':pe.OFFICIAL_ASSET_DIR+'/model-00001.safetensors',
+         'filename':'model-00001.safetensors'}]})
+    with pytest.raises(pe.EnhancementError,match='qwen_pe_i2i'):
+        pe._installed_assets()
+
+
+def test_official_toolbox_is_explicit_and_not_required_by_default():
+    rows=[{'id':'qwen', 'default_groups':['qwen','qwen_pe_i2i'], 'toolbox':['sam']},
+          {'id':'h3', 'default_groups':['h3'], 'toolbox':['ollama']}]
+    qwen=next(r for r in qwen_prompt_catalog.apply('models.json',{'models':rows})['models']
+              if r['id']=='qwen')
+    assert 'qwen_pe_i2i' in qwen['toolbox']
+    assert 'qwen_pe_i2i' not in qwen['default_groups']
+    assert 'ollama' in qwen['default_groups']
+
+
+def test_official_native_generation_preserves_images_and_unloads(monkeypatch,tmp_path):
+    comfy=types.ModuleType('comfy');mm=types.ModuleType('comfy.model_management')
+    mm.unload_all_models=Mock();mm.soft_empty_cache=Mock()
+    comfy.model_management=mm
+    monkeypatch.setitem(sys.modules,'comfy',comfy)
+    monkeypatch.setitem(sys.modules,'comfy.model_management',mm)
+    system=tmp_path/'system_prompt.txt';system.write_text('Official editor instructions.')
+    monkeypatch.setattr(pe,'_installed_assets',lambda:{'system_prompt.txt':system})
+    clip=Mock();clip.tokenize.return_value='tokens';clip.generate.return_value='ids'
+    clip.decode.return_value=answer('Edit <image1> with <image2>.')
+    monkeypatch.setattr(pe,'_load_model',lambda files:clip)
+    ordered=list(images().values());options=pe.Options(True,99,'Keep', 'missing reference', pe.BACKEND_OFFICIAL)
+    generated=pe._generate('Edit <image1> with <image2>.',ordered,options)
+    assert pe.parse_response(generated,'Edit <image1> with <image2>.',2)
+    kwargs=clip.tokenize.call_args.kwargs
+    assert kwargs['images'] is ordered and kwargs['thinking'] is True
+    assert 'Official editor instructions.' in kwargs['system_prompt']
+    assert 'missing reference' in kwargs['system_prompt']
+    assert clip.generate.call_args.kwargs['seed']==99
+    assert mm.unload_all_models.call_count==2
+
+
+def test_official_shards_are_merged_before_loading(monkeypatch,tmp_path):
+    sd=types.ModuleType('comfy.sd');utils=types.ModuleType('comfy.utils')
+    comfy=types.ModuleType('comfy');comfy.sd=sd;comfy.utils=utils
+    sd.TEModel=types.SimpleNamespace(QWEN35_9B='QWEN35')
+    sd.CLIPType=types.SimpleNamespace(QWEN_IMAGE='QWEN_IMAGE')
+    sd.detect_te_model=Mock(return_value='QWEN35')
+    sd.load_text_encoder_state_dicts=Mock(return_value='clip')
+    utils.load_torch_file=lambda path,safe_load: {Path(path).stem:torch.ones(1,dtype=torch.bfloat16)}
+    for name,mod in [('comfy',comfy),('comfy.sd',sd),('comfy.utils',utils)]:
+        monkeypatch.setitem(sys.modules,name,mod)
+    shards={f'model-{i:05d}.safetensors':tmp_path/f'model-{i:05d}.safetensors' for i in range(1,5)}
+    index=tmp_path/'index.json'
+    index.write_text(json.dumps({'weight_map':{Path(name).stem:name for name in shards}}))
+    assert pe._load_model({**shards,'model.safetensors.index.json':index})=='clip'
+    assert len(sd.load_text_encoder_state_dicts.call_args.args[0])==1
+    assert len(sd.load_text_encoder_state_dicts.call_args.args[0][0])==4

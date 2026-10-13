@@ -221,7 +221,10 @@ def test_standard_hq_retains_off_baseline():
 def test_only_qwen_downloads_prompt_enhancer_by_default(monkeypatch):
     for family in config.FAMILIES:
         monkeypatch.setenv('WB_WORKSPACE',family);monkeypatch.delenv('WB_TASKS',raising=False);monkeypatch.delenv('WB_TOOLBOX',raising=False)
-        assert (pe.GROUP in config.requested_groups())==(family=='qwen')
+        assert pe.GROUP not in config.requested_groups()
+        if family=='qwen':
+            assert 'ollama' in config.requested_groups()
+            assert len(config.read_catalog('assets.json')['ollama']['models'])==1
         assert ('qwen_prompt' in config.model_config()['local_nodes'])==(family=='qwen')
 
 def test_public_companions_do_not_relax_private_model_rules():
@@ -245,7 +248,7 @@ def test_native_generation_uses_official_sampling_and_frees_residency(tmp_path,m
     clip=Mock();clip.tokenize.return_value='tokens';clip.generate.return_value='ids';clip.decode.return_value=answer()
     monkeypatch.setattr(pe,'_load_model',lambda files:clip)
     images=[torch.zeros(1,32,64,3),torch.zeros(1,64,32,3)]
-    assert pe._generate('edit',images,pe.Options(True,123,''))==answer()
+    assert pe._generate_official('edit',images,pe.Options(True,123,''))==answer()
     kwargs=clip.tokenize.call_args.kwargs
     assert kwargs['images'] is images and kwargs['thinking'] is True
     assert kwargs['system_prompt'].startswith('Official fixture instructions.')
@@ -261,7 +264,7 @@ def test_failed_native_generation_still_releases_residency(tmp_path,monkeypatch)
     system=tmp_path/'system.txt';system.write_text('Official fixture instructions.')
     monkeypatch.setattr(pe,'_installed_assets',lambda:{'system_prompt.txt':system})
     monkeypatch.setattr(pe,'_load_model',Mock(side_effect=RuntimeError('load failure')))
-    with pytest.raises(RuntimeError,match='load failure'):pe._generate('edit',[],pe.Options(True))
+    with pytest.raises(RuntimeError,match='load failure'):pe._generate_official('edit',[],pe.Options(True))
     assert mm.unload_all_models.call_count==2 and mm.soft_empty_cache.call_count==1
 
 

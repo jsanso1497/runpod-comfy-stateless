@@ -15,9 +15,11 @@ def apply(name: str, value: dict) -> dict:
                 model['default_groups'].append('ollama')
             if 'ollama' not in model.setdefault('toolbox', []):
                 model['toolbox'].append('ollama')
-            model['description'] = ('Reference editing, identity, wardrobe and local repair. Existing prompt toggles now use ' + helper['label'] + ' locally; OFF defaults are preserved.')
+            if 'qwen_pe_i2i' not in model['toolbox']:
+                model['toolbox'].append('qwen_pe_i2i')
+            model['description'] = ('Reference editing, identity, wardrobe and local repair. The existing prompt enhancer offers Qwen3.8 27B BF16 vision (default) or the official Qwen Image 2.1 PE-I2I BF16. OFF defaults are preserved.')
             model['storage_gb'] = max(model.get('storage_gb', 0), 250)
-            model['hardware_note'] = ('Planning target, not a measured minimum. ' + helper['label'] + ' adds approximately ' + str(helper['estimated_bytes'] // 1_000_000_000) + ' GB of model storage. The prompt model unloads before Qwen image generation. Full-precision helper residency and image quality need a live GPU test.')
+            model['hardware_note'] = ('Planning target, not a measured minimum. Local Qwen3.8 adds about 56 GB; enabling qwen_pe_i2i adds about 19 GB. The active helper unloads before Qwen image generation. Both paths require a live GPU test.')
     elif name == 'tasks.json':
         for task in value['tasks']:
             if 'qwen' not in task.get('workspaces', []):
@@ -26,8 +28,8 @@ def apply(name: str, value: dict) -> dict:
                 task['optional_prompt_enhancement'] = {'model': helper['models'][0], 'precision': helper['precision'], 'default': 'off', 'backend': 'ollama'}
             if task['id'] == 'U10':
                 task['requires'] = list(dict.fromkeys([g for g in task['requires'] if g != 'qwen_pe_i2i'] + ['ollama']))
-                task['title'] = 'Preview local vision-enhanced Qwen prompt'
-                task['description'] = 'Preview the selected full-precision abliterated vision rewrite, original prompt, and validation status. No image generation. Invalid rewrites retry once before visible original-prompt fallback.'
+                task['title'] = 'Compare Qwen3.8 vision and official I2I enhanced prompts'
+                task['description'] = 'Use the selector on the existing enhancer control to preview either Qwen3.8 27B BF16 vision or official Qwen Image 2.1 PE-I2I BF16. Prepare qwen_pe_i2i from Toolbox before using official mode.'
     elif name == 'assets.json':
         value.setdefault('ollama_by_workspace', {})['qwen'] = helper
         selected = os.environ.get('WB_WORKSPACE', 'qwen')
