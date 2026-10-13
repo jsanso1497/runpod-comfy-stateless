@@ -94,7 +94,7 @@ def test_bad_images_rejected_before_inference(images,monkeypatch):
 
 def test_missing_assets_is_actionable(tmp_path,monkeypatch):
     monkeypatch.setenv('WB_DATA_ROOT',str(tmp_path))
-    with pytest.raises(pe.EnhancementError,match='U10'):pe._installed_assets()
+    with pytest.raises(pe.EnhancementError,match='qwen_pe_i2i'):pe._installed_assets()
 
 def test_companion_allowlist_is_private_library_independent(tmp_path):
     row={'group':'qwen_pe_i2i','repo_id':'personal/private','filename':'system_prompt.txt','revision':pe.REVISION}
