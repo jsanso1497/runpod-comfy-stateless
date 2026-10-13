@@ -218,14 +218,14 @@ def test_standard_hq_retains_off_baseline():
     graph=json.loads((ROOT/sq['variants'][0]['file']).read_text())
     assert next(n for n in graph['nodes'] if n['type']=='WBQwenPromptControl')['widgets_values'][0] is False
 
-def test_only_qwen_downloads_prompt_enhancer_by_default(monkeypatch):
+def test_qwen_and_krea_share_prompt_enhancer_by_default(monkeypatch):
     for family in config.FAMILIES:
         monkeypatch.setenv('WB_WORKSPACE',family);monkeypatch.delenv('WB_TASKS',raising=False);monkeypatch.delenv('WB_TOOLBOX',raising=False)
         assert pe.GROUP not in config.requested_groups()
-        if family=='qwen':
+        if family in ('qwen', 'krea'):
             assert 'ollama' in config.requested_groups()
             assert len(config.read_catalog('assets.json')['ollama']['models'])==1
-        assert ('qwen_prompt' in config.model_config()['local_nodes'])==(family=='qwen')
+        assert ('qwen_prompt' in config.model_config()['local_nodes'])==(family in ('qwen', 'krea'))
 
 def test_public_companions_do_not_relax_private_model_rules():
     with pytest.raises(assets.pd.LinkError):
