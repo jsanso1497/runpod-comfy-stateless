@@ -16,7 +16,15 @@ These are format examples, not working download links. Plain provider links are 
 
 The same secret can contain several families. Only entries matching the active workspace are downloaded; the other families are left for their own workspace. Map the secret to `WB_LORA_URLS`. Compatible entries appear in family-specific LoRA dropdowns. Downloading an adapter does not enable it. Strength and selection are saved in your personal workflow, not in an environment variable.
 
-Provider URLs must not embed a token. Authentication comes from your existing `hf_token` / `civit_token` secrets. The runtime supports HTTPS Hugging Face model/file links and Civitai model/version/download links. Other providers and executable pickle checkpoints are not accepted by this downloader.
+Provider URLs must not embed a token. Authentication comes from your existing `hf_token` / `civit_token` secrets. The runtime supports HTTPS Hugging Face links plus `civitai.com` and `civitai.red` model/version/download links. Use the original Civitai domain from the link: the `.red` API can expose models unavailable through `.com`. Keep `fileId` when selecting a specific file. Civitai credentials are only sent to the original Civitai host and never forwarded to another host on redirects. Other providers and executable pickle checkpoints are not accepted.
+
+Example LoRA URL for the private `comfy_loras` secret:
+
+```text
+qwen | https://civitai.red/api/download/models/VERSION_ID?fileId=FILE_ID
+```
+
+The model must actually be a Qwen Image 2.1-compatible LoRA; the domain does not determine architecture.
 
 ## Custom checkpoints
 

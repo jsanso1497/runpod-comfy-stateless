@@ -24,7 +24,8 @@ from urllib.parse import parse_qs, quote, unquote, urlencode, urljoin, urlsplit,
 import requests
 
 VERSION = '1.0.0'
-PROVIDERS = {'civitai.com', 'www.civitai.com', 'huggingface.co', 'www.huggingface.co'}
+CIVITAI_HOSTS = {'civitai.com', 'civitai.red'}
+PROVIDERS = CIVITAI_HOSTS | {'www.civitai.com', 'www.civitai.red', 'huggingface.co', 'www.huggingface.co'}
 SECRET_PARAMS = {'token', 'access_token', 'api_key', 'apikey', 'authorization', 'auth'}
 SHA256 = re.compile(r'^[0-9a-f]{64}$', re.I)
 SHA1 = re.compile(r'^[0-9a-f]{40}$', re.I)
@@ -49,7 +50,7 @@ def clean_url(value):
     except ValueError:
         raise LinkError('Malformed URL. Paste one complete HTTPS provider link per line.') from None
     if p.scheme != 'https' or p.hostname not in PROVIDERS or port not in (None, 443) or p.username or p.password:
-        raise LinkError('Use an HTTPS civitai.com or huggingface.co link, without embedded credentials.')
+        raise LinkError('Use an HTTPS civitai.com, civitai.red or huggingface.co link, without embedded credentials.')
     if any(ch.isspace() or ord(ch) < 32 for ch in value):
         raise LinkError('Spaces must be URL-encoded. Copy the link from the browser or download button.')
     query = parse_qs(p.query, keep_blank_values=True)
@@ -65,7 +66,7 @@ def _headers(url, auth_host):
     host = urlsplit(url).hostname
     # Each redirect request is built afresh. Never forward a provider token to its CDN.
     if host == auth_host:
-        env = 'HF_TOKEN' if host == 'huggingface.co' else 'CIVITAI_TOKEN' if host == 'civitai.com' else ''
+        env = 'HF_TOKEN' if host == 'huggingface.co' else 'CIVITAI_TOKEN' if host in CIVITAI_HOSTS else ''
         token = os.environ.get(env, '').strip() if env else ''
         if token:
             if token.startswith('{{'):
@@ -191,6 +192,9 @@ def _civitai_file(version, query):
 
 def resolve_civitai(url, transport, allowed_types=None):
     p = urlsplit(url)
+    host = p.hostname
+    if host not in CIVITAI_HOSTS:
+        raise LinkError('Unsupported Civitai download host.')
     query = {k.casefold(): v for k, v in parse_qs(p.query).items()}
     main_match = re.fullmatch(r'/models/(\d+)(?:/[^/]+)?', p.path)
     download_match = re.fullmatch(r'/api/download/models/(\d+)', p.path)
@@ -202,7 +206,7 @@ def resolve_civitai(url, transport, allowed_types=None):
         if query.get('modelversionid'):
             version_id = _positive_int(query['modelversionid'][-1], 'version ID')
         else:
-            model = transport.json(f'https://civitai.com/api/v1/models/{page_model}')
+            model = transport.json(f'https://{host}/api/v1/models/{page_model}')
             versions = [v for v in model.get('modelVersions', []) if isinstance(v, dict)
                         and v.get('status', 'Published') == 'Published' and v.get('files')]
             if not versions:
@@ -212,7 +216,7 @@ def resolve_civitai(url, transport, allowed_types=None):
             version_id = _positive_int(versions[0].get('id'), 'version ID')
     else:
         raise LinkError('Use a Civitai model page, version-specific page, or file Download link.')
-    version = transport.json(f'https://civitai.com/api/v1/model-versions/{version_id}')
+    version = transport.json(f'https://{host}/api/v1/model-versions/{version_id}')
     if version.get('id') != version_id or (page_model is not None and version.get('modelId') != page_model):
         raise LinkError('Civitai model/version did not match the supplied page. Copy the link again.')
     kind = str(version.get('model', {}).get('type', '')).casefold()
@@ -223,9 +227,19 @@ def resolve_civitai(url, transport, allowed_types=None):
     if not SHA256.fullmatch(sha):
         raise LinkError('Civitai did not publish a full file checksum. Cannot verify this download.')
     dl = clean_url(chosen.get('downloadUrl', ''))
-    if urlsplit(dl).hostname != 'civitai.com' or not urlsplit(dl).path.startswith('/api/download/models/'):
-        raise LinkError('Civitai metadata did not supply an official file download link.')
+    dl_parts = urlsplit(dl)
+    download_match = re.fullmatch(r'/api/download/models/(\d+)', dl_parts.path)
+    if (dl_parts.hostname not in CIVITAI_HOSTS or download_match is None
+            or int(download_match.group(1)) != version_id):
+        raise LinkError('Civitai metadata did not supply an official matching-version file download link.')
     fid = _positive_int(chosen.get('id'), 'file ID')
+    # Civitai.red can expose versions that the .com API omits. Download through
+    # the explicitly supplied Civitai host, using its matching metadata.
+    # Explicitly pin the selected safetensors file, not just its version.
+    dl_query = {k: v for k, v in parse_qs(dl_parts.query, keep_blank_values=True).items()
+                if k.casefold() not in ('fileid', 'file_id')}
+    dl_query['fileId'] = [str(fid)]
+    dl = urlunsplit(('https', host, dl_parts.path, urlencode(dl_query, doseq=True), ''))
     kb = float(chosen.get('sizeKB', 0))
     if not math.isfinite(kb) or kb <= 0:
         raise LinkError('Civitai did not publish a valid file size.')
