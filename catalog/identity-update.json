@@ -1,0 +1,7 @@
+{
+  "version": "1.1.1",
+  "audited_base_commit": "0f4ba4ab841a9861ea76f9a8153298f4428cc7d3",
+  "applied_to_commit": "0f4ba4ab841a9861ea76f9a8153298f4428cc7d3",
+  "workflow_generation": "GitHub Actions and Docker build; pinned developer JSON",
+  "gpu_tested": false
+}

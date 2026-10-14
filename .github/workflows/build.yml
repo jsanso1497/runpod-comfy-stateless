@@ -12,6 +12,8 @@ permissions:
   contents: read
   packages: write
 jobs:
+  validate:
+    uses: ./.github/workflows/ci.yml
   select:
     runs-on: ubuntu-latest
     outputs:
@@ -27,7 +29,7 @@ jobs:
             echo "matrix=[\"$SELECTION\"]" >> "$GITHUB_OUTPUT"
           fi
   build:
-    needs: select
+    needs: [select, validate]
     strategy:
       fail-fast: false
       matrix:
@@ -38,6 +40,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: Build pinned developer workflows (no model weights)
+        run: python scripts/build_identity_workflows.py
+      - run: python scripts/build_krea_workflow.py
       - run: python scripts/build_site.py
       - run: python scripts/validate.py --no-imports
       - name: Repository image name

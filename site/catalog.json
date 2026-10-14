@@ -1927,6 +1927,92 @@
           "source": "Workbench standalone visual prompt studio 1.0.0"
         }
       ]
+    },
+    {
+      "id": "KDEV",
+      "family": "krea",
+      "workspaces": [
+        "krea"
+      ],
+      "category": "tasks",
+      "title": "Developer Identity Edit: Raw/Turbo, one image or scene + person",
+      "description": "BF16-adapted developer baselines. No prompt-enhancer dependency. Krea includes sRGB image I/O and two bypassed optional LoRA slots; select compatible Civitai checkpoints in the native diffusion loader. These are not GPU-certified.",
+      "sources": [
+        "https://github.com/lbouaraba/comfyui-krea2edit",
+        "https://huggingface.co/conradlocke/krea2-identity-edit"
+      ],
+      "requires": [
+        "krea"
+      ],
+      "status": "developer-derived source candidate; GPU validation pending",
+      "variants": [
+        {
+          "label": "Turbo: one image",
+          "file": "workflows/developer/krea/KDEV/01_Krea_Turbo_Single_Image_BF16.json",
+          "source": "Developer JSON adapted for Workbench BF16; original archived in image"
+        },
+        {
+          "label": "Turbo: scene + person",
+          "file": "workflows/developer/krea/KDEV/02_Krea_Turbo_Scene_Person_BF16.json",
+          "source": "Developer JSON adapted for Workbench BF16; original archived in image"
+        },
+        {
+          "label": "Raw: one image",
+          "file": "workflows/developer/krea/KDEV/03_Krea_Raw_Single_Image_BF16.json",
+          "source": "Developer JSON adapted for Workbench BF16; original archived in image"
+        },
+        {
+          "label": "Raw: scene + person",
+          "file": "workflows/developer/krea/KDEV/04_Krea_Raw_Scene_Person_BF16.json",
+          "source": "Developer JSON adapted for Workbench BF16; original archived in image"
+        }
+      ],
+      "required_nodes": [
+        "Krea2EditModelPatch",
+        "Krea2EditGroundedEncode"
+      ]
+    },
+    {
+      "id": "QDEV",
+      "family": "qwen",
+      "workspaces": [
+        "qwen"
+      ],
+      "category": "tasks",
+      "title": "Developer consistency, realignment and outfit-swap recipes",
+      "description": "BF16-adapted AusBoss recipes. 1500 and 2000 are alternatives, not a stack. No prompt enhancer added. Consistency adapters are not dedicated face-swap models.",
+      "sources": [
+        "https://huggingface.co/ausboss/Qwen-Image-2.1-Consistency-LoRA",
+        "https://huggingface.co/ausboss/Qwen-Image-2.1-Outfit-Swap-Consistency-LoRA"
+      ],
+      "requires": [
+        "qwen",
+        "qwen_identity"
+      ],
+      "status": "developer-derived source candidate; GPU validation pending",
+      "variants": [
+        {
+          "label": "Keep framing: Consistency 1500",
+          "file": "workflows/developer/qwen/QDEV/01_Qwen_Consistency_1500_BF16.json",
+          "source": "Developer JSON adapted for Workbench BF16; original archived in image"
+        },
+        {
+          "label": "Tighter framing: Consistency 2000",
+          "file": "workflows/developer/qwen/QDEV/02_Qwen_Consistency_2000_BF16.json",
+          "source": "Developer JSON adapted for Workbench BF16; original archived in image"
+        },
+        {
+          "label": "Edit then realign: no LoRA",
+          "file": "workflows/developer/qwen/QDEV/03_Qwen_Realign_No_LoRA_BF16.json",
+          "source": "Developer JSON adapted for Workbench BF16; original archived in image"
+        },
+        {
+          "label": "Outfit swap",
+          "file": "workflows/developer/qwen/QDEV/04_Qwen_Outfit_Swap_BF16.json",
+          "source": "Developer JSON adapted for Workbench BF16; original archived in image"
+        }
+      ],
+      "required_nodes": []
     }
   ],
   "assets": [
@@ -2237,12 +2323,51 @@
       "group": "krea",
       "repo_id": "conradlocke/krea2-identity-edit",
       "filename": "krea2_identity_edit_v1_2.safetensors",
-      "revision": "main",
+      "revision": "89e9e7a09ee2e5c9331e952063d79b1b8a703280",
       "destination": "loras/krea2_identity_edit_v1_2.safetensors",
       "sha256": "6adf9a69cc9502d286db7b69964d37da7e9cfe4b05b4d004bc275f087d3fd3cf",
       "estimated_bytes": 1830000000,
       "integrity_source": "Hugging Face file SHA256 verified 2026-10-12; enforced at download",
       "verification": "Weights not downloaded or GPU-tested here"
+    },
+    {
+      "id": "qwen-consistency-1500",
+      "family": "qwen",
+      "group": "qwen_identity",
+      "repo_id": "ausboss/Qwen-Image-2.1-Consistency-LoRA",
+      "revision": "8f05b0fa027d517fa396fb31b71e0eaf48110e89",
+      "filename": "qwen-image-2.1-consistency.safetensors",
+      "destination": "loras/qwen-image-2.1-consistency.safetensors",
+      "sha256": "4f44ada1be2189cc23b3d010f9603543403f48454e2f76842a3d30109b20bd63",
+      "estimated_bytes": 160000000,
+      "integrity_source": "Pinned developer file checksum; enforced on the Pod",
+      "verification": "GPU inference not certified"
+    },
+    {
+      "id": "qwen-consistency-2000",
+      "family": "qwen",
+      "group": "qwen_identity",
+      "repo_id": "ausboss/Qwen-Image-2.1-Consistency-LoRA",
+      "revision": "8f05b0fa027d517fa396fb31b71e0eaf48110e89",
+      "filename": "qwen-image-2.1-consistency-2000.safetensors",
+      "destination": "loras/qwen-image-2.1-consistency-2000.safetensors",
+      "sha256": "a0bf043edc4695b1661a0e768e49a7fdff9a656b7d4313203d590e0262b64beb",
+      "estimated_bytes": 160000000,
+      "integrity_source": "Pinned developer file checksum; enforced on the Pod",
+      "verification": "GPU inference not certified"
+    },
+    {
+      "id": "qwen-outfit-swap",
+      "family": "qwen",
+      "group": "qwen_identity",
+      "repo_id": "ausboss/Qwen-Image-2.1-Outfit-Swap-Consistency-LoRA",
+      "revision": "226c0a4edcee08328f2369f42f14b305e9671d9c",
+      "filename": "qwen-image-2.1-outfit-swap.safetensors",
+      "destination": "loras/qwen-image-2.1-outfit-swap.safetensors",
+      "sha256": "4ddfeac5695adaed1f0f78b23fda40919fd2ed6a4af790ced6c1e043dc4ae1f0",
+      "estimated_bytes": 160000000,
+      "integrity_source": "Pinned developer file checksum; enforced on the Pod",
+      "verification": "GPU inference not certified"
     }
   ],
   "ollama": {

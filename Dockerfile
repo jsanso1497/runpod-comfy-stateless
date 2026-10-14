@@ -19,8 +19,9 @@ COPY deploy/ ./deploy/
 COPY workflows/ ./workflows/
 COPY automation/ ./automation/
 COPY site/ ./site/
-COPY scripts/build_site.py scripts/build_krea_workflow.py ./scripts/
-RUN python scripts/build_krea_workflow.py \
+COPY scripts/build_site.py scripts/build_krea_workflow.py scripts/setup_identity_edits.py scripts/build_identity_workflows.py scripts/restart_comfy.py ./scripts/
+RUN python scripts/build_identity_workflows.py \
+    && python scripts/build_krea_workflow.py \
     && python scripts/build_site.py \
     && python deploy/build.py "$WB_WORKSPACE" \
     && python -m compileall -q src \

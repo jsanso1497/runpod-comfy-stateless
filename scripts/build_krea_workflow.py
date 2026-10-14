@@ -4,6 +4,9 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+import sys
+sys.path.insert(0, str(ROOT / 'src'))
+from workbench.krea_practices import update_k01_defaults
 UI = 'workflows/krea/K01/Krea_Edit_Multi_Reference_HQ.json'
 API = 'automation/K01/Krea_Edit_Multi_Reference_HQ.api.json'
 UI_STANDARD = 'workflows/krea/K01/Krea_Standard_No_Identity_LoRA_HQ.json'
@@ -120,7 +123,7 @@ def build():
         'Embedded input ICC profiles are converted to sRGB; untagged inputs are assumed sRGB.\n\n'
         'Optional official PE-I2I requires its Toolbox assets. GPU validation pending.')
     add(15, 'Note', 'READ FIRST', [30,500], [350,650], [], [], [note], {})
-    return _relink(graph, api)
+    return _relink(*update_k01_defaults(graph, api))
 
 
 def build_standard():
@@ -150,7 +153,7 @@ def build_standard():
         'Source dimensions set output aspect ratio. This does not preserve source pixels or guarantee likeness.\n\n'
         'With enhancer OFF, provide a complete standalone generation prompt. Official PE-I2I is not supported here. '
         'Raw/Turbo and two optional compatible LoRAs remain available.\n\nGPU validation pending.']
-    return _relink(graph, api)
+    return _relink(*update_k01_defaults(graph, api))
 
 
 def build_masked():
@@ -192,7 +195,7 @@ def build_masked():
         'Pixels outside it remain exact. Expansion/fade enlarge the editable region. Optional protect_mask on the crop node '
         'is applied after expansion. Boundary color correction is OFF by default.\n\n'
         'Full-size sRGB PNG plus verification JSON. This does not guarantee generated identity or detail. GPU validation pending.']
-    return _relink(graph, api)
+    return _relink(*update_k01_defaults(graph, api))
 
 
 def main():

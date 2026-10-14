@@ -66,7 +66,8 @@ def read_catalog(name: str):
     if name == 'tasks.json':
         from .prompt_studio_catalog import append_tasks
         append_tasks(value, ROOT)
-    return value
+    from .identity_catalog import apply as apply_identity
+    return apply_identity(name, value, ROOT)
 
 def csv(value: str) -> list[str]:
     return list(dict.fromkeys(x.strip() for x in value.split(',') if x.strip()))

@@ -18,7 +18,7 @@ import tempfile
 import time
 from urllib.request import Request, urlopen
 
-VERSION = '1.0.0'
+VERSION = '1.1.0'
 QREPO = 'ausboss/Qwen-Image-2.1-Consistency-LoRA'
 OREPO = 'ausboss/Qwen-Image-2.1-Outfit-Swap-Consistency-LoRA'
 KREPO = 'conradlocke/krea2-identity-edit'
@@ -65,8 +65,11 @@ def recipes(family):
 
 
 def digest(path):
+    h = hashlib.sha256()
     with Path(path).open('rb') as stream:
-        return hashlib.file_digest(stream, 'sha256').hexdigest()
+        for block in iter(lambda: stream.read(8 * 1024**2), b''):
+            h.update(block)
+    return h.hexdigest()
 
 
 def download(url, path, expected=None, limit=8 * 1024**2):

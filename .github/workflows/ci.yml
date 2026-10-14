@@ -3,6 +3,7 @@ on:
   push:
   pull_request:
   workflow_dispatch:
+  workflow_call:
 permissions:
   contents: read
 jobs:
@@ -18,9 +19,19 @@ jobs:
           node-version: '22'
       - run: pip install pytest numpy scipy pillow requests filelock aiohttp pyyaml
       - run: pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - name: Build pinned developer workflows (no model weights)
+        run: python scripts/build_identity_workflows.py
+      - run: python scripts/build_krea_workflow.py
       - run: python scripts/build_site.py
       - run: python scripts/validate.py
       - run: PYTHONPATH=src pytest -q tests
       - run: node tests/test_configurator.cjs
       - run: python -m compileall -q src deploy scripts
-      - run: git diff --exit-code site/index.html site/catalog.json
+      - run: git diff --exit-code site/index.html site/catalog.json workflows/krea/K01 automation/K01
+      - name: Export developer workflow JSON and provenance
+        uses: actions/upload-artifact@v4
+        with:
+          name: identity-developer-workflows
+          path: |
+            workflows/developer/
+            vendor/identity/

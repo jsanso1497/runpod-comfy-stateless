@@ -206,6 +206,23 @@ class WBKreaModels:
         return model, clip, vae, steps, cfg
 
 
+class WBKreaStandardModels(WBKreaModels):
+    """Native T2I uses its own Raw recipe, not Identity Edit's removal recipe.
+
+    Official Krea Raw example: 52 steps, guidance 3.5 in Krea's convention.
+    ComfyUI KSampler uses the conventional CFG baseline, hence 4.5 here.
+    Turbo remains the recommended native-generation default (8 steps, CFG 1).
+    """
+    def load(self, ready_prompt, checkpoint, text_encoder, vae_name,
+             sampling_preset, custom_steps, custom_cfg):
+        native_raw = sampling_preset == 'Raw' or (
+            sampling_preset == 'Auto' and checkpoint == 'krea2_raw_bf16.safetensors')
+        if native_raw:
+            sampling_preset, custom_steps, custom_cfg = 'Custom', 52, 4.5
+        return super().load(ready_prompt, checkpoint, text_encoder, vae_name,
+                            sampling_preset, custom_steps, custom_cfg)
+
+
 class WBKreaLoRAs:
     @classmethod
     def INPUT_TYPES(cls):
@@ -237,8 +254,8 @@ class WBKreaCondition:
     def INPUT_TYPES(cls):
         return {'required': {'model': ('MODEL',), 'clip': ('CLIP',), 'vae': ('VAE',),
             'editing_inputs': ('WB_KREA_PACKAGE',), 'prompt': ('STRING', {'forceInput': True}),
-            'scene_strength': ('FLOAT', {'default': 1.0, 'min': .1, 'max': 10.0, 'step': .1}),
-            'reference_strength': ('FLOAT', {'default': 4.0, 'min': .1, 'max': 10.0, 'step': .1}),
+            'scene_strength': ('FLOAT', {'default': 1.0, 'min': .1, 'max': 10.0, 'step': .1, 'tooltip': 'Scene strength for image 1 when a second reference is present. No effect in single-image mode.'}),
+            'reference_strength': ('FLOAT', {'default': 4.0, 'min': .1, 'max': 10.0, 'step': .1, 'tooltip': 'Fidelity of the last reference: your source in single-image mode, or the identity reference/sheet in two-input mode. Start at 4; lower when an intended edit is resisted.'}),
             'grounding_px': ('INT', {'default': 768, 'min': 384, 'max': 1024, 'step': 64})}}
     RETURN_TYPES = ('MODEL', 'CONDITIONING', 'CONDITIONING', 'LATENT')
     RETURN_NAMES = ('edit_model', 'positive', 'grounded_negative', 'target_latent')
@@ -257,7 +274,7 @@ class WBKreaCondition:
         patched = nodes.NODE_CLASS_MAPPINGS['Krea2EditModelPatch']().patch(
             model, source_latent=latent, vae=vae, source_image=p['source'], source_image_b=p['board'],
             target_latent=latent, fit_mode='fit', ref_boost_a=scene_strength,
-            ref_boost=reference_strength if p['board'] is not None else scene_strength)[0]
+            ref_boost=reference_strength)[0]
         return patched, positive, negative, latent
 
 
@@ -280,12 +297,13 @@ class WBKreaStandardCondition:
 
 
 NODE_CLASS_MAPPINGS = {cls.__name__: cls for cls in (WBKreaReference, WBKreaPrepare,
-    WBKreaPrompt, WBKreaModels, WBKreaLoRAs, WBKreaCondition, WBKreaStandardCondition,
+    WBKreaPrompt, WBKreaModels, WBKreaStandardModels, WBKreaLoRAs, WBKreaCondition, WBKreaStandardCondition,
     WBKreaStandardPrompt, WBKreaOptionalLoRAs)}
 NODE_DISPLAY_NAME_MAPPINGS = {
     'WBKreaReference': 'Krea Optional Reference', 'WBKreaPrepare': 'Krea Source + Reference Sheet',
     'WBKreaPrompt': 'Krea | Shared Qwen Vision Prompt Enhancer',
     'WBKreaModels': 'Krea Checkpoint + Correct Encoder',
+    'WBKreaStandardModels': 'Krea Native Generation Checkpoint + Correct Encoder',
     'WBKreaLoRAs': 'Krea Edit Adapter + Optional LoRAs',
     'WBKreaCondition': 'Krea FIT Editing Conditioning',
     'WBKreaStandardCondition': 'Krea Standard Native Conditioning (no Edit LoRA)',

@@ -200,6 +200,8 @@ def prepare_standard(groups:list[str])->dict:
 
 def infer_family(metadata:str)->str|None:
     text=re.sub('[^a-z0-9]+','',str(metadata).lower())
+    from .private_compat import krea_metadata
+    if krea_metadata(metadata):return 'krea'
     if 'qwenimage21' in text:return 'qwen'
     if 'flux2klein9b' in text:return 'flux'
     if 'minimaxh3' in text:return 'h3'
@@ -220,9 +222,13 @@ def prepare_private()->dict:
                 url=entry['url']; kind=entry['kind']
                 allowed=('checkpoint','model','vae','textualinversion') if kind!='loras' else None
                 row=pd.resolve_hf(url,transport) if urlsplit(url).hostname=='huggingface.co' else pd.resolve_civitai(url,transport,allowed_types=allowed)
+                from .private_compat import normalize_entry
+                try:entry=normalize_entry(entry,row)
+                except ValueError as exc:raise AssetError(str(exc)) from None
+                kind=entry['kind']
                 family=entry.get('family') or infer_family(row.get('reported_base_model',''))
                 if family and family!=workspace():continue
-                if not family:raise AssetError('Family could not be verified from provider metadata. Prefix the private URL with qwen |, flux |, h3 |, or restoration |.')
+                if not family:raise AssetError('Family could not be verified from provider metadata. Prefix the private URL with krea |, qwen |, flux |, h3 |, or restoration |.')
                 if kind!='loras' and not entry.get('architecture'):
                     raise AssetError('Custom models need an explicit architecture field in the JSON manifest. Use the private-checkpoints example; model families alone do not establish sampler compatibility.')
                 if entry.get('architecture') and entry['architecture']!=FAMILY_SIGNATURES[family]:raise AssetError('Custom checkpoint architecture does not match the selected family.')

@@ -64,7 +64,8 @@ def configure_files()->dict[str,str]:
        'OLLAMA_HOST':'127.0.0.1:11434','OLLAMA_MODELS':str(root/'ollama'),'OLLAMA_NUM_PARALLEL':'1','OLLAMA_MAX_LOADED_MODELS':'1',
        'HF_HUB_DISABLE_TELEMETRY':'1'})
     # Source helper policy paths are explicit instead of inherited from previous images.
-    factory=root/'comfy-user/default/workflows/Workbench Factory/0.1.0'
+    factory=root/('comfy-user/default/workflows/Workbench Factory/Identity-1.1.1'
+        if workspace() in ('qwen','krea') else 'comfy-user/default/workflows/Workbench Factory/0.1.0')
     task_catalog=read_catalog('tasks.json')['tasks']
     for task in task_catalog:
         if workspace() not in task['workspaces']:continue
@@ -78,11 +79,14 @@ class Runtime:
     def __init__(self):
         self.comfy=None;self.ollama=None;self.job=None;self.job_state={'state':'idle'};self.session=None;self.env=None
     def start_comfy(self):
+        from .runtime_recovery import guard_single_instance, launch_options
+        guard_single_instance(self)
         self.env=configure_files()
         args=[sys.executable,'/opt/ComfyUI/main.py','--listen','127.0.0.1','--port','8189',
           '--input-directory',str(data_root()/'input'),'--output-directory',str(data_root()/'output'),
           '--user-directory',str(data_root()/'comfy-user'),'--disable-auto-launch']
         if os.environ.get('WB_SAVE_METADATA','0')!='1':args+=['--disable-metadata']
+        args += launch_options(Path('/opt/ComfyUI'), workspace())
         # No arbitrary shell command string or forced reduced-precision flags.
         self.comfy=subprocess.Popen(args,cwd='/opt/ComfyUI',env=self.env)
     async def start_ollama(self):
@@ -155,7 +159,8 @@ class Runtime:
             variants=[]
             for v in task['variants']:
                 graph=json.loads((ROOT/v['file']).read_text())
-                required_nodes={n['type'] for n in graph['nodes']}|set(task.get('required_nodes',[]))
+                from .graph_support import required_node_types
+                required_nodes=required_node_types(graph)|set(task.get('required_nodes',[]))
                 missing_nodes=sorted(required_nodes-set(schema)-{'Note','MarkdownNote','Reroute','PrimitiveNode'}) if schema else ['ComfyUI is starting']
                 variants.append({'file':v['file'],'missing_nodes':missing_nodes,'state':'ready' if not missing_nodes and not missing_assets else 'unavailable'})
             rows.append({'id':task['id'],'missing_assets':missing_assets,'variants':variants})
@@ -233,6 +238,9 @@ def make_app(password:str='',runtime:Runtime|None=None,auth_mode:str|None=None):
         return web.json_response({'gateway': 'running'})
     app.router.add_get('/healthz',health)
     app.router.add_get('/readyz',r.ready)
+    from .runtime_recovery import restart
+    async def restart_comfy(req):return await restart(r,req)
+    app.router.add_post('/_workbench/restart-comfy',restart_comfy)
     app.router.add_get('/_workbench/catalog',r.catalog);app.router.add_get('/_workbench/status',r.status)
     app.router.add_post('/_workbench/prepare',r.prepare_request);app.router.add_get('/_workbench/workflow',r.graph)
     app.router.add_get('/_workbench/files',r.files)

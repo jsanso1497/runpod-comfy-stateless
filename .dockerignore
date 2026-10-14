@@ -38,3 +38,8 @@ scripts/*
 **/*LORA*.txt
 **/*lora*.TXT
 **/*LORA*.TXT
+
+# Public source-only identity workflow builders and managed recovery.
+!scripts/setup_identity_edits.py
+!scripts/build_identity_workflows.py
+!scripts/restart_comfy.py

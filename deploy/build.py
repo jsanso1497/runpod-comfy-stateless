@@ -19,9 +19,14 @@ def main():
  for package in ('torch','torchvision','torchaudio'):
   try:pins.append(package+'=='+md.version(package))
   except md.PackageNotFoundError:pass
+ if name in ('qwen','krea'):pins.append('comfy-aimdo==0.5.6')
  constraints.write_text('\n'.join(pins)+'\n')
  def pip(*args):run(sys.executable,'-m','pip','install','--constraint',str(constraints),*args)
  clone('https://github.com/Comfy-Org/ComfyUI.git',model['comfy_commit'],COMFY)
+ if name in ('qwen','krea'):
+  req=COMFY/'requirements.txt';text=req.read_text()
+  if text.count('comfy-aimdo==0.5.5')!=1:raise ValueError('Unexpected upstream aimdo pin; review before upgrading.')
+  req.write_text(text.replace('comfy-aimdo==0.5.5','comfy-aimdo==0.5.6'))
  pip('-r',str(COMFY/'requirements.txt'));pip('-r',str(ROOT/'requirements.txt'))
  for id in model['external_nodes']:
   row=cat['external_nodes'][id];dest=COMFY/'custom_nodes'/row['directory'];clone(row['url'],row['commit'],dest)
