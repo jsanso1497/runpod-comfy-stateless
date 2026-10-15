@@ -5,6 +5,7 @@ import argparse,ast,hashlib,json,re,sys
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'src'))
 from workbench.config import read_catalog, FAMILIES
+from workbench.qwen_stock_catalog import PE_FILE
 
 def validate_graph(graph,path='graph'):
  errors=[];ids=[n['id'] for n in graph['nodes']];nodes={n['id']:n for n in graph['nodes']};links={l[0]:l for l in graph.get('links',[])}
@@ -49,7 +50,8 @@ def run():
    for n in graph['nodes']:
     if 'Torso' in n['type'] or ('Krea' in n['type'] and t['workspaces']!=['krea']):errors.append('Removed or incompatible node in '+file)
     for value in n.get('widgets_values',[]):
-     if isinstance(value,str) and (re.search(r'\.safetensors$',value) and re.search(r'(int8|fp8|nvfp4|gguf)',value,re.I)):
+     stock_pe = t['id'] in ('QNATIVE','QOVERLAY') and value == PE_FILE
+     if isinstance(value,str) and (re.search(r'\.safetensors$',value) and re.search(r'(int8|fp8|nvfp4|gguf)',value,re.I)) and not stock_pe:
       errors.append('Quantized weight selection in '+file)
      if isinstance(value,str) and re.search(r'https?://[^\s]+[?&](token|api_key|apikey)=',value,re.I):errors.append('Token-bearing URL in workflow')
  if len(files)!=len(set(files)):errors.append('Workflow file mapped more than once')

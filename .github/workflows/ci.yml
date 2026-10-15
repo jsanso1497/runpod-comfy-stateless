@@ -27,7 +27,12 @@ jobs:
       - run: PYTHONPATH=src pytest -q tests
       - run: node tests/test_configurator.cjs
       - run: python -m compileall -q src deploy scripts
-      - run: git diff --exit-code site/index.html site/catalog.json workflows/krea/K01 automation/K01
+      - name: Verify reproducible generated catalog and native Qwen workflows
+        run: |
+          sha256sum site/index.html site/catalog.json workflows/qwen/QNATIVE/*.json workflows/qwen/QOVERLAY/*.json > /tmp/workbench-generated.sha256
+          python scripts/build_site.py
+          sha256sum --check /tmp/workbench-generated.sha256
+          git diff --exit-code workflows/krea/K01 automation/K01
       - name: Export developer workflow JSON and provenance
         uses: actions/upload-artifact@v4
         with:
@@ -35,3 +40,12 @@ jobs:
           path: |
             workflows/developer/
             vendor/identity/
+      - name: Export native Qwen workflow JSON and provenance
+        uses: actions/upload-artifact@v4
+        with:
+          name: qwen-stock-and-full-resolution-overlay
+          path: |
+            workflows/qwen/QNATIVE/
+            workflows/qwen/QOVERLAY/
+            vendor/qwen-stock/
+            docs/QWEN_NATIVE_OVERLAY.md

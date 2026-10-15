@@ -91,4 +91,5 @@ def apply(name, value, root=None):
         for row in value['assets']:
             if row['id'] == 'krea-krea2_identity_edit_v1_2':
                 row['revision'] = KREA_REV
-    return value
+    from .qwen_stock_catalog import apply as apply_stock
+    return apply_stock(name, value)
