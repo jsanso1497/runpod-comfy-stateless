@@ -44,7 +44,7 @@ def apply(name, value):
             value['assets'].append({'id': 'qwen-stock-pe-i2i-int8', 'family': 'qwen',
                 'group': 'qwen_stock_pe', 'repo_id': 'Comfy-Org/Qwen-Image-2.1',
                 'filename': destination, 'destination': destination, 'revision': 'main',
-                'sha256': None, 'estimated_bytes': 9500000000,
+                'sha256': '32707d01b427e488af252b95c551989aad59f9fec611a694f5db6bde7f0f1f6c', 'estimated_bytes': 9500000000,
                 'integrity_source': 'Official Comfy-Org file; provider integrity is checked by the existing downloader',
                 'verification': 'Weights not downloaded or GPU-tested in this change'})
     return value

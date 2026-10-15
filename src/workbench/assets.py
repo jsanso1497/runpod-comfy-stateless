@@ -166,6 +166,25 @@ def resolve_standard(asset:dict,transport:pd.Transport)->dict:
         row['sha256']=asset['sha256'].lower();row['git_blob_sha1']=''
     return row
 
+def _standard_asset_high_precision(asset: dict) -> bool:
+    """The pinned official ComfyUI I2I PE is the ONLY stock INT8 exception.
+
+    Keep full-precision enforcement for the BF16 generator, base encoder, VAE,
+    official BF16 PE-I2I and all other standard assets. Even a changed download
+    SHA, source repository or destination restores the strict precision check.
+    """
+    from .qwen_stock_catalog import PE_FILE
+    return not (
+        asset.get('id') == 'qwen-stock-pe-i2i-int8'
+        and asset.get('group') == 'qwen_stock_pe'
+        and asset.get('family') == 'qwen'
+        and asset.get('repo_id') == 'Comfy-Org/Qwen-Image-2.1'
+        and asset.get('filename') == 'text_encoders/' + PE_FILE
+        and asset.get('destination') == 'text_encoders/' + PE_FILE
+        and asset.get('sha256') == '32707d01b427e488af252b95c551989aad59f9fec611a694f5db6bde7f0f1f6c'
+    )
+
+
 def prepare_standard(groups:list[str])->dict:
     known={a['group'] for a in read_catalog('assets.json')['assets']}|{'ollama'}
     if set(groups)-known:raise AssetError('Unknown model group requested.')
@@ -176,15 +195,16 @@ def prepare_standard(groups:list[str])->dict:
             try:
                 print('Preparing standard asset: '+asset['id'],flush=True)
                 target=safe_path(model_root(),asset['destination'])
+                high_precision=_standard_asset_high_precision(asset)
                 # Cached source-pinned files do not require provider access on each boot.
                 if asset.get('format') == 'utf-8':
                     from .public_companions import prepare_companion
                     info=prepare_companion(asset,target,transport);resolved=asset['revision']
                 elif asset.get('sha256') and target.is_file() and pd.file_hash(target)==asset['sha256']:
-                    info=inspect_safetensors(target,high_precision=True);resolved=None
+                    info=inspect_safetensors(target,high_precision=high_precision);resolved=None
                 else:
                     row=resolve_standard(asset,transport)
-                    info=transfer(row,target,transport,high_precision=True);resolved=row.get('revision')
+                    info=transfer(row,target,transport,high_precision=high_precision);resolved=row.get('revision')
                 installed.append({'id':asset['id'],'group':asset['group'],'destination':asset['destination'],'sha256':pd.file_hash(target),'resolved_revision':resolved,'inspection':info})
             except (AssetError,pd.LinkError,OSError,ValueError,KeyError,TypeError) as exc:
                 msg=str(exc) if isinstance(exc,(AssetError,pd.LinkError)) else 'Asset metadata or local storage error.'
