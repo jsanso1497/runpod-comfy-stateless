@@ -85,8 +85,9 @@ def test_catalog_preserves_existing_tasks_and_defaults():
     tasks={'tasks':[{'id':'K01','variants':[{'file':'existing.json'}]}]}
     result=catalog.apply('tasks.json',copy.deepcopy(tasks))
     assert result['tasks'][0]==tasks['tasks'][0]
-    assert [t['id'] for t in result['tasks']]==['K01','KDEV','QDEV']
-    assert all(len(t['variants'])==4 for t in result['tasks'][1:])
+    assert [t['id'] for t in result['tasks']]==['K01','KDEV','QDEV','QNATIVE','QOVERLAY']
+    assert all(len(t['variants'])==4 for t in result['tasks'][1:3])
+    assert all(len(t['variants'])==1 for t in result['tasks'][3:])
     assert all('ollama' not in t['requires'] for t in result['tasks'][1:])
     models={'models':[{'id':'krea','default_tasks':['K01'],'default_groups':['krea','ollama']}]}
     assert catalog.apply('models.json',copy.deepcopy(models))==models
@@ -95,9 +96,13 @@ def test_catalog_preserves_existing_tasks_and_defaults():
 def test_asset_pins_and_no_duplicate_identity_adapter():
     value={'assets':[{'id':'krea-krea2_identity_edit_v1_2','destination':'loras/krea2_identity_edit_v1_2.safetensors','revision':'main'}]}
     result=catalog.apply('assets.json',value)
-    assert len(result['assets'])==4
-    assert all(len(a['revision'])==40 for a in result['assets'])
-    assert all(len(a['sha256'])==64 for a in result['assets'][1:])
+    assert len(result['assets'])==5
+    legacy = [a for a in result['assets'] if a['id'] != 'qwen-stock-pe-i2i-int8']
+    assert len(legacy)==4
+    assert all(len(a['revision'])==40 for a in legacy)
+    assert all(len(a['sha256'])==64 for a in legacy[1:])
+    stock_pe = next(a for a in result['assets'] if a['id'] == 'qwen-stock-pe-i2i-int8')
+    assert stock_pe['group']=='qwen_stock_pe'
     with pytest.raises(ValueError):catalog.apply('assets.json',result)
 
 

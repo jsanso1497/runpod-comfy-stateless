@@ -8,11 +8,13 @@ def apply(name, value):
     if name == 'models.json':
         for model in value['models']:
             if model['id'] == 'qwen':
+                local_nodes = model.setdefault('local_nodes', [])
                 for node in ('qwen_photo', 'qwen_overlay'):
-                    if node not in model['local_nodes']:
-                        model['local_nodes'].append(node)
-                if 'qwen_stock_pe' not in model['toolbox']:
-                    model['toolbox'].append('qwen_stock_pe')
+                    if node not in local_nodes:
+                        local_nodes.append(node)
+                toolbox = model.setdefault('toolbox', [])
+                if 'qwen_stock_pe' not in toolbox:
+                    toolbox.append('qwen_stock_pe')
     elif name == 'tasks.json':
         rows = [
             ('QNATIVE', 'ComfyUI Qwen Edit: stock template, BF16 models', STOCK_PATH,

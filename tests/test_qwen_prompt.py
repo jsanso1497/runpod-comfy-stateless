@@ -196,9 +196,16 @@ def test_every_qwen_graph_has_shared_off_control():
     addon = ROOT / 'workflows/qwen/QGS1_Green_Suit_Overlay/Green_Suit_Qwen_to_GPT25_Overlay_v1_0.json'
     assert addon.is_file()
 
+    # The native templates use ComfyUI's stock enhancer, not WBQwenPromptControl.
+    # Keep this contract scoped to the original Workbench-enhanced graphs.
+    native_paths = {
+        ROOT / 'workflows/qwen/QNATIVE/Qwen21_Comfy_Template_BF16.json',
+        ROOT / 'workflows/qwen/QOVERLAY/Qwen21_Full_Resolution_Overlay_BF16.json',
+    }
+    assert all(path.is_file() for path in native_paths)
     workflows = [
         path for path in (ROOT / 'workflows/qwen').rglob('*.json')
-        if path != addon
+        if path != addon and path not in native_paths
     ]
     assert len(workflows) == 35
     total=0
