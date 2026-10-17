@@ -87,16 +87,44 @@ def _node(ident, kind, title, pos, inputs, outputs, widgets):
             'properties': {'Node name for S&R': kind}, 'widgets_values': widgets}
 
 
+# These defaults apply only to QOVERLAY, not to other Qwen workflows.
+OVERLAY_VERSION = 'watermark-full-photo-2'
+WATERMARK_PROMPT = (
+    'Remove the watermark from <image1>. Remove all overlaid watermark lettering, '
+    'logos, and translucent purchase-message text. Reconstruct the underlying '
+    'photographic detail so it joins naturally with the surrounding photograph. '
+    'Keep the original subject, face, clothing, pose, framing, camera angle, '
+    'lighting, color, and background unchanged except where the watermark covers '
+    'them. Return the complete opaque photograph, not an isolated watermark, '
+    'cutout, transparent layer, mask, or comparison. Do not add new text or logos.'
+)
+
+
 def make_overlay(stock):
+    """One source crop feeds both Qwen and its full-resolution RGB stitcher.
+
+    Protection = 1 - GrowMask(edit_mask, 16). The final paste mask is
+    clamp(edit_mask - protection, 0, 1), so protection is part of the actual
+    output path, not an unused branch. For binary masks this retains the exact
+    selected edit area. Soft-mask boundaries are conservatively restricted.
+    The only output node is the existing full-photo review/save node.
+    """
     graph = copy.deepcopy(stock)
     edit = native_node(graph)
-    target_slot = next(i for i, socket in enumerate(edit['inputs']) if socket.get('label') == 'image_1')
-    source_link = next(row for row in graph['links'] if row[0] == edit['inputs'][target_slot]['link'])
+    target_slot = next(i for i, socket in enumerate(edit['inputs'])
+                       if socket.get('label') == 'image_1')
+    source_link = next(row for row in graph['links']
+                       if row[0] == edit['inputs'][target_slot]['link'])
     source = next(n for n in graph['nodes'] if n['id'] == source_link[1])
     if source['type'] != 'LoadImage':
         raise ValueError('Expected stock source LoadImage.')
-    # Only the outer shell changes. No SaveImage or comparator may cause an
-    # unmasked generation/save while mask review is OFF.
+
+    # Named and positional values must agree in both frontend serialization paths.
+    values = edit['widgets_values_named']
+    if len(edit['widgets_values']) < 2 or edit['widgets_values'][1] != values['prompt']:
+        raise ValueError('Pinned native prompt widget layout changed.')
+    values['prompt'] = WATERMARK_PROMPT
+    edit['widgets_values'][1] = WATERMARK_PROMPT
     graph['nodes'] = [source, edit]
     graph['links'] = []
     graph['groups'] = []
@@ -105,63 +133,106 @@ def make_overlay(stock):
             inp['link'] = None
         for out in node.get('outputs', []):
             out['links'] = []
-    source['pos'], source['size'] = [0, 0], [320, 360]
-    source['title'] = '1 | ORIGINAL sRGB photo - paint on MASK layer, not RGB'
-    edit['pos'] = [1270, 0]
-    edit['title'] = '5 | Stock Qwen edit: BF16 / original prompt enhancer'
-    # IDs are above all upstream IDs, including nested subgraph node IDs.
-    mask_id, protect_id, prep_id, save_id, note_id = range(1001, 1006)
-    mask = _node(mask_id, 'Q21PhotoMask', '2 | Edit mask: OFF manual / ON SAM', (380, 0),
+    source['pos'], source['size'] = [0, 0], [340, 430]
+    source['title'] = '1 | FULL original photo - not an earlier overlay or mask'
+    edit['pos'] = [1630, 0]
+    edit['title'] = '6 | Remove watermark - native Qwen BF16 + stock prompt enhancer'
+
+    mask = _node(1001, 'Q21PhotoMask', '2 | SAM ON - target: watermark', (400, 0),
                  [('source', 'IMAGE'), ('manual_mask', 'MASK')],
                  [('effective_edit_mask', 'MASK'), ('mask_report', 'STRING')],
-                 [False, 'shirt', 0.5, 2, -1, 'full photo', 'ignore', 0])
-    protect = _node(protect_id, 'WBOverlayProtection', '3 | Second SAM: protect face / described element', (380, 400),
-                    [('source', 'IMAGE')], [('protected_on_original', 'MASK')], [True, 'face', 0.5, -1])
-    prep = _node(prep_id, 'WBOverlayPrepare', '4 | Crop only; preserve full-resolution original', (820, 0),
-                 [('source', 'IMAGE'), ('edit_mask', 'MASK'), ('protection', 'MASK'), ('mask_report', 'STRING')],
-                 [('full_resolution_package', 'WB_OVERLAY_CROP'), ('working_crop', 'IMAGE')], [2048, 128, 8])
-    save = _node(save_id, 'WBOverlayExport', '6 | OFF: review masks / ON: export overlay + composite', (1760, 0),
-                 [('package', 'WB_OVERLAY_CROP'), ('generated_crop', 'IMAGE')], [],
-                 [False, 'Qwen21_Overlay/Edit', 12])
-    save['size'] = [620, 740]
-    note = _node(note_id, 'Note', 'Read before first Run', (820, 470), [], [], [
-        '1. Load your ORIGINAL sRGB image. For a manual edit mask: right-click Load Image, '
-        'Open in Mask Editor, paint the MASK layer and save. Or enable auto_mask for SAM.\n'
-        '2. The separate protection node detects face (or your description) on ORIGINAL pixels. '
-        'All matching instances are protected at index -1. Missing detection stops the run. '
-        'Set protection enabled OFF only when no protected region is needed.\n'
-        '3. First Run reviews masks: green = editable, red = protected. Check coverage. '
-        'Then set run_edit ON. The crop is at most 2048 squared, not the full source canvas.\n'
-        '4. Keep native resolution=0 and custom_size OFF so the crop returns at the correct size. '
-        'Describe the edit in the native prompt. Additional references can connect to image_2 onward.\n'
-        '5. Exports: *_overlay.png (straight RGBA, original dimensions), *_composite.png and *_mask.png. '
-        'Place the overlay at x=0,y=0 over the original, Normal blend, opacity 100%. '
-        'Only pixel changes survive in alpha. Face protection wins over feathering.\n'
-        'PNG files are 8-bit sRGB. CPU geometry tests do not certify SAM accuracy or GPU/model quality.'])
-    note['size'] = [840, 370]
-    graph['nodes'].extend([mask, protect, prep, save, note])
+                 [True, 'watermark', 0.5, 2, -1, 'full photo', 'ignore', 0])
+    mask['size'] = [360, 410]
+    grow = _node(1002, 'GrowMask', '3 | Grow edit mask by 16 source pixels', (400, 470),
+                 [('mask', 'MASK')], [('MASK', 'MASK')], [16, False])
+    grow['size'] = [360, 120]
+    protect = _node(1003, 'InvertMask', '4 | Invert grown mask = protected outside', (400, 650),
+                    [('mask', 'MASK')], [('MASK', 'MASK')], [])
+    protect['size'] = [360, 85]
+    gate = _node(1004, 'MaskComposite', '5 | Final edit mask minus protected area', (810, 0),
+                 [('destination', 'MASK'), ('source', 'MASK')], [('MASK', 'MASK')],
+                 [0, 0, 'subtract'])
+    gate['size'] = [350, 190]
+    crop = _node(1005, 'Q21PhotoCrop', '5B | ONE crop for generation and final stitch', (1210, 0),
+                 [('source', 'IMAGE'), ('mask', 'MASK'), ('mask_report', 'STRING')],
+                 [('crop_data', 'Q21_PHOTO_CROP'), ('working_crop', 'IMAGE')],
+                 [2048, 3072, 128, False])
+    crop['size'] = [360, 280]
+    stitch = _node(1006, 'Q21PhotoStitch', '7 | Paste edited crop onto FULL original photo', (2110, 0),
+                   [('crop_data', 'Q21_PHOTO_CROP'), ('generated_crop', 'IMAGE'),
+                    ('reference_report', 'STRING')], [('edited_result', 'Q21_PHOTO_RESULT')],
+                   [12, 0.0])
+    stitch['size'] = [370, 210]
+    save = _node(1007, 'Q21PhotoReviewSave', '8 | EDIT ON - FINAL FULL PHOTO (only output)', (2540, 0),
+                 [('crop_data', 'Q21_PHOTO_CROP'), ('edited_result', 'Q21_PHOTO_RESULT')], [],
+                 [True, 'Qwen21_Watermark_Removal/FINAL_Full_Photo'])
+    save['inputs'][1]['shape'] = 7
+    save['size'] = [590, 760]
+    audit = _node(1008, 'PrimitiveStringMultiline', 'Stitch audit context (not the edit prompt)',
+                  (2110, 300), [], [('STRING', 'STRING')], [json.dumps({
+                      'workflow': 'QOVERLAY', 'revision': OVERLAY_VERSION,
+                      'generation': 'native ComfyUI Qwen Image 2.1 edit',
+                      'protection': 'invert(grow(edit_mask, 16)); subtract before cropping',
+                      'output': 'original-resolution RGB photo composite'})])
+    audit['size'] = [370, 200]
+    note = _node(1009, 'Note', 'Watermark removal / full-photo output', (810, 460), [], [], [
+        'SAM auto_mask and run_edit are ON. Upload the FULL original photograph, then Queue.\n'
+        'SAM prompt = watermark; index -1 selects all matching instances. Detection can miss '
+        'letters or select too much. Set run_edit OFF for mask review. If needed, paint and save '
+        'a manual mask on the source and set auto_mask OFF.\n'
+        'Protection is the edit mask grown by 16 source pixels, then inverted. It is subtracted '
+        'from the edit selection BEFORE the single crop used by both Qwen and the final stitch. '
+        'The paste region stays inside the selected edit mask; growth does not enlarge it.\n'
+        'Keep native resolution=0 / custom_size OFF. Image models remain BF16; the stock '
+        'prompt-enhancer model and settings are unchanged. refine_prompt remains optional.\n'
+        'Only node 8 is an output. It saves/previews the complete RGB photo at the original '
+        'dimensions, plus a diagnostic .mask.png and verification .json on disk. There is NO '
+        'transparent-overlay export or output of the generated crop.\n'
+        'Pixels outside the final mask are copied from the original. PNG is 8-bit sRGB. '
+        'Occluded details are reconstructed, not recovered exactly; SAM and GPU quality need '
+        'a real-image test.'])
+    note['size'] = [1180, 370]
+    graph['nodes'] = [source, mask, grow, protect, gate, crop, edit, audit, stitch, save, note]
+
     def link(a, slot, b, target, kind):
         ident = 1100 + len(graph['links'])
         graph['links'].append([ident, a['id'], slot, b['id'], target, kind])
         a['outputs'][slot]['links'].append(ident)
         b['inputs'][target]['link'] = ident
-    link(source, 0, mask, 0, 'IMAGE'); link(source, 1, mask, 1, 'MASK')
-    link(source, 0, protect, 0, 'IMAGE'); link(source, 0, prep, 0, 'IMAGE')
-    link(mask, 0, prep, 1, 'MASK'); link(mask, 1, prep, 3, 'STRING')
-    link(protect, 0, prep, 2, 'MASK'); link(prep, 1, edit, target_slot, 'IMAGE')
-    link(prep, 0, save, 0, 'WB_OVERLAY_CROP'); link(edit, 0, save, 1, 'IMAGE')
+
+    link(source, 0, mask, 0, 'IMAGE')
+    link(source, 1, mask, 1, 'MASK')
+    link(mask, 0, grow, 0, 'MASK')
+    link(grow, 0, protect, 0, 'MASK')
+    link(mask, 0, gate, 0, 'MASK')
+    link(protect, 0, gate, 1, 'MASK')
+    link(source, 0, crop, 0, 'IMAGE')
+    link(gate, 0, crop, 1, 'MASK')
+    link(mask, 1, crop, 2, 'STRING')
+    link(crop, 1, edit, target_slot, 'IMAGE')
+    link(crop, 0, stitch, 0, 'Q21_PHOTO_CROP')
+    link(edit, 0, stitch, 1, 'IMAGE')
+    link(audit, 0, stitch, 2, 'STRING')
+    link(crop, 0, save, 0, 'Q21_PHOTO_CROP')
+    link(stitch, 0, save, 1, 'Q21_PHOTO_RESULT')
     for order, node in enumerate(graph['nodes']):
         node['order'] = order
-    graph['last_node_id'] = note_id
+    graph['last_node_id'] = 1009
     graph['last_link_id'] = graph['links'][-1][0]
-    graph['id'] = 'db8e4146-91d4-4c81-804a-3096050c2110'
-    graph['extra']['workbench_source']['changes'] += ' Added outer mask/crop/protection/overlay shell.'
-    graph['extra']['ds'] = {'scale': 0.7, 'offset': [80, 80]}
+    graph['id'] = '2c870975-65ad-4191-a8b3-990f3959efb0'
+    graph['revision'] = 0
+    graph['extra']['workbench_source'].update(
+        overlay_version=OVERLAY_VERSION,
+        changes=('QOVERLAY uses one crop and an RGB full-photo stitch/save path. '
+                 'SAM ON, target watermark, run_edit ON, watermark-removal prompt. '
+                 '16px grown/inverted mask gates the final selection. '
+                 'No second SAM and no transparent-overlay exporter. '
+                 'Native model/enhancer/sampler settings otherwise unchanged.'))
+    graph['extra']['ds'] = {'scale': 0.55, 'offset': [80, 80]}
     verify_links(graph)
     if graph['definitions'] != stock['definitions']:
         raise AssertionError('The native edit subgraph or enhancer was altered.')
     return graph
-
 
 def build(root, offline=False):
     root = Path(root)

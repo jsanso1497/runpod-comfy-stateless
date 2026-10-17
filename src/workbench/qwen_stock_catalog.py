@@ -20,10 +20,10 @@ def apply(name, value):
             ('QNATIVE', 'ComfyUI Qwen Edit: stock template, BF16 models', STOCK_PATH,
              'Official edit subgraph and prompt enhancer unchanged. Main diffusion and image encoder use BF16. '
              'No Workbench enhancer, extra LoRA, alternate sampler or custom encode node.', []),
-            ('QOVERLAY', 'Full-resolution edit overlay: manual/SAM mask + face protection', OVERLAY_PATH,
-             'Edit a bounded crop with the same native subgraph. A second SAM selection on the ORIGINAL '
-             'protects a face or described element. Review masks first; export a full-canvas transparent '
-             'edit PNG, composite and alpha mask. Untouched pixels are copied.', ['sam']),
+            ('QOVERLAY', 'Watermark removal: SAM auto mask + full-resolution photo', OVERLAY_PATH,
+             'SAM and editing default ON; target watermark. One native edit crop is composited '
+             'onto the full original photo. Protection is the grown edit mask inverted, not '
+             'a second SAM pass. RGB photo output only; mask/verification sidecars retained.', ['sam']),
         ]
         known = {row['id'] for row in value['tasks']}
         for ident, title, path, description, extra in rows:
@@ -34,10 +34,12 @@ def apply(name, value):
                 'requires': ['qwen', 'qwen_stock_pe'] + extra,
                 'status': 'CPU geometry tested; live ComfyUI/GPU validation pending',
                 'sources': ['https://docs.comfy.org/tutorials/image/qwen/qwen-image-2-1'],
-                'variants': [{'label': 'BF16 / native defaults', 'file': path,
+                'variants': [{'label': ('BF16 / native defaults' if ident == 'QNATIVE' else
+                                       'BF16 / SAM ON / edit ON / full photo'), 'file': path,
                               'source': 'Pinned official ComfyUI template; main model precision upgraded'}],
                 'required_nodes': [] if ident == 'QNATIVE' else
-                    ['Q21PhotoMask', 'Q21PhotoCrop', 'WBOverlayProtection', 'WBOverlayPrepare', 'WBOverlayExport']})
+                    ['Q21PhotoMask', 'GrowMask', 'InvertMask', 'MaskComposite', 'Q21PhotoCrop',
+                     'Q21PhotoStitch', 'Q21PhotoReviewSave', 'PrimitiveStringMultiline']})
     elif name == 'assets.json':
         destination = 'text_encoders/' + PE_FILE
         if not any(row['destination'] == destination for row in value['assets']):

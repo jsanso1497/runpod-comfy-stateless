@@ -1,6 +1,6 @@
-# Native Qwen edit and full-resolution edit overlay
+# Native Qwen edit and full-resolution watermark removal
 
-Two additive Qwen tasks. Existing workflows and custom prompt-enhancer backends are not changed.
+Two Qwen tasks. QNATIVE stays a stock-template baseline; QOVERLAY now defaults to watermark removal with full-photo output. Other workflows, shared node defaults, model weights, and custom prompt-enhancer backends are not changed.
 
 ## QNATIVE: official ComfyUI edit template, BF16 image models
 
@@ -18,18 +18,32 @@ Stock controls are retained: 25 steps, CFG 1, Euler, simple, resolution 0, custo
 
 Upload your source and any required reference images into the stock Load Image nodes. Disconnect image_2 when no second reference is needed. This workflow preserves the official template's sample-image wiring, rather than silently changing its defaults.
 
-## QOVERLAY: manual/SAM edit mask, independent SAM protection, transparent export
+## QOVERLAY v2: watermark removal and the full original photograph
 
-1. Load the original, full-resolution **sRGB RGB** image. For manual masking, open Mask Editor on that source, paint on the MASK layer and save. Leave auto_mask off. Alternatively enable auto_mask and describe the editable object.
-2. The separate protection SAM node examines the **original**, not the generated image. Its default description is `face`. Change this to another object/region, such as `head`, `hair`, or `logo`. Index -1 protects all matching instances. A failed/empty detection stops the run. Disable protection explicitly only when none is needed.
-3. Run once with **run_edit off**. The preview shows editable selection in green and protection in red. Inspect the face/element boundary. SAM segmentation is not guaranteed to find every detail.
-4. Enter the edit instruction in the native Qwen subgraph and set **run_edit on**. Its prompt enhancer and sampling defaults are identical to QNATIVE. Extra image references can connect to image_2 onward.
-5. The edit crop is bounded to 2048 squared pixels, with a 3072-pixel maximum long side, 128 pixels of source context and no automatic enlargement of small crops. The full-resolution original is retained separately. Keep the native subgraph at **resolution 0 / custom_size off**; changing its output dimensions deliberately fails the stitch rather than silently misaligning it.
-6. Export produces `*_overlay.png`, `*_composite.png`, and `*_mask.png`. All use the original image dimensions. The overlay is straight-alpha RGBA, not a crop and not a premultiplied image. Place it at x=0, y=0 above the original with Normal blending and 100% opacity.
+Defaults: **auto_mask ON**, **sam_prompt = watermark**, **run_edit ON**. The default edit prompt asks Qwen to remove the watermark and reconstruct an opaque photograph, not a cutout or isolated watermark. These are workflow defaults only; dragging a new shared photo node into another graph keeps that node's original defaults.
 
-The final alpha is the edit selection minus the grown protection region, feathered inward. Protection wins after all mask processing. Unchanged pixels are removed from alpha after 8-bit quantization. The overlay contains unblended edit RGB so its edges are not blended twice when placed over the source. PNG alpha is quantized before the included composite is calculated.
+Load the full original sRGB photograph and queue the workflow. SAM selects all matching watermark instances (`instance_index=-1`). It can miss letters or select too much. To inspect the selection without Qwen inference, turn `run_edit` OFF. For manual masking, paint and save a source mask and set `auto_mask` OFF.
 
-Original pixels outside the exported alpha and within protection are copied exactly in the 8-bit sRGB output. This is not preservation of JPEG file bytes, original EXIF metadata, a non-sRGB profile, or 16-bit/HDR precision. Color-managed editors may blend differently depending on their working-space/linear-blending settings. Processing a bounded crop preserves untouched high-resolution source detail; it does not invent native full-resolution detail inside an enlarged generated crop.
+### Mask and image paths
+
+```text
+Edit selection -> GrowMask(+16 source pixels) -> InvertMask -> protected area
+Edit selection minus protected area -> ONE Q21PhotoCrop
+                                      |-> working photograph -> native Qwen edit
+                                      |-> source/crop package -> Q21PhotoStitch
+Native Qwen result -------------------------------------------> Q21PhotoStitch
+Full-photo stitched result ----------------------------------> Q21PhotoReviewSave
+```
+
+The final mask is `clamp(edit_mask - (1 - grown_edit_mask), 0, 1)`. For binary SAM/manual masks this keeps the exact selected edit area. Soft manual edges are conservatively restricted. Expansion is applied before inversion. There is no second SAM detection, no protection growth after inversion, and no unused protection branch. The 16-pixel margin does not enlarge the actual paste selection.
+
+One crop package is shared by image generation, stitching, and saving. This removes the duplicated crop path in the earlier live JSON. The processing budget remains 2048 squared pixels, maximum long side 3072, context 128 source pixels, and no upscaling of small crops. Keep native `resolution=0` and `custom_size` OFF so generated geometry stays aligned with that crop.
+
+The **only image-output node is Q21PhotoReviewSave**. Its primary saved/previewed image is a complete, original-size, **opaque RGB PNG**. The generated crop is blended into the original through the final mask, with 12-pixel inward feathering. RGBA generation is flattened against the source crop before stitching, so a transparent generated patch does not turn the complete output into a transparent layer.
+
+Primary output prefix: `Qwen21_Watermark_Removal/FINAL_Full_Photo`. The existing saver also writes a diagnostic `.mask.png` and `.verification.json` alongside it. Those are sidecars, not the displayed result. There is **no transparent-overlay exporter** in this workflow. Legacy overlay node classes remain installed for previously saved workflows.
+
+Pixels outside the final mask are copied from the original. This is 8-bit sRGB pixel preservation, not JPEG byte preservation, EXIF retention, or 16-bit/HDR export. Reconstructing obscured detail is not exact recovery. Correct file compositing does not establish that the image model successfully removed a particular watermark.
 
 ## Build and availability
 
@@ -40,14 +54,14 @@ Generated workflow paths:
 - `workflows/qwen/QNATIVE/Qwen21_Comfy_Template_BF16.json`
 - `workflows/qwen/QOVERLAY/Qwen21_Full_Resolution_Overlay_BF16.json`
 
-These JSON files are generated build artifacts, like the existing developer recipes, and CI exports them as `qwen-stock-and-full-resolution-overlay`. The source catalog extension registers QNATIVE and QOVERLAY in the Qwen workspace. Preparing either task installs the stock PE encoder group; the overlay task also requests SAM 3.1. Model weights are not included in the repository or downloaded during image builds. Existing Qwen workspace defaults are not changed, including optional legacy helper installation choices.
+These JSON files are generated build artifacts, like the existing developer recipes, and CI exports them as `qwen-stock-and-full-resolution-overlay`. The source catalog extension registers QNATIVE and QOVERLAY in the Qwen workspace. Preparing either task installs the stock PE encoder group; QOVERLAY also requests SAM 3.1. The pinned stock PE model and its narrow INT8 download exception are unchanged. Model weights are not included in the repository or downloaded during image builds. Existing Qwen workspace defaults are not changed, including optional legacy helper installation choices.
 
-A rebuilt Qwen image installs the new `Workbench_qwen_overlay` node package. Merely importing the JSON into an older running Pod does not install those new nodes. Merging a PR does not itself update an already running Pod or publish Pages; use the repository's normal build/deploy steps.
+Rebuild the Qwen image after applying the source update. The new standalone JSON uses the existing Qwen photo nodes and ComfyUI core mask nodes, not a new plugin. The old `Workbench_qwen_overlay` classes remain installed only for compatibility. A source commit does not update an already running Pod or publish Pages. After rebuilding, open QOVERLAY from the Workbench sidebar, which serves the new factory graph directly. Existing saved graphs and copy-once Workbench Factory files on persistent storage are not overwritten.
 
 ## Validation
 
-The added CPU tests cover pixel preservation, protected holes, padding removal, straight-alpha recomposition, no-op edits, generated transparency, invalid geometry, failed SAM handling, lazy mask review, native-default preservation, graph wiring, catalog isolation and deterministic generation. Where the pinned snapshot exists, the adapter tests use that actual template. Without network/snapshot, a small explicit graph fixture tests the serializer contract instead.
+Legacy overlay CPU tests remain. New full-photo tests exercise the actual Q21PhotoCrop, Q21PhotoStitch, and Q21PhotoReviewSave code, including PNG save/read-back, opaque output, exact source dimensions, protected pixels, RGB/RGBA generated crops, resampling, image-edge masks, holes, soft masks, empty masks, invalid geometry, manual mode, SAM routing, and the review switch. Additional graph checks enforce SAM/edit defaults, a watermark prompt in both widget serializations, one shared crop, the connected inverted protection mask, and the absence of a transparent-overlay exporter. Where the pinned snapshot exists, the adapter tests use that actual template. Without network/snapshot, a small explicit graph fixture tests the serializer contract instead.
 
-No live GPU generation, SAM accuracy, model download, ComfyUI frontend interaction or Docker build is certified by these tests. Mask preview and a live end-to-end run remain required before production use.
+No live GPU generation, SAM accuracy, model download, ComfyUI frontend interaction or Docker build is certified by these tests. SAM/model calls are mocked in CPU tests. Verify the selection and complete an end-to-end run on representative photos before production use. Run the full repository CI and Docker build after applying this update.
 
 Sources: https://docs.comfy.org/tutorials/image/qwen/qwen-image-2-1 and https://github.com/Comfy-Org/workflow_templates/tree/3e89967349dd95fa68ce3b36966f41d642af8ea7

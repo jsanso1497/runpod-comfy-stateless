@@ -109,8 +109,9 @@ def fixture_graph():
     # fixture also exercises the adapter when network access is unavailable.
     archive = Path(__file__).resolve().parents[1] / 'vendor/qwen-stock' / (UPSTREAM_REV + '.json')
     if archive.exists(): return json.loads(archive.read_text())
-    values = {'cfg': 1, 'steps': 25, 'scheduler': 'euler', 'scheduler_1': 'simple',
-              'resolution': 0, 'switch': False, 'switch_1': False, 'thinking': False,
+    values = {'resolution': 0, 'prompt': 'Edit the photograph.',
+              'cfg': 1, 'steps': 25, 'scheduler': 'euler', 'scheduler_1': 'simple',
+              'switch': False, 'switch_1': False, 'thinking': False,
               'device': 'auto', 'dtype': 'default', 'clip_name_1': PE_FILE,
               'unet_name': 'qwen_image_2.1_int8_convrot.safetensors',
               'clip_name': 'qwen3vl_8b_int8_convrot.safetensors'}
@@ -147,11 +148,16 @@ def test_overlay_uses_identical_native_subgraph():
     overlay = make_overlay(stock)
     assert overlay['definitions'] == stock['definitions']
     verify_links(overlay)
-    assert sum(n['type'] == 'WBOverlayProtection' for n in overlay['nodes']) == 1
+    assert not any(n['type'] in ('WBOverlayProtection', 'WBOverlayPrepare', 'WBOverlayExport')
+                   for n in overlay['nodes'])
+    assert sum(n['type'] == 'Q21PhotoCrop' for n in overlay['nodes']) == 1
+    assert sum(n['type'] == 'Q21PhotoStitch' for n in overlay['nodes']) == 1
     assert sum(n['type'] == 'Q21PhotoMask' for n in overlay['nodes']) == 1
     assert not any(n['type'] in ('SaveImage', 'SaveImageAdvanced', 'ImageCompare') for n in overlay['nodes'])
-    save = next(n for n in overlay['nodes'] if n['type'] == 'WBOverlayExport')
-    assert save['widgets_values'][0] is False
+    save = next(n for n in overlay['nodes'] if n['type'] == 'Q21PhotoReviewSave')
+    assert save['widgets_values'][0] is True
+    mask = next(n for n in overlay['nodes'] if n['type'] == 'Q21PhotoMask')
+    assert mask['widgets_values'][:2] == [True, 'watermark']
 
 
 def test_build_is_reproducible_offline(tmp_path):
