@@ -6,9 +6,13 @@ ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'src'))
 from workbench.config import read_catalog
 from workbench.qwen_stock_workflows import build as build_stock_workflows
+from workbench.qwen_people_workflows import build as build_people_workflow
+from workbench.moss_workflows import build as build_moss_workflow
 
 def main():
  build_stock_workflows(ROOT)
+ build_people_workflow(ROOT)
+ build_moss_workflow(ROOT)
  read=read_catalog
  assets=read('assets.json')
  catalog={'models':read('models.json')['models'],'tasks':read('tasks.json')['tasks'],'assets':assets['assets'],'ollama':assets['ollama'],'ollama_by_workspace':assets.get('ollama_by_workspace',{}),'release':read('release.json')}

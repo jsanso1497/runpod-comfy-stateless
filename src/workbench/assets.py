@@ -167,13 +167,16 @@ def resolve_standard(asset:dict,transport:pd.Transport)->dict:
     return row
 
 def _standard_asset_high_precision(asset: dict) -> bool:
-    """The pinned official ComfyUI I2I PE is the ONLY stock INT8 exception.
+    """Allow the pinned stock Qwen PE and the exact default MOSS quantized pair.
 
     Keep full-precision enforcement for the BF16 generator, base encoder, VAE,
-    official BF16 PE-I2I and all other standard assets. Even a changed download
+    official BF16 PE-I2I and other non-MOSS standard assets. Even a changed download
     SHA, source repository or destination restores the strict precision check.
     """
     from .qwen_stock_catalog import PE_FILE
+    from .moss_catalog import is_stock_quantized_asset
+    if is_stock_quantized_asset(asset):
+        return False
     return not (
         asset.get('id') == 'qwen-stock-pe-i2i-int8'
         and asset.get('group') == 'qwen_stock_pe'

@@ -35,7 +35,8 @@ def test_int8_exception_is_restricted_to_one_exact_source():
         assert assets._standard_asset_high_precision({**row, **changes}) is True
     for entry in read_catalog('assets.json')['assets']:
         if entry['id'] != row['id']:
-            assert assets._standard_asset_high_precision(entry) is True
+            from workbench.moss_catalog import is_stock_quantized_asset
+            assert assets._standard_asset_high_precision(entry) is (not is_stock_quantized_asset(entry))
 
 
 def test_asset_preparation_uses_exception_only_for_stock_encoder(tmp_path, monkeypatch):

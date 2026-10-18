@@ -23,7 +23,10 @@ def main():
  constraints.write_text('\n'.join(pins)+'\n')
  def pip(*args):run(sys.executable,'-m','pip','install','--constraint',str(constraints),*args)
  clone('https://github.com/Comfy-Org/ComfyUI.git',model['comfy_commit'],COMFY)
- if name in ('qwen','krea'):
+ if name == 'qwen':
+  from workbench.moss_support import verify_core
+  verify_core(COMFY, model['comfy_commit'])
+ elif name == 'krea':
   req=COMFY/'requirements.txt';text=req.read_text()
   if text.count('comfy-aimdo==0.5.5')!=1:raise ValueError('Unexpected upstream aimdo pin; review before upgrading.')
   req.write_text(text.replace('comfy-aimdo==0.5.5','comfy-aimdo==0.5.6'))

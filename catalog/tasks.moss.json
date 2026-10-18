@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "tasks": [
+    {
+      "id": "QMOSS",
+      "family": "moss",
+      "workspaces": [
+        "qwen"
+      ],
+      "category": "tasks",
+      "title": "MOSS-Image SFT - stock ComfyUI text-to-image",
+      "description": "Experimental MOSS task in the Qwen workspace. Exact pinned ComfyUI template, including its native prompt upsampler, default INT8 SFT model, W4A8 text encoder and small FLUX.2 VAE. No Qwen edit nodes, SAM, identity adapters or custom prompt enhancer added. Requires a rebuilt Qwen image.",
+      "requires": [
+        "moss_image"
+      ],
+      "status": "experimental; stock template source pinned; live GPU validation pending",
+      "sources": [
+        "https://github.com/Comfy-Org/workflow_templates/blob/7d8ed32f0bf6b8d52129976535422d6f518fe463/templates/image_moss_image_t2i.json",
+        "https://huggingface.co/Comfy-Org/MOSS-Image",
+        "https://github.com/Comfy-Org/ComfyUI/pull/17095"
+      ],
+      "variants": [
+        {
+          "label": "ComfyUI default - SFT text-to-image",
+          "file": "workflows/experimental/moss/QMOSS/MOSS_Image_Stock.json",
+          "source": "Official ComfyUI JSON copied byte-for-byte at a pinned revision"
+        }
+      ],
+      "required_nodes": [
+        "UNETLoader",
+        "CLIPLoader",
+        "VAELoader",
+        "KSampler",
+        "VAEDecode",
+        "SaveImage",
+        "ResolutionSelector",
+        "TextGenerate"
+      ]
+    },
+    {
+      "id": "QMOSS_I2I",
+      "family": "moss",
+      "workspaces": [
+        "qwen"
+      ],
+      "category": "tasks",
+      "title": "MOSS-Image SFT - image-to-image (source latent)",
+      "description": "Experimental standard latent img2img, not a Qwen-style instruction edit model. Uses the same MOSS SFT, encoder and VAE as QMOSS. Upload an image, describe the complete target image, and set denoise (0.35 initially). Source-ratio processing at 1 MP with 16px alignment. Stock text-only prompt upsampler retained. No masks, extra adapters or extra model downloads.",
+      "requires": [
+        "moss_image"
+      ],
+      "status": "experimental Workbench img2img adaptation; live GPU validation pending",
+      "sources": [
+        "https://github.com/Comfy-Org/workflow_templates/blob/7d8ed32f0bf6b8d52129976535422d6f518fe463/templates/image_moss_image_t2i.json",
+        "https://huggingface.co/Comfy-Org/MOSS-Image",
+        "https://github.com/Comfy-Org/ComfyUI/pull/17095",
+        "https://docs.comfy.org/tutorials/basic/image-to-image"
+      ],
+      "variants": [
+        {
+          "label": "Image-to-image - source latent / denoise 0.35",
+          "file": "workflows/experimental/moss/QMOSS_I2I/MOSS_Image_I2I.json",
+          "source": "Workbench native-node img2img adaptation of the pinned stock MOSS template; not an official image-edit workflow"
+        }
+      ],
+      "required_nodes": [
+        "LoadImage",
+        "ImageScaleToTotalPixels",
+        "UNETLoader",
+        "CLIPLoader",
+        "VAELoader",
+        "VAEEncode",
+        "CLIPTextEncode",
+        "KSampler",
+        "VAEDecode",
+        "TextGenerate",
+        "PrimitiveStringMultiline",
+        "ComfySwitchNode",
+        "PreviewAny",
+        "SkipLayerGuidanceDiTSimple",
+        "SaveImage"
+      ]
+    }
+  ]
+}

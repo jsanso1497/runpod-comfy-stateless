@@ -201,6 +201,7 @@ def test_every_qwen_graph_has_shared_off_control():
     native_paths = {
         ROOT / 'workflows/qwen/QNATIVE/Qwen21_Comfy_Template_BF16.json',
         ROOT / 'workflows/qwen/QOVERLAY/Qwen21_Full_Resolution_Overlay_BF16.json',
+        ROOT / 'workflows/qwen/QKEEP1/Qwen21_Keep_One_Person_Protected_Overlay_BF16.json',
     }
     assert all(path.is_file() for path in native_paths)
     workflows = [

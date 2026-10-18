@@ -1,0 +1,1066 @@
+{
+  "id": "1b163d91-ea0e-48f7-9c01-ed5cc2c4358f",
+  "revision": 0,
+  "last_node_id": 29,
+  "last_link_id": 22,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "UNETLoader",
+      "title": "MOSS SFT MODEL - same as QMOSS",
+      "pos": [
+        400,
+        0
+      ],
+      "size": [
+        360,
+        110
+      ],
+      "flags": {},
+      "mode": 0,
+      "order": 0,
+      "properties": {
+        "Node name for S&R": "UNETLoader"
+      },
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            3,
+            17
+          ]
+        }
+      ],
+      "widgets_values": [
+        "moss_image_sft_int8_convrot.safetensors",
+        "default"
+      ],
+      "widgets_values_named": {
+        "unet_name": "moss_image_sft_int8_convrot.safetensors",
+        "weight_dtype": "default"
+      }
+    },
+    {
+      "id": 2,
+      "type": "CLIPLoader",
+      "title": "MOSS TEXT ENCODER - shared by conditioning and upsampler",
+      "pos": [
+        400,
+        340
+      ],
+      "size": [
+        360,
+        130
+      ],
+      "flags": {},
+      "mode": 0,
+      "order": 1,
+      "properties": {
+        "Node name for S&R": "CLIPLoader"
+      },
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            1,
+            9,
+            12
+          ]
+        }
+      ],
+      "widgets_values": [
+        "qwen3.5_9b_w4a8_gptq.safetensors",
+        "moss_image",
+        "default"
+      ],
+      "widgets_values_named": {
+        "clip_name": "qwen3.5_9b_w4a8_gptq.safetensors",
+        "type": "moss_image",
+        "device": "default"
+      }
+    },
+    {
+      "id": 3,
+      "type": "VAELoader",
+      "title": "MOSS VAE - same encoder and decoder",
+      "pos": [
+        400,
+        180
+      ],
+      "size": [
+        360,
+        100
+      ],
+      "flags": {},
+      "mode": 0,
+      "order": 2,
+      "properties": {
+        "Node name for S&R": "VAELoader"
+      },
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            11,
+            20
+          ]
+        }
+      ],
+      "widgets_values": [
+        "flux2-vae_small.safetensors"
+      ],
+      "widgets_values_named": {
+        "vae_name": "flux2-vae_small.safetensors"
+      }
+    },
+    {
+      "id": 14,
+      "type": "PrimitiveStringMultiline",
+      "title": "STOCK UPSAMPLER SYSTEM PROMPT - unchanged",
+      "pos": [
+        810,
+        790
+      ],
+      "size": [
+        440,
+        440
+      ],
+      "flags": {},
+      "mode": 0,
+      "order": 3,
+      "properties": {
+        "Node name for S&R": "PrimitiveStringMultiline"
+      },
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            13
+          ]
+        }
+      ],
+      "widgets_values": [
+        "You turn a user's image idea into one detailed caption for a text-to-image model. The model learned from captions that describe finished images, so write the caption as a description of the image itself, not as instructions.\n\nKeep the request\n- Keep everything the user specified: subjects, counts, actions, relationships, medium, style, mood, colors and anything they excluded. Never contradict or drop it.\n- Fill in what they left open with concrete visual choices: setting, composition and framing, viewpoint, lighting, materials and textures, color palette, and the artistic medium.\n- Describe only what can be seen. Leave out sounds, smells, backstory and intentions.\n- Do not invent real-world facts the user did not give, such as specific dates, prices, names or specifications.\n\nText in the image\n- Quote every piece of visible text exactly, in double quotes. Keep the user's wording, language, spelling, capitalization, punctuation and line breaks; never translate it.\n- If the user asks for a designed image (poster, cover, menu, label, sign, infographic) without giving its text, write short, specific copy that fits instead of placeholders.\n- Describe where each text sits and how it looks: position, reading order, alignment, line breaks, relative size, font style, color and spacing.\n- Do not mention watermarks or artist signatures.\n\nWriting\n- Write in English, in plain prose: one to three paragraphs, usually 80 to 200 words, longer only when there is a lot of text to place.\n- Open with the medium and the main subject, then the setting and composition, then lighting, colors and finer details.\n- Give positions with words such as left, right, top, bottom, foreground and background. No coordinates, lists, headings, JSON or Markdown.\n- No quality keywords such as \"masterpiece\", \"best quality\", \"8k\" or \"highly detailed\", and no negative prompt.\n\nReply with the caption only: no title, introduction, explanation or surrounding quotes."
+      ],
+      "widgets_values_named": {
+        "value": "You turn a user's image idea into one detailed caption for a text-to-image model. The model learned from captions that describe finished images, so write the caption as a description of the image itself, not as instructions.\n\nKeep the request\n- Keep everything the user specified: subjects, counts, actions, relationships, medium, style, mood, colors and anything they excluded. Never contradict or drop it.\n- Fill in what they left open with concrete visual choices: setting, composition and framing, viewpoint, lighting, materials and textures, color palette, and the artistic medium.\n- Describe only what can be seen. Leave out sounds, smells, backstory and intentions.\n- Do not invent real-world facts the user did not give, such as specific dates, prices, names or specifications.\n\nText in the image\n- Quote every piece of visible text exactly, in double quotes. Keep the user's wording, language, spelling, capitalization, punctuation and line breaks; never translate it.\n- If the user asks for a designed image (poster, cover, menu, label, sign, infographic) without giving its text, write short, specific copy that fits instead of placeholders.\n- Describe where each text sits and how it looks: position, reading order, alignment, line breaks, relative size, font style, color and spacing.\n- Do not mention watermarks or artist signatures.\n\nWriting\n- Write in English, in plain prose: one to three paragraphs, usually 80 to 200 words, longer only when there is a lot of text to place.\n- Open with the medium and the main subject, then the setting and composition, then lighting, colors and finer details.\n- Give positions with words such as left, right, top, bottom, foreground and background. No coordinates, lists, headings, JSON or Markdown.\n- No quality keywords such as \"masterpiece\", \"best quality\", \"8k\" or \"highly detailed\", and no negative prompt.\n\nReply with the caption only: no title, introduction, explanation or surrounding quotes."
+      }
+    },
+    {
+      "id": 17,
+      "type": "PrimitiveStringMultiline",
+      "title": "DESCRIBE THE COMPLETE DESIRED IMAGE",
+      "pos": [
+        810,
+        0
+      ],
+      "size": [
+        440,
+        320
+      ],
+      "flags": {},
+      "mode": 0,
+      "order": 4,
+      "properties": {
+        "Node name for S&R": "PrimitiveStringMultiline"
+      },
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            7,
+            14
+          ]
+        }
+      ],
+      "widgets_values": [
+        "A realistic photograph with natural lighting, balanced exposure, lifelike colors, coherent depth, and fine photographic texture."
+      ],
+      "widgets_values_named": {
+        "value": "A realistic photograph with natural lighting, balanced exposure, lifelike colors, coherent depth, and fine photographic texture."
+      }
+    },
+    {
+      "id": 25,
+      "type": "LoadImage",
+      "title": "SOURCE IMAGE - upload your photo",
+      "pos": [
+        0,
+        0
+      ],
+      "size": [
+        340,
+        450
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            18
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": []
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "example.png",
+        "image"
+      ],
+      "widgets_values_named": {
+        "image": "example.png",
+        "upload": "image"
+      }
+    },
+    {
+      "id": 29,
+      "type": "Note",
+      "title": "MOSS img2img usage and limits",
+      "pos": [
+        0,
+        810
+      ],
+      "size": [
+        720,
+        440
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "Note"
+      },
+      "widgets_values": [
+        "MOSS IMAGE-TO-IMAGE | Workbench adaptation, not an official edit model.\n\n1. Upload one complete image in SOURCE IMAGE.\n2. Replace the positive prompt with a description of the complete desired image, including its subject, setting and style. This is not Qwen-style instruction editing.\n3. Denoise starts at 0.35. Lower values tend to stay closer to the source; higher values permit larger changes. 1.0 is effectively text-to-image.\n4. Processing size starts at 1 MP, following the input aspect ratio and rounding dimensions to multiples of 16. This resizes the whole image; output is NOT automatically restored to the original full resolution.\n5. The stock prompt upsampler is ON. It receives TEXT ONLY, not your photo. Switch it OFF to use your exact caption and reduce invented scene details.\n6. Uses the same MOSS SFT, text encoder and VAE as QMOSS. No new model downloads.\n7. Save Image writes the complete generated image under MOSS_Image/I2I. No masks, transparent layers or protected-pixel compositing are added. Faces, geometry and text may change, even with low denoise.\n\nKeep-one-person editing and watermark repair remain separate Qwen tasks. Static/CPU tests do not certify model quality or live GPU compatibility."
+      ],
+      "widgets_values_named": {
+        "text": "MOSS IMAGE-TO-IMAGE | Workbench adaptation, not an official edit model.\n\n1. Upload one complete image in SOURCE IMAGE.\n2. Replace the positive prompt with a description of the complete desired image, including its subject, setting and style. This is not Qwen-style instruction editing.\n3. Denoise starts at 0.35. Lower values tend to stay closer to the source; higher values permit larger changes. 1.0 is effectively text-to-image.\n4. Processing size starts at 1 MP, following the input aspect ratio and rounding dimensions to multiples of 16. This resizes the whole image; output is NOT automatically restored to the original full resolution.\n5. The stock prompt upsampler is ON. It receives TEXT ONLY, not your photo. Switch it OFF to use your exact caption and reduce invented scene details.\n6. Uses the same MOSS SFT, text encoder and VAE as QMOSS. No new model downloads.\n7. Save Image writes the complete generated image under MOSS_Image/I2I. No masks, transparent layers or protected-pixel compositing are added. Faces, geometry and text may change, even with low denoise.\n\nKeep-one-person editing and watermark repair remain separate Qwen tasks. Static/CPU tests do not certify model quality or live GPU compatibility."
+      }
+    },
+    {
+      "id": 5,
+      "type": "CLIPTextEncode",
+      "title": "NEGATIVE PROMPT - stock MOSS default",
+      "pos": [
+        1310,
+        180
+      ],
+      "size": [
+        350,
+        190
+      ],
+      "flags": {},
+      "mode": 0,
+      "order": 7,
+      "properties": {
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 9
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            5
+          ]
+        }
+      ],
+      "widgets_values": [
+        "nsfw, worst quality, bad anatomy, watermark, jpeg artifact"
+      ],
+      "widgets_values_named": {
+        "text": "nsfw, worst quality, bad anatomy, watermark, jpeg artifact"
+      }
+    },
+    {
+      "id": 11,
+      "type": "TextGenerate",
+      "title": "STOCK TEXT PROMPT UPSAMPLER - no image input",
+      "pos": [
+        1310,
+        700
+      ],
+      "size": [
+        370,
+        540
+      ],
+      "flags": {},
+      "mode": 0,
+      "order": 8,
+      "properties": {
+        "Node name for S&R": "TextGenerate"
+      },
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 12
+        },
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": null,
+          "shape": 7
+        },
+        {
+          "name": "video",
+          "type": "IMAGE",
+          "link": null,
+          "shape": 7
+        },
+        {
+          "name": "audio",
+          "type": "AUDIO",
+          "link": null,
+          "shape": 7
+        },
+        {
+          "name": "system_prompt",
+          "type": "STRING",
+          "link": 13,
+          "shape": 7
+        },
+        {
+          "name": "prompt",
+          "type": "STRING",
+          "link": 14,
+          "widget": {
+            "name": "prompt"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "generated_text",
+          "type": "STRING",
+          "links": [
+            8
+          ]
+        },
+        {
+          "name": "thinking",
+          "type": "STRING",
+          "links": []
+        }
+      ],
+      "widgets_values": [
+        "",
+        4096,
+        "on",
+        0.7,
+        64,
+        0.95,
+        0.05,
+        1,
+        0,
+        0,
+        false,
+        true,
+        "auto"
+      ],
+      "widgets_values_named": {
+        "prompt": "",
+        "max_length": 4096,
+        "sampling_mode": "on",
+        "sampling_mode.temperature": 0.7,
+        "sampling_mode.top_k": 64,
+        "sampling_mode.top_p": 0.95,
+        "sampling_mode.min_p": 0.05,
+        "sampling_mode.repetition_penalty": 1,
+        "sampling_mode.seed": 0,
+        "sampling_mode.presence_penalty": 0,
+        "thinking": false,
+        "use_default_template": true,
+        "mtp": "auto"
+      }
+    },
+    {
+      "id": 15,
+      "type": "SkipLayerGuidanceDiTSimple",
+      "title": "OPTIONAL SLG - stock settings",
+      "pos": [
+        810,
+        420
+      ],
+      "size": [
+        350,
+        220
+      ],
+      "flags": {},
+      "mode": 0,
+      "order": 9,
+      "properties": {
+        "Node name for S&R": "SkipLayerGuidanceDiTSimple"
+      },
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 3
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            16
+          ]
+        }
+      ],
+      "widgets_values": [
+        "",
+        "22",
+        0,
+        0.5
+      ],
+      "widgets_values_named": {
+        "double_layers": "",
+        "single_layers": "22",
+        "start_percent": 0,
+        "end_percent": 0.5
+      }
+    },
+    {
+      "id": 26,
+      "type": "ImageScaleToTotalPixels",
+      "title": "WORKING SIZE - source ratio / 16px alignment",
+      "pos": [
+        0,
+        510
+      ],
+      "size": [
+        340,
+        180
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 18
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            19
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ImageScaleToTotalPixels"
+      },
+      "widgets_values": [
+        "lanczos",
+        1.0,
+        16
+      ],
+      "widgets_values_named": {
+        "upscale_method": "lanczos",
+        "megapixels": 1.0,
+        "resolution_steps": 16
+      }
+    },
+    {
+      "id": 16,
+      "type": "ComfySwitchNode",
+      "title": "PROMPT UPSAMPLER ON / OFF",
+      "pos": [
+        1310,
+        0
+      ],
+      "size": [
+        350,
+        110
+      ],
+      "flags": {},
+      "mode": 0,
+      "order": 11,
+      "properties": {
+        "Node name for S&R": "ComfySwitchNode"
+      },
+      "inputs": [
+        {
+          "name": "on_false",
+          "type": "STRING",
+          "link": 7,
+          "shape": 7
+        },
+        {
+          "name": "on_true",
+          "type": "STRING",
+          "link": 8,
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "STRING",
+          "links": [
+            6
+          ]
+        }
+      ],
+      "widgets_values": [
+        true
+      ],
+      "widgets_values_named": {
+        "switch": true
+      }
+    },
+    {
+      "id": 24,
+      "type": "ComfySwitchNode",
+      "title": "SLG ON / OFF - stock default OFF",
+      "pos": [
+        1310,
+        420
+      ],
+      "size": [
+        350,
+        120
+      ],
+      "flags": {},
+      "mode": 0,
+      "order": 12,
+      "properties": {
+        "Node name for S&R": "ComfySwitchNode"
+      },
+      "inputs": [
+        {
+          "name": "on_false",
+          "type": "MODEL",
+          "link": 17,
+          "shape": 7
+        },
+        {
+          "name": "on_true",
+          "type": "MODEL",
+          "link": 16,
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "MODEL",
+          "links": [
+            15
+          ]
+        }
+      ],
+      "widgets_values": [
+        false
+      ],
+      "widgets_values_named": {
+        "switch": false
+      }
+    },
+    {
+      "id": 27,
+      "type": "VAEEncode",
+      "title": "ENCODE SOURCE - not an empty latent",
+      "pos": [
+        400,
+        530
+      ],
+      "size": [
+        350,
+        105
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "pixels",
+          "type": "IMAGE",
+          "link": 19
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 20
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            21
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAEEncode"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 13,
+      "type": "PreviewAny",
+      "title": "FINAL CAPTION USED BY MOSS",
+      "pos": [
+        1730,
+        700
+      ],
+      "size": [
+        370,
+        500
+      ],
+      "flags": {},
+      "mode": 0,
+      "order": 14,
+      "properties": {
+        "Node name for S&R": "PreviewAny"
+      },
+      "inputs": [
+        {
+          "name": "source",
+          "type": "*",
+          "link": 6
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            2
+          ]
+        }
+      ],
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 4,
+      "type": "CLIPTextEncode",
+      "title": "POSITIVE CONDITIONING",
+      "pos": [
+        1710,
+        0
+      ],
+      "size": [
+        340,
+        240
+      ],
+      "flags": {},
+      "mode": 0,
+      "order": 15,
+      "properties": {
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 1
+        },
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": 2,
+          "widget": {
+            "name": "text"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            4
+          ]
+        }
+      ],
+      "widgets_values": [
+        "A realistic photograph with natural lighting, balanced exposure, lifelike colors, coherent depth, and fine photographic texture."
+      ],
+      "widgets_values_named": {
+        "text": "A realistic photograph with natural lighting, balanced exposure, lifelike colors, coherent depth, and fine photographic texture."
+      }
+    },
+    {
+      "id": 7,
+      "type": "KSampler",
+      "title": "IMAGE-TO-IMAGE - adjust DENOISE here",
+      "pos": [
+        2110,
+        0
+      ],
+      "size": [
+        370,
+        330
+      ],
+      "flags": {},
+      "mode": 0,
+      "order": 16,
+      "properties": {
+        "Node name for S&R": "KSampler"
+      },
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 15
+        },
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 4
+        },
+        {
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 5
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 21
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            10
+          ]
+        }
+      ],
+      "widgets_values": [
+        333599710072681,
+        "randomize",
+        25,
+        2.5,
+        "er_sde",
+        "simple",
+        0.35
+      ],
+      "widgets_values_named": {
+        "seed": 333599710072681,
+        "control_after_generate": "randomize",
+        "steps": 25,
+        "cfg": 2.5,
+        "sampler_name": "er_sde",
+        "scheduler": "simple",
+        "denoise": 0.35
+      }
+    },
+    {
+      "id": 8,
+      "type": "VAEDecode",
+      "title": "DECODE THE GENERATED IMAGE",
+      "pos": [
+        2110,
+        420
+      ],
+      "size": [
+        300,
+        100
+      ],
+      "flags": {},
+      "mode": 0,
+      "order": 17,
+      "properties": {
+        "Node name for S&R": "VAEDecode"
+      },
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 10
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 11
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            22
+          ]
+        }
+      ],
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 28,
+      "type": "SaveImage",
+      "title": "FINAL IMAGE - complete generated frame",
+      "pos": [
+        2540,
+        0
+      ],
+      "size": [
+        560,
+        780
+      ],
+      "flags": {},
+      "order": 18,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 22
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "SaveImage"
+      },
+      "widgets_values": [
+        "MOSS_Image/I2I"
+      ],
+      "widgets_values_named": {
+        "filename_prefix": "MOSS_Image/I2I"
+      }
+    }
+  ],
+  "links": [
+    [
+      1,
+      2,
+      0,
+      4,
+      0,
+      "CLIP"
+    ],
+    [
+      2,
+      13,
+      0,
+      4,
+      1,
+      "STRING"
+    ],
+    [
+      3,
+      1,
+      0,
+      15,
+      0,
+      "MODEL"
+    ],
+    [
+      4,
+      4,
+      0,
+      7,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      5,
+      5,
+      0,
+      7,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      6,
+      16,
+      0,
+      13,
+      0,
+      "STRING"
+    ],
+    [
+      7,
+      17,
+      0,
+      16,
+      0,
+      "STRING"
+    ],
+    [
+      8,
+      11,
+      0,
+      16,
+      1,
+      "STRING"
+    ],
+    [
+      9,
+      2,
+      0,
+      5,
+      0,
+      "CLIP"
+    ],
+    [
+      10,
+      7,
+      0,
+      8,
+      0,
+      "LATENT"
+    ],
+    [
+      11,
+      3,
+      0,
+      8,
+      1,
+      "VAE"
+    ],
+    [
+      12,
+      2,
+      0,
+      11,
+      0,
+      "CLIP"
+    ],
+    [
+      13,
+      14,
+      0,
+      11,
+      4,
+      "STRING"
+    ],
+    [
+      14,
+      17,
+      0,
+      11,
+      5,
+      "STRING"
+    ],
+    [
+      15,
+      24,
+      0,
+      7,
+      0,
+      "MODEL"
+    ],
+    [
+      16,
+      15,
+      0,
+      24,
+      1,
+      "MODEL"
+    ],
+    [
+      17,
+      1,
+      0,
+      24,
+      0,
+      "MODEL"
+    ],
+    [
+      18,
+      25,
+      0,
+      26,
+      0,
+      "IMAGE"
+    ],
+    [
+      19,
+      26,
+      0,
+      27,
+      0,
+      "IMAGE"
+    ],
+    [
+      20,
+      3,
+      0,
+      27,
+      1,
+      "VAE"
+    ],
+    [
+      21,
+      27,
+      0,
+      7,
+      3,
+      "LATENT"
+    ],
+    [
+      22,
+      8,
+      0,
+      28,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "frontendVersion": "1.55.17",
+    "ds": {
+      "scale": 0.46,
+      "offset": [
+        100,
+        100
+      ]
+    },
+    "workbench_source": {
+      "task": "QMOSS_I2I",
+      "version": "moss-native-img2img-1.0.0",
+      "derived_from": "QMOSS pinned ComfyUI T2I template",
+      "official_img2img_workflow": false,
+      "reference_conditioned_edit_model": false,
+      "changes": "Flat native graph; source image -> area resize -> VAEEncode -> KSampler; denoise 0.35.",
+      "source_to_prompt_upsampler": false,
+      "gpu_tested": false
+    }
+  },
+  "version": 0.4
+}

@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "tasks": [
+    {
+      "id": "QKEEP1",
+      "family": "qwen",
+      "workspaces": ["qwen"],
+      "category": "tasks",
+      "title": "Keep one person: SAM 1-5 + protected repair overlay",
+      "description": "Number people left to right, choose one to keep, and repair the others' locations. The mask painted on the original image protects those pixels. Saves a full-resolution photo plus a separate transparent edit overlay. Preview first, then run the edit. No extra model downloads beyond Qwen, SAM 3.1 and the stock prompt enhancer.",
+      "requires": ["qwen", "sam", "qwen_stock_pe"],
+      "status": "CPU geometry/PNG/graph tests; live SAM and Qwen inference not certified",
+      "sources": [
+        "https://docs.comfy.org/tutorials/image/qwen/qwen-image-2-1",
+        "https://github.com/Comfy-Org/ComfyUI/blob/52f98af2e2e42c421070a3e147c161c47cdeaf22/comfy_extras/nodes_sam3.py"
+      ],
+      "required_nodes": ["WBPeopleDetect", "WBPeoplePrepare", "WBPeopleExport"],
+      "variants": [
+        {
+          "label": "BF16 / choose keeper / manual protection / full photo + RGBA",
+          "file": "workflows/qwen/QKEEP1/Qwen21_Keep_One_Person_Protected_Overlay_BF16.json",
+          "source": "Pinned ComfyUI Qwen edit subgraph with a protected people-removal wrapper"
+        }
+      ]
+    }
+  ]
+}

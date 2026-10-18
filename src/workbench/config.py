@@ -67,7 +67,11 @@ def read_catalog(name: str):
         from .prompt_studio_catalog import append_tasks
         append_tasks(value, ROOT)
     from .identity_catalog import apply as apply_identity
-    return apply_identity(name, value, ROOT)
+    value = apply_identity(name, value, ROOT)
+    from .qwen_people_catalog import apply as apply_people
+    value = apply_people(name, value, ROOT)
+    from .moss_catalog import apply as apply_moss
+    return apply_moss(name, value, ROOT)
 
 def csv(value: str) -> list[str]:
     return list(dict.fromkeys(x.strip() for x in value.split(',') if x.strip()))

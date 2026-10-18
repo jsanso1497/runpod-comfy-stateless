@@ -1,0 +1,1149 @@
+{
+  "nodes": [
+    {
+      "id": 18,
+      "type": "3301b744-2960-415a-83b0-fe8a89d99fdb",
+      "widgets_values": [
+        "Cinematic night street photograph: a model in an exaggerated balloon-sleeve white wool coat walking toward camera under a huge illuminated theatre marquee, the marquee bulbs spelling \"MOSS\" in tall capital letters, wet asphalt with long reflections, warm tungsten glow against cold blue night, anamorphic flare, 35mm film grain, low angle",
+        true,
+        "nsfw, worst quality, bad anatomy, watermark, jpeg artifact",
+        1024,
+        1024,
+        333599710072681,
+        25,
+        2.5,
+        "er_sde",
+        "simple",
+        false,
+        "moss_image_sft_int8_convrot.safetensors",
+        "qwen3.5_9b_w4a8_gptq.safetensors",
+        "flux2-vae_small.safetensors"
+      ],
+      "widgets_values_named": {
+        "value": "Cinematic night street photograph: a model in an exaggerated balloon-sleeve white wool coat walking toward camera under a huge illuminated theatre marquee, the marquee bulbs spelling \"MOSS\" in tall capital letters, wet asphalt with long reflections, warm tungsten glow against cold blue night, anamorphic flare, 35mm film grain, low angle",
+        "switch": true,
+        "text": "nsfw, worst quality, bad anatomy, watermark, jpeg artifact",
+        "width": 1024,
+        "height": 1024,
+        "seed": 333599710072681,
+        "steps": 25,
+        "cfg": 2.5,
+        "sampler_name": "er_sde",
+        "scheduler": "simple",
+        "switch_1": false,
+        "unet_name": "moss_image_sft_int8_convrot.safetensors",
+        "clip_name": "qwen3.5_9b_w4a8_gptq.safetensors",
+        "vae_name": "flux2-vae_small.safetensors"
+      }
+    }
+  ],
+  "links": [],
+  "definitions": {
+    "subgraphs": [
+      {
+        "id": "3301b744-2960-415a-83b0-fe8a89d99fdb",
+        "nodes": [
+          {
+            "id": 17,
+            "type": "PrimitiveStringMultiline",
+            "pos": [
+              0,
+              0
+            ],
+            "size": [
+              350,
+              180
+            ],
+            "order": 0,
+            "mode": 0,
+            "flags": {},
+            "properties": {},
+            "inputs": [
+              {
+                "name": "value",
+                "type": "STRING",
+                "link": 25,
+                "widget": {
+                  "name": "value"
+                }
+              }
+            ],
+            "outputs": [
+              {
+                "name": "STRING",
+                "type": "STRING",
+                "links": [
+                  15,
+                  17
+                ]
+              }
+            ],
+            "widgets_values": [
+              "Cinematic night street photograph: a model in an exaggerated balloon-sleeve white wool coat walking toward camera under a huge illuminated theatre marquee, the marquee bulbs spelling \"MOSS\" in tall capital letters, wet asphalt with long reflections, warm tungsten glow against cold blue night, anamorphic flare, 35mm film grain, low angle"
+            ],
+            "widgets_values_named": {
+              "value": "Cinematic night street photograph: a model in an exaggerated balloon-sleeve white wool coat walking toward camera under a huge illuminated theatre marquee, the marquee bulbs spelling \"MOSS\" in tall capital letters, wet asphalt with long reflections, warm tungsten glow against cold blue night, anamorphic flare, 35mm film grain, low angle"
+            }
+          },
+          {
+            "id": 14,
+            "type": "PrimitiveStringMultiline",
+            "pos": [
+              0,
+              0
+            ],
+            "size": [
+              350,
+              180
+            ],
+            "order": 0,
+            "mode": 0,
+            "flags": {},
+            "properties": {},
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "STRING",
+                "type": "STRING",
+                "links": [
+                  13
+                ]
+              }
+            ],
+            "widgets_values": [
+              "You turn a user's image idea into one detailed caption for a text-to-image model. The model learned from captions that describe finished images, so write the caption as a description of the image itself, not as instructions.\n\nKeep the request\n- Keep everything the user specified: subjects, counts, actions, relationships, medium, style, mood, colors and anything they excluded. Never contradict or drop it.\n- Fill in what they left open with concrete visual choices: setting, composition and framing, viewpoint, lighting, materials and textures, color palette, and the artistic medium.\n- Describe only what can be seen. Leave out sounds, smells, backstory and intentions.\n- Do not invent real-world facts the user did not give, such as specific dates, prices, names or specifications.\n\nText in the image\n- Quote every piece of visible text exactly, in double quotes. Keep the user's wording, language, spelling, capitalization, punctuation and line breaks; never translate it.\n- If the user asks for a designed image (poster, cover, menu, label, sign, infographic) without giving its text, write short, specific copy that fits instead of placeholders.\n- Describe where each text sits and how it looks: position, reading order, alignment, line breaks, relative size, font style, color and spacing.\n- Do not mention watermarks or artist signatures.\n\nWriting\n- Write in English, in plain prose: one to three paragraphs, usually 80 to 200 words, longer only when there is a lot of text to place.\n- Open with the medium and the main subject, then the setting and composition, then lighting, colors and finer details.\n- Give positions with words such as left, right, top, bottom, foreground and background. No coordinates, lists, headings, JSON or Markdown.\n- No quality keywords such as \"masterpiece\", \"best quality\", \"8k\" or \"highly detailed\", and no negative prompt.\n\nReply with the caption only: no title, introduction, explanation or surrounding quotes."
+            ],
+            "widgets_values_named": {
+              "value": "You turn a user's image idea into one detailed caption for a text-to-image model. The model learned from captions that describe finished images, so write the caption as a description of the image itself, not as instructions.\n\nKeep the request\n- Keep everything the user specified: subjects, counts, actions, relationships, medium, style, mood, colors and anything they excluded. Never contradict or drop it.\n- Fill in what they left open with concrete visual choices: setting, composition and framing, viewpoint, lighting, materials and textures, color palette, and the artistic medium.\n- Describe only what can be seen. Leave out sounds, smells, backstory and intentions.\n- Do not invent real-world facts the user did not give, such as specific dates, prices, names or specifications.\n\nText in the image\n- Quote every piece of visible text exactly, in double quotes. Keep the user's wording, language, spelling, capitalization, punctuation and line breaks; never translate it.\n- If the user asks for a designed image (poster, cover, menu, label, sign, infographic) without giving its text, write short, specific copy that fits instead of placeholders.\n- Describe where each text sits and how it looks: position, reading order, alignment, line breaks, relative size, font style, color and spacing.\n- Do not mention watermarks or artist signatures.\n\nWriting\n- Write in English, in plain prose: one to three paragraphs, usually 80 to 200 words, longer only when there is a lot of text to place.\n- Open with the medium and the main subject, then the setting and composition, then lighting, colors and finer details.\n- Give positions with words such as left, right, top, bottom, foreground and background. No coordinates, lists, headings, JSON or Markdown.\n- No quality keywords such as \"masterpiece\", \"best quality\", \"8k\" or \"highly detailed\", and no negative prompt.\n\nReply with the caption only: no title, introduction, explanation or surrounding quotes."
+            }
+          },
+          {
+            "id": 11,
+            "type": "TextGenerate",
+            "pos": [
+              0,
+              0
+            ],
+            "size": [
+              350,
+              180
+            ],
+            "order": 0,
+            "mode": 0,
+            "flags": {},
+            "properties": {},
+            "inputs": [
+              {
+                "name": "clip",
+                "type": "CLIP",
+                "link": 48
+              },
+              {
+                "name": "image",
+                "type": "IMAGE",
+                "link": null,
+                "shape": 7
+              },
+              {
+                "name": "video",
+                "type": "IMAGE",
+                "link": null,
+                "shape": 7
+              },
+              {
+                "name": "audio",
+                "type": "AUDIO",
+                "link": null,
+                "shape": 7
+              },
+              {
+                "name": "system_prompt",
+                "type": "STRING",
+                "link": 13,
+                "shape": 7
+              },
+              {
+                "name": "prompt",
+                "type": "STRING",
+                "link": 17,
+                "widget": {
+                  "name": "prompt"
+                }
+              }
+            ],
+            "outputs": [
+              {
+                "name": "generated_text",
+                "type": "STRING",
+                "links": [
+                  19
+                ]
+              },
+              {
+                "name": "thinking",
+                "type": "STRING",
+                "links": []
+              }
+            ],
+            "widgets_values": [
+              "",
+              4096,
+              "on",
+              0.7,
+              64,
+              0.95,
+              0.05,
+              1,
+              0,
+              0,
+              false,
+              true,
+              "auto"
+            ],
+            "widgets_values_named": {
+              "prompt": "",
+              "max_length": 4096,
+              "sampling_mode": "on",
+              "sampling_mode.temperature": 0.7,
+              "sampling_mode.top_k": 64,
+              "sampling_mode.top_p": 0.95,
+              "sampling_mode.min_p": 0.05,
+              "sampling_mode.repetition_penalty": 1,
+              "sampling_mode.seed": 0,
+              "sampling_mode.presence_penalty": 0,
+              "thinking": false,
+              "use_default_template": true,
+              "mtp": "auto"
+            }
+          },
+          {
+            "id": 1,
+            "type": "UNETLoader",
+            "pos": [
+              0,
+              0
+            ],
+            "size": [
+              350,
+              180
+            ],
+            "order": 0,
+            "mode": 0,
+            "flags": {},
+            "properties": {},
+            "inputs": [
+              {
+                "name": "unet_name",
+                "type": "COMBO",
+                "link": 35,
+                "widget": {
+                  "name": "unet_name"
+                }
+              }
+            ],
+            "outputs": [
+              {
+                "name": "MODEL",
+                "type": "MODEL",
+                "links": [
+                  1,
+                  51
+                ]
+              }
+            ],
+            "widgets_values": [
+              "moss_image_sft_int8_convrot.safetensors",
+              "default"
+            ],
+            "widgets_values_named": {
+              "unet_name": "moss_image_sft_int8_convrot.safetensors",
+              "weight_dtype": "default"
+            }
+          },
+          {
+            "id": 4,
+            "type": "CLIPTextEncode",
+            "pos": [
+              0,
+              0
+            ],
+            "size": [
+              350,
+              180
+            ],
+            "order": 0,
+            "mode": 0,
+            "flags": {},
+            "properties": {},
+            "inputs": [
+              {
+                "name": "clip",
+                "type": "CLIP",
+                "link": 2
+              },
+              {
+                "name": "text",
+                "type": "STRING",
+                "link": 20,
+                "widget": {
+                  "name": "text"
+                }
+              }
+            ],
+            "outputs": [
+              {
+                "name": "CONDITIONING",
+                "type": "CONDITIONING",
+                "links": [
+                  8
+                ]
+              }
+            ],
+            "widgets_values": [
+              "Cinematic night street photograph: a model in an exaggerated balloon-sleeve white wool coat walking toward camera under a huge illuminated theatre marquee, the marquee bulbs spelling \"MOSS\" in tall capital letters, wet asphalt with long reflections, warm tungsten glow against cold blue night, anamorphic flare, 35mm film grain, low angle"
+            ],
+            "widgets_values_named": {
+              "text": "Cinematic night street photograph: a model in an exaggerated balloon-sleeve white wool coat walking toward camera under a huge illuminated theatre marquee, the marquee bulbs spelling \"MOSS\" in tall capital letters, wet asphalt with long reflections, warm tungsten glow against cold blue night, anamorphic flare, 35mm film grain, low angle"
+            }
+          },
+          {
+            "id": 2,
+            "type": "CLIPLoader",
+            "pos": [
+              0,
+              0
+            ],
+            "size": [
+              350,
+              180
+            ],
+            "order": 0,
+            "mode": 0,
+            "flags": {},
+            "properties": {},
+            "inputs": [
+              {
+                "name": "clip_name",
+                "type": "COMBO",
+                "link": 36,
+                "widget": {
+                  "name": "clip_name"
+                }
+              }
+            ],
+            "outputs": [
+              {
+                "name": "CLIP",
+                "type": "CLIP",
+                "links": [
+                  2,
+                  3,
+                  48
+                ]
+              }
+            ],
+            "widgets_values": [
+              "qwen3.5_9b_w4a8_gptq.safetensors",
+              "moss_image",
+              "default"
+            ],
+            "widgets_values_named": {
+              "clip_name": "qwen3.5_9b_w4a8_gptq.safetensors",
+              "type": "moss_image",
+              "device": "default"
+            }
+          },
+          {
+            "id": 7,
+            "type": "KSampler",
+            "pos": [
+              0,
+              0
+            ],
+            "size": [
+              350,
+              180
+            ],
+            "order": 0,
+            "mode": 0,
+            "flags": {},
+            "properties": {},
+            "inputs": [
+              {
+                "name": "model",
+                "type": "MODEL",
+                "link": 49
+              },
+              {
+                "name": "positive",
+                "type": "CONDITIONING",
+                "link": 8
+              },
+              {
+                "name": "negative",
+                "type": "CONDITIONING",
+                "link": 9
+              },
+              {
+                "name": "latent_image",
+                "type": "LATENT",
+                "link": 39
+              },
+              {
+                "name": "seed",
+                "type": "INT",
+                "link": 30,
+                "widget": {
+                  "name": "seed"
+                }
+              },
+              {
+                "name": "steps",
+                "type": "INT",
+                "link": 42,
+                "widget": {
+                  "name": "steps"
+                }
+              },
+              {
+                "name": "cfg",
+                "type": "FLOAT",
+                "link": 44,
+                "widget": {
+                  "name": "cfg"
+                }
+              },
+              {
+                "name": "sampler_name",
+                "type": "COMBO",
+                "link": 33,
+                "widget": {
+                  "name": "sampler_name"
+                }
+              },
+              {
+                "name": "scheduler",
+                "type": "COMBO",
+                "link": 34,
+                "widget": {
+                  "name": "scheduler"
+                }
+              }
+            ],
+            "outputs": [
+              {
+                "name": "LATENT",
+                "type": "LATENT",
+                "links": [
+                  4
+                ]
+              }
+            ],
+            "widgets_values": [
+              0,
+              "randomize",
+              25,
+              2.5,
+              "er_sde",
+              "simple",
+              1
+            ],
+            "widgets_values_named": {
+              "seed": 0,
+              "control_after_generate": "randomize",
+              "steps": 25,
+              "cfg": 2.5,
+              "sampler_name": "er_sde",
+              "scheduler": "simple",
+              "denoise": 1
+            }
+          },
+          {
+            "id": 3,
+            "type": "VAELoader",
+            "pos": [
+              0,
+              0
+            ],
+            "size": [
+              350,
+              180
+            ],
+            "order": 0,
+            "mode": 0,
+            "flags": {},
+            "properties": {},
+            "inputs": [
+              {
+                "name": "vae_name",
+                "type": "COMBO",
+                "link": 37,
+                "widget": {
+                  "name": "vae_name"
+                }
+              }
+            ],
+            "outputs": [
+              {
+                "name": "VAE",
+                "type": "VAE",
+                "links": [
+                  5
+                ]
+              }
+            ],
+            "widgets_values": [
+              "flux2-vae_small.safetensors"
+            ],
+            "widgets_values_named": {
+              "vae_name": "flux2-vae_small.safetensors"
+            }
+          },
+          {
+            "id": 13,
+            "type": "PreviewAny",
+            "pos": [
+              0,
+              0
+            ],
+            "size": [
+              350,
+              180
+            ],
+            "order": 0,
+            "mode": 0,
+            "flags": {},
+            "properties": {},
+            "inputs": [
+              {
+                "name": "source",
+                "type": "*",
+                "link": 21
+              }
+            ],
+            "outputs": [
+              {
+                "name": "STRING",
+                "type": "STRING",
+                "links": [
+                  20
+                ]
+              }
+            ],
+            "widgets_values": [],
+            "widgets_values_named": {}
+          },
+          {
+            "id": 16,
+            "type": "ComfySwitchNode",
+            "pos": [
+              0,
+              0
+            ],
+            "size": [
+              350,
+              180
+            ],
+            "order": 0,
+            "mode": 0,
+            "flags": {},
+            "properties": {},
+            "inputs": [
+              {
+                "name": "on_false",
+                "type": "STRING",
+                "link": 15,
+                "shape": 7
+              },
+              {
+                "name": "on_true",
+                "type": "STRING",
+                "link": 19,
+                "shape": 7
+              },
+              {
+                "name": "switch",
+                "type": "BOOLEAN",
+                "link": 26,
+                "widget": {
+                  "name": "switch"
+                }
+              }
+            ],
+            "outputs": [
+              {
+                "name": "output",
+                "type": "STRING",
+                "links": [
+                  21
+                ]
+              }
+            ],
+            "widgets_values": [
+              true
+            ],
+            "widgets_values_named": {
+              "switch": true
+            }
+          },
+          {
+            "id": 6,
+            "type": "EmptyFlux2LatentImage",
+            "pos": [
+              0,
+              0
+            ],
+            "size": [
+              350,
+              180
+            ],
+            "order": 0,
+            "mode": 0,
+            "flags": {},
+            "properties": {},
+            "inputs": [
+              {
+                "name": "width",
+                "type": "INT",
+                "link": 27,
+                "widget": {
+                  "name": "width"
+                }
+              },
+              {
+                "name": "height",
+                "type": "INT",
+                "link": 28,
+                "widget": {
+                  "name": "height"
+                }
+              }
+            ],
+            "outputs": [
+              {
+                "name": "LATENT",
+                "type": "LATENT",
+                "links": [
+                  39
+                ]
+              }
+            ],
+            "widgets_values": [
+              1024,
+              1024,
+              1
+            ],
+            "widgets_values_named": {
+              "width": 1024,
+              "height": 1024,
+              "batch_size": 1
+            }
+          },
+          {
+            "id": 5,
+            "type": "CLIPTextEncode",
+            "pos": [
+              0,
+              0
+            ],
+            "size": [
+              350,
+              180
+            ],
+            "order": 0,
+            "mode": 0,
+            "flags": {},
+            "properties": {},
+            "inputs": [
+              {
+                "name": "clip",
+                "type": "CLIP",
+                "link": 3
+              },
+              {
+                "name": "text",
+                "type": "STRING",
+                "link": 43,
+                "widget": {
+                  "name": "text"
+                }
+              }
+            ],
+            "outputs": [
+              {
+                "name": "CONDITIONING",
+                "type": "CONDITIONING",
+                "links": [
+                  9
+                ]
+              }
+            ],
+            "widgets_values": [
+              ""
+            ],
+            "widgets_values_named": {
+              "text": ""
+            }
+          },
+          {
+            "id": 8,
+            "type": "VAEDecode",
+            "pos": [
+              0,
+              0
+            ],
+            "size": [
+              350,
+              180
+            ],
+            "order": 0,
+            "mode": 0,
+            "flags": {},
+            "properties": {},
+            "inputs": [
+              {
+                "name": "samples",
+                "type": "LATENT",
+                "link": 4
+              },
+              {
+                "name": "vae",
+                "type": "VAE",
+                "link": 5
+              }
+            ],
+            "outputs": [
+              {
+                "name": "IMAGE",
+                "type": "IMAGE",
+                "links": [
+                  6
+                ]
+              }
+            ],
+            "widgets_values": [],
+            "widgets_values_named": {}
+          },
+          {
+            "id": 15,
+            "type": "SkipLayerGuidanceDiTSimple",
+            "pos": [
+              0,
+              0
+            ],
+            "size": [
+              350,
+              180
+            ],
+            "order": 0,
+            "mode": 0,
+            "flags": {},
+            "properties": {},
+            "inputs": [
+              {
+                "name": "model",
+                "type": "MODEL",
+                "link": 1
+              }
+            ],
+            "outputs": [
+              {
+                "name": "MODEL",
+                "type": "MODEL",
+                "links": [
+                  50
+                ]
+              }
+            ],
+            "widgets_values": [
+              "",
+              "22",
+              0,
+              0.5
+            ],
+            "widgets_values_named": {
+              "double_layers": "",
+              "single_layers": "22",
+              "start_percent": 0,
+              "end_percent": 0.5
+            }
+          },
+          {
+            "id": 24,
+            "type": "ComfySwitchNode",
+            "pos": [
+              0,
+              0
+            ],
+            "size": [
+              350,
+              180
+            ],
+            "order": 0,
+            "mode": 0,
+            "flags": {},
+            "properties": {},
+            "inputs": [
+              {
+                "name": "on_false",
+                "type": "MODEL",
+                "link": 51,
+                "shape": 7
+              },
+              {
+                "name": "on_true",
+                "type": "MODEL",
+                "link": 50,
+                "shape": 7
+              },
+              {
+                "name": "switch",
+                "type": "BOOLEAN",
+                "link": 52,
+                "widget": {
+                  "name": "switch"
+                }
+              }
+            ],
+            "outputs": [
+              {
+                "name": "output",
+                "type": "MODEL",
+                "links": [
+                  49
+                ]
+              }
+            ],
+            "widgets_values": [
+              false
+            ],
+            "widgets_values_named": {
+              "switch": false
+            }
+          }
+        ],
+        "links": [
+          {
+            "id": 2,
+            "origin_id": 2,
+            "origin_slot": 0,
+            "target_id": 4,
+            "target_slot": 0,
+            "type": "CLIP"
+          },
+          {
+            "id": 20,
+            "origin_id": 13,
+            "origin_slot": 0,
+            "target_id": 4,
+            "target_slot": 1,
+            "type": "STRING"
+          },
+          {
+            "id": 1,
+            "origin_id": 1,
+            "origin_slot": 0,
+            "target_id": 15,
+            "target_slot": 0,
+            "type": "MODEL"
+          },
+          {
+            "id": 8,
+            "origin_id": 4,
+            "origin_slot": 0,
+            "target_id": 7,
+            "target_slot": 1,
+            "type": "CONDITIONING"
+          },
+          {
+            "id": 9,
+            "origin_id": 5,
+            "origin_slot": 0,
+            "target_id": 7,
+            "target_slot": 2,
+            "type": "CONDITIONING"
+          },
+          {
+            "id": 21,
+            "origin_id": 16,
+            "origin_slot": 0,
+            "target_id": 13,
+            "target_slot": 0,
+            "type": "STRING"
+          },
+          {
+            "id": 15,
+            "origin_id": 17,
+            "origin_slot": 0,
+            "target_id": 16,
+            "target_slot": 0,
+            "type": "STRING"
+          },
+          {
+            "id": 19,
+            "origin_id": 11,
+            "origin_slot": 0,
+            "target_id": 16,
+            "target_slot": 1,
+            "type": "STRING"
+          },
+          {
+            "id": 3,
+            "origin_id": 2,
+            "origin_slot": 0,
+            "target_id": 5,
+            "target_slot": 0,
+            "type": "CLIP"
+          },
+          {
+            "id": 4,
+            "origin_id": 7,
+            "origin_slot": 0,
+            "target_id": 8,
+            "target_slot": 0,
+            "type": "LATENT"
+          },
+          {
+            "id": 5,
+            "origin_id": 3,
+            "origin_slot": 0,
+            "target_id": 8,
+            "target_slot": 1,
+            "type": "VAE"
+          },
+          {
+            "id": 6,
+            "origin_id": 8,
+            "origin_slot": 0,
+            "target_id": -20,
+            "target_slot": 0,
+            "type": "IMAGE"
+          },
+          {
+            "id": 39,
+            "origin_id": 6,
+            "origin_slot": 0,
+            "target_id": 7,
+            "target_slot": 3,
+            "type": "LATENT"
+          },
+          {
+            "id": 48,
+            "origin_id": 2,
+            "origin_slot": 0,
+            "target_id": 11,
+            "target_slot": 0,
+            "type": "CLIP"
+          },
+          {
+            "id": 13,
+            "origin_id": 14,
+            "origin_slot": 0,
+            "target_id": 11,
+            "target_slot": 4,
+            "type": "STRING"
+          },
+          {
+            "id": 17,
+            "origin_id": 17,
+            "origin_slot": 0,
+            "target_id": 11,
+            "target_slot": 5,
+            "type": "STRING"
+          },
+          {
+            "id": 49,
+            "origin_id": 24,
+            "origin_slot": 0,
+            "target_id": 7,
+            "target_slot": 0,
+            "type": "MODEL"
+          },
+          {
+            "id": 50,
+            "origin_id": 15,
+            "origin_slot": 0,
+            "target_id": 24,
+            "target_slot": 1,
+            "type": "MODEL"
+          },
+          {
+            "id": 51,
+            "origin_id": 1,
+            "origin_slot": 0,
+            "target_id": 24,
+            "target_slot": 0,
+            "type": "MODEL"
+          },
+          {
+            "id": 25,
+            "origin_id": -10,
+            "origin_slot": 0,
+            "target_id": 17,
+            "target_slot": 0,
+            "type": "STRING"
+          },
+          {
+            "id": 26,
+            "origin_id": -10,
+            "origin_slot": 1,
+            "target_id": 16,
+            "target_slot": 2,
+            "type": "BOOLEAN"
+          },
+          {
+            "id": 43,
+            "origin_id": -10,
+            "origin_slot": 2,
+            "target_id": 5,
+            "target_slot": 1,
+            "type": "STRING"
+          },
+          {
+            "id": 27,
+            "origin_id": -10,
+            "origin_slot": 3,
+            "target_id": 6,
+            "target_slot": 0,
+            "type": "INT"
+          },
+          {
+            "id": 28,
+            "origin_id": -10,
+            "origin_slot": 4,
+            "target_id": 6,
+            "target_slot": 1,
+            "type": "INT"
+          },
+          {
+            "id": 30,
+            "origin_id": -10,
+            "origin_slot": 5,
+            "target_id": 7,
+            "target_slot": 4,
+            "type": "INT"
+          },
+          {
+            "id": 42,
+            "origin_id": -10,
+            "origin_slot": 6,
+            "target_id": 7,
+            "target_slot": 5,
+            "type": "INT"
+          },
+          {
+            "id": 44,
+            "origin_id": -10,
+            "origin_slot": 7,
+            "target_id": 7,
+            "target_slot": 6,
+            "type": "FLOAT"
+          },
+          {
+            "id": 33,
+            "origin_id": -10,
+            "origin_slot": 8,
+            "target_id": 7,
+            "target_slot": 7,
+            "type": "COMBO"
+          },
+          {
+            "id": 34,
+            "origin_id": -10,
+            "origin_slot": 9,
+            "target_id": 7,
+            "target_slot": 8,
+            "type": "COMBO"
+          },
+          {
+            "id": 52,
+            "origin_id": -10,
+            "origin_slot": 10,
+            "target_id": 24,
+            "target_slot": 2,
+            "type": "BOOLEAN"
+          },
+          {
+            "id": 35,
+            "origin_id": -10,
+            "origin_slot": 11,
+            "target_id": 1,
+            "target_slot": 0,
+            "type": "COMBO"
+          },
+          {
+            "id": 36,
+            "origin_id": -10,
+            "origin_slot": 12,
+            "target_id": 2,
+            "target_slot": 0,
+            "type": "COMBO"
+          },
+          {
+            "id": 37,
+            "origin_id": -10,
+            "origin_slot": 13,
+            "target_id": 3,
+            "target_slot": 0,
+            "type": "COMBO"
+          }
+        ],
+        "inputNode": {
+          "id": -10
+        },
+        "outputNode": {
+          "id": -20
+        },
+        "inputs": [
+          {
+            "name": "value"
+          },
+          {
+            "name": "switch"
+          },
+          {
+            "name": "text"
+          },
+          {
+            "name": "width"
+          },
+          {
+            "name": "height"
+          },
+          {
+            "name": "seed"
+          },
+          {
+            "name": "steps"
+          },
+          {
+            "name": "cfg"
+          },
+          {
+            "name": "sampler_name"
+          },
+          {
+            "name": "scheduler"
+          },
+          {
+            "name": "switch_1"
+          },
+          {
+            "name": "unet_name"
+          },
+          {
+            "name": "clip_name"
+          },
+          {
+            "name": "vae_name"
+          }
+        ]
+      }
+    ]
+  },
+  "extra": {
+    "test_fixture": true,
+    "source": "Pinned MOSS template runtime contract inspected through GitHub; not original file bytes."
+  },
+  "version": 0.4
+}

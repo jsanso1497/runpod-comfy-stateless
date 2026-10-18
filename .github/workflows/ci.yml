@@ -29,7 +29,7 @@ jobs:
       - run: python -m compileall -q src deploy scripts
       - name: Verify reproducible generated catalog and native Qwen workflows
         run: |
-          sha256sum site/index.html site/catalog.json workflows/qwen/QNATIVE/*.json workflows/qwen/QOVERLAY/*.json > /tmp/workbench-generated.sha256
+          sha256sum site/index.html site/catalog.json workflows/qwen/QNATIVE/*.json workflows/qwen/QOVERLAY/*.json workflows/experimental/moss/QMOSS/*.json workflows/experimental/moss/QMOSS_I2I/*.json > /tmp/workbench-generated.sha256
           python scripts/build_site.py
           sha256sum --check /tmp/workbench-generated.sha256
           git diff --exit-code workflows/krea/K01 automation/K01
@@ -49,3 +49,12 @@ jobs:
             workflows/qwen/QOVERLAY/
             vendor/qwen-stock/
             docs/QWEN_NATIVE_OVERLAY.md
+      - name: Export MOSS workflows and source provenance
+        uses: actions/upload-artifact@v4
+        with:
+          name: moss-workflows
+          path: |
+            workflows/experimental/moss/QMOSS/
+            workflows/experimental/moss/QMOSS_I2I/
+            vendor/moss-stock/
+            docs/MOSS_IN_QWEN.md
