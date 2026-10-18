@@ -27,7 +27,7 @@ async function render(container){
     const prepare=el('button','Prepare assets');prepare.onclick=()=>prep([t.id]);row.append(open,prepare);list.append(row);
    }
   }
-  async function poll(){try{status=await get('status');const j=status.preparation;msg.textContent=(status.comfy_running?'ComfyUI running. ':'ComfyUI is starting. ')+(j.state==='preparing'?'Preparing: '+j.groups.join(', '):'Preparation: '+j.state+(j.failures?' ('+j.failures+' asset failures)':''));await show();}catch(e){msg.textContent=e.message;}}
+  async function poll(){try{status=await get('status');const j=status.preparation;msg.textContent=(status.comfy_running?'ComfyUI running. ':'ComfyUI is starting. ')+(j.state==='preparing'?'Preparing: '+j.groups.join(', '):'Preparation: '+j.state+(j.failures?' ('+j.failures+' asset failures)':''));const prog=j.progress;if(prog){msg.textContent+='\n'+prog.stage+(prog.current_asset?' | '+prog.current_asset:'')+(prog.asset_percent===null?'':' | '+prog.asset_percent+'%')+'\n'+prog.assets_done+'/'+prog.assets_total+' standard assets; '+prog.seconds_since_progress+'s since progress';}await show();}catch(e){msg.textContent=e.message;}}
   for(const name of ['Tasks','Toolbox','Files']){const b=el('button',name);b.onclick=()=>{mode=name;show();};nav.append(b);}search.oninput=show;await poll();
   const timer=setInterval(()=>{if(!p.isConnected){clearInterval(timer);return;}if(mode!=='Files')poll();},15000);
  }catch(e){msg.textContent=e.message+' Open ComfyUI through the authenticated Workbench port, not its internal port.';}

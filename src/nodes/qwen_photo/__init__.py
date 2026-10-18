@@ -135,9 +135,11 @@ class Q21PhotoMask:
                 x2, y2 = min(width, int(xs[-1]) + 129), min(height, int(ys[-1]) + 129)
             elif search_region != 'full photo':
                 raise ValueError('Unknown SAM search region.')
-            model, clip, _ = nodes.CheckpointLoaderSimple().load_checkpoint(SAM_FILE)
-            cond = nodes.CLIPTextEncode().encode(clip, sam_prompt)[0]
+            from workbench.sam_selection import detection_prompt
+            sam_prompt = detection_prompt(sam_prompt, instance_index)
             try:
+                model, clip, _ = nodes.CheckpointLoaderSimple().load_checkpoint(SAM_FILE)
+                cond = nodes.CLIPTextEncode().encode(clip, sam_prompt)[0]
                 result = _tuple(SAM3_Detect.execute(
                     model=model, image=source[:, y:y2, x:x2, :3].clone(), conditioning=cond,
                     threshold=threshold, refine_iterations=refine_iterations, individual_masks=True))
@@ -456,13 +458,15 @@ class Q21PhotoReviewSave:
             metadata.add_text('prompt', json.dumps(prompt))
         for key, value in (extra_pnginfo or {}).items():
             metadata.add_text(key, json.dumps(value))
-        metadata.add_text('qwen21_photo_verification', json.dumps(report))
+        from workbench.export_privacy import public_verification
+        saved_report = report if os.environ.get('WB_SAVE_METADATA', '0') == '1' else public_verification(report)
+        metadata.add_text('qwen21_photo_verification', json.dumps(saved_report))
         profile = ImageCms.ImageCmsProfile(ImageCms.createProfile('sRGB')).tobytes()
         Image.fromarray(to_uint8(image)).save(out_dir / (name + '.png'), pnginfo=metadata,
                                              icc_profile=profile, compress_level=4)
         mask_array = np.rint(crop_data['effective_mask'][0].numpy().clip(0, 1) * 255).astype(np.uint8)
         Image.fromarray(mask_array).save(out_dir / (name + '.mask.png'))
-        (out_dir / (name + '.verification.json')).write_text(json.dumps(report, indent=2) + '\n')
+        (out_dir / (name + '.verification.json')).write_text(json.dumps(saved_report, indent=2) + '\n')
         p = crop_data['plan']
         crop_a = source[:, p.y:p.y+p.crop_height, p.x:p.x+p.crop_width]
         crop_b = image[:, p.y:p.y+p.crop_height, p.x:p.x+p.crop_width]

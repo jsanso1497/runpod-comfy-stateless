@@ -111,6 +111,7 @@ def inspect_safetensors(path: Path, *, high_precision: bool=False) -> dict:
 
 def transfer(row: dict, target: Path, transport: pd.Transport, *, high_precision=False) -> dict:
     """Resume to a .part file, verify hash and structure, then atomically publish."""
+    from .audit_preparation import update as progress_update
     target.parent.mkdir(parents=True,exist_ok=True)
     part=target.with_suffix(target.suffix+'.part')
     if target.is_symlink() or part.is_symlink():raise AssetError('Refusing a symlinked model destination.')
@@ -139,10 +140,12 @@ def transfer(row: dict, target: Path, transport: pd.Transport, *, high_precision
                     offset=0
                     if shutil.disk_usage(target.parent).free<size+reserve:raise AssetError('Provider restarted the transfer but storage is insufficient.')
                 count=offset; last_emit=time.monotonic()
+                progress_update(stage='downloading', bytes_done=count, bytes_total=size)
                 with part.open('ab' if append else 'wb') as handle:
                     for block in response.iter_content(4*1024*1024):
                         if not block:continue
                         handle.write(block);count+=len(block)
+                        progress_update(bytes_done=count)
                         if count>size*1.02+1024*1024:raise pd.LinkError('Provider transfer exceeded the declared file size.')
                         if shutil.disk_usage(target.parent).free<reserve:raise AssetError('Transfer stopped to preserve working disk space.')
                         if time.monotonic()-last_emit>20:
@@ -189,37 +192,8 @@ def _standard_asset_high_precision(asset: dict) -> bool:
 
 
 def prepare_standard(groups:list[str])->dict:
-    known={a['group'] for a in read_catalog('assets.json')['assets']}|{'ollama'}
-    if set(groups)-known:raise AssetError('Unknown model group requested.')
-    installed=[];failures=[]; transport=pd.Transport()
-    try:
-        for asset in read_catalog('assets.json')['assets']:
-            if asset['group'] not in groups:continue
-            try:
-                print('Preparing standard asset: '+asset['id'],flush=True)
-                target=safe_path(model_root(),asset['destination'])
-                high_precision=_standard_asset_high_precision(asset)
-                # Cached source-pinned files do not require provider access on each boot.
-                if asset.get('format') == 'utf-8':
-                    from .public_companions import prepare_companion
-                    info=prepare_companion(asset,target,transport);resolved=asset['revision']
-                elif asset.get('sha256') and target.is_file() and pd.file_hash(target)==asset['sha256']:
-                    info=inspect_safetensors(target,high_precision=high_precision);resolved=None
-                else:
-                    row=resolve_standard(asset,transport)
-                    info=transfer(row,target,transport,high_precision=high_precision);resolved=row.get('revision')
-                installed.append({'id':asset['id'],'group':asset['group'],'destination':asset['destination'],'sha256':pd.file_hash(target),'resolved_revision':resolved,'inspection':info})
-            except (AssetError,pd.LinkError,OSError,ValueError,KeyError,TypeError) as exc:
-                msg=str(exc) if isinstance(exc,(AssetError,pd.LinkError)) else 'Asset metadata or local storage error.'
-                failures.append({'id':asset['id'],'error':msg});print('Asset unavailable: '+asset['id']+'. '+msg,flush=True)
-    finally:transport.close()
-    oldpath=state_root()/'asset-status.json'
-    previous=json.loads(oldpath.read_text()).get('installed',[]) if oldpath.is_file() else []
-    lookup={r['id']:r for r in previous}
-    for row in installed:lookup[row['id']]=row
-    report={'installed':list(lookup.values()),'failures':failures,'last_groups':groups}
-    atomic_json(oldpath,report)
-    return report
+    from .audit_preparation import prepare_standard_catalog
+    return prepare_standard_catalog(globals(), groups)
 
 def infer_family(metadata:str)->str|None:
     text=re.sub('[^a-z0-9]+','',str(metadata).lower())

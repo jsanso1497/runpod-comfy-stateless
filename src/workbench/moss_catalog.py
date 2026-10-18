@@ -93,6 +93,8 @@ def apply(name: str, value: dict, root: Path) -> dict:
             model['comfy_commit'] = COMFY_COMMIT
             if GROUP not in model.setdefault('toolbox', []):
                 model['toolbox'].append(GROUP)
+            from .audit_defaults import configure_qwen
+            configure_qwen(model)
             model['experimental_moss'] = {
                 'task': TASK, 'tasks': list(TASKS), 'comfy_commit': COMFY_COMMIT,
                 'note': 'Stock MOSS model precision is independent of Qwen BF16. GPU validation pending.'}

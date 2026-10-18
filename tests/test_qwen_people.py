@@ -175,8 +175,8 @@ def test_reference_is_isolated_keeper_and_prompt_is_grounded():
     data,work,reference,prompt=result
     assert reference.shape[1]%32==reference.shape[2]%32==0
     assert reference.shape[1]*reference.shape[2]<=768**2
-    assert '<image1>' in prompt and '<image2>' in prompt
-    assert '3 SAM-detected' in prompt and 'gray background' in prompt
+    assert 'rough background' in prompt and 'cut out' not in prompt
+    assert '2 unwanted person(s)' in prompt and 'gray background' not in prompt
     assert data['report']['remove_people']==[1,3]
     plan=data['plan']
     for x,y,x2,y2 in data['detections']['boxes']:
@@ -208,7 +208,7 @@ def test_bad_generation_never_saved(case):
     if case=='dimensions':image=image[:,:-1]
     elif case=='nan':image[0,0,0,0]=float('nan')
     else:image[...,3]=0
-    with pytest.raises(ValueError):p.compose_people(data,image)
+    with pytest.raises(ValueError):p.compose_people(data,image,transparency_policy='stop on transparency')
 
 
 def test_opaque_rgba_generation_supported():
@@ -343,8 +343,8 @@ def test_graph_native_settings_and_wiring():
     old=next(n for n in original['nodes'] if 'unet_name' in n.get('widgets_values_named',{}))
     for key,value in old['widgets_values_named'].items():
         if key!='prompt':assert new['widgets_values_named'][key]==value
-    for label in ['image_1','image_2']:
-        assert next(i for i in new['inputs'] if i.get('label')==label)['link'] is not None
+    assert next(i for i in new['inputs'] if i.get('label')=='image_1')['link'] is not None
+    assert next(i for i in new['inputs'] if i.get('label')=='image_2')['link'] is None
     assert next(i for i in new['inputs'] if i['name']=='prompt')['link'] is not None
     assert graph['extra']['qkeep1']['text_preview_sinks_removed']==1
 

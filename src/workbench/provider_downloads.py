@@ -327,11 +327,12 @@ def resolve_link(url, transport):
 
 
 def file_hash(path, kind='sha256'):
+    if __package__:
+        from .audit_preparation import tracked_hash
+        return tracked_hash(path, kind)
+    digest = hashlib.sha1() if kind == 'git' else hashlib.sha256()
     if kind == 'git':
-        digest = hashlib.sha1()
         digest.update(f'blob {Path(path).stat().st_size}\0'.encode())
-    else:
-        digest = hashlib.sha256()
     with Path(path).open('rb') as handle:
         for data in iter(lambda: handle.read(8 * 1024 * 1024), b''):
             digest.update(data)

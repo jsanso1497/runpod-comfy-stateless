@@ -29,7 +29,7 @@ jobs:
       - run: python -m compileall -q src deploy scripts
       - name: Verify reproducible generated catalog and native Qwen workflows
         run: |
-          sha256sum site/index.html site/catalog.json workflows/qwen/QNATIVE/*.json workflows/qwen/QOVERLAY/*.json workflows/experimental/moss/QMOSS/*.json workflows/experimental/moss/QMOSS_I2I/*.json > /tmp/workbench-generated.sha256
+          sha256sum site/index.html site/catalog.json workflows/qwen/QNATIVE/*.json workflows/qwen/QOVERLAY/*.json workflows/qwen/QKEEP1/*.json workflows/experimental/moss/QMOSS/*.json workflows/experimental/moss/QMOSS_I2I/*.json > /tmp/workbench-generated.sha256
           python scripts/build_site.py
           sha256sum --check /tmp/workbench-generated.sha256
           git diff --exit-code workflows/krea/K01 automation/K01

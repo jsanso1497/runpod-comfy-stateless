@@ -5,6 +5,7 @@ native ComfyUI Qwen edit subgraph. PNG export is explicitly 8-bit sRGB.
 """
 from __future__ import annotations
 import json
+import os
 import uuid
 from pathlib import Path
 import numpy as np
@@ -228,16 +229,18 @@ class WBOverlayExport:
             raise ValueError('Output prefix escapes the ComfyUI output directory.')
         info = PngInfo()
         info.add_text('overlay_audit', json.dumps(report))
-        if prompt is not None:
-            info.add_text('prompt', json.dumps(prompt))
-        for key, value in (extra_pnginfo or {}).items():
-            info.add_text(key, json.dumps(value))
+        if os.environ.get('WB_SAVE_METADATA', '0') == '1':
+            if prompt is not None:
+                info.add_text('prompt', json.dumps(prompt))
+            for key, value in (extra_pnginfo or {}).items():
+                info.add_text(key, json.dumps(value))
         profile = ImageCms.ImageCmsProfile(ImageCms.createProfile('sRGB')).tobytes()
         token = f'{stem}_{counter:05d}_{uuid.uuid4().hex[:8]}'
         results = []
-        for suffix, array in [('overlay', rgba), ('composite', composite), ('mask', alpha)]:
+        Path(folder).mkdir(parents=True, exist_ok=True)
+        for suffix, array in [('composite', composite), ('overlay', rgba), ('mask', alpha)]:
             filename = f'{token}_{suffix}.png'
             kwargs = {'icc_profile': profile} if array.ndim == 3 else {}
             Image.fromarray(array).save(Path(folder) / filename, pnginfo=info, compress_level=4, **kwargs)
             results.append({'filename': filename, 'subfolder': subfolder, 'type': 'output'})
-        return {'ui': {'images': results, 'text': [json.dumps(report, indent=2)]}}
+        return {'ui': {'images': results[:1], 'text': [json.dumps(report, indent=2)]}}

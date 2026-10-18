@@ -25,6 +25,8 @@ async def security(request,handler):
     if request.path == '/healthz':
         return web.json_response({'gateway': 'running', 'workspace': workspace(),
                                   'auth_mode': mode, 'access_version': http_gateway.ACCESS_VERSION})
+    if request.path == '/readyz':
+        return await handler(request)
     if mode != 'none' and not authorized(request.headers.get('Authorization',''), request.app.get(http_gateway.PASSWORD_KEY, request.app.get('password', ''))):
         return web.Response(status=401, text='Workbench authentication required.',
             headers={'WWW-Authenticate': 'Basic realm="Comfy Workbench", charset="UTF-8"',
@@ -64,14 +66,9 @@ def configure_files()->dict[str,str]:
        'OLLAMA_HOST':'127.0.0.1:11434','OLLAMA_MODELS':str(root/'ollama'),'OLLAMA_NUM_PARALLEL':'1','OLLAMA_MAX_LOADED_MODELS':'1',
        'HF_HUB_DISABLE_TELEMETRY':'1'})
     # Source helper policy paths are explicit instead of inherited from previous images.
-    factory=root/('comfy-user/default/workflows/Workbench Factory/Identity-1.1.1'
-        if workspace() in ('qwen','krea') else 'comfy-user/default/workflows/Workbench Factory/0.1.0')
-    task_catalog=read_catalog('tasks.json')['tasks']
-    for task in task_catalog:
-        if workspace() not in task['workspaces']:continue
-        for variant in task['variants']:
-            dest=factory/task['id']/Path(variant['file']).name
-            if not dest.exists():dest.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(ROOT/variant['file'],dest)
+    from .factory_sync import sync_factory
+    factory_report = sync_factory(ROOT, root, read_catalog('tasks.json')['tasks'], workspace())
+    atomic_json(state/'factory-workflows.json', factory_report)
     atomic_json(state/'workspace.json',{'workspace':workspace(),'version':'0.1.0','selected_tasks':selected_tasks(),'private_urls_in_status':False})
     return env
 
@@ -101,41 +98,8 @@ class Runtime:
             await asyncio.sleep(1)
         raise ValueError('Local prompt helper did not start.')
     async def prepare(self,groups:list[str],private:bool=False):
-        try:
-            self.job_state={'state':'preparing','groups':groups,'started':time.time(),'private_library':private}
-            with FileLock(str(state_root()/'downloads.lock'),timeout=1):
-                report=await asyncio.to_thread(prepare_standard,[g for g in groups if g!='ollama'])
-                private_report=await asyncio.to_thread(prepare_private) if private else {}
-                if 'ollama' in groups:
-                    await self.start_ollama()
-                    expected = read_catalog('assets.json')['ollama']['models']
-                    details_by_name = {}
-                    for name in expected:
-                        async with self.session.post('http://127.0.0.1:11434/api/pull',json={'model':name,'stream':False},timeout=ClientTimeout(total=None,sock_read=14400)) as resp:
-                            data=await resp.json()
-                            if resp.status!=200 or data.get('error'):raise ValueError('Local full-precision prompt model could not be prepared.')
-                        if workspace() == 'qwen':
-                            from .qwen_prompt_local import verify_model
-                            async with self.session.post('http://127.0.0.1:11434/api/show',json={'model':name},timeout=ClientTimeout(total=120)) as resp:
-                                details=await resp.json()
-                                if resp.status!=200:raise ValueError('Prompt-model metadata is unavailable.')
-                                verify_model(details,name)
-                                details_by_name[name]=details.get('details',{})
-                    async with self.session.get('http://127.0.0.1:11434/api/tags') as resp:
-                        tags=await resp.json()
-                    by_name={m['name'].casefold():m for m in tags.get('models',[])}
-                    records=[]
-                    for name in expected:
-                        entry=by_name.get(name.casefold())
-                        if entry is None:raise ValueError('A prepared prompt model is missing from Ollama.')
-                        records.append({'name':name,'digest':entry.get('digest'),'size':entry.get('size'),
-                                        'details':details_by_name.get(name,entry.get('details',{}))})
-                    atomic_json(state_root()/'ollama-status.json',{'models':records})
-
-            self.job_state.update(state='finished',failures=len(report.get('failures',[]))+len(private_report.get('failures',[])))
-        except asyncio.CancelledError:raise
-        except Exception:
-            self.job_state.update(state='failed',message='Preparation failed. Check sanitized asset status and provider access. No credentials are included here.')
+        from .audit_preparation import run_preparation
+        await run_preparation(self, groups, private, globals())
     async def nodes(self):
         try:
             async with self.session.get('http://127.0.0.1:8189/object_info',timeout=ClientTimeout(total=10)) as r:
@@ -143,11 +107,12 @@ class Runtime:
         except Exception:pass
         return {}
     async def status(self,request):
+        from .audit_preparation import preparation_view, _read_status
         schema=await self.nodes(); rows=[]
-        asset_path=state_root()/'asset-status.json';asset=json.loads(asset_path.read_text()) if asset_path.exists() else {}
+        asset_path=state_root()/'asset-status.json';asset=_read_status(asset_path)
         installed={r['id'] for r in asset.get('installed',[]) if (model_root()/r['destination']).is_file()}
         requirements=read_catalog('assets.json')['assets']
-        ollama_path=state_root()/'ollama-status.json';helpers=json.loads(ollama_path.read_text()).get('models',[]) if ollama_path.exists() else []
+        ollama_path=state_root()/'ollama-status.json';helpers=_read_status(ollama_path).get('models',[])
         expected_helpers={name.casefold() for name in read_catalog('assets.json')['ollama']['models']}
         installed_helpers={m['name'].casefold() for m in helpers}
         for task in read_catalog('tasks.json')['tasks']:
@@ -164,21 +129,12 @@ class Runtime:
                 missing_nodes=sorted(required_nodes-set(schema)-{'Note','MarkdownNote','Reroute','PrimitiveNode'}) if schema else ['ComfyUI is starting']
                 variants.append({'file':v['file'],'missing_nodes':missing_nodes,'state':'ready' if not missing_nodes and not missing_assets else 'unavailable'})
             rows.append({'id':task['id'],'missing_assets':missing_assets,'variants':variants})
-        return web.json_response({'workspace':workspace(),'comfy_running':bool(schema),'tasks':rows,'preparation':self.job_state,'gpu_validation':'not certified','release':read_catalog('release.json')})
+        return web.json_response({'workspace':workspace(),'comfy_running':bool(schema),'tasks':rows,'preparation':preparation_view(self),'startup_groups':requested_groups(),'gpu_validation':'not certified','release':read_catalog('release.json')})
     async def catalog(self,request):
         return web.json_response({'workspace':workspace(),'tasks':[t for t in read_catalog('tasks.json')['tasks'] if workspace() in t['workspaces']],'models':read_catalog('models.json')['models']})
     async def prepare_request(self,request):
-        if self.job and not self.job.done():return web.json_response({'error':'A preparation job is already running.'},status=409)
-        data=await request.json();requested=data.get('tasks',[]);extra=data.get('features',[])
-        tasks={t['id']:t for t in read_catalog('tasks.json')['tasks']}
-        if not isinstance(requested,list) or not isinstance(extra,list):raise ValueError('Invalid selection.')
-        allowed=model_config()['toolbox'];groups=set(extra)
-        if groups-set(allowed):raise ValueError('Unsupported feature.')
-        for id in requested:
-            if id not in tasks or workspace() not in tasks[id]['workspaces']:raise ValueError('Unsupported task.')
-            groups.update(tasks[id]['requires'])
-        self.job=asyncio.create_task(self.prepare(sorted(groups),bool(data.get('private',False))))
-        return web.json_response({'state':'preparing','groups':sorted(groups)},status=202)
+        from .audit_preparation import request_preparation
+        return await request_preparation(self, request, globals())
     async def graph(self,request):
         file=request.query.get('file','')
         allowed={v['file'] for t in read_catalog('tasks.json')['tasks'] if workspace() in t['workspaces'] for v in t['variants']}
@@ -216,7 +172,12 @@ class Runtime:
         self.start_comfy()
         self.job=asyncio.create_task(self.prepare(requested_groups(),True))
     async def cleanup(self,app):
-        if self.job and not self.job.done():self.job.cancel()
+        if self.job and not self.job.done():
+            self.job.cancel()
+            try:
+                await self.job
+            except asyncio.CancelledError:
+                pass
         for proc in (self.comfy,self.ollama):
             if proc and proc.poll() is None:
                 proc.terminate()

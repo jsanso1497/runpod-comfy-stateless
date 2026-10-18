@@ -22,26 +22,14 @@ from scipy.ndimage import maximum_filter
 import torch
 import torch.nn.functional as F
 
-VERSION = 'qwen-keep-one-1.0.0'
+VERSION = 'qwen-keep-one-audit-20261018'
 SAM_FILE = 'sam3.1_multiplex_fp16.safetensors'
 MAX_PEOPLE = 5
 # Native SAM defaults to one instance for plain "person". Request a sixth
 # only as an overflow sentinel; never silently discard an extra person.
 SAM_TEXT = 'person:6'
 CATEGORY = 'Qwen 2.1 / Keep one person'
-DEFAULT_INSTRUCTIONS = (
-    'Remove all people from <image1> except the single person shown in <image2>. '
-    'Use <image2> only to identify which person to retain, not as a replacement '
-    'scene or a second copy of the person. Keep the retained person in their '
-    'original position with the same face, expression, clothing and pose. '
-    'Fill the removed people\'s locations with plausible continuous background '
-    'and reconstruct any newly exposed portions of the retained person that '
-    'were hidden by them. Repair local edges, contact shadows and nearby scene '
-    'detail inside the editable area. Match the original lighting, perspective, '
-    'texture, color and focus. Do not add people, duplicate limbs, text, labels '
-    'or outlines. Return a complete opaque photographic crop, not a cutout, '
-    'transparent hole, collage, mask or isolated person.'
-)
+DEFAULT_INSTRUCTIONS = 'Refine the rough background-filled patches in this photograph into realistic, continuous surrounding scenery. Preserve the remaining visible person, their face, pose, clothing and location. Match the existing light, perspective, texture, grain and focus. Complete any newly exposed background and local edges so this looks like a normal photograph taken with only that person present. Produce one fully opaque photographic frame.'
 
 
 def _image(value, label='Source'):
@@ -196,28 +184,25 @@ def prepare_people(detections, keep_person=1, resolution=2048, context_pixels=12
     x2, y2 = min(w, x2+context_pixels), min(h, y2+context_pixels)
     crop = source[:, y:y2, x:x2, :]
     work, (sw, sh, ww, wh) = _work_image(crop, resolution)
+    from .qkeep_repair import prefill
+    # Exclude ALL detected people and protected areas from background donors.
+    donors = ~(masks.any(axis=0) | allowed | protection)
+    work, prefill_info = prefill(work, allowed[y:y2,x:x2], donors[y:y2,x:x2], sw, sh)
     plan = SimpleNamespace(source_width=w, source_height=h, x=x, y=y,
                            crop_width=x2-x, crop_height=y2-y,
                            scaled_width=sw, scaled_height=sh, work_width=ww, work_height=wh)
-    # A clean isolated reference disambiguates the selected survivor for Qwen.
-    kx, ky, kx2, ky2 = detections['boxes'][keep_person-1]
-    kx, ky = max(0,kx-32), max(0,ky-32)
-    kx2, ky2 = min(w,kx2+32), min(h,ky2+32)
-    ref = source[:, ky:ky2, kx:kx2, :].clone()
-    visible = torch.from_numpy(keeper[ky:ky2,kx:kx2].copy())[None, ..., None]
-    ref = torch.where(visible, ref, torch.full_like(ref, 0.5))
-    ref = _work_image(ref, 768, 1024)[0]
-    box = detections['boxes'][keep_person-1]
-    cx = 100*((box[0]+box[2])/2-x)/(x2-x)
-    cy = 100*((box[1]+box[3])/2-y)/(y2-y)
-    prompt = instructions.strip() + (
-        f'\n\nThe source crop is <image1>. It contains {count} SAM-detected '
-        f'person(s). Retain the person centered approximately at {cx:.1f}% '
-        f'of its width and {cy:.1f}% of its height, shown alone in <image2>. '
-        'The gray background in <image2> is only a reference isolation backdrop; '
-        'do not copy it into <image1>. Repair the scene, rather than extracting '
-        'the survivor or making anything transparent.'
-    )
+    # Old saved graphs still have an image2 port. Return a complete scene,
+    # never the isolated gray-backdrop person that encouraged cutout outputs.
+    ref = _work_image(work, 768, 1024)[0]
+    instruction = instructions.strip()
+    if ('Remove all people from <image1> except' in instruction or
+            instruction.startswith('Replace every bright green region') or
+            instruction.startswith('Retouch the already-filled background patches')):
+        instruction = DEFAULT_INSTRUCTIONS
+    prompt = instruction + (
+        f' The rough background patches replace {count-1} unwanted person(s). '
+        'Refine the patches into believable photographic background. '
+        'Keep the one visible person in place. Return the complete scene.')
     report = {'version': VERSION, 'people_detected': count, 'keep_person': keep_person,
               'remove_people': [i for i in range(1,count+1) if i != keep_person],
               'numbering': detections['numbering'], 'person_boxes_xyxy': [list(b) for b in detections['boxes']],
@@ -229,6 +214,7 @@ def prepare_people(detections, keep_person=1, resolution=2048, context_pixels=12
               'keep_grow_pixels': keep_grow_pixels, 'protection_grow_pixels': protection_grow_pixels,
               'source_size': [w,h], 'processing_size': [ww,wh],
               'no_op': not bool(allowed.any()), 'gpu_inference_validated': False}
+    report.update(prefill_info)
     package = {'source': source, 'plan': plan, 'work_image': work,
                'paste_mask': torch.from_numpy(allowed[y:y2,x:x2].astype(np.float32))[None],
                'overlay_protection': torch.from_numpy(protection.astype(np.float32))[None],
@@ -269,40 +255,9 @@ def preview_people(package):
     return image
 
 
-def compose_people(package, generated_crop, feather_pixels=12):
-    """Straight-alpha layer and matching RGB final, including strict pixel locks."""
-    from workbench.qwen_overlay import compose_overlay
-    if package['report']['no_op']:
-        # Skip Qwen entirely when one person is already alone and no repair mask exists.
-        generated_crop=package['work_image']
-    if generated_crop is None:
-        raise ValueError('Connect the native Qwen image output before enabling Run edit.')
-    if not torch.is_tensor(generated_crop) or generated_crop.ndim != 4 or generated_crop.shape[0] != 1 or generated_crop.shape[-1] not in (3,4):
-        raise ValueError('Qwen must return one RGB/RGBA photographic crop.')
-    p=package['plan']
-    if tuple(generated_crop.shape[1:3]) != (p.work_height,p.work_width):
-        raise ValueError('Qwen output dimensions changed. Keep native resolution=0 and custom_size OFF.')
-    if not torch.isfinite(generated_crop).all().item():
-        raise ValueError('Qwen returned non-finite pixels.')
-    if generated_crop.shape[-1] == 4 and not package['report']['no_op']:
-        # A transparent hole is NOT repaired background. Refuse that result
-        # rather than silently reintroducing the removed people underneath it.
-        a=generated_crop[0,:p.scaled_height,:p.scaled_width,3].detach().float().cpu().numpy()
-        a=np.asarray(Image.fromarray(a).resize((p.crop_width,p.crop_height),Image.Resampling.BILINEAR))
-        editable=package['paste_mask'][0].numpy()>0
-        if editable.any() and np.mean(a[editable] < 0.95) > 0.01:
-            raise ValueError('Qwen generated transparency in the repair area, not background. Retry with an opaque-photo prompt/seed.')
-    composite,rgba,alpha,audit=compose_overlay(package,generated_crop,feather_pixels)
-    original=np.rint(package['source'][0].numpy()*255).astype(np.uint8)
-    for key in ('manual_protection','keep_protection'):
-        mask=package[key]
-        if np.any(rgba[...,3][mask]) or not np.array_equal(composite[mask],original[mask]):
-            raise AssertionError(key + ': protected pixels changed. No files were saved.')
-    report=dict(package['report']);report.update(audit)
-    report['manual_changed_channels']=0; report['kept_person_changed_channels']=0
-    report['primary_output']='full-resolution opaque RGB composite'
-    report['separate_overlay']='full-resolution straight RGBA; transparent over manual and keeper protection'
-    return composite,rgba,alpha,report
+def compose_people(package, generated_crop, feather_pixels=12, transparency_policy='review draft'):
+    from .qkeep_repair import compose
+    return compose(package, generated_crop, feather_pixels, transparency_policy)
 
 
 def _write_png(path, array, info, profile):
@@ -383,7 +338,8 @@ class WBPeopleExport:
             'run_edit':('BOOLEAN',{'default':False}),
             'filename_prefix':('STRING',{'default':'Qwen21_Keep_One/Result'}),
             'feather_pixels':('INT',{'default':12,'min':0,'max':256}),
-            'show_overlay_preview':('BOOLEAN',{'default':False})},
+            'show_overlay_preview':('BOOLEAN',{'default':False}),
+            'transparency_policy':(['review draft','stop on transparency'],{'default':'review draft'})},
             'optional':{'generated_crop':('IMAGE',{'lazy':True})},
             'hidden':{'prompt':'PROMPT','extra_pnginfo':'EXTRA_PNGINFO'}}
     RETURN_TYPES=()
@@ -395,7 +351,8 @@ class WBPeopleExport:
         return ['generated_crop'] if run_edit and not package['report']['no_op'] and generated_crop is None else []
 
     def save(self,package,run_edit=False,filename_prefix='Qwen21_Keep_One/Result',
-             feather_pixels=12,show_overlay_preview=False,generated_crop=None,prompt=None,extra_pnginfo=None):
+             feather_pixels=12,show_overlay_preview=False,generated_crop=None,prompt=None,extra_pnginfo=None,
+             transparency_policy='review draft'):
         import folder_paths
         if not run_edit:
             name='qkeep_people_'+uuid.uuid4().hex+'.png'
@@ -407,7 +364,7 @@ class WBPeopleExport:
             if package['report']['manual_overlap_with_removed_people_pixels']:
                 message+=' WARNING: your painted protection overlaps a removed person. Protected fragments will remain unchanged.'
             return {'ui':{'images':[{'filename':name,'subfolder':'','type':'temp'}],'text':[message]}}
-        composite,rgba,alpha,report=compose_people(package,generated_crop,feather_pixels)
+        composite,rgba,alpha,report=compose_people(package,generated_crop,feather_pixels,transparency_policy)
         out_root=Path(folder_paths.get_output_directory()).resolve()
         directory,stem,counter,subfolder,_=folder_paths.get_save_image_path(
             filename_prefix,str(out_root),composite.shape[1],composite.shape[0])
@@ -420,14 +377,24 @@ class WBPeopleExport:
             if prompt is not None:info.add_text('prompt',json.dumps(prompt))
             for key,value in (extra_pnginfo or {}).items():info.add_text(key,json.dumps(value))
         profile=ImageCms.ImageCmsProfile(ImageCms.createProfile('sRGB')).tobytes()
+        if report['fallback_review_required']:
+            stem += '_DRAFT_FALLBACK'
         token=f'{stem}_{counter:05d}_{uuid.uuid4().hex[:8]}'
         records=[]
         for suffix,array in [('composite',composite),('overlay',rgba),('edit_mask',alpha)]:
             name=f'{token}_{suffix}.png'
             _write_png(directory/name,array,info,profile)
             records.append({'filename':name,'subfolder':subfolder,'type':'output'})
+        if report['fallback_review_required'] and generated_crop is not None:
+            for label, image in [('prefill', package['work_image']), ('model_rgba', generated_crop)]:
+                pixels = np.rint(image[0].detach().float().cpu().clamp(0,1).numpy()*255).astype(np.uint8)
+                _write_png(directory/(token+'_diagnostic_'+label+'.png'), pixels, info, profile)
         (directory/(token+'_audit.json')).write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
         text='Saved full photo: '+records[0]['filename']+'\nSeparate transparent overlay: '+records[1]['filename']
+        if report['fallback_review_required']:
+            text += ('\nDRAFT, NOT VERIFIED REPAIR: '
+                     f"{100*report['generated_low_alpha_edit_fraction']:.1f}% of the edit area "
+                     'needed coarse background fallback. Review diagnostic PNGs before use.')
         if report['manual_overlap_with_removed_people_pixels']:
             text+='\nWARNING: painted protection overlaps a removed person; those original fragments remain.'
         if report['no_op']:text+='\nNo removal needed; original photo copied and overlay is fully transparent.'

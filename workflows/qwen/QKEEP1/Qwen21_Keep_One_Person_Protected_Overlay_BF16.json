@@ -2,7 +2,7 @@
   "id": "897d0c45-9058-4e78-a642-c8d82eb63817",
   "revision": 0,
   "last_node_id": 1204,
-  "last_link_id": 1307,
+  "last_link_id": 1306,
   "nodes": [
     {
       "id": 470,
@@ -132,7 +132,7 @@
           "name": "protected_edit_package",
           "type": "WB_PEOPLE_EDIT",
           "links": [
-            1306
+            1305
           ]
         },
         {
@@ -143,17 +143,15 @@
           ]
         },
         {
-          "name": "image2_person_to_keep",
+          "name": "legacy_image2_complete_scene",
           "type": "IMAGE",
-          "links": [
-            1304
-          ]
+          "links": []
         },
         {
           "name": "edit_prompt",
           "type": "STRING",
           "links": [
-            1305
+            1304
           ]
         }
       ],
@@ -167,7 +165,7 @@
         24,
         2,
         0,
-        "Remove all people from <image1> except the single person shown in <image2>. Use <image2> only to identify which person to retain, not as a replacement scene or a second copy of the person. Keep the retained person in their original position with the same face, expression, clothing and pose. Fill the removed people's locations with plausible continuous background and reconstruct any newly exposed portions of the retained person that were hidden by them. Repair local edges, contact shadows and nearby scene detail inside the editable area. Match the original lighting, perspective, texture, color and focus. Do not add people, duplicate limbs, text, labels or outlines. Return a complete opaque photographic crop, not a cutout, transparent hole, collage, mask or isolated person."
+        "Refine the rough background-filled patches in this photograph into realistic, continuous surrounding scenery. Preserve the remaining visible person, their face, pose, clothing and location. Match the existing light, perspective, texture, grain and focus. Complete any newly exposed background and local edges so this looks like a normal photograph taken with only that person present. Produce one fully opaque photographic frame."
       ]
     },
     {
@@ -192,7 +190,7 @@
           "widget": {
             "name": "prompt"
           },
-          "link": 1305
+          "link": 1304
         },
         {
           "label": "refine_prompt",
@@ -277,7 +275,7 @@
           "name": "images.image_2",
           "shape": 7,
           "type": "IMAGE",
-          "link": 1304
+          "link": null
         },
         {
           "label": "image_3",
@@ -341,7 +339,7 @@
           "name": "IMAGE",
           "type": "IMAGE",
           "links": [
-            1307
+            1306
           ]
         }
       ],
@@ -413,12 +411,12 @@
         {
           "name": "package",
           "type": "WB_PEOPLE_EDIT",
-          "link": 1306
+          "link": 1305
         },
         {
           "name": "generated_crop",
           "type": "IMAGE",
-          "link": 1307,
+          "link": 1306,
           "shape": 7
         }
       ],
@@ -430,7 +428,8 @@
         false,
         "Qwen21_Keep_One/Result",
         12,
-        false
+        false,
+        "review draft"
       ]
     },
     {
@@ -454,7 +453,7 @@
         "Node name for S&R": "Note"
       },
       "widgets_values": [
-        "1. Load the COMPLETE original sRGB photograph. Optional: paint a MASK on this loader to protect those original pixels. This is NOT the removal mask.\n2. First Queue with run_edit OFF: preview numbered people. SAM runs automatically. IDs are left to right by box center; choose keep_person 1-5 in node 3. expected_people=0 is automatic; set 1-5 to catch a missing/wrong detection count. A sixth detected person stops rather than silently ignoring anyone.\n3. Green is the person kept, red is removal/repair, blue is painted protection. Protected pixels ALWAYS win. Painting over a removed person leaves those fragments intact.\n4. Turn run_edit ON to repair. Original visible keeper pixels are locked; occluded parts/background may be reconstructed only in the editable region. repair_grow_pixels adds edge context. For distant shadows/reflections, connect a separate full-size extra_repair_mask to node 3. Never use the protected source mask for this.\n5. Full-photo RGB composite is previewed first. A separate original-size straight RGBA overlay, edit mask and audit are saved under Qwen21_Keep_One. show_overlay_preview adds the overlay to the preview; it is saved either way.\nKeep the native editor at resolution 0 and custom_size OFF. No new models are needed. The new WBPeople nodes MUST be installed before this JSON can run. PNG export is 8-bit sRGB. SAM selection and inferred detail require a real-image review."
+        "1. Load the COMPLETE original sRGB photograph. Optional: paint a MASK on this loader to protect those original pixels. This is NOT the removal mask.\n2. First Queue with run_edit OFF: preview numbered people. SAM runs automatically. IDs are left to right by box center; choose keep_person 1-5 in node 3. expected_people=0 is automatic; set 1-5 to catch a missing/wrong detection count. A sixth detected person stops rather than silently ignoring anyone.\n3. Green is the person kept, red is removal/repair, blue is painted protection. Protected pixels ALWAYS win. Painting over a removed person leaves those fragments intact.\n4. Turn run_edit ON to repair. Original visible keeper pixels are locked; occluded parts/background may be reconstructed only in the editable region. repair_grow_pixels adds edge context. For distant shadows/reflections, connect a separate full-size extra_repair_mask to node 3. Never use the protected source mask for this.\n5. Full-photo RGB composite is previewed first. A separate original-size straight RGBA overlay, edit mask and audit are saved under Qwen21_Keep_One. show_overlay_preview adds the overlay to the preview; it is saved either way.\nCoarse prefill is not AI repair. DRAFT outputs require review. Keep the native editor at resolution 0 and custom_size OFF. No new models are needed. The new WBPeople nodes MUST be installed before this JSON can run. PNG export is 8-bit sRGB. SAM selection and inferred detail require a real-image review."
       ]
     }
   ],
@@ -494,21 +493,13 @@
     [
       1304,
       1202,
-      2,
-      459,
-      10,
-      "IMAGE"
-    ],
-    [
-      1305,
-      1202,
       3,
       459,
       0,
       "STRING"
     ],
     [
-      1306,
+      1305,
       1202,
       0,
       1203,
@@ -516,7 +507,7 @@
       "WB_PEOPLE_EDIT"
     ],
     [
-      1307,
+      1306,
       459,
       0,
       1203,
@@ -2604,11 +2595,12 @@
       ]
     },
     "qkeep1": {
-      "version": "1.0.0",
+      "version": "audit-20261018",
       "source": "existing pinned QNATIVE BF16 template",
       "changes": "SAM keep-one selection; painted protection; one bounded edit crop; RGB composite and RGBA edit layer",
       "text_preview_sinks_removed": 1,
       "stock_enhancer_settings_changed": false,
+      "background_prefill": true,
       "gpu_tested": false
     }
   },

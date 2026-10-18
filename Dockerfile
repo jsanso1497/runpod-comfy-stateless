@@ -19,7 +19,7 @@ COPY deploy/ ./deploy/
 COPY workflows/ ./workflows/
 COPY automation/ ./automation/
 COPY site/ ./site/
-COPY scripts/build_site.py scripts/build_krea_workflow.py scripts/setup_identity_edits.py scripts/build_identity_workflows.py scripts/restart_comfy.py ./scripts/
+COPY scripts/build_site.py scripts/build_krea_workflow.py scripts/setup_identity_edits.py scripts/build_identity_workflows.py scripts/restart_comfy.py scripts/doctor.py ./scripts/
 RUN python scripts/build_identity_workflows.py \
     && python scripts/build_krea_workflow.py \
     && python scripts/build_site.py \
@@ -35,6 +35,6 @@ RUN curl --fail --location --retry 3 \
     && rm /tmp/ollama.tar.zst
 WORKDIR /workspace
 EXPOSE 8188
-HEALTHCHECK --interval=30s --timeout=5s --start-period=2m --retries=5 \
-    CMD curl --fail --silent http://127.0.0.1:8188/healthz >/dev/null || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --start-period=2m --retries=5 \
+    CMD curl --fail --silent --max-time 8 http://127.0.0.1:8188/readyz >/dev/null || exit 1
 ENTRYPOINT ["/usr/bin/tini", "-s", "--", "python", "-m", "workbench.runtime"]

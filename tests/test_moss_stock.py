@@ -61,7 +61,9 @@ def test_only_qwen_core_pin_changes(tmp_path):
     original=copy.deepcopy([q,k]);data={'models':[q,k]}
     c.apply('models.json',data,addon(tmp_path))
     assert q['comfy_commit']==c.COMFY_COMMIT
-    for key in ('default_tasks','default_groups','local_nodes'):assert q[key]==original[0][key]
+    assert q['default_tasks']==original[0]['default_tasks']
+    assert q['default_groups']==['qwen','ollama','moss_image']
+    assert q['local_nodes']==['qwen_people','runtime_compat']
     assert q['toolbox']==['sam','moss_image'] and k==original[1]
     c.apply('models.json',data,tmp_path)
     assert q['toolbox'].count('moss_image')==1

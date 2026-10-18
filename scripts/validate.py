@@ -25,6 +25,8 @@ def validate_graph(graph,path='graph'):
   for port in n.get('outputs',[]):
    for lid in port.get('links') or []:
     if lid not in links:errors.append(f'{path}: output has nonexistent link')
+ from workbench.graph_audit import audit_graph
+ errors.extend(audit_graph(graph, path))
  return errors
 
 def run():
