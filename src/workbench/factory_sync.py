@@ -18,7 +18,8 @@ def sync_factory(source_root, data_root, tasks, workspace):
             path = source_root/relative
             if not path.resolve().is_relative_to(source_root.resolve()):
                 raise ValueError('Factory source escapes repository.')
-            raw = path.read_bytes()
+            from .qwen_only import workflow_bytes
+            raw = workflow_bytes(path.read_bytes())
             digest = hashlib.sha256(raw).hexdigest()
             rows.append((task['id'], path.name, raw, digest))
             bundle.update((task['id']+'/'+relative+'\0'+digest+'\n').encode())

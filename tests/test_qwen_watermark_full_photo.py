@@ -241,6 +241,9 @@ def test_manual_mask_mode_still_works(photo):
 def test_sam_receives_watermark_and_selects_all_instances(photo, graph, monkeypatch):
     module, _ = photo
     _, source, mask = source_and_mask(119, 137)
+    second_mask = torch.zeros_like(mask)
+    second_mask[:, 2:7, 2:7] = 1
+    expected_mask = torch.maximum(mask, second_mask)
     events = []
     n = types.ModuleType('nodes')
     n.CheckpointLoaderSimple = lambda: types.SimpleNamespace(load_checkpoint=lambda file: ('sam', 'clip', None))
@@ -250,7 +253,7 @@ def test_sam_receives_watermark_and_selects_all_instances(photo, graph, monkeypa
         @classmethod
         def execute(cls, **kwargs):
             assert kwargs['individual_masks'] is True
-            return (torch.cat([mask, torch.zeros_like(mask)]),)
+            return (torch.cat([mask, second_mask]),)
     detect.SAM3_Detect = SAM
     extras = types.ModuleType('comfy_extras')
     comfy = types.ModuleType('comfy')
@@ -262,8 +265,8 @@ def test_sam_receives_watermark_and_selects_all_instances(photo, graph, monkeypa
         monkeypatch.setitem(sys.modules, name, value)
     params = widget_parameters(one(graph, 'Q21PhotoMask'), module.Q21PhotoMask)
     selected, report = module.Q21PhotoMask().make_mask(source, manual_mask=torch.zeros(1, 64, 64), **params)
-    assert torch.equal(selected, mask)
-    assert events == ['watermark', 'unload']
+    assert torch.equal(selected, expected_mask)
+    assert events == ['watermark:64', 'unload']
     assert json.loads(report)['instance_index'] == -1
 
 

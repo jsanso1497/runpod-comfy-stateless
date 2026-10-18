@@ -123,7 +123,8 @@ class Runtime:
                 missing_assets.extend('ollama:'+name for name in sorted(expected_helpers-installed_helpers))
             variants=[]
             for v in task['variants']:
-                graph=json.loads((ROOT/v['file']).read_text())
+                from .qwen_only import load_workflow
+                graph=load_workflow(ROOT/v['file'])
                 from .graph_support import required_node_types
                 required_nodes=required_node_types(graph)|set(task.get('required_nodes',[]))
                 missing_nodes=sorted(required_nodes-set(schema)-{'Note','MarkdownNote','Reroute','PrimitiveNode'}) if schema else ['ComfyUI is starting']
@@ -139,7 +140,11 @@ class Runtime:
         file=request.query.get('file','')
         allowed={v['file'] for t in read_catalog('tasks.json')['tasks'] if workspace() in t['workspaces'] for v in t['variants']}
         if file not in allowed:raise ValueError('Unknown workflow.')
-        return web.FileResponse(safe_path(ROOT,file))
+        from .qwen_only import enabled as qwen_only_enabled, load_workflow
+        path = safe_path(ROOT, file)
+        if qwen_only_enabled():
+            return web.json_response(load_workflow(path))
+        return web.FileResponse(path)
     async def files(self,request):
         kind=request.query.get('kind','output')
         if kind not in ('input','output'):raise ValueError('Only input and output media are exposed.')

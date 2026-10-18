@@ -71,7 +71,9 @@ def read_catalog(name: str):
     from .qwen_people_catalog import apply as apply_people
     value = apply_people(name, value, ROOT)
     from .moss_catalog import apply as apply_moss
-    return apply_moss(name, value, ROOT)
+    value = apply_moss(name, value, ROOT)
+    from .qwen_only import apply_catalog as apply_qwen_only
+    return apply_qwen_only(name, value)
 
 def csv(value: str) -> list[str]:
     return list(dict.fromkeys(x.strip() for x in value.split(',') if x.strip()))

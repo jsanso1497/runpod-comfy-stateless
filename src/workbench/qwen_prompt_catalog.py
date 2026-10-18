@@ -5,6 +5,10 @@ from .qwen_prompt_local import helper_config
 
 
 def apply(name: str, value: dict) -> dict:
+    from .qwen_only import enabled as qwen_only_enabled
+    if qwen_only_enabled():
+        from .krea_catalog import apply as apply_krea
+        return apply_krea(name, value)
     helper = helper_config()
     if name == 'models.json':
         for model in value['models']:

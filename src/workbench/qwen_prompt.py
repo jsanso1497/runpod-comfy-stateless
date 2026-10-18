@@ -175,6 +175,9 @@ def _generate(prompt, images, options):
 
 
 def enhance_edit_prompt(prompt: str, images: dict, settings=None) -> tuple[str, dict]:
+    from .qwen_only import enabled as qwen_only_enabled, direct_prompt_result
+    if qwen_only_enabled():
+        return direct_prompt_result(prompt)
     options = Options.from_value(settings)
     if not options.enabled:
         return prompt, {'enabled': False, 'original_prompt': prompt, 'effective_prompt': prompt,
