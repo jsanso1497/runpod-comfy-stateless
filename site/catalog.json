@@ -2013,6 +2013,38 @@
         }
       ],
       "required_nodes": []
+    },
+    {
+      "id": "QOVERLAY",
+      "family": "qwen",
+      "category": "tasks",
+      "workspaces": [
+        "qwen"
+      ],
+      "title": "Selective overlay: original A + selected parts of edited B",
+      "description": "Load the full original A and a finished edited image B. Select on A with SAM or a painted mask. White reveals B; black preserves A exactly. Independent expansion, finite outward feathering and inversion. Saves the complete opaque photo, not a transparent cutout. Both images must already be aligned and have identical dimensions. No Qwen generation or prompt enhancement in this graph. SAM defaults ON with target watermark; manual mode needs no SAM inference.",
+      "requires": [
+        "sam"
+      ],
+      "required_nodes": [
+        "LoadImage",
+        "Q21PhotoMask",
+        "WBMaskExpandFeather",
+        "WBComposite",
+        "WBMaskPreview",
+        "MaskToImage",
+        "PreviewImage",
+        "SaveImage"
+      ],
+      "status": "CPU pixel invariants tested; live SAM/ComfyUI validation pending",
+      "sources": [],
+      "variants": [
+        {
+          "label": "A + finished B / SAM or manual selection / no generation",
+          "file": "workflows/qwen/QOVERLAY/Qwen21_Full_Resolution_Overlay_BF16.json",
+          "source": "Workbench selective pixel compositing; not a generative template"
+        }
+      ]
     }
   ],
   "assets": [

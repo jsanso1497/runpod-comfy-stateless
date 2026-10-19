@@ -1,3 +1,4 @@
+# Legacy crop-generator compatibility; active A/B graph is tested in test_qwen_selective_overlay.py.
 """CPU contracts. No assertion here certifies live SAM or Qwen inference."""
 import copy
 import json
@@ -7,7 +8,7 @@ import numpy as np
 import pytest
 import torch
 from workbench.qwen_overlay import compose_overlay, WBOverlayExport, WBOverlayProtection
-from workbench.qwen_stock_workflows import make_stock, make_overlay, verify_links, build, UPSTREAM_REV
+from workbench.qwen_stock_workflows import make_stock, make_legacy_overlay as make_overlay, verify_links, build, UPSTREAM_REV
 from workbench.qwen_stock_catalog import PE_FILE, apply, STOCK_PATH, OVERLAY_PATH
 
 
@@ -143,7 +144,7 @@ def test_stock_preserves_defaults_and_prompt_enhancer():
     assert after['widgets_values_named']['clip_name'] == 'qwen3vl_8b_bf16.safetensors'
 
 
-def test_overlay_uses_identical_native_subgraph():
+def test_legacy_overlay_uses_identical_native_subgraph():
     stock = make_stock(fixture_graph())
     overlay = make_overlay(stock)
     assert overlay['definitions'] == stock['definitions']
@@ -170,12 +171,15 @@ def test_build_is_reproducible_offline(tmp_path):
     assert first == [(tmp_path / p).read_bytes() for p in (STOCK_PATH, OVERLAY_PATH)]
 
 
+
 def test_catalog_additive_and_separate_from_custom_enhancer():
     value = {'tasks': [{'id': 'old', 'requires': ['qwen']}]}
     apply('tasks.json', value)
     assert value['tasks'][0] == {'id': 'old', 'requires': ['qwen']}
-    assert {x['id'] for x in value['tasks']} == {'old', 'QNATIVE', 'QOVERLAY'}
-    for row in value['tasks'][1:]:
-        assert 'qwen_stock_pe' in row['requires']
-        assert 'ollama' not in row['requires']
-        assert 'qwen_pe_i2i' not in row['requires']
+    tasks = {x['id']: x for x in value['tasks']}
+    assert set(tasks) == {'old', 'QNATIVE', 'QOVERLAY'}
+    assert tasks['QNATIVE']['requires'] == ['qwen', 'qwen_stock_pe']
+    assert tasks['QOVERLAY']['requires'] == ['sam']
+    for ident in ('QNATIVE', 'QOVERLAY'):
+        assert 'ollama' not in tasks[ident]['requires']
+        assert 'qwen_pe_i2i' not in tasks[ident]['requires']

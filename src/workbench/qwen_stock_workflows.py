@@ -1,8 +1,8 @@
-"""Build two workflows from an immutable upstream template, not a hand-made clone.
+"""Build the native Qwen stock template and an independent A/B selective overlay.
 
-Only the main diffusion/text-encoder filenames change in the stock graph.
-Prompt enhancer model, system prompt, sampling, cache, topology and defaults are
-retained verbatim. The overlay graph wraps that same unmodified subgraph.
+The stock model/enhancer graph remains unchanged. The former crop/edit/stitch
+generator is retained as make_legacy_overlay for compatibility tests only.
+Active QOVERLAY directly composites two finished images.
 """
 from __future__ import annotations
 import copy
@@ -100,7 +100,7 @@ WATERMARK_PROMPT = (
 )
 
 
-def make_overlay(stock):
+def make_legacy_overlay(stock):
     """One source crop feeds both Qwen and its full-resolution RGB stitcher.
 
     Protection = 1 - GrowMask(edit_mask, 16). The final paste mask is
@@ -233,6 +233,12 @@ def make_overlay(stock):
     if graph['definitions'] != stock['definitions']:
         raise AssertionError('The native edit subgraph or enhancer was altered.')
     return graph
+
+def make_overlay(stock=None):
+    """Active QOVERLAY: finished B over original A, with no generation."""
+    from .qwen_selective_overlay_workflow import make_selective_overlay
+    return make_selective_overlay()
+
 
 def build(root, offline=False):
     root = Path(root)

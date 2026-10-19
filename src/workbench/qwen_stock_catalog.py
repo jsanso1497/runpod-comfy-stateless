@@ -49,4 +49,9 @@ def apply(name, value):
                 'sha256': '32707d01b427e488af252b95c551989aad59f9fec611a694f5db6bde7f0f1f6c', 'estimated_bytes': 9500000000,
                 'integrity_source': 'Official Comfy-Org file; provider integrity is checked by the existing downloader',
                 'verification': 'Weights not downloaded or GPU-tested in this change'})
+    # Only QOVERLAY changes. QNATIVE and all model/asset defaults stay intact.
+    if name == 'tasks.json':
+        from .qwen_selective_overlay_workflow import update_overlay_task
+        for task in value['tasks']:
+            update_overlay_task(task)
     return value

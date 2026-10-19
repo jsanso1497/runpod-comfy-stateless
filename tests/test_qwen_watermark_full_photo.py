@@ -1,3 +1,4 @@
+# Legacy watermark crop/stitch compatibility, not the active QOVERLAY factory graph.
 """QOVERLAY regressions: actual CPU mask/crop/stitch/save, not GPU inference.
 
 Only ComfyUI model loading/SAM inference and folder_paths are mocked. These
@@ -16,7 +17,7 @@ import pytest
 import torch
 import torch.nn.functional as F
 
-from workbench.qwen_stock_workflows import make_stock, make_overlay, native_node, verify_links, WATERMARK_PROMPT
+from workbench.qwen_stock_workflows import make_stock, make_legacy_overlay as make_overlay, native_node, verify_links, WATERMARK_PROMPT
 from workbench.qwen_stock_catalog import apply, PE_FILE
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -94,14 +95,17 @@ def test_protection_is_connected_to_final_paste_mask(graph):
     assert crop['widgets_values'] == [2048, 3072, 128, False]
 
 
+
 def test_catalog_keeps_stock_enhancer_and_legacy_nodes():
     tasks = apply('tasks.json', {'tasks': []})['tasks']
     overlay = next(t for t in tasks if t['id'] == 'QOVERLAY')
-    assert set(overlay['requires']) == {'qwen', 'qwen_stock_pe', 'sam'}
-    assert {'Q21PhotoCrop', 'Q21PhotoStitch', 'Q21PhotoReviewSave'} <= set(overlay['required_nodes'])
-    assert 'WBOverlayExport' not in overlay['required_nodes']
+    native = next(t for t in tasks if t['id'] == 'QNATIVE')
+    assert set(overlay['requires']) == {'sam'}
+    assert native['requires'] == ['qwen', 'qwen_stock_pe']
+    assert {'Q21PhotoMask', 'WBMaskExpandFeather', 'WBComposite'} <= set(overlay['required_nodes'])
+    assert not ({'Q21PhotoCrop', 'Q21PhotoStitch', 'Q21PhotoReviewSave', 'WBOverlayExport'} & set(overlay['required_nodes']))
     models = apply('models.json', {'models': [{'id': 'qwen'}]})
-    assert 'qwen_overlay' in models['models'][0]['local_nodes']  # Old saved graphs still load.
+    assert 'qwen_overlay' in models['models'][0]['local_nodes']
     row = apply('assets.json', {'assets': []})['assets'][0]
     assert row['sha256'] == '32707d01b427e488af252b95c551989aad59f9fec611a694f5db6bde7f0f1f6c'
 
