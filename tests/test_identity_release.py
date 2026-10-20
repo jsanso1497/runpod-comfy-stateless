@@ -140,10 +140,10 @@ def test_nested_subgraphs_not_reported_as_missing_plugins():
     assert required_node_types(graph)=={'UNETLoader'}
 
 
-@pytest.mark.parametrize('family,expected',[('qwen',['--disable-comfy-compiler']),('krea',['--disable-comfy-compiler']),('flux',[]),('h3',[])])
+@pytest.mark.parametrize('family,expected',[('qwen',['--disable-comfy-compiler']),('krea',['--disable-comfy-compiler']),('flux',[]),('h3',['--use-pytorch-cross-attention','--disable-comfy-compiler'])])
 def test_stability_flag_defaults(tmp_path,monkeypatch,family,expected):
     monkeypatch.delenv('WB_DISABLE_COMFY_COMPILER',raising=False)
-    (tmp_path/'comfy').mkdir();(tmp_path/'comfy/cli_args.py').write_text('--disable-comfy-compiler')
+    (tmp_path/'comfy').mkdir();(tmp_path/'comfy/cli_args.py').write_text('--use-pytorch-cross-attention --disable-comfy-compiler')
     assert recovery.launch_options(tmp_path,family)==expected
 
 
