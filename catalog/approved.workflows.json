@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "approval_scope": "This is the sole user-approved workflow. Approval is not a GPU quality certification.",
+  "tasks": [
+    {
+      "id": "QLOCAL",
+      "family": "qwen",
+      "category": "tasks",
+      "workspaces": [
+        "qwen"
+      ],
+      "title": "00 | SAM-Guided Local Edit",
+      "description": "User-approved mask-guided crop/edit/stitch. SAM selects on the original, Qwen receives a precleaned crop plus its mask, and only selected pixels are stitched back. No prompt enhancer. The initial preset targets watermarks.",
+      "requires": [
+        "qwen",
+        "sam"
+      ],
+      "approved": true,
+      "approved_by": "user",
+      "approved_on": "2026-10-19",
+      "sort_order": 0,
+      "status": "User-approved; live GPU quality is not independently certified.",
+      "sources": [],
+      "variants": [
+        {
+          "label": "Approved / Qwen BF16 + SAM / no enhancer",
+          "file": "workflows/qwen/00_Approved/00_SAM_Guided_Local_Edit.json",
+          "source": "User-selected mask-guided v2 graph; generation settings preserved."
+        }
+      ],
+      "required_nodes": [
+        "ImageCompositeMasked",
+        "ImageToMask",
+        "KSampler",
+        "LoadImage",
+        "MaskToImage",
+        "PreviewImage",
+        "Q21PhotoCrop",
+        "Q21PhotoMask",
+        "Q21PhotoModels",
+        "Q21PhotoReviewSave",
+        "Q21PhotoStitch",
+        "SplitImageWithAlpha",
+        "TextEncodeQwenImage21",
+        "VAEDecode"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1419 @@
+{
+  "id": "7a9ecb5f-eccf-4e6a-a3d6-ecd1cb62f28a",
+  "revision": 1,
+  "last_node_id": 16,
+  "last_link_id": 31,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "LoadImage",
+      "pos": [
+        -1400,
+        -50
+      ],
+      "size": [
+        400,
+        330
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "image"
+          }
+        },
+        {
+          "name": "upload",
+          "type": "IMAGEUPLOAD",
+          "link": null,
+          "widget": {
+            "name": "upload"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            1,
+            2
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": []
+        }
+      ],
+      "title": "01 | ORIGINAL high-resolution image",
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "",
+        "image"
+      ],
+      "widgets_values_named": {
+        "image": "",
+        "upload": "image"
+      }
+    },
+    {
+      "id": 2,
+      "type": "Q21PhotoMask",
+      "pos": [
+        -920,
+        -50
+      ],
+      "size": [
+        420,
+        330
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "source",
+          "type": "IMAGE",
+          "link": 1
+        },
+        {
+          "name": "manual_mask",
+          "type": "MASK",
+          "link": null,
+          "shape": 7
+        },
+        {
+          "name": "auto_mask",
+          "type": "BOOLEAN",
+          "link": null,
+          "widget": {
+            "name": "auto_mask"
+          }
+        },
+        {
+          "name": "sam_prompt",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "sam_prompt"
+          }
+        },
+        {
+          "name": "threshold",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "threshold"
+          }
+        },
+        {
+          "name": "refine_iterations",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "refine_iterations"
+          }
+        },
+        {
+          "name": "instance_index",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "instance_index"
+          }
+        },
+        {
+          "name": "search_region",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "search_region"
+          }
+        },
+        {
+          "name": "manual_correction",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "manual_correction"
+          }
+        },
+        {
+          "name": "expand_pixels",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "expand_pixels"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "effective_edit_mask",
+          "type": "MASK",
+          "links": [
+            3,
+            5,
+            7
+          ]
+        },
+        {
+          "name": "mask_report",
+          "type": "STRING",
+          "links": [
+            4,
+            8,
+            29
+          ]
+        }
+      ],
+      "title": "02 | SAM: select the area to edit",
+      "properties": {
+        "Node name for S&R": "Q21PhotoMask"
+      },
+      "widgets_values": [
+        true,
+        "watermark",
+        0.5,
+        2,
+        -1,
+        "full photo",
+        "ignore",
+        0
+      ],
+      "widgets_values_named": {
+        "auto_mask": true,
+        "sam_prompt": "watermark",
+        "threshold": 0.5,
+        "refine_iterations": 2,
+        "instance_index": -1,
+        "search_region": "full photo",
+        "manual_correction": "ignore",
+        "expand_pixels": 0
+      }
+    },
+    {
+      "id": 3,
+      "type": "Q21PhotoCrop",
+      "pos": [
+        -435,
+        -50
+      ],
+      "size": [
+        400,
+        240
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "source",
+          "type": "IMAGE",
+          "link": 2
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": 3
+        },
+        {
+          "name": "mask_report",
+          "type": "STRING",
+          "link": 4
+        },
+        {
+          "name": "resolution",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "resolution"
+          }
+        },
+        {
+          "name": "max_long_side",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "max_long_side"
+          }
+        },
+        {
+          "name": "context_pixels",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "context_pixels"
+          }
+        },
+        {
+          "name": "upscale_small_crops",
+          "type": "BOOLEAN",
+          "link": null,
+          "widget": {
+            "name": "upscale_small_crops"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "crop_data",
+          "type": "Q21_PHOTO_CROP",
+          "links": [
+            14,
+            27,
+            30
+          ]
+        },
+        {
+          "name": "working_crop",
+          "type": "IMAGE",
+          "links": [
+            11
+          ]
+        }
+      ],
+      "title": "03 | ORIGINAL CROP for exact final stitch",
+      "properties": {
+        "Node name for S&R": "Q21PhotoCrop"
+      },
+      "widgets_values": [
+        2048,
+        3072,
+        128,
+        false
+      ],
+      "widgets_values_named": {
+        "resolution": 2048,
+        "max_long_side": 3072,
+        "context_pixels": 128,
+        "upscale_small_crops": false
+      }
+    },
+    {
+      "id": 12,
+      "type": "MaskToImage",
+      "pos": [
+        -920,
+        400
+      ],
+      "size": [
+        360,
+        105
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": 5
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            6
+          ]
+        }
+      ],
+      "title": "04 | SAM MASK -> black/white image",
+      "properties": {
+        "Node name for S&R": "MaskToImage"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 13,
+      "type": "Q21PhotoCrop",
+      "pos": [
+        -435,
+        400
+      ],
+      "size": [
+        400,
+        240
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "source",
+          "type": "IMAGE",
+          "link": 6
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": 7
+        },
+        {
+          "name": "mask_report",
+          "type": "STRING",
+          "link": 8
+        },
+        {
+          "name": "resolution",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "resolution"
+          }
+        },
+        {
+          "name": "max_long_side",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "max_long_side"
+          }
+        },
+        {
+          "name": "context_pixels",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "context_pixels"
+          }
+        },
+        {
+          "name": "upscale_small_crops",
+          "type": "BOOLEAN",
+          "link": null,
+          "widget": {
+            "name": "upscale_small_crops"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "crop_data",
+          "type": "Q21_PHOTO_CROP",
+          "links": []
+        },
+        {
+          "name": "working_crop",
+          "type": "IMAGE",
+          "links": [
+            9,
+            10,
+            18
+          ]
+        }
+      ],
+      "title": "05 | CROP THE MASK with identical geometry",
+      "properties": {
+        "Node name for S&R": "Q21PhotoCrop"
+      },
+      "widgets_values": [
+        2048,
+        3072,
+        128,
+        false
+      ],
+      "widgets_values_named": {
+        "resolution": 2048,
+        "max_long_side": 3072,
+        "context_pixels": 128,
+        "upscale_small_crops": false
+      }
+    },
+    {
+      "id": 14,
+      "type": "ImageToMask",
+      "pos": [
+        25,
+        430
+      ],
+      "size": [
+        345,
+        110
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 9
+        },
+        {
+          "name": "channel",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "channel"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": [
+            12
+          ]
+        }
+      ],
+      "title": "06 | Pixel-aligned cropped mask",
+      "properties": {
+        "Node name for S&R": "ImageToMask"
+      },
+      "widgets_values": [
+        "red"
+      ],
+      "widgets_values_named": {
+        "channel": "red"
+      }
+    },
+    {
+      "id": 15,
+      "type": "ImageCompositeMasked",
+      "pos": [
+        430,
+        150
+      ],
+      "size": [
+        420,
+        245
+      ],
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "destination",
+          "type": "IMAGE",
+          "link": 11
+        },
+        {
+          "name": "source",
+          "type": "IMAGE",
+          "link": 10
+        },
+        {
+          "name": "x",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "x"
+          }
+        },
+        {
+          "name": "y",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "y"
+          }
+        },
+        {
+          "name": "resize_source",
+          "type": "BOOLEAN",
+          "link": null,
+          "widget": {
+            "name": "resize_source"
+          }
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": 12,
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            13,
+            17
+          ]
+        }
+      ],
+      "title": "07 | Cover selected area before Qwen",
+      "properties": {
+        "Node name for S&R": "ImageCompositeMasked"
+      },
+      "widgets_values": [
+        0,
+        0,
+        false
+      ],
+      "widgets_values_named": {
+        "x": 0,
+        "y": 0,
+        "resize_source": false
+      }
+    },
+    {
+      "id": 16,
+      "type": "PreviewImage",
+      "pos": [
+        430,
+        440
+      ],
+      "size": [
+        440,
+        260
+      ],
+      "flags": {},
+      "order": 15,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 13
+        }
+      ],
+      "outputs": [],
+      "title": "Qwen input: selected area covered",
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 4,
+      "type": "Q21PhotoModels",
+      "pos": [
+        -435,
+        -400
+      ],
+      "size": [
+        420,
+        260
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "crop_data",
+          "type": "Q21_PHOTO_CROP",
+          "link": 14
+        },
+        {
+          "name": "precision",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "precision"
+          }
+        },
+        {
+          "name": "text_encoder_device",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "text_encoder_device"
+          }
+        },
+        {
+          "name": "cache_device",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "cache_device"
+          }
+        },
+        {
+          "name": "checkpoint",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "checkpoint"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            19
+          ]
+        },
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            15
+          ]
+        },
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            16,
+            24
+          ]
+        }
+      ],
+      "title": "08 | Qwen Image 2.1 BF16; no enhancers",
+      "properties": {
+        "Node name for S&R": "Q21PhotoModels"
+      },
+      "widgets_values": [
+        "BF16 quality",
+        "default",
+        "auto",
+        "qwen_image_2.1_bf16.safetensors"
+      ],
+      "widgets_values_named": {
+        "precision": "BF16 quality",
+        "text_encoder_device": "default",
+        "cache_device": "auto",
+        "checkpoint": "qwen_image_2.1_bf16.safetensors"
+      }
+    },
+    {
+      "id": 5,
+      "type": "TextEncodeQwenImage21",
+      "pos": [
+        925,
+        -225
+      ],
+      "size": [
+        555,
+        420
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 15
+        },
+        {
+          "name": "images.image_1",
+          "type": "IMAGE",
+          "link": 17,
+          "shape": 7
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 16,
+          "shape": 7
+        },
+        {
+          "name": "prompt",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "prompt"
+          }
+        },
+        {
+          "name": "negative_prompt",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "negative_prompt"
+          }
+        },
+        {
+          "name": "resolution",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "resolution"
+          }
+        },
+        {
+          "name": "images.image_2",
+          "type": "IMAGE",
+          "link": 18,
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "links": [
+            20
+          ]
+        },
+        {
+          "name": "negative",
+          "type": "CONDITIONING",
+          "links": [
+            21
+          ]
+        },
+        {
+          "name": "latent",
+          "type": "LATENT",
+          "links": [
+            22
+          ]
+        }
+      ],
+      "title": "09 | EDIT INSTRUCTION + cropped SAM guide",
+      "properties": {
+        "Node name for S&R": "TextEncodeQwenImage21"
+      },
+      "widgets_values": [
+        "Edit <image1>. The solid white shapes in <image1> temporarily cover an unwanted printed overlay / watermark; they are NOT part of the real scene. <image2> is a black-and-white LOCATION MASK, not a photo: WHITE indicates the exact spots to reconstruct, BLACK indicates background to keep. Replace every white covered area in <image1> with a natural continuation of the underlying photograph based on its visible surroundings. Reconstruct matching subjects, textures, perspective, lighting, shadows and colors. Remove all watermark lettering, logos, white shapes, and visible traces. Preserve everything else unchanged. Output a normal realistic photograph without text overlays, watermarks, logos, paint marks, or blurry patches.",
+        "",
+        0
+      ],
+      "widgets_values_named": {
+        "prompt": "Edit <image1>. The solid white shapes in <image1> temporarily cover an unwanted printed overlay / watermark; they are NOT part of the real scene. <image2> is a black-and-white LOCATION MASK, not a photo: WHITE indicates the exact spots to reconstruct, BLACK indicates background to keep. Replace every white covered area in <image1> with a natural continuation of the underlying photograph based on its visible surroundings. Reconstruct matching subjects, textures, perspective, lighting, shadows and colors. Remove all watermark lettering, logos, white shapes, and visible traces. Preserve everything else unchanged. Output a normal realistic photograph without text overlays, watermarks, logos, paint marks, or blurry patches.",
+        "negative_prompt": "",
+        "resolution": 0
+      }
+    },
+    {
+      "id": 6,
+      "type": "KSampler",
+      "pos": [
+        1540,
+        -230
+      ],
+      "size": [
+        360,
+        330
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 19
+        },
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 20
+        },
+        {
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 21
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 22
+        },
+        {
+          "name": "seed",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "seed"
+          }
+        },
+        {
+          "name": "steps",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "steps"
+          }
+        },
+        {
+          "name": "cfg",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "cfg"
+          }
+        },
+        {
+          "name": "sampler_name",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "sampler_name"
+          }
+        },
+        {
+          "name": "scheduler",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "scheduler"
+          }
+        },
+        {
+          "name": "denoise",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "denoise"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            23
+          ]
+        }
+      ],
+      "title": "10 | 40-step BF16 edit",
+      "properties": {
+        "Node name for S&R": "KSampler"
+      },
+      "widgets_values": [
+        12345,
+        "fixed",
+        40,
+        1.0,
+        "euler",
+        "simple",
+        1.0
+      ],
+      "widgets_values_named": {
+        "seed": 12345,
+        "control_after_generate": "fixed",
+        "steps": 40,
+        "cfg": 1,
+        "sampler_name": "euler",
+        "scheduler": "simple",
+        "denoise": 1
+      }
+    },
+    {
+      "id": 7,
+      "type": "VAEDecode",
+      "pos": [
+        1960,
+        -240
+      ],
+      "size": [
+        340,
+        100
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 23
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 24
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            25
+          ]
+        }
+      ],
+      "title": "11 | Decode Qwen edit",
+      "properties": {
+        "Node name for S&R": "VAEDecode"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 10,
+      "type": "SplitImageWithAlpha",
+      "pos": [
+        1960,
+        -80
+      ],
+      "size": [
+        380,
+        130
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 25
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            26,
+            28
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": []
+        }
+      ],
+      "title": "12 | Discard generated alpha, use RGB ONLY",
+      "properties": {
+        "Node name for S&R": "SplitImageWithAlpha"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 11,
+      "type": "PreviewImage",
+      "pos": [
+        1950,
+        370
+      ],
+      "size": [
+        380,
+        325
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 26
+        }
+      ],
+      "outputs": [],
+      "title": "RAW Qwen RGB before stitching",
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 8,
+      "type": "Q21PhotoStitch",
+      "pos": [
+        2420,
+        -200
+      ],
+      "size": [
+        400,
+        220
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "crop_data",
+          "type": "Q21_PHOTO_CROP",
+          "link": 27
+        },
+        {
+          "name": "generated_crop",
+          "type": "IMAGE",
+          "link": 28
+        },
+        {
+          "name": "reference_report",
+          "type": "STRING",
+          "link": 29
+        },
+        {
+          "name": "feather_pixels",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "feather_pixels"
+          }
+        },
+        {
+          "name": "boundary_color_strength",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "boundary_color_strength"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "edited_result",
+          "type": "Q21_PHOTO_RESULT",
+          "links": [
+            31
+          ]
+        }
+      ],
+      "title": "13 | Stitch ONLY SAM pixels into original",
+      "properties": {
+        "Node name for S&R": "Q21PhotoStitch"
+      },
+      "widgets_values": [
+        0,
+        0.0
+      ],
+      "widgets_values_named": {
+        "feather_pixels": 0,
+        "boundary_color_strength": 0.0
+      }
+    },
+    {
+      "id": 9,
+      "type": "Q21PhotoReviewSave",
+      "pos": [
+        2910,
+        -210
+      ],
+      "size": [
+        540,
+        315
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "crop_data",
+          "type": "Q21_PHOTO_CROP",
+          "link": 30
+        },
+        {
+          "name": "run_edit",
+          "type": "BOOLEAN",
+          "link": null,
+          "widget": {
+            "name": "run_edit"
+          }
+        },
+        {
+          "name": "filename_prefix",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "filename_prefix"
+          }
+        },
+        {
+          "name": "edited_result",
+          "type": "Q21_PHOTO_RESULT",
+          "link": 31,
+          "shape": 7
+        }
+      ],
+      "outputs": [],
+      "title": "14 | FINAL full-size image - run_edit controls execution",
+      "properties": {
+        "Node name for S&R": "Q21PhotoReviewSave"
+      },
+      "widgets_values": [
+        true,
+        "SAM_Guided_Local_Edit/Edited"
+      ],
+      "widgets_values_named": {
+        "run_edit": true,
+        "filename_prefix": "SAM_Guided_Local_Edit/Edited"
+      }
+    }
+  ],
+  "links": [
+    [
+      1,
+      1,
+      0,
+      2,
+      0,
+      "IMAGE"
+    ],
+    [
+      2,
+      1,
+      0,
+      3,
+      0,
+      "IMAGE"
+    ],
+    [
+      3,
+      2,
+      0,
+      3,
+      1,
+      "MASK"
+    ],
+    [
+      4,
+      2,
+      1,
+      3,
+      2,
+      "STRING"
+    ],
+    [
+      5,
+      2,
+      0,
+      12,
+      0,
+      "MASK"
+    ],
+    [
+      6,
+      12,
+      0,
+      13,
+      0,
+      "IMAGE"
+    ],
+    [
+      7,
+      2,
+      0,
+      13,
+      1,
+      "MASK"
+    ],
+    [
+      8,
+      2,
+      1,
+      13,
+      2,
+      "STRING"
+    ],
+    [
+      9,
+      13,
+      1,
+      14,
+      0,
+      "IMAGE"
+    ],
+    [
+      10,
+      13,
+      1,
+      15,
+      1,
+      "IMAGE"
+    ],
+    [
+      11,
+      3,
+      1,
+      15,
+      0,
+      "IMAGE"
+    ],
+    [
+      12,
+      14,
+      0,
+      15,
+      5,
+      "MASK"
+    ],
+    [
+      13,
+      15,
+      0,
+      16,
+      0,
+      "IMAGE"
+    ],
+    [
+      14,
+      3,
+      0,
+      4,
+      0,
+      "Q21_PHOTO_CROP"
+    ],
+    [
+      15,
+      4,
+      1,
+      5,
+      0,
+      "CLIP"
+    ],
+    [
+      16,
+      4,
+      2,
+      5,
+      2,
+      "VAE"
+    ],
+    [
+      17,
+      15,
+      0,
+      5,
+      1,
+      "IMAGE"
+    ],
+    [
+      18,
+      13,
+      1,
+      5,
+      6,
+      "IMAGE"
+    ],
+    [
+      19,
+      4,
+      0,
+      6,
+      0,
+      "MODEL"
+    ],
+    [
+      20,
+      5,
+      0,
+      6,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      21,
+      5,
+      1,
+      6,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      22,
+      5,
+      2,
+      6,
+      3,
+      "LATENT"
+    ],
+    [
+      23,
+      6,
+      0,
+      7,
+      0,
+      "LATENT"
+    ],
+    [
+      24,
+      4,
+      2,
+      7,
+      1,
+      "VAE"
+    ],
+    [
+      25,
+      7,
+      0,
+      10,
+      0,
+      "IMAGE"
+    ],
+    [
+      26,
+      10,
+      0,
+      11,
+      0,
+      "IMAGE"
+    ],
+    [
+      27,
+      3,
+      0,
+      8,
+      0,
+      "Q21_PHOTO_CROP"
+    ],
+    [
+      28,
+      10,
+      0,
+      8,
+      1,
+      "IMAGE"
+    ],
+    [
+      29,
+      2,
+      1,
+      8,
+      2,
+      "STRING"
+    ],
+    [
+      30,
+      3,
+      0,
+      9,
+      0,
+      "Q21_PHOTO_CROP"
+    ],
+    [
+      31,
+      8,
+      0,
+      9,
+      3,
+      "Q21_PHOTO_RESULT"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.52,
+      "offset": [
+        750,
+        380
+      ]
+    },
+    "workbench": {
+      "purpose": "SAM-mask-guided local cleanup and reconstruction",
+      "quality": "BF16 full",
+      "notes": "Approved v2 graph and inference settings preserved. Default target/prompt still demonstrate watermark removal. No prompt enhancer or extra model family.",
+      "task_id": "QLOCAL",
+      "name": "SAM-Guided Local Edit",
+      "approval": "user-approved",
+      "approved_on": "2026-10-19",
+      "live_gpu_validated": false,
+      "source_workflow_sha256": "2561911a1fee2a4f980646d18e1c9f30518773668d6ac40607aa3249c03df2e2",
+      "version": "approved-local-edit-1"
+    }
+  },
+  "version": 0.4
+}

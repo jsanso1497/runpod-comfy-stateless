@@ -11,6 +11,11 @@ FEATURES = ('sam', 'seedvr2', 'ollama')
 SECRET_KEYS = ('HF_TOKEN', 'CIVITAI_TOKEN', 'hf_token', 'civit_token', 'WB_LORA_URLS', 'WB_CHECKPOINTS', 'WB_PASSWORD')
 
 def read_catalog(name: str):
+    # Approved-only profile runs before optional catalog add-ons.
+    from .sam_local_edit_profile import catalog_override
+    approved = catalog_override(name, ROOT)
+    if approved is not None:
+        return approved
     value = json.loads((ROOT / 'catalog' / name).read_text(encoding='utf-8'))
     if name == 'assets.json':
         value.setdefault('ollama_by_workspace', {})['h3'] = dict(value['ollama'])

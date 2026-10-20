@@ -44,3 +44,4 @@ scripts/*
 !scripts/build_identity_workflows.py
 !scripts/restart_comfy.py
 !scripts/doctor.py
+!scripts/validate_sam_local_edit.py

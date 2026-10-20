@@ -8,6 +8,9 @@ import tempfile
 
 def sync_factory(source_root, data_root, tasks, workspace):
     source_root, data_root = Path(source_root), Path(data_root)
+    from .sam_local_edit_profile import enabled as approved_enabled, sync_approved
+    if approved_enabled():
+        return sync_approved(source_root, data_root, tasks, workspace)
     rows = []
     bundle = hashlib.sha256()
     for task in tasks:

@@ -1,0 +1,30 @@
+# syntax=docker/dockerfile:1
+# Minimal approved profile. Same PyTorch/CUDA and ComfyUI pins as the inspected pod.
+FROM pytorch/pytorch:2.9.1-cuda12.8-cudnn9-runtime
+ENV PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=1 PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    WB_ROOT=/opt/workbench PYTHONPATH=/opt/workbench/src WB_DATA_ROOT=/workspace \
+    WB_WORKSPACE=qwen WB_APPROVED_ONLY=1 WB_QWEN_ONLY=1 WB_TASKS=QLOCAL \
+    WB_TOOLBOX="" WB_DISABLE_COMFY_COMPILER=1 WB_SAVE_METADATA=0 WB_AUTH_MODE=basic
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git curl ca-certificates tini ffmpeg libgl1 libglib2.0-0 build-essential \
+    && rm -rf /var/lib/apt/lists/*
+WORKDIR /opt/workbench
+COPY requirements.txt ./
+COPY catalog/ ./catalog/
+COPY config/ollama.json ./config/ollama.json
+COPY config/h3/settings.json ./config/h3/settings.json
+COPY src/ ./src/
+COPY workflows/qwen/00_Approved/ ./workflows/qwen/00_Approved/
+COPY scripts/validate_sam_local_edit.py ./scripts/validate_sam_local_edit.py
+COPY deploy/build_sam_local_edit.py ./deploy/build_sam_local_edit.py
+RUN python scripts/validate_sam_local_edit.py \
+    && python deploy/build_sam_local_edit.py \
+    && python -m compileall -q src \
+    && python -c 'import workbench.runtime; from workbench.config import requested_groups; assert requested_groups() == ["qwen", "sam"]'
+# No Ollama installation. No external-node packs. No weights in the image build.
+WORKDIR /workspace
+EXPOSE 8188
+HEALTHCHECK --interval=30s --timeout=10s --start-period=2m --retries=5 \
+    CMD curl --fail --silent --max-time 8 http://127.0.0.1:8188/readyz >/dev/null || exit 1
+ENTRYPOINT ["/usr/bin/tini", "-s", "--", "python", "-m", "workbench.sam_local_edit_entrypoint"]
