@@ -23,6 +23,9 @@ def main():
  constraints.write_text('\n'.join(pins)+'\n')
  def pip(*args):run(sys.executable,'-m','pip','install','--constraint',str(constraints),*args)
  clone('https://github.com/Comfy-Org/ComfyUI.git',model['comfy_commit'],COMFY)
+ if name == 'h3':
+  from workbench.h3_first_last_contract import verify_core
+  verify_core(COMFY, model['comfy_commit'])
  if name == 'qwen':
   from workbench.moss_support import verify_core
   verify_core(COMFY, model['comfy_commit'])
@@ -35,6 +38,9 @@ def main():
   row=cat['external_nodes'][id];dest=COMFY/'custom_nodes'/row['directory'];clone(row['url'],row['commit'],dest)
   if (dest/'requirements.txt').exists():pip('-r',str(dest/'requirements.txt'))
   if id=='h3-refpack':run(sys.executable,str(ROOT/'deploy/patch_refpack_local.py'),str(dest))
+ if name == 'h3':
+  from workbench.h3_still_contract import verify_sources
+  verify_sources(COMFY, model['comfy_commit'])
  for id in model['local_nodes']+['workbench_tools','workbench_ui']:
   dest=COMFY/'custom_nodes'/('Workbench_'+id)
   dest.symlink_to(ROOT/'src/nodes'/id,target_is_directory=True)

@@ -1,0 +1,44 @@
+{
+  "release": "2026-10-20.1",
+  "research_date": "2026-10-20",
+  "offline_focused_tests": {
+    "passed": 35,
+    "failed": 0,
+    "skipped": 0,
+    "log": "reports/h3-combined-focused-tests.txt"
+  },
+  "offline_installer_tests": {
+    "passed": 13,
+    "failed": 0,
+    "skipped": 0,
+    "log": "reports/h3-combined-installer-tests.txt"
+  },
+  "total_offline_tests_passed": 48,
+  "tested": [
+    "Six workflow graphs: reciprocal links, types, DAG order and API exports",
+    "True single-frame latent is the still sampler input; conditioning-node video latent is unused",
+    "Current native decoder is selected; pinned VAE source includes T=1 grouping fix",
+    "Shared width/height routing; size grid and per-axis cap",
+    "Real 16-bit PNG encode/decode pixel round-trip with OpenCV",
+    "Retained video RGB16/audio round-trips via ffmpeg",
+    "Local-only installer: fresh application, previous-video upgrade, idempotence, rollback, conflict and symlink safety",
+    "Optional FL2VA asset is not a default task dependency"
+  ],
+  "not_tested": [
+    "Docker build",
+    "Full repository CI suite",
+    "External imports against live ComfyUI",
+    "Build-time source checksum checks on a downloaded ComfyUI tree",
+    "H3 GPU inference",
+    "Model-download execution",
+    "Runtime or peak memory",
+    "Visual identity fidelity",
+    "Universal method superiority"
+  ],
+  "research_conclusion": "Current core already has the five-copy T=1 decoder fix. Use a true single-frame latent with native VAEDecode; 50-step er_sde/simple no-Turbo is a maintainer-example baseline, not a benchmark winner.",
+  "native_vae_git_blob": "9f17dad58b2dae6d41193c574a8bb87f2c6df0f1",
+  "fizgig_source_git_blob": "543b3bb79d346bcf22a0dbcfac47d912337fb7f9",
+  "gpu_tested": false,
+  "approved": false,
+  "docker_built": false
+}

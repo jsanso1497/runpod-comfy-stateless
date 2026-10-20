@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "release": "2026-10-20.1",
+  "research_date": "2026-10-20",
+  "base_repository": "jsanso1497/runpod-comfy-stateless",
+  "base_commit_inspected": "87144865e22a7a7555e56b62c09cb6f8a4b58090",
+  "comfy_commit": "b1a247c9cf9dbfda4b2c0a0c1d50950667eeaa0c",
+  "approved": false,
+  "gpu_tested": false,
+  "docker_built": false,
+  "external_node": {
+    "id": "h3-still",
+    "url": "https://github.com/shootthesound/ComfyUI-Fizgig-H3-Still.git",
+    "commit": "10d5171f6e45b0757a03df977f53a660e060c33d",
+    "directory": "ComfyUI-Fizgig-H3-Still"
+  },
+  "tasks": [
+    {
+      "id": "HSTILL",
+      "title": "True single-image still: Ref2VA identity HQ",
+      "description": "One authoritative reference image, true one-frame latent, current native fixed T=1 decode and RGB16 PNG. 2.5 MP edit baseline plus an 8.4 MP native-resolution adaptation. No additional model weights. Not GPU-certified.",
+      "sources": [
+        "https://github.com/shootthesound/ComfyUI-Fizgig-H3-Still",
+        "https://docs.comfy.org/tutorials/video/minimax/minimax-h3-native"
+      ],
+      "family": "h3",
+      "category": "tasks",
+      "requires": [
+        "h3"
+      ],
+      "workspaces": [
+        "h3"
+      ],
+      "status": "source-adapted; GPU validation pending",
+      "approved": false,
+      "required_nodes": [
+        "FizgigH3StillLatent",
+        "VAEDecode",
+        "WBH3StillSize",
+        "WBH3SaveStillMaster",
+        "MiniMaxH3ReferenceToVideo"
+      ],
+      "variants": [
+        {
+          "label": "Single-reference 2.5 MP: edit-fidelity baseline",
+          "file": "workflows/h3/HSTILL_Reference_Still_HQ/01_H3_Reference_Still_Identity_2p5MP.json",
+          "source": "Ref2VA adaptation of the Fizgig still path"
+        },
+        {
+          "label": "Single-reference native 8 MP: high-resolution adaptation",
+          "file": "workflows/h3/HSTILL_Reference_Still_HQ/02_H3_Reference_Still_Native_8MP.json",
+          "source": "Ref2VA adaptation, not benchmark-equivalent to the FL2VA maintainer example"
+        }
+      ]
+    },
+    {
+      "id": "HSTXT",
+      "title": "True single-image still: text-only FL2VA HQ",
+      "description": "Native 8 MP text-only still using the documented 50-step er_sde/simple recipe with full BF16 weights. Optional separate FL2VA checkpoint download: about 66.3 GB. No subject reference or identity guarantee.",
+      "sources": [
+        "https://github.com/shootthesound/ComfyUI-Fizgig-H3-Still"
+      ],
+      "family": "h3",
+      "category": "tasks",
+      "requires": [
+        "h3",
+        "h3_fl2va"
+      ],
+      "workspaces": [
+        "h3"
+      ],
+      "status": "source-adapted; GPU validation pending",
+      "approved": false,
+      "required_nodes": [
+        "FizgigH3StillLatent",
+        "VAEDecode",
+        "WBH3StillSize",
+        "WBH3SaveStillMaster",
+        "MiniMaxH3ImageToVideo"
+      ],
+      "variants": [
+        {
+          "label": "Text-only native 8 MP: optional FL2VA weights",
+          "file": "workflows/h3/HSTXT_Text_Still_HQ/01_H3_Text_Still_Native_8MP.json",
+          "source": "Fizgig maintainer no-Turbo 8 MP template adapted to full BF16"
+        }
+      ]
+    }
+  ],
+  "assets": [
+    {
+      "id": "h3-minimax_h3_fl2va_bf16",
+      "family": "h3",
+      "group": "h3_fl2va",
+      "repo_id": "Comfy-Org/MiniMax-H3",
+      "filename": "diffusion_models/minimax_h3_fl2va_bf16.safetensors",
+      "revision": "e5eb578a89295337b8ff433a035929ce0279e0b6",
+      "destination": "diffusion_models/minimax_h3_fl2va_bf16.safetensors",
+      "sha256": "907d4add438438ec1544f5240c3b38532ed934fe6be75677a6bbda2a6fdd6182",
+      "estimated_bytes": 66300000000,
+      "integrity_source": "Comfy-Org provider SHA256 inspected 2026-10-20; pinned repository revision",
+      "verification": "Metadata verified; model weights not downloaded or GPU-tested here."
+    }
+  ],
+  "native_decoder_has_T1_group_fix": true,
+  "native_vae_source_git_blob": "9f17dad58b2dae6d41193c574a8bb87f2c6df0f1"
+}

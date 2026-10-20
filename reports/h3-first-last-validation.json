@@ -1,0 +1,29 @@
+{
+  "release": "2026-10-19.1",
+  "focused_workflow_and_media_tests": {"passed": 14, "failed": 0, "skipped": 0},
+  "isolated_installer_safety_tests": {"passed": 9, "failed": 0, "skipped": 0},
+  "total_focused_tests_passed": 23,
+  "tested": [
+    "Typed reciprocal JSON links and acyclic graph dependencies",
+    "API export parity with workflow links",
+    "Both endpoint images reach native reference conditioning and native timeline guides",
+    "Frame 0 and -1 anchors, correct Ref2VA/CLIP selection and high-quality defaults",
+    "Independent finishing graph, retained source audio and frame rate",
+    "Lossless RGB16 FFV1 and float PCM audio encode/decode using local FFmpeg",
+    "FP16/BF16 image input conversion and interrupted-write cleanup",
+    "Memory-release operation excluded from caching",
+    "Installer idempotence, other-workspace preservation, conflicts, symlink protection and rollback",
+    "Windows CRLF source integration support"
+  ],
+  "not_tested": [
+    "Complete original-repository test suite",
+    "Docker image build and all installed-node imports",
+    "Provider weight downloads",
+    "Actual ComfyUI workflow loading/queueing and native schema execution",
+    "H3 or SeedVR2 inference on a GPU",
+    "Identity retention, visual quality and GPU/system-memory peaks"
+  ],
+  "approval_status": "Candidate; not user approved",
+  "gpu_tested": false,
+  "docker_built": false
+}

@@ -1,0 +1,19 @@
+test_api_exports_match_all_ui_connections (test_h3_first_last_hq.TestH3Graphs.test_api_exports_match_all_ui_connections) ... ok
+test_finish_preserves_source_audio_and_fps_and_keeps_native_separate (test_h3_first_last_hq.TestH3Graphs.test_finish_preserves_source_audio_and_fps_and_keeps_native_separate) ... ok
+test_links_are_reciprocal_and_acyclic (test_h3_first_last_hq.TestH3Graphs.test_links_are_reciprocal_and_acyclic) ... ok
+test_optional_face_ref_has_no_missing_required_load (test_h3_first_last_hq.TestH3Graphs.test_optional_face_ref_has_no_missing_required_load) ... ok
+test_quality_defaults_and_no_unwanted_generation_patches (test_h3_first_last_hq.TestH3Graphs.test_quality_defaults_and_no_unwanted_generation_patches) ... ok
+test_release_is_explicitly_unapproved_and_source_pinned (test_h3_first_last_hq.TestH3Graphs.test_release_is_explicitly_unapproved_and_source_pinned) ... ok
+test_same_photos_drive_both_refs_and_endpoint_anchors (test_h3_first_last_hq.TestH3Graphs.test_same_photos_drive_both_refs_and_endpoint_anchors) ... ok
+test_h3_launch_uses_dense_pytorch_and_no_forced_low_precision (test_h3_first_last_hq.TestH3LaunchAndSchema.test_h3_launch_uses_dense_pytorch_and_no_forced_low_precision) ... ok
+test_schema_check_detects_missing_nodes (test_h3_first_last_hq.TestH3LaunchAndSchema.test_schema_check_detects_missing_nodes) ... ok
+test_half_and_bfloat16_image_inputs (test_h3_first_last_hq.TestH3LosslessMedia.test_half_and_bfloat16_image_inputs) ... ok
+test_invalid_pixels_and_interruption_leave_no_master (test_h3_first_last_hq.TestH3LosslessMedia.test_invalid_pixels_and_interruption_leave_no_master) ... ok
+test_rgb16_and_audio_roundtrip (test_h3_first_last_hq.TestH3LosslessMedia.test_rgb16_and_audio_roundtrip) ... ok
+test_silent_master_roundtrip (test_h3_first_last_hq.TestH3LosslessMedia.test_silent_master_roundtrip) ... ok
+test_release_is_not_cached_across_workflow_runs (test_h3_first_last_hq.TestH3MemoryRelease.test_release_is_not_cached_across_workflow_runs) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 2.256s
+
+OK

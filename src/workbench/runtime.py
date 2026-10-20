@@ -156,7 +156,7 @@ class Runtime:
         rows=[]
         for p in root.rglob('*'):
             if len(rows)>=2000:break
-            if p.is_file() and not p.is_symlink() and p.suffix.lower() in ('.png','.jpg','.jpeg','.webp','.mp4','.mov','.wav','.flac','.mp3'):
+            if p.is_file() and not p.is_symlink() and p.suffix.lower() in ('.png','.jpg','.jpeg','.webp','.mp4','.mov','.mkv','.wav','.flac','.mp3'):
                 rows.append({'path':str(p.relative_to(root)),'bytes':p.stat().st_size})
         return web.json_response({'kind':kind,'files':rows,'limit':2000})
     async def proxy(self,request):

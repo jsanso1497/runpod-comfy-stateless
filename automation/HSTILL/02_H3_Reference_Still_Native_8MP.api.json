@@ -1,0 +1,236 @@
+{
+  "1": {
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "minimax_h3_ref2va_bf16.safetensors",
+      "weight_dtype": "default"
+    },
+    "_meta": {
+      "title": "Full BF16 Ref2VA - your existing reference model"
+    }
+  },
+  "2": {
+    "class_type": "CLIPLoader",
+    "inputs": {
+      "clip_name": "qwen3vl_32b_minimax_h3_bf16.safetensors",
+      "type": "minimax",
+      "device": "default"
+    },
+    "_meta": {
+      "title": "H3-specific Qwen3-VL 32B BF16"
+    }
+  },
+  "3": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "minimax_h3_video_vae_fp16.safetensors"
+    },
+    "_meta": {
+      "title": "Original FP16 video VAE - not a finetuned T1 decoder"
+    }
+  },
+  "4": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "identity_reference.png"
+    },
+    "_meta": {
+      "title": "1. ONE authoritative reference image"
+    }
+  },
+  "5": {
+    "class_type": "WBH3StillSize",
+    "inputs": {
+      "target_megapixels": 8.4,
+      "aspect_ratio": "source",
+      "reference": [
+        "4",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "2. Output resolution - shared with BOTH conditioning and latent"
+    }
+  },
+  "6": {
+    "class_type": "MiniMaxH3ReferenceToVideo",
+    "inputs": {
+      "prompt": "<Picture 1> is the authoritative reference for the person and the photograph. Create one photographic still of that same person. Preserve their facial structure, apparent age, eye shape, nose, mouth, hairstyle, skin tone and body proportions. Keep the pose, framing, clothing, expression, background, camera perspective, lighting and color mood consistent with <Picture 1>. Render coherent photographic detail across the entire image, with natural skin texture, fabric and hair. Do not beautify, change the face, or substitute a different person. One image, not a collage or split screen.\n\nRequested change: improve overall photographic clarity without changing the scene or the person's identity.",
+      "width": [
+        "5",
+        0
+      ],
+      "height": [
+        "5",
+        1
+      ],
+      "length": 5,
+      "ref_image_size": "max",
+      "clip": [
+        "2",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ],
+      "ref_images.ref_image_0": [
+        "4",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "3. Edit prompt - CONDITIONING only, leave its LATENT unused"
+    }
+  },
+  "7": {
+    "class_type": "FizgigH3StillLatent",
+    "inputs": {
+      "width": [
+        "5",
+        0
+      ],
+      "height": [
+        "5",
+        1
+      ],
+      "batch_size": 1
+    },
+    "_meta": {
+      "title": "4. TRUE SINGLE FRAME - batch 1"
+    }
+  },
+  "8": {
+    "class_type": "MiniMaxH3SigmaShift",
+    "inputs": {
+      "shift_video": 12.0,
+      "shift_audio": 3.0,
+      "model": [
+        "1",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Native shifts - 12 video / 3 audio"
+    }
+  },
+  "9": {
+    "class_type": "BasicGuider",
+    "inputs": {
+      "model": [
+        "8",
+        0
+      ],
+      "conditioning": [
+        "6",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Native guidance - no extra CFG"
+    }
+  },
+  "10": {
+    "class_type": "RandomNoise",
+    "inputs": {
+      "noise_seed": 42
+    },
+    "_meta": {
+      "title": "Fixed seed for repeatable A/B settings comparisons"
+    }
+  },
+  "11": {
+    "class_type": "KSamplerSelect",
+    "inputs": {
+      "sampler_name": "er_sde"
+    },
+    "_meta": {
+      "title": "Maintainer still example: er_sde"
+    }
+  },
+  "12": {
+    "class_type": "BasicScheduler",
+    "inputs": {
+      "scheduler": "simple",
+      "steps": 50,
+      "denoise": 1.0,
+      "model": [
+        "8",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "50 steps - simple - denoise 1 - NO Turbo LoRA"
+    }
+  },
+  "13": {
+    "class_type": "SamplerCustomAdvanced",
+    "inputs": {
+      "noise": [
+        "10",
+        0
+      ],
+      "guider": [
+        "9",
+        0
+      ],
+      "sampler": [
+        "11",
+        0
+      ],
+      "sigmas": [
+        "12",
+        0
+      ],
+      "latent_image": [
+        "7",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "5. Generate one still, not a video clip"
+    }
+  },
+  "14": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "13",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "6. CURRENT native decode - five-copy T=1 fix is built into this core"
+    }
+  },
+  "15": {
+    "class_type": "WBH3SaveStillMaster",
+    "inputs": {
+      "filename_prefix": "h3_still/Reference_8MP",
+      "images": [
+        "14",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "7. Lossless RGB16 PNG master"
+    }
+  },
+  "16": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "filename_prefix": "h3_still/preview/Reference_8MP",
+      "images": [
+        "15",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "8. Standard 8-bit PNG copy for compatibility"
+    }
+  }
+}

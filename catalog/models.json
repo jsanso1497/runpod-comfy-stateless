@@ -76,14 +76,15 @@
       "short": "H3",
       "precision": "BF16 + native VAEs",
       "kind": "Video, audio + still extraction",
-      "description": "Manual reference generation, role-aware directing, reusable reference packages and MP4 voice/action guidance.",
+      "description": "Full-precision H3 first/last-frame video, true single-image reference stills, optional FL2VA text-only stills, and separate video finishing. Legacy tasks remain available.",
       "accent": "blue",
-      "comfy_commit": "65787d668397d230bf5839d69a0a7239e2dad378",
+      "comfy_commit": "b1a247c9cf9dbfda4b2c0a0c1d50950667eeaa0c",
       "external_nodes": [
         "h3-mod",
         "h3-refpack",
         "seedvr2",
-        "ausboss"
+        "ausboss",
+        "h3-still"
       ],
       "local_nodes": [
         "h3_portrait",
@@ -93,23 +94,28 @@
         "h3_prompt",
         "h3_directed",
         "qwen_native",
-        "everyday"
+        "everyday",
+        "h3_first_last_hq",
+        "h3_still_hq"
       ],
       "toolbox": [
         "ollama",
         "seedvr2"
       ],
       "default_tasks": [
-        "SH",
-        "H08"
+        "HFL",
+        "HFL4K",
+        "HSTILL"
       ],
       "default_groups": [
         "h3"
       ],
       "ram_gb": 256,
-      "vram_gb": 80,
-      "storage_gb": 250,
-      "hardware_note": "Full H3 weights exceed 120 GB on disk before optional local helpers. Offloading is necessary on an 80 GB GPU. These are planning estimates, not a tested hardware certification."
+      "vram_gb": 141,
+      "storage_gb": 300,
+      "hardware_note": "Quality-first planning target: H200-class 141 GB VRAM, 256 GB system RAM and a 300 GB volume. Not a measured minimum. An 80 GB GPU needs offloading and may require lower reference sizes. Full BF16 H3 assets plus SeedVR2 consume approximately 141 GB before cache overhead and outputs. Native generation, 4K finishing and peak memory still require live validation. Still references reuse the existing weights. Optional HSTXT adds about 66.3 GB of FL2VA weights; use a larger volume when keeping both families and caches. 8 MP still generation and memory usage remain unbenchmarked.",
+      "h3_first_last_release": "2026-10-19.1",
+      "h3_still_release": "2026-10-20.1"
     },
     {
       "id": "restoration",
@@ -128,7 +134,9 @@
         "qwen_native",
         "everyday"
       ],
-      "toolbox": [],
+      "toolbox": [
+
+      ],
       "default_tasks": [
         "SR",
         "R01"
@@ -162,6 +170,11 @@
       "url": "https://github.com/Hearmeman24/ComfyUI-MiniMaxRefPack.git",
       "commit": "7012734eabf6f98063d6eaf8ce1f9264ee803664",
       "directory": "ComfyUI-MiniMaxRefPack"
+    },
+    "h3-still": {
+      "url": "https://github.com/shootthesound/ComfyUI-Fizgig-H3-Still.git",
+      "commit": "10d5171f6e45b0757a03df977f53a660e060c33d",
+      "directory": "ComfyUI-Fizgig-H3-Still"
     }
   },
   "base_image": "pytorch/pytorch:2.9.1-cuda12.8-cudnn9-runtime",

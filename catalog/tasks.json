@@ -2,6 +2,144 @@
   "schema_version": 1,
   "tasks": [
     {
+      "id": "HFL",
+      "title": "First + last frame: identity-focused H3 HQ",
+      "description": "Native BF16 Ref2VA with high-resolution image references and guide anchors at frame 0 and -1. Saves an RGB16 lossless native master plus an MP4 preview. Requires live GPU validation; not yet approved.",
+      "sources": [
+        "https://docs.comfy.org/tutorials/video/minimax/minimax-h3-multiframe"
+      ],
+      "family": "h3",
+      "category": "tasks",
+      "requires": [
+        "h3"
+      ],
+      "workspaces": [
+        "h3"
+      ],
+      "status": "source-adapted; GPU validation pending",
+      "approved": false,
+      "required_nodes": [
+        "MiniMaxH3ReferenceToVideo",
+        "MiniMaxH3AddGuide",
+        "MiniMaxH3SigmaShift",
+        "WBH3LosslessMaster"
+      ],
+      "variants": [
+        {
+          "label": "Portrait HQ: 768 x 1344",
+          "file": "workflows/h3/HFL_First_Last_Identity_HQ/01_H3_First_Last_Identity_HQ_Portrait.json",
+          "source": "Native Ref2VA plus Add Guide composition"
+        },
+        {
+          "label": "Landscape HQ: 1344 x 768",
+          "file": "workflows/h3/HFL_First_Last_Identity_HQ/02_H3_First_Last_Identity_HQ_Landscape.json",
+          "source": "Native Ref2VA plus Add Guide composition"
+        }
+      ]
+    },
+    {
+      "id": "HFL4K",
+      "title": "H3 native master: separate 4K-class identity finish",
+      "description": "SeedVR2 7B FP16 finishing from the lossless native H3 master, not the MP4 preview. 2160 short edge, 3840 long-edge cap, original aspect and audio. Review identity before accepting the finish.",
+      "sources": [
+        "https://github.com/numz/ComfyUI-SeedVR2_VideoUpscaler"
+      ],
+      "family": "h3",
+      "category": "tasks",
+      "requires": [
+        "seedvr2"
+      ],
+      "workspaces": [
+        "h3"
+      ],
+      "status": "source-adapted; GPU validation pending",
+      "approved": false,
+      "required_nodes": [
+        "WBH3LoadNativeMaster",
+        "WBH3LosslessMaster",
+        "WBH3ReleaseMemory",
+        "SeedVR2VideoUpscaler"
+      ],
+      "variants": [
+        {
+          "label": "Separate SeedVR2 7B FP16 finish",
+          "file": "workflows/h3/HFL4K_Identity_Finish/01_SeedVR2_7B_Identity_4K_Finish.json",
+          "source": "Existing pinned SeedVR2 integration with lossless master I/O"
+        }
+      ]
+    },
+    {
+      "id": "HSTILL",
+      "title": "True single-image still: Ref2VA identity HQ",
+      "description": "One authoritative reference image, true one-frame latent, current native fixed T=1 decode and RGB16 PNG. 2.5 MP edit baseline plus an 8.4 MP native-resolution adaptation. No additional model weights. Not GPU-certified.",
+      "sources": [
+        "https://github.com/shootthesound/ComfyUI-Fizgig-H3-Still",
+        "https://docs.comfy.org/tutorials/video/minimax/minimax-h3-native"
+      ],
+      "family": "h3",
+      "category": "tasks",
+      "requires": [
+        "h3"
+      ],
+      "workspaces": [
+        "h3"
+      ],
+      "status": "source-adapted; GPU validation pending",
+      "approved": false,
+      "required_nodes": [
+        "FizgigH3StillLatent",
+        "VAEDecode",
+        "WBH3StillSize",
+        "WBH3SaveStillMaster",
+        "MiniMaxH3ReferenceToVideo"
+      ],
+      "variants": [
+        {
+          "label": "Single-reference 2.5 MP: edit-fidelity baseline",
+          "file": "workflows/h3/HSTILL_Reference_Still_HQ/01_H3_Reference_Still_Identity_2p5MP.json",
+          "source": "Ref2VA adaptation of the Fizgig still path"
+        },
+        {
+          "label": "Single-reference native 8 MP: high-resolution adaptation",
+          "file": "workflows/h3/HSTILL_Reference_Still_HQ/02_H3_Reference_Still_Native_8MP.json",
+          "source": "Ref2VA adaptation, not benchmark-equivalent to the FL2VA maintainer example"
+        }
+      ]
+    },
+    {
+      "id": "HSTXT",
+      "title": "True single-image still: text-only FL2VA HQ",
+      "description": "Native 8 MP text-only still using the documented 50-step er_sde/simple recipe with full BF16 weights. Optional separate FL2VA checkpoint download: about 66.3 GB. No subject reference or identity guarantee.",
+      "sources": [
+        "https://github.com/shootthesound/ComfyUI-Fizgig-H3-Still"
+      ],
+      "family": "h3",
+      "category": "tasks",
+      "requires": [
+        "h3",
+        "h3_fl2va"
+      ],
+      "workspaces": [
+        "h3"
+      ],
+      "status": "source-adapted; GPU validation pending",
+      "approved": false,
+      "required_nodes": [
+        "FizgigH3StillLatent",
+        "VAEDecode",
+        "WBH3StillSize",
+        "WBH3SaveStillMaster",
+        "MiniMaxH3ImageToVideo"
+      ],
+      "variants": [
+        {
+          "label": "Text-only native 8 MP: optional FL2VA weights",
+          "file": "workflows/h3/HSTXT_Text_Still_HQ/01_H3_Text_Still_Native_8MP.json",
+          "source": "Fizgig maintainer no-Turbo 8 MP template adapted to full BF16"
+        }
+      ]
+    },
+    {
       "id": "F01",
       "title": "Reference-guided masked photo edit",
       "description": "Original photo + one replacement reference; crop/edit/stitch. Quality Fit 2048 and Native 3072 are presets of this task.",
@@ -1314,7 +1452,9 @@
       ],
       "family": "toolbox",
       "category": "toolbox",
-      "requires": [],
+      "requires": [
+
+      ],
       "workspaces": [
         "h3"
       ],
@@ -1336,7 +1476,9 @@
       ],
       "family": "toolbox",
       "category": "toolbox",
-      "requires": [],
+      "requires": [
+
+      ],
       "workspaces": [
         "qwen",
         "flux",
@@ -1362,7 +1504,9 @@
       ],
       "family": "toolbox",
       "category": "toolbox",
-      "requires": [],
+      "requires": [
+
+      ],
       "workspaces": [
         "qwen",
         "flux",
@@ -1392,7 +1536,9 @@
       ],
       "family": "toolbox",
       "category": "toolbox",
-      "requires": [],
+      "requires": [
+
+      ],
       "workspaces": [
         "qwen",
         "flux",
@@ -1417,7 +1563,9 @@
       ],
       "family": "toolbox",
       "category": "toolbox",
-      "requires": [],
+      "requires": [
+
+      ],
       "workspaces": [
         "qwen",
         "flux",
@@ -1474,7 +1622,9 @@
       "requires": [
         "qwen"
       ],
-      "sources": [],
+      "sources": [
+
+      ],
       "status": "new; GPU validation required",
       "variants": [
         {
@@ -1501,7 +1651,9 @@
       "requires": [
         "flux"
       ],
-      "sources": [],
+      "sources": [
+
+      ],
       "status": "new; GPU validation required",
       "variants": [
         {
@@ -1523,7 +1675,9 @@
       "requires": [
         "h3"
       ],
-      "sources": [],
+      "sources": [
+
+      ],
       "status": "new; GPU validation required",
       "variants": [
         {
@@ -1548,7 +1702,9 @@
       "requires": [
         "seedvr2"
       ],
-      "sources": [],
+      "sources": [
+
+      ],
       "status": "new; GPU validation required",
       "variants": [
         {
@@ -1570,7 +1726,9 @@
       "requires": [
         "sam"
       ],
-      "sources": [],
+      "sources": [
+
+      ],
       "status": "new; GPU validation required",
       "variants": [
         {
@@ -1592,7 +1750,9 @@
       "requires": [
         "sam"
       ],
-      "sources": [],
+      "sources": [
+
+      ],
       "status": "new; GPU validation required",
       "variants": [
         {
@@ -1614,7 +1774,9 @@
       "requires": [
         "qwen_pe_i2i"
       ],
-      "sources": [],
+      "sources": [
+
+      ],
       "status": "new; GPU validation required",
       "variants": [
         {

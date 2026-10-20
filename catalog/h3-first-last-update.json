@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "release": "2026-10-19.1",
+  "base_repository": "jsanso1497/runpod-comfy-stateless",
+  "base_commit_inspected": "87144865e22a7a7555e56b62c09cb6f8a4b58090",
+  "comfy_commit": "b1a247c9cf9dbfda4b2c0a0c1d50950667eeaa0c",
+  "native_h3_source_git_blob": "1ad3c6a4095fdcb756d6222f08ba589452b72091",
+  "seedvr2_commit_retained": "4490bd1f482e026674543386bb2a4d176da245b9",
+  "models_unchanged": true,
+  "approved": false,
+  "gpu_tested": false,
+  "docker_built": false,
+  "tasks": [
+    {
+      "id": "HFL",
+      "title": "First + last frame: identity-focused H3 HQ",
+      "description": "Native BF16 Ref2VA with high-resolution image references and guide anchors at frame 0 and -1. Saves an RGB16 lossless native master plus an MP4 preview. Requires live GPU validation; not yet approved.",
+      "sources": ["https://docs.comfy.org/tutorials/video/minimax/minimax-h3-multiframe"],
+      "family": "h3",
+      "category": "tasks",
+      "requires": ["h3"],
+      "workspaces": ["h3"],
+      "status": "source-adapted; GPU validation pending",
+      "approved": false,
+      "required_nodes": ["MiniMaxH3ReferenceToVideo", "MiniMaxH3AddGuide", "MiniMaxH3SigmaShift", "WBH3LosslessMaster"],
+      "variants": [
+        {"label": "Portrait HQ: 768 x 1344", "file": "workflows/h3/HFL_First_Last_Identity_HQ/01_H3_First_Last_Identity_HQ_Portrait.json", "source": "Native Ref2VA plus Add Guide composition"},
+        {"label": "Landscape HQ: 1344 x 768", "file": "workflows/h3/HFL_First_Last_Identity_HQ/02_H3_First_Last_Identity_HQ_Landscape.json", "source": "Native Ref2VA plus Add Guide composition"}
+      ]
+    },
+    {
+      "id": "HFL4K",
+      "title": "H3 native master: separate 4K-class identity finish",
+      "description": "SeedVR2 7B FP16 finishing from the lossless native H3 master, not the MP4 preview. 2160 short edge, 3840 long-edge cap, original aspect and audio. Review identity before accepting the finish.",
+      "sources": ["https://github.com/numz/ComfyUI-SeedVR2_VideoUpscaler"],
+      "family": "h3",
+      "category": "tasks",
+      "requires": ["seedvr2"],
+      "workspaces": ["h3"],
+      "status": "source-adapted; GPU validation pending",
+      "approved": false,
+      "required_nodes": ["WBH3LoadNativeMaster", "WBH3LosslessMaster", "WBH3ReleaseMemory", "SeedVR2VideoUpscaler"],
+      "variants": [
+        {"label": "Separate SeedVR2 7B FP16 finish", "file": "workflows/h3/HFL4K_Identity_Finish/01_SeedVR2_7B_Identity_4K_Finish.json", "source": "Existing pinned SeedVR2 integration with lossless master I/O"}
+      ]
+    }
+  ]
+}

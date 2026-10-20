@@ -1,0 +1,314 @@
+{
+  "1": {
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "minimax_h3_ref2va_bf16.safetensors",
+      "weight_dtype": "default"
+    },
+    "_meta": {
+      "title": "Full BF16 Ref2VA - no turbo or quantization"
+    }
+  },
+  "2": {
+    "class_type": "CLIPLoader",
+    "inputs": {
+      "clip_name": "qwen3vl_32b_minimax_h3_bf16.safetensors",
+      "type": "minimax",
+      "device": "default"
+    },
+    "_meta": {
+      "title": "H3-specific Qwen3-VL 32B BF16"
+    }
+  },
+  "3": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "minimax_h3_video_vae_fp16.safetensors"
+    },
+    "_meta": {
+      "title": "Native FP16 video VAE"
+    }
+  },
+  "4": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "minimax_h3_audio_vae_fp32.safetensors"
+    },
+    "_meta": {
+      "title": "Native FP32 audio VAE"
+    }
+  },
+  "5": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "first_frame.png"
+    },
+    "_meta": {
+      "title": "1. FIRST FRAME - primary subject identity"
+    }
+  },
+  "6": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "last_frame.png"
+    },
+    "_meta": {
+      "title": "2. LAST FRAME - same person, ending pose"
+    }
+  },
+  "7": {
+    "class_type": "MiniMaxH3SigmaShift",
+    "inputs": {
+      "shift_video": 12.0,
+      "shift_audio": 3.0,
+      "model": [
+        "1",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Native H3 flow shifts"
+    }
+  },
+  "10": {
+    "class_type": "MiniMaxH3ReferenceToVideo",
+    "inputs": {
+      "prompt": "<Picture 1> is the authoritative appearance and identity reference for the single subject, and shows the opening composition. <Picture 2> shows the desired ending pose and composition of that same subject. Keep the subject recognizably the same person throughout: the same facial structure, eyes, nose, mouth, hair, skin texture and body proportions. Keep the outfit, lighting and setting consistent with the endpoint images.\n\nOne continuous shot. The subject makes a small, natural movement from the opening pose to the ending pose, with subtle breathing and blinking. The face remains clearly visible. The camera is steady. Preserve natural photographic detail and coherent motion. No cuts, morphing, face replacement or sudden changes in appearance. Natural ambient sound; no dialogue or music.",
+      "width": 768,
+      "height": 1344,
+      "length": 124,
+      "ref_image_size": "max",
+      "clip": [
+        "2",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ],
+      "ref_images.ref_image_0": [
+        "5",
+        0
+      ],
+      "ref_images.ref_image_1": [
+        "6",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "3. IDENTITY + MOTION - edit prompt here"
+    }
+  },
+  "11": {
+    "class_type": "MiniMaxH3AddGuide",
+    "inputs": {
+      "frame_idx": 0,
+      "vae": [
+        "3",
+        0
+      ],
+      "latent": [
+        "10",
+        1
+      ],
+      "image": [
+        "5",
+        0
+      ],
+      "positive": [
+        "10",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "4. Anchor FIRST frame at index 0"
+    }
+  },
+  "12": {
+    "class_type": "MiniMaxH3AddGuide",
+    "inputs": {
+      "frame_idx": -1,
+      "vae": [
+        "3",
+        0
+      ],
+      "latent": [
+        "10",
+        1
+      ],
+      "image": [
+        "6",
+        0
+      ],
+      "positive": [
+        "11",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "5. Anchor LAST frame at index -1"
+    }
+  },
+  "13": {
+    "class_type": "BasicGuider",
+    "inputs": {
+      "model": [
+        "7",
+        0
+      ],
+      "conditioning": [
+        "12",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Native CFG-distilled guidance - no extra CFG"
+    }
+  },
+  "14": {
+    "class_type": "RandomNoise",
+    "inputs": {
+      "noise_seed": 20261019
+    },
+    "_meta": {
+      "title": "Fixed seed for controlled comparisons"
+    }
+  },
+  "15": {
+    "class_type": "KSamplerSelect",
+    "inputs": {
+      "sampler_name": "res_multistep"
+    },
+    "_meta": {
+      "title": "Full-step sampler"
+    }
+  },
+  "16": {
+    "class_type": "BasicScheduler",
+    "inputs": {
+      "scheduler": "simple",
+      "steps": 30,
+      "denoise": 1.0,
+      "model": [
+        "7",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "30-step quality baseline - not turbo"
+    }
+  },
+  "17": {
+    "class_type": "SamplerCustomAdvanced",
+    "inputs": {
+      "noise": [
+        "14",
+        0
+      ],
+      "guider": [
+        "13",
+        0
+      ],
+      "sampler": [
+        "15",
+        0
+      ],
+      "sigmas": [
+        "16",
+        0
+      ],
+      "latent_image": [
+        "10",
+        1
+      ]
+    },
+    "_meta": {
+      "title": "6. Generate native video + audio"
+    }
+  },
+  "18": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "17",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Decode video from joint AV latent"
+    }
+  },
+  "19": {
+    "class_type": "VAEDecodeAudio",
+    "inputs": {
+      "samples": [
+        "17",
+        0
+      ],
+      "vae": [
+        "4",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Decode original generated audio"
+    }
+  },
+  "20": {
+    "class_type": "WBH3LosslessMaster",
+    "inputs": {
+      "fps": 24.0,
+      "filename_prefix": "video/H3_First_Last/native/H3_portrait",
+      "images": [
+        "18",
+        0
+      ],
+      "audio": [
+        "19",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "7. SAVE RGB16 MASTER - source for 4K finish"
+    }
+  },
+  "21": {
+    "class_type": "CreateVideo",
+    "inputs": {
+      "fps": 24.0,
+      "bit_depth": 8,
+      "color_space": "sRGB",
+      "codec": "none",
+      "images": [
+        "20",
+        0
+      ],
+      "audio": [
+        "19",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "8. Create browser preview at native 24 fps"
+    }
+  },
+  "22": {
+    "class_type": "SaveVideo",
+    "inputs": {
+      "filename_prefix": "video/H3_First_Last/previews/H3_portrait",
+      "format": "mp4",
+      "format.codec": "auto",
+      "video": [
+        "21",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "MP4 PREVIEW - keep the MKV master for finishing"
+    }
+  }
+}

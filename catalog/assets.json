@@ -249,6 +249,19 @@
       "estimated_bytes": 62400,
       "integrity_source": "Git-blob SHA1 from pinned official repository metadata, verified before use",
       "verification": "Downloaded and verified at runtime; never reads private LoRA lists"
+    },
+    {
+      "id": "h3-minimax_h3_fl2va_bf16",
+      "family": "h3",
+      "group": "h3_fl2va",
+      "repo_id": "Comfy-Org/MiniMax-H3",
+      "filename": "diffusion_models/minimax_h3_fl2va_bf16.safetensors",
+      "revision": "e5eb578a89295337b8ff433a035929ce0279e0b6",
+      "destination": "diffusion_models/minimax_h3_fl2va_bf16.safetensors",
+      "sha256": "907d4add438438ec1544f5240c3b38532ed934fe6be75677a6bbda2a6fdd6182",
+      "estimated_bytes": 66300000000,
+      "integrity_source": "Comfy-Org provider SHA256 inspected 2026-10-20; pinned repository revision",
+      "verification": "Metadata verified; model weights not downloaded or GPU-tested here."
     }
   ],
   "ollama": {

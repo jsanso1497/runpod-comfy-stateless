@@ -1,0 +1,40 @@
+test_api_exports_match_all_ui_connections (test_h3_first_last_hq.TestH3Graphs.test_api_exports_match_all_ui_connections) ... ok
+test_finish_preserves_source_audio_and_fps_and_keeps_native_separate (test_h3_first_last_hq.TestH3Graphs.test_finish_preserves_source_audio_and_fps_and_keeps_native_separate) ... ok
+test_links_are_reciprocal_and_acyclic (test_h3_first_last_hq.TestH3Graphs.test_links_are_reciprocal_and_acyclic) ... ok
+test_optional_face_ref_has_no_missing_required_load (test_h3_first_last_hq.TestH3Graphs.test_optional_face_ref_has_no_missing_required_load) ... ok
+test_quality_defaults_and_no_unwanted_generation_patches (test_h3_first_last_hq.TestH3Graphs.test_quality_defaults_and_no_unwanted_generation_patches) ... ok
+test_release_is_explicitly_unapproved_and_source_pinned (test_h3_first_last_hq.TestH3Graphs.test_release_is_explicitly_unapproved_and_source_pinned) ... ok
+test_same_photos_drive_both_refs_and_endpoint_anchors (test_h3_first_last_hq.TestH3Graphs.test_same_photos_drive_both_refs_and_endpoint_anchors) ... ok
+test_h3_launch_uses_dense_pytorch_and_no_forced_low_precision (test_h3_first_last_hq.TestH3LaunchAndSchema.test_h3_launch_uses_dense_pytorch_and_no_forced_low_precision) ... ok
+test_schema_check_detects_missing_nodes (test_h3_first_last_hq.TestH3LaunchAndSchema.test_schema_check_detects_missing_nodes) ... ok
+test_half_and_bfloat16_image_inputs (test_h3_first_last_hq.TestH3LosslessMedia.test_half_and_bfloat16_image_inputs) ... ok
+test_invalid_pixels_and_interruption_leave_no_master (test_h3_first_last_hq.TestH3LosslessMedia.test_invalid_pixels_and_interruption_leave_no_master) ... ok
+test_rgb16_and_audio_roundtrip (test_h3_first_last_hq.TestH3LosslessMedia.test_rgb16_and_audio_roundtrip) ... ok
+test_silent_master_roundtrip (test_h3_first_last_hq.TestH3LosslessMedia.test_silent_master_roundtrip) ... ok
+test_release_is_not_cached_across_workflow_runs (test_h3_first_last_hq.TestH3MemoryRelease.test_release_is_not_cached_across_workflow_runs) ... ok
+test_missing_nodes_and_model_are_reported (test_h3_stills_hq.StillContract.test_missing_nodes_and_model_are_reported) ... ok
+test_optional_text_mode_checks_the_correct_model (test_h3_stills_hq.StillContract.test_optional_text_mode_checks_the_correct_model) ... ok
+test_source_checks_fail_on_changed_core_or_node (test_h3_stills_hq.StillContract.test_source_checks_fail_on_changed_core_or_node) ... ok
+test_api_exports_match_ui_values_and_connections (test_h3_stills_hq.StillGraphs.test_api_exports_match_ui_values_and_connections) ... ok
+test_catalog_has_no_false_approval_or_default_extra_model_requirement (test_h3_stills_hq.StillGraphs.test_catalog_has_no_false_approval_or_default_extra_model_requirement) ... ok
+test_links_types_and_order (test_h3_stills_hq.StillGraphs.test_links_types_and_order) ... ok
+test_quality_recipe_and_full_precision (test_h3_stills_hq.StillGraphs.test_quality_recipe_and_full_precision) ... ok
+test_reference_baseline_is_one_real_reference_not_a_video_anchor (test_h3_stills_hq.StillGraphs.test_reference_baseline_is_one_real_reference_not_a_video_anchor) ... ok
+test_shared_dimensions_cannot_silently_diverge (test_h3_stills_hq.StillGraphs.test_shared_dimensions_cannot_silently_diverge) ... ok
+test_single_frame_latent_not_conditioner_latent_reaches_sampler (test_h3_stills_hq.StillGraphs.test_single_frame_latent_not_conditioner_latent_reaches_sampler) ... ok
+test_text_mode_requires_fl2va_and_has_no_reference_load (test_h3_stills_hq.StillGraphs.test_text_mode_requires_fl2va_and_has_no_reference_load) ... ok
+test_bad_pixels_are_not_silently_saved (test_h3_stills_hq.StillPNG.test_bad_pixels_are_not_silently_saved) ... ok
+test_existing_master_is_never_overwritten (test_h3_stills_hq.StillPNG.test_existing_master_is_never_overwritten) ... ok
+test_export_node_preview_and_path_checks (test_h3_stills_hq.StillPNG.test_export_node_preview_and_path_checks) ... ok
+test_half_and_bfloat_export_inputs (test_h3_stills_hq.StillPNG.test_half_and_bfloat_export_inputs) ... ok
+test_true_rgb16_png_pixels_and_metadata (test_h3_stills_hq.StillPNG.test_true_rgb16_png_pixels_and_metadata) ... ok
+test_bad_sizes_and_missing_source_are_rejected (test_h3_stills_hq.StillSizing.test_bad_sizes_and_missing_source_are_rejected) ... ok
+test_documented_widescreen_8mp_size (test_h3_stills_hq.StillSizing.test_documented_widescreen_8mp_size) ... ok
+test_grid_and_cap_for_every_aspect (test_h3_stills_hq.StillSizing.test_grid_and_cap_for_every_aspect) ... ok
+test_local_size_node_does_not_modify_source (test_h3_stills_hq.StillSizing.test_local_size_node_does_not_modify_source) ... ok
+test_source_aspect_uses_geometry_only (test_h3_stills_hq.StillSizing.test_source_aspect_uses_geometry_only) ... ok
+
+----------------------------------------------------------------------
+Ran 35 tests in 1.977s
+
+OK

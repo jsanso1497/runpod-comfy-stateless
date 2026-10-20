@@ -1,0 +1,19 @@
+test_apply_is_idempotent_and_preserves_other_workspace (test_installer.InstallerSafety.test_apply_is_idempotent_and_preserves_other_workspace) ... ok
+test_asset_conflict_is_not_overwritten (test_installer.InstallerSafety.test_asset_conflict_is_not_overwritten) ... ok
+test_changed_still_dependency_is_not_overwritten (test_installer.InstallerSafety.test_changed_still_dependency_is_not_overwritten) ... ok
+test_different_core_pin_stops_before_writes (test_installer.InstallerSafety.test_different_core_pin_stops_before_writes) ... ok
+test_edited_integration_anchor_stops_before_writes (test_installer.InstallerSafety.test_edited_integration_anchor_stops_before_writes) ... ok
+test_new_file_collision_is_not_overwritten (test_installer.InstallerSafety.test_new_file_collision_is_not_overwritten) ... ok
+test_optional_fl2va_not_added_to_default_download_groups (test_installer.InstallerSafety.test_optional_fl2va_not_added_to_default_download_groups) ... ok
+test_partial_write_failure_rolls_back (test_installer.InstallerSafety.test_partial_write_failure_rolls_back) ... ok
+test_restore_does_not_overwrite_later_user_edits (test_installer.InstallerSafety.test_restore_does_not_overwrite_later_user_edits) ... ok
+test_restore_reconstructs_original_source_files (test_installer.InstallerSafety.test_restore_reconstructs_original_source_files) ... ok
+test_symlink_escape_is_rejected (test_installer.InstallerSafety.test_symlink_escape_is_rejected) ... ok
+test_upgrade_from_previous_video_package_preserves_all_its_workflows (test_installer.InstallerSafety.test_upgrade_from_previous_video_package_preserves_all_its_workflows) ... ok
+test_windows_crlf_integration_points_are_preserved (test_installer.InstallerSafety.test_windows_crlf_integration_points_are_preserved) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.451s
+
+OK
+Restored the backed-up source files. Regenerate site/index.html if you previously rebuilt the site.

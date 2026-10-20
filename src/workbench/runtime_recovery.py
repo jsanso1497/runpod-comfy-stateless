@@ -9,6 +9,9 @@ from aiohttp import ClientTimeout, web
 
 
 def launch_options(comfy_root: Path, family: str):
+    if family == 'h3':
+        from .h3_first_last_contract import h3_launch_options
+        return h3_launch_options(comfy_root, os.environ.get('WB_DISABLE_COMFY_COMPILER', '1'))
     raw = os.environ.get('WB_DISABLE_COMFY_COMPILER', '1' if family in ('qwen', 'krea') else '0')
     if raw not in ('0', '1'):
         raise ValueError('WB_DISABLE_COMFY_COMPILER must be 0 or 1.')
