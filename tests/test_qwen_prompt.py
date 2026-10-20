@@ -204,9 +204,13 @@ def test_every_qwen_graph_has_shared_off_control():
         ROOT / 'workflows/qwen/QKEEP1/Qwen21_Keep_One_Person_Protected_Overlay_BF16.json',
     }
     assert all(path.is_file() for path in native_paths)
+    # SAM_LOCAL_EDIT_CI_SCOPE_V1: QLOCAL deliberately has no prompt enhancer.
+    # Exclude only this explicit file, not all future approved/workspace graphs.
+    approved_without_enhancer = ROOT / 'workflows/qwen/00_Approved/00_SAM_Guided_Local_Edit.json'
+    assert approved_without_enhancer.is_file()
     workflows = [
         path for path in (ROOT / 'workflows/qwen').rglob('*.json')
-        if path != addon and path not in native_paths
+        if path != addon and path not in native_paths and path != approved_without_enhancer
     ]
     assert len(workflows) == 35
     total=0
@@ -220,6 +224,20 @@ def test_every_qwen_graph_has_shared_off_control():
             port=next(p for p in n['inputs'] if p['name']=='prompt_enhancer')
             assert links[port['link']][1]==control[0]['id'];total+=1
     assert total==40
+
+
+def test_approved_local_edit_has_no_prompt_enhancer():
+    path = ROOT / 'workflows/qwen/00_Approved/00_SAM_Guided_Local_Edit.json'
+    graph = json.loads(path.read_text())
+    assert graph['extra']['workbench']['task_id'] == 'QLOCAL'
+    forbidden = {'WBQwenPromptControl', 'TextGenerate', 'Q21PhotoEncode'}
+    containers = [graph] + graph.get('definitions', {}).get('subgraphs', [])
+    for container in containers:
+        nodes = container['nodes']
+        assert not forbidden.intersection(node['type'] for node in nodes)
+        assert all(port['name'] != 'prompt_enhancer'
+                   for node in nodes for port in node.get('inputs', []))
+    assert sum(node['type'] == 'TextEncodeQwenImage21' for node in graph['nodes']) == 1
 
 def test_standard_hq_retains_off_baseline():
     sq=next(t for t in config.read_catalog('tasks.json')['tasks'] if t['id']=='SQ')
