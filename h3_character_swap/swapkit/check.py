@@ -64,9 +64,13 @@ def live_report(selected=None,url="http://127.0.0.1:8189/object_info",check_mode
 def smoke():
     """CI starts the built ComfyUI on CPU and checks real native/custom-node imports."""
     with tempfile.TemporaryDirectory(prefix="h3-swap-smoke-") as d:
+        # The pinned ComfyUI CLI rejects a nonexistent --user-directory.
+        # Prepare it before spawning, just as the normal Pod runtime does.
+        user_dir = Path(d) / "user"
+        user_dir.mkdir(parents=True, exist_ok=True)
         log=Path(d)/"comfy.log"
         with log.open("w") as h:
-            p=subprocess.Popen([sys.executable,"/opt/ComfyUI/main.py","--cpu","--listen","127.0.0.1","--port","8289","--user-directory",str(Path(d)/"user"),"--disable-auto-launch"],cwd="/opt/ComfyUI",stdout=h,stderr=subprocess.STDOUT)
+            p=subprocess.Popen([sys.executable,"/opt/ComfyUI/main.py","--cpu","--listen","127.0.0.1","--port","8289","--user-directory",str(user_dir),"--disable-auto-launch"],cwd="/opt/ComfyUI",stdout=h,stderr=subprocess.STDOUT)
             try:
                 for _ in range(180):
                     if p.poll() is not None: raise ValueError("CPU ComfyUI startup failed")
