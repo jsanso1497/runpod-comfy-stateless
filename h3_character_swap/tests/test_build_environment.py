@@ -48,11 +48,18 @@ def test_docker_creates_and_selects_venv_before_build():
     assert "ENV VIRTUAL_ENV=/opt/h3-swap-venv" in text
 
 
-def test_docker_does_not_disable_system_package_protection():
+def test_docker_keeps_application_installs_protected():
     text = (ROOT / "Dockerfile").read_text()
     assert "--break-system-packages" not in text
     assert "PIP_BREAK_SYSTEM_PACKAGES" not in text
     assert "EXTERNALLY-MANAGED" not in text
+    # The only scoped exception lives in the checked base-image spin uninstall.
+    # Package installs still use the protected application virtual environment.
+    assert "H3_SWAP_BUILD_CLEANUP=1 python /tmp/h3-base-cleanup.py" in text
+    cleanup = (ROOT / "swapkit/base_cleanup.py").read_text()
+    assert '\"uninstall\", \"--yes\"' in cleanup
+    assert '\"--break-system-packages\", TARGET' in cleanup
+    assert 'TARGET = \"spin\"' in cleanup
 
 
 def test_qualified_runtime_and_ollama_pins_are_preserved():

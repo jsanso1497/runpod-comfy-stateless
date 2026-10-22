@@ -107,6 +107,15 @@ def require_virtualenv() -> dict[str, str]:
     return environment
 
 
+def install_application_requirements(comfy: Path, constraints: Path) -> None:
+    """Resolve core and integration requirements together, then check immediately."""
+    print("[H3 BUILD] Resolving ComfyUI and integration dependencies together", flush=True)
+    run(sys.executable, "-m", "pip", "install", "--constraint", str(constraints),
+        "-r", str(comfy / "requirements.txt"), "-r", str(ROOT / "requirements.txt"))
+    # Do not defer conflicts until after repository clones, metadata and graphs.
+    run(sys.executable, "-m", "pip", "check")
+
+
 def main():
     python_environment = require_virtualenv()
     pins = json.loads((ROOT / "pins.json").read_text())
@@ -118,8 +127,7 @@ def main():
     checkout(pins["comfy"], comfy)
     constraints = Path("/tmp/swap-constraints.txt")
     constraints.write_text("\n".join(f"{n}=={md.version(n)}" for n in ("torch", "torchvision", "torchaudio") if _installed(n)) + "\n")
-    run(sys.executable, "-m", "pip", "install", "--constraint", str(constraints), "-r", str(comfy / "requirements.txt"))
-    run(sys.executable, "-m", "pip", "install", "--constraint", str(constraints), "-r", str(ROOT / "requirements.txt"))
+    install_application_requirements(comfy, constraints)
     if md.version("comfyui-frontend-package") != pins["frontend"] or md.version("comfy-kitchen") != pins["kitchen"]:
         raise ValueError("Core dependency pin mismatch")
     relay = comfy / "custom_nodes/h3-relay"
@@ -144,6 +152,7 @@ def main():
     run(sys.executable, "-m", "pip", "check")
     record = {"pins": pins, "asset_bytes_by_group": {g: sum(a["bytes"] for a in locked if a["group"] == g) for g in ("common", "akatz", "bfs")}, "python": sys.version, "packages": subprocess.check_output([sys.executable, "-m", "pip", "freeze"], text=True).splitlines(), "gpu_tested": False}
     record["python_environment"] = python_environment
+    record["base_cleanup"] = json.loads(Path("/opt/h3-base-cleanup.json").read_text())
     atomic_json(ROOT / "build-provenance.json", record)
 
 

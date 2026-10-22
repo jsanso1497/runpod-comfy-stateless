@@ -7,9 +7,16 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git curl ca-certificates tini ffmpeg zstd libgl1 libglib2.0-0 python3-venv \
     && rm -rf /var/lib/apt/lists/*
+# The base image includes spin, a source-build helper unused by H3 inference.
+# Its Click upper bound conflicts with the current Hugging Face runtime.
+# Remove only that verified, unneeded tool before exposing base packages to the
+# application venv. This does not install anything into protected system Python.
+COPY swapkit/base_cleanup.py /tmp/h3-base-cleanup.py
+RUN H3_SWAP_BUILD_CLEANUP=1 python /tmp/h3-base-cleanup.py \
+    && rm /tmp/h3-base-cleanup.py
 # The qualified Ubuntu-based image marks system Python as externally managed.
 # Install application dependencies into a venv while reusing the base image's
-# existing PyTorch/CUDA packages. Do not bypass the system package protection.
+# existing PyTorch/CUDA packages. Application installs stay inside the venv.
 RUN python -m venv --system-site-packages /opt/h3-swap-venv
 ENV VIRTUAL_ENV=/opt/h3-swap-venv
 ENV PATH="/opt/h3-swap-venv/bin:${PATH}"
