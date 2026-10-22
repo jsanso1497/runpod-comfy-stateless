@@ -5,8 +5,15 @@ ENV PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=1 PIP_DISABLE_PIP_VERSION_CHECK=1 \
     HF_HUB_DISABLE_TELEMETRY=1 HF_HUB_DISABLE_IMPLICIT_TOKEN=1
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    git curl ca-certificates tini ffmpeg zstd libgl1 libglib2.0-0 \
+    git curl ca-certificates tini ffmpeg zstd libgl1 libglib2.0-0 python3-venv \
     && rm -rf /var/lib/apt/lists/*
+# The qualified Ubuntu-based image marks system Python as externally managed.
+# Install application dependencies into a venv while reusing the base image's
+# existing PyTorch/CUDA packages. Do not bypass the system package protection.
+RUN python -m venv --system-site-packages /opt/h3-swap-venv
+ENV VIRTUAL_ENV=/opt/h3-swap-venv
+ENV PATH="/opt/h3-swap-venv/bin:${PATH}"
+
 WORKDIR /opt/h3-swap
 COPY pins.json assets.spec.json requirements.txt ./
 COPY swapkit/ ./swapkit/
@@ -14,14 +21,15 @@ COPY custom_nodes/ ./custom_nodes/
 COPY licenses/ ./licenses/
 COPY LICENSE ./licenses/INTEGRATION_LICENSE
 COPY workflows/ ./workflows/
-RUN python -m swapkit.build \
-    && curl --fail --location --retry 3 \
+# Separate build stages keep the actual failing command visible in CI logs.
+RUN python -m swapkit.build
+RUN curl --fail --location --retry 3 \
        https://github.com/ollama/ollama/releases/download/v0.35.1/ollama-linux-amd64.tar.zst \
        -o /tmp/ollama.tar.zst \
     && echo '9fcd79ac4575b2bd31b992eee18b1000c8ad126b451627c8f8cd091714cfbb10  /tmp/ollama.tar.zst' | sha256sum -c - \
     && tar --zstd -xf /tmp/ollama.tar.zst -C /usr \
-    && rm /tmp/ollama.tar.zst \
-    && python -m compileall -q swapkit custom_nodes \
+    && rm /tmp/ollama.tar.zst
+RUN python -m compileall -q swapkit custom_nodes \
     && python -m swapkit.check --static
 WORKDIR /workspace
 EXPOSE 8188

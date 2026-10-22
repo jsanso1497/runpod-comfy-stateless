@@ -90,7 +90,25 @@ def download_public_text(repo: str, revision: str, filename: str) -> str:
         return r.content.decode("utf-8")
 
 
+def require_virtualenv() -> dict[str, str]:
+    """Fail before any checkout or pip write when the image selects system Python."""
+    if sys.prefix == sys.base_prefix:
+        raise RuntimeError(
+            "H3 build selected system Python instead of the application virtual "
+            "environment. Create /opt/h3-swap-venv with --system-site-packages "
+            "and put its bin directory first on PATH."
+        )
+    environment = {
+        "executable": sys.executable,
+        "prefix": sys.prefix,
+        "base_prefix": sys.base_prefix,
+    }
+    print("[H3 BUILD PYTHON] " + json.dumps(environment, sort_keys=True), flush=True)
+    return environment
+
+
 def main():
+    python_environment = require_virtualenv()
     pins = json.loads((ROOT / "pins.json").read_text())
     if sys.version_info[:2] != (3, 12):
         raise ValueError("This isolated image must use the qualified Python 3.12 runtime")
@@ -125,6 +143,7 @@ def main():
     build_all(relay)
     run(sys.executable, "-m", "pip", "check")
     record = {"pins": pins, "asset_bytes_by_group": {g: sum(a["bytes"] for a in locked if a["group"] == g) for g in ("common", "akatz", "bfs")}, "python": sys.version, "packages": subprocess.check_output([sys.executable, "-m", "pip", "freeze"], text=True).splitlines(), "gpu_tested": False}
+    record["python_environment"] = python_environment
     atomic_json(ROOT / "build-provenance.json", record)
 
 
