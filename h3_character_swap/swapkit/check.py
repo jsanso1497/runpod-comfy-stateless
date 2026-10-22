@@ -14,17 +14,57 @@ from .graphs import validate_graph
 
 
 def graph_nodes(g):
-    special={s["id"] for s in g.get("definitions",{}).get("subgraphs",[])}
-    result={n["type"] for n in g["nodes"] if n["type"] not in special | {"Note","MarkdownNote","Reroute","PrimitiveNode"}}
-    for s in g.get("definitions",{}).get("subgraphs",[]): result |= graph_nodes(s)
-    return result
+    """Collect backend node types, accepting absent/null optional definitions.
+
+    Some frontend exports contain ``"definitions": null`` even without
+    subgraphs. Do not treat that as a missing-node failure. Malformed
+    non-null values still fail, and every real node remains schema-checked.
+    Collect subgraph IDs across this document before filtering node types,
+    so a nested subgraph may reference another definition in the same file.
+    """
+    types, subgraph_ids = set(), set()
+
+    def visit(graph, location):
+        if not isinstance(graph, dict):
+            raise ValueError(f"{location} must be a workflow object")
+        nodes = graph.get("nodes")
+        if not isinstance(nodes, list):
+            raise ValueError(f"{location}.nodes must be a list")
+        for index, node in enumerate(nodes):
+            if not isinstance(node, dict) or not isinstance(node.get("type"), str) or not node["type"]:
+                raise ValueError(f"{location}.nodes[{index}] must have a nonempty type")
+            types.add(node["type"])
+
+        definitions = graph.get("definitions")
+        if definitions is None:
+            return
+        if not isinstance(definitions, dict):
+            raise ValueError(f"{location}.definitions must be an object or null")
+        subgraphs = definitions.get("subgraphs")
+        if subgraphs is None:
+            return
+        if not isinstance(subgraphs, list):
+            raise ValueError(f"{location}.definitions.subgraphs must be a list or null")
+        for index, subgraph in enumerate(subgraphs):
+            child = f"{location}.definitions.subgraphs[{index}]"
+            if not isinstance(subgraph, dict) or not isinstance(subgraph.get("id"), str) or not subgraph["id"]:
+                raise ValueError(f"{child} must have a nonempty subgraph id")
+            subgraph_ids.add(subgraph["id"])
+            visit(subgraph, child)
+
+    visit(g, "workflow")
+    return types - subgraph_ids - {"Note", "MarkdownNote", "Reroute", "PrimitiveNode"}
 
 
 def static_report():
     files=list((ROOT/"workflows").glob("*.json"))
     canvases=[p for p in files if not p.name.endswith(".api.json")]
     if len(canvases)<4: raise ValueError("Build must include prompt studio, mask review, Akatz and BFS graphs")
-    for p in canvases: validate_graph(json.loads(p.read_text()))
+    for p in canvases:
+        canvas = json.loads(p.read_text())
+        validate_graph(canvas)
+        # Exercise the same traversal used by the live check during the build.
+        graph_nodes(canvas)
     locked=json.loads((ROOT/"assets.lock.json").read_text())["assets"]
     for row in locked:
         if len(row["sha256"])!=64 or len(row["revision"])!=40 or row["bytes"]<=0:
