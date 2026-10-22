@@ -1,0 +1,89 @@
+{
+  "1": {
+    "class_type": "LoadVideo",
+    "inputs": {
+      "file": "source.mp4"
+    },
+    "_meta": {
+      "title": "SOURCE: use the same clip as your render"
+    }
+  },
+  "2": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "character.png"
+    },
+    "_meta": {
+      "title": "CHARACTER: one approved identity / outfit reference"
+    }
+  },
+  "3": {
+    "class_type": "H3SwapAnalyzeClip",
+    "inputs": {
+      "target_person": "the main performer",
+      "start_seconds": 0.0,
+      "frames": 124,
+      "wardrobe": "Reference clothing",
+      "reuse_cached_draft": true,
+      "video": [
+        "1",
+        0
+      ],
+      "character": [
+        "2",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "ANALYZE ONLY: 16K local draft, then unload"
+    }
+  },
+  "4": {
+    "class_type": "PreviewAny",
+    "inputs": {
+      "source": [
+        "3",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "REVIEW, then paste into Akatz's native prompt"
+    }
+  },
+  "5": {
+    "class_type": "PreviewAny",
+    "inputs": {
+      "source": [
+        "3",
+        1
+      ]
+    },
+    "_meta": {
+      "title": "REVIEW, then paste into BFS character_details"
+    }
+  },
+  "6": {
+    "class_type": "PreviewAny",
+    "inputs": {
+      "source": [
+        "3",
+        2
+      ]
+    },
+    "_meta": {
+      "title": "Evidence and uncertainty report"
+    }
+  },
+  "7": {
+    "class_type": "PreviewImage",
+    "inputs": {
+      "images": [
+        "3",
+        3
+      ]
+    },
+    "_meta": {
+      "title": "These are the exact source samples analyzed"
+    }
+  }
+}

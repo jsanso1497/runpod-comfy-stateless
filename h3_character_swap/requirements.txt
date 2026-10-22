@@ -1,0 +1,4 @@
+# H3 core requirements are fixed by the qualified ComfyUI source commit.
+huggingface_hub>=0.34,<2
+requests>=2.32,<3
+filelock>=3.18,<4

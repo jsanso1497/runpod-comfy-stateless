@@ -1,0 +1,83 @@
+name: Build H3 character replacement
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  packages: write
+concurrency:
+  group: h3-character-replacement-build
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install FFmpeg for real media tests
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: Validate the isolated kit (no weights or GPU)
+        working-directory: h3_character_swap
+        run: |
+          python -m pip install pytest numpy pillow requests huggingface_hub aiohttp filelock
+          python -m pytest -q tests
+          python -m compileall -q swapkit custom_nodes
+      - name: Reclaim optional runner software
+        run: |
+          sudo rm -rf /usr/local/lib/android /opt/ghc /usr/share/dotnet
+          df -h
+      - uses: docker/setup-buildx-action@v3
+      - name: Build the pinned isolated image locally first
+        uses: docker/build-push-action@v6
+        with:
+          context: ./h3_character_swap
+          file: ./h3_character_swap/Dockerfile
+          platforms: linux/amd64
+          load: true
+          push: false
+          tags: h3-character-swap-check:local
+          provenance: false
+      - name: Actual ComfyUI CPU startup and native/custom-node schema check
+        run: docker run --rm --entrypoint python h3-character-swap-check:local -m swapkit.check --smoke
+      - name: Export build provenance and exact installed workflows
+        run: |
+          mkdir -p h3-character-swap-build
+          CID=$(docker create h3-character-swap-check:local)
+          trap 'docker rm -f "$CID" >/dev/null 2>&1 || true' EXIT
+          for name in build-provenance.json workflow-provenance.json assets.lock.json workflows licenses; do
+            docker cp "$CID:/opt/h3-swap/$name" h3-character-swap-build/
+          done
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish only after checks pass
+        env:
+          REPOSITORY: ${{ github.repository }}
+          COMMIT: ${{ github.sha }}
+        run: |
+          IMAGE="ghcr.io/${REPOSITORY,,}"
+          docker tag h3-character-swap-check:local "$IMAGE:h3-character-swap-$COMMIT"
+          docker tag h3-character-swap-check:local "$IMAGE:h3-character-swap"
+          docker push "$IMAGE:h3-character-swap-$COMMIT"
+          docker push "$IMAGE:h3-character-swap"
+          REF=$(docker image inspect "$IMAGE:h3-character-swap" --format '{{index .RepoDigests 0}}')
+          test -n "$REF"
+          printf '%s\n' "$REF" > h3-character-swap-build/image-reference.txt
+          {
+            echo '## H3 character replacement'
+            echo
+            echo 'Copy this exact container image into RunPod:'
+            echo
+            echo "\`$REF\`"
+            echo
+            echo 'Independent image: h3-hq, SAM Local Edit and other workspace images were not modified.'
+            echo 'CPU startup/schema checked. GPU inference, memory and output quality remain untested.'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: h3-character-swap-build
+          path: h3-character-swap-build

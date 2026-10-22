@@ -1,0 +1,368 @@
+{
+  "1": {
+    "class_type": "LoadVideo",
+    "inputs": {
+      "file": "source.mp4"
+    },
+    "_meta": {
+      "title": "SOURCE PERFORMANCE"
+    }
+  },
+  "2": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "character.png"
+    },
+    "_meta": {
+      "title": "CHARACTER: one approved identity / outfit reference"
+    }
+  },
+  "3": {
+    "class_type": "H3SwapClipWindow",
+    "inputs": {
+      "start_seconds": 0.0,
+      "frames": 124,
+      "short_edge": 384,
+      "video": [
+        "1",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "EXACT SOURCE WINDOW: 124 frames; author's low-res baseline"
+    }
+  },
+  "4": {
+    "class_type": "H3SwapBFSPrompt",
+    "inputs": {
+      "character_details": "person with the face, hair, physique and clothing visible in the character reference"
+    },
+    "_meta": {
+      "title": "Paste approved CHARACTER DETAILS here; template stays intact"
+    }
+  },
+  "5": {
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "minimax_h3_ref2va_pruned_int8_convrot.safetensors",
+      "weight_dtype": "default"
+    },
+    "_meta": {
+      "title": "H3 Ref2VA: developer INT8 baseline"
+    }
+  },
+  "6": {
+    "class_type": "LoraLoaderModelOnly",
+    "inputs": {
+      "lora_name": "minimax_h3_dmd_ref2va_8step_turbo_pruned.safetensors",
+      "strength_model": 1.0,
+      "model": [
+        "5",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "BFS matched DMD8 adapter (not Akatz's Turbo)"
+    }
+  },
+  "7": {
+    "class_type": "LoraLoaderModelOnly",
+    "inputs": {
+      "lora_name": "minimax_h3_character_swap_v1.1_ref2va_fro.safetensors",
+      "strength_model": 1.0,
+      "model": [
+        "6",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "BFS CHARACTER SWAP v1.1"
+    }
+  },
+  "8": {
+    "class_type": "MiniMaxH3SigmaShift",
+    "inputs": {
+      "shift_video": 12.0,
+      "shift_audio": 3.0,
+      "model": [
+        "7",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Native H3 flow shifts"
+    }
+  },
+  "9": {
+    "class_type": "CLIPLoader",
+    "inputs": {
+      "clip_name": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+      "type": "minimax",
+      "device": "default"
+    },
+    "_meta": {
+      "title": "H3 text/vision encoder"
+    }
+  },
+  "10": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "minimax_h3_video_vae_fp16.safetensors"
+    },
+    "_meta": {
+      "title": "Original H3 video VAE"
+    }
+  },
+  "11": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "minimax_h3_audio_vae_fp32.safetensors"
+    },
+    "_meta": {
+      "title": "H3 audio VAE"
+    }
+  },
+  "12": {
+    "class_type": "MiniMaxH3ReferenceToVideo",
+    "inputs": {
+      "prompt": [
+        "4",
+        0
+      ],
+      "width": [
+        "3",
+        2
+      ],
+      "height": [
+        "3",
+        3
+      ],
+      "length": [
+        "3",
+        4
+      ],
+      "ref_image_size": "match",
+      "clip": [
+        "9",
+        0
+      ],
+      "vae": [
+        "10",
+        0
+      ],
+      "audio_vae": [
+        "11",
+        0
+      ],
+      "ref_images.ref_image_0": [
+        "2",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "CHARACTER ONLY: source video goes to Add Guide"
+    }
+  },
+  "13": {
+    "class_type": "MiniMaxH3AddGuide",
+    "inputs": {
+      "frame_idx": 0,
+      "positive": [
+        "12",
+        0
+      ],
+      "latent": [
+        "12",
+        1
+      ],
+      "vae": [
+        "10",
+        0
+      ],
+      "image": [
+        "3",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "SOURCE VIDEO GUIDE at frame 0: trained BFS path"
+    }
+  },
+  "14": {
+    "class_type": "BasicGuider",
+    "inputs": {
+      "model": [
+        "8",
+        0
+      ],
+      "conditioning": [
+        "13",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "CFG 1 equivalent: native positive guidance"
+    }
+  },
+  "15": {
+    "class_type": "RandomNoise",
+    "inputs": {
+      "noise_seed": 42
+    },
+    "_meta": {
+      "title": "Fixed seed for comparison"
+    }
+  },
+  "16": {
+    "class_type": "KSamplerSelect",
+    "inputs": {
+      "sampler_name": "euler"
+    },
+    "_meta": {
+      "title": "BFS author's first-pass sampler"
+    }
+  },
+  "17": {
+    "class_type": "BasicScheduler",
+    "inputs": {
+      "scheduler": "simple",
+      "steps": 8,
+      "denoise": 1.0,
+      "model": [
+        "8",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "BFS 8 steps / simple / full denoise"
+    }
+  },
+  "18": {
+    "class_type": "SamplerCustomAdvanced",
+    "inputs": {
+      "noise": [
+        "15",
+        0
+      ],
+      "guider": [
+        "14",
+        0
+      ],
+      "sampler": [
+        "16",
+        0
+      ],
+      "sigmas": [
+        "17",
+        0
+      ],
+      "latent_image": [
+        "12",
+        1
+      ]
+    },
+    "_meta": {
+      "title": "Generate one guide-aligned clip"
+    }
+  },
+  "19": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "18",
+        0
+      ],
+      "vae": [
+        "10",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Decode raw generated frames"
+    }
+  },
+  "20": {
+    "class_type": "CreateVideo",
+    "inputs": {
+      "fps": 24.0,
+      "bit_depth": "auto",
+      "color_space": "sRGB",
+      "codec": "none",
+      "images": [
+        "19",
+        0
+      ],
+      "audio": [
+        "3",
+        1
+      ]
+    },
+    "_meta": {
+      "title": "24 fps with ORIGINAL source audio"
+    }
+  },
+  "21": {
+    "class_type": "H3SwapSaveVideo",
+    "inputs": {
+      "filename_prefix": "h3_character_swap/bfs_v11",
+      "crf": 16,
+      "video": [
+        "20",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "RAW BFS result; evaluate before any upscale"
+    }
+  },
+  "22": {
+    "class_type": "H3SwapComparison",
+    "inputs": {
+      "source": [
+        "3",
+        0
+      ],
+      "generated": [
+        "19",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "SOURCE left / GENERATED right"
+    }
+  },
+  "23": {
+    "class_type": "CreateVideo",
+    "inputs": {
+      "fps": 24.0,
+      "bit_depth": "auto",
+      "color_space": "sRGB",
+      "codec": "none",
+      "images": [
+        "22",
+        0
+      ],
+      "audio": [
+        "3",
+        1
+      ]
+    },
+    "_meta": {
+      "title": "Compare at the original timing"
+    }
+  },
+  "24": {
+    "class_type": "H3SwapSaveVideo",
+    "inputs": {
+      "filename_prefix": "h3_character_swap/bfs_v11_comparison",
+      "crf": 16,
+      "video": [
+        "23",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Source / generated comparison MP4"
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "release": "2026-10-22.1",
+  "reviewed_repository_head": "aee7c0e41922e6400000e12c6c473ea74223a4e9",
+  "base_image": "pytorch/pytorch:2.11.0-cuda12.8-cudnn9-runtime@sha256:eee11b3b3872a8c838e35ef48f08b2d5def2080902c7f666831310ca1a0ef2be",
+  "comfy": {"url": "https://github.com/Comfy-Org/ComfyUI.git", "commit": "79be670e2d9be63e238785af307369d2b9039ed1"},
+  "relay": {"url": "https://github.com/akatz-ai/h3-relay.git", "commit": "e2a7665b6eb8ea37a88c0de2c9c6b69a8f7c9220"},
+  "frontend": "1.53.6",
+  "torch": "2.11.0",
+  "kitchen": "0.2.35",
+  "ollama": {"version": "0.35.1", "url": "https://github.com/ollama/ollama/releases/download/v0.35.1/ollama-linux-amd64.tar.zst", "sha256": "9fcd79ac4575b2bd31b992eee18b1000c8ad126b451627c8f8cd091714cfbb10"},
+  "prompt_model": "qwen3-vl:8b",
+  "prompt_context": 16384,
+  "prompt_model_note": "Ollama model content digest is recorded at Pod preparation. The registry tag can change; it is not claimed to be immutable.",
+  "asset_lock_policy": "Resolve exact filenames to immutable Hugging Face revisions, sizes and LFS SHA256 during the Docker build. Download weights only on the Pod. Reject release-hash mismatches."
+}
