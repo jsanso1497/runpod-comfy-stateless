@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "release": "2026-10-22.2",
+  "base_repository_commit": "6669a835744669b21c1f124ba9ef63388fb230bc",
+  "tasks": [
+    {
+      "id": "HCLIPS",
+      "title": "Prepare long videos: selected or consecutive 5.17-second clips",
+      "description": "CPU-only source-video preparation. Export one selected section, a range or all full chunks at exactly 124 frames / 24 fps. Optional final-frame hold, source audio, ZIP, CSV and direct reuse in Load Video. No generation models used by this workflow.",
+      "family": "h3",
+      "category": "tasks",
+      "requires": [],
+      "workspaces": [
+        "h3"
+      ],
+      "status": "CPU media tests passed; live ComfyUI validation pending",
+      "approved": false,
+      "required_nodes": [
+        "LoadVideo",
+        "WBH3ExportClips",
+        "PreviewAny"
+      ],
+      "sources": [
+        "https://ffmpeg.org/ffmpeg-all.html",
+        "https://ffmpeg.org/ffmpeg-filters.html"
+      ],
+      "variants": [
+        {
+          "label": "1. Extract a selected 124-frame clip",
+          "file": "workflows/h3/HCLIPS_Video_Preparation/01_H3_Extract_Selected_124_Frame_Clip.json",
+          "source": "Bounded FFmpeg extraction"
+        },
+        {
+          "label": "2. Split a longer video into 124-frame clips",
+          "file": "workflows/h3/HCLIPS_Video_Preparation/02_H3_Split_Long_Video_Into_124_Frame_Clips.json",
+          "source": "Rational source-time chunking with frame-count verification"
+        }
+      ]
+    }
+  ],
+  "additional_model_bytes": 0,
+  "node_package": "h3_clip_tools",
+  "browser_upload_default_mib": 1024
+}

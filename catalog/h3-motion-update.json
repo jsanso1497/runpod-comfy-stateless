@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "release": "2026-10-22.1",
+  "base_repository_commit": "6669a835744669b21c1f124ba9ef63388fb230bc",
+  "comfy_commit": "b1a247c9cf9dbfda4b2c0a0c1d50950667eeaa0c",
+  "tasks": [
+    {
+      "id": "HMOTION",
+      "title": "Character swap: frame-by-frame pose control (no Ollama)",
+      "description": "Full BF16 H3 plus native Fun ControlNet Union 2.0 and SDPose. Shared source/control/output timeline, source aspect, pose preview and comparison. Stronger structural guidance, not a pixel-exact face/background swap. GPU validation pending.",
+      "sources": [
+        "https://huggingface.co/alibaba-pai/MiniMax-H3-Fun-Controlnet-Union-2.0",
+        "https://docs.comfy.org/tutorials/video/minimax/minimax-h3-fun-controlnet"
+      ],
+      "family": "h3",
+      "category": "tasks",
+      "requires": [
+        "h3",
+        "h3_motion"
+      ],
+      "workspaces": [
+        "h3"
+      ],
+      "status": "source-adapted; GPU validation pending",
+      "approved": false,
+      "required_nodes": [
+        "MiniMaxH3FunControlNetApply",
+        "SDPoseKeypointExtractor",
+        "RTDETR_detect",
+        "WBH3MotionReady"
+      ],
+      "variants": [
+        {
+          "label": "1. Preview source motion first (no H3 inference)",
+          "file": "workflows/h3/HMOTION_Pose_Control/00_H3_Motion_Preview.json",
+          "source": "Native SDPose and RT-DETR with bounded frame-aligned source"
+        },
+        {
+          "label": "2. Character swap: ControlNet 2.0 BF16 + source/pose alignment",
+          "file": "workflows/h3/HMOTION_Pose_Control/01_H3_Character_Swap_Pose_Control.json",
+          "source": "Native H3 Fun ControlNet composition with character and source references"
+        }
+      ]
+    }
+  ],
+  "assets": [
+    {
+      "id": "h3-motion-controlnet2-bf16",
+      "family": "h3",
+      "group": "h3_motion",
+      "repo_id": "Comfy-Org/MiniMax-H3",
+      "filename": "model_patches/minimax_h3_fun_controlnet_union_2.0_pruned_bf16.safetensors",
+      "revision": "bf92c4091e333e69b8ca1998e0a669f15cb0832b",
+      "destination": "model_patches/minimax_h3_fun_controlnet_union_2.0_pruned_bf16.safetensors",
+      "sha256": "cd48bdc11b1f1a3b934746c898d25123754b335c13d37d5c421f8373079282b4",
+      "estimated_bytes": 8382288792,
+      "integrity_source": "Pinned Comfy-Org provider revision and LFS SHA256, inspected 2026-10-22",
+      "verification": "Provider metadata inspected; weights not downloaded or sampled here."
+    },
+    {
+      "id": "h3-motion-sdpose-fp16",
+      "family": "h3",
+      "group": "h3_motion",
+      "repo_id": "Comfy-Org/SDPose",
+      "filename": "checkpoints/sdpose_wholebody_fp16.safetensors",
+      "revision": "acb43fbe8142b54d9ebd52b720b81dd4e14c8d81",
+      "destination": "checkpoints/sdpose_wholebody_fp16.safetensors",
+      "sha256": "63d01f9a7494560693b24767f4469d59c9d3266b31ff0a253e74d1e611442721",
+      "estimated_bytes": 1916645792,
+      "integrity_source": "Pinned Comfy-Org provider revision and LFS SHA256, inspected 2026-10-22",
+      "verification": "Provider metadata inspected; weights not downloaded or sampled here."
+    },
+    {
+      "id": "h3-motion-detector-fp16",
+      "family": "h3",
+      "group": "h3_motion",
+      "repo_id": "Comfy-Org/SDPose",
+      "filename": "diffusion_models/rt_detr_v4-x-hgnet_fp16.safetensors",
+      "revision": "acb43fbe8142b54d9ebd52b720b81dd4e14c8d81",
+      "destination": "diffusion_models/rt_detr_v4-x-hgnet_fp16.safetensors",
+      "sha256": "581f9af9bbabb664d1891cbccd823308b176ecd409146f954dfa39af3bec2476",
+      "estimated_bytes": 123968978,
+      "integrity_source": "Pinned Comfy-Org provider revision and LFS SHA256, inspected 2026-10-22",
+      "verification": "Provider metadata inspected; weights not downloaded or sampled here."
+    }
+  ],
+  "additional_model_bytes": 10422903562
+}

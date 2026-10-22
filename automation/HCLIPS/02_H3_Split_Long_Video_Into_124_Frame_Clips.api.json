@@ -1,0 +1,45 @@
+{
+  "1": {
+    "class_type": "LoadVideo",
+    "inputs": {
+      "file": ""
+    },
+    "_meta": {
+      "title": "1. UPLOAD LONG SOURCE VIDEO"
+    }
+  },
+  "2": {
+    "class_type": "WBH3ExportClips",
+    "inputs": {
+      "video": [
+        "1",
+        0
+      ],
+      "mode": "Consecutive chunks",
+      "start_seconds": 0.0,
+      "first_chunk": 1,
+      "chunk_count": 0,
+      "final_chunk": "Skip incomplete tail",
+      "audio": "Keep source audio",
+      "output_prefix": "H3_clips",
+      "make_loadable": true,
+      "make_zip": true,
+      "crf": 16
+    },
+    "_meta": {
+      "title": "2. EXPORT 124-FRAME CLIPS"
+    }
+  },
+  "3": {
+    "class_type": "PreviewAny",
+    "inputs": {
+      "source": [
+        "2",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "3. EXPORT REPORT + CLIP NAMES"
+    }
+  }
+}

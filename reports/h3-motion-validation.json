@@ -1,0 +1,66 @@
+{
+  "release": "2026-10-22.1",
+  "repository": "jsanso1497/runpod-comfy-stateless",
+  "inspected_repository_commit": "6669a835744669b21c1f124ba9ef63388fb230bc",
+  "comfy_commit": "b1a247c9cf9dbfda4b2c0a0c1d50950667eeaa0c",
+  "changes": [
+    "Native Fun ControlNet Union 2.0 BF16 with ten control injection points",
+    "Native SDPose + RT-DETR, one tracked performer, every source frame",
+    "One source-time 24 fps decode, shared control/reference/output length and source aspect",
+    "No Ollama / Reference Pack / Turbo dependency",
+    "Separate motion preview, gated render, lossless master and synchronized checks",
+    "Persistent model_patches directory and scoped catalog integration"
+  ],
+  "additional_model_bytes": 10422903562,
+  "tests": {
+    "cpu_and_offline": {
+      "passed": 34,
+      "failed": 0,
+      "log": "reports/h3-motion-offline-tests.txt"
+    },
+    "ruby_installer_disposable_repository_fixtures": {
+      "passed": 11,
+      "failed": 0,
+      "log": "reports/h3-motion-installer-tests.txt"
+    },
+    "total_passed": 45,
+    "real_media_test": "Synthetic 60 fps MP4 decoded at timestamp-based 24 fps; count, dimensions and a known timed visual transition verified.",
+    "installer_cases": [
+      "normal apply",
+      "repeat installation",
+      "dry run",
+      "payload tampering",
+      "existing-file conflict",
+      "wrong core pin",
+      "symlink destination",
+      "write-failure rollback",
+      "unrelated workspace preservation",
+      "directory containment",
+      "changed integration anchor"
+    ],
+    "validation_environment": {
+      "python": "3.13.5",
+      "platform": "Linux",
+      "gpu_inference": false
+    }
+  },
+  "not_run": [
+    "Complete repository CI suite",
+    "Docker image build",
+    "Large model downloads",
+    "Full native ComfyUI runtime import/execution",
+    "GPU generation",
+    "VRAM or latency profiling",
+    "Controlled visual comparison on the user footage"
+  ],
+  "quality_status": "Source-adapted candidate. No guarantee of exact motion, identity or unchanged background.",
+  "remote_mutations": false,
+  "model_weights_in_package": false,
+  "primary_sources": [
+    "https://docs.comfy.org/tutorials/video/minimax/minimax-h3-fun-controlnet",
+    "https://huggingface.co/alibaba-pai/MiniMax-H3-Fun-Controlnet-Union-2.0",
+    "https://github.com/Comfy-Org/ComfyUI/tree/b1a247c9cf9dbfda4b2c0a0c1d50950667eeaa0c",
+    "https://huggingface.co/Comfy-Org/MiniMax-H3/blob/bf92c4091e333e69b8ca1998e0a669f15cb0832b/model_patches/minimax_h3_fun_controlnet_union_2.0_pruned_bf16.safetensors",
+    "https://huggingface.co/Comfy-Org/SDPose/tree/acb43fbe8142b54d9ebd52b720b81dd4e14c8d81"
+  ]
+}

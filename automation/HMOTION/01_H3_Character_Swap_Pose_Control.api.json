@@ -1,0 +1,586 @@
+{
+  "1": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": ""
+    },
+    "_meta": {
+      "title": "1. CHARACTER A: primary face"
+    }
+  },
+  "2": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": ""
+    },
+    "_meta": {
+      "title": "2. CHARACTER B: same person / supporting view"
+    }
+  },
+  "3": {
+    "class_type": "LoadVideo",
+    "inputs": {
+      "file": ""
+    },
+    "_meta": {
+      "title": "3. SOURCE VIDEO: original performance"
+    }
+  },
+  "4": {
+    "class_type": "WBH3MotionVideo",
+    "inputs": {
+      "start_seconds": 0.0,
+      "window_seconds": 5.25,
+      "megapixels": 1.03,
+      "video": [
+        "3",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "4. SOURCE TIMING + AUTO ASPECT"
+    }
+  },
+  "5": {
+    "class_type": "CheckpointLoaderSimple",
+    "inputs": {
+      "ckpt_name": "sdpose_wholebody_fp16.safetensors"
+    },
+    "_meta": {
+      "title": "SDPose full-body FP16"
+    }
+  },
+  "6": {
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "rt_detr_v4-x-hgnet_fp16.safetensors",
+      "weight_dtype": "default"
+    },
+    "_meta": {
+      "title": "Person detector FP16"
+    }
+  },
+  "7": {
+    "class_type": "RTDETR_detect",
+    "inputs": {
+      "threshold": 0.35,
+      "class_name": "person",
+      "max_detections": 10,
+      "model": [
+        "6",
+        0
+      ],
+      "image": [
+        "4",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Detect performers in every frame"
+    }
+  },
+  "8": {
+    "class_type": "WBH3MotionTrackPerson",
+    "inputs": {
+      "first_person": -1,
+      "max_detection_gap": 6,
+      "bboxes": [
+        "7",
+        0
+      ],
+      "source_frames": [
+        "4",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "5. SELECT PERFORMER: -1 = largest"
+    }
+  },
+  "9": {
+    "class_type": "SDPoseKeypointExtractor",
+    "inputs": {
+      "batch_size": 1,
+      "model": [
+        "5",
+        0
+      ],
+      "vae": [
+        "5",
+        2
+      ],
+      "image": [
+        "4",
+        0
+      ],
+      "bboxes": [
+        "8",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Extract pose: every source frame"
+    }
+  },
+  "10": {
+    "class_type": "SDPoseDrawKeypoints",
+    "inputs": {
+      "draw_body": true,
+      "draw_hands": true,
+      "draw_face": false,
+      "draw_feet": false,
+      "stick_width": 4,
+      "face_point_size": 3,
+      "score_threshold": 0.3,
+      "draw_head": true,
+      "keypoints": [
+        "9",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "BODY + HANDS; facial landmarks OFF"
+    }
+  },
+  "11": {
+    "class_type": "WBH3MotionReady",
+    "inputs": {
+      "mode": "Render video",
+      "source_frames": [
+        "4",
+        0
+      ],
+      "pose_frames": [
+        "10",
+        0
+      ],
+      "keypoints": [
+        "9",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "6. MOTION CHECK / RENDER"
+    }
+  },
+  "12": {
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": [
+        "11",
+        5
+      ],
+      "weight_dtype": "default"
+    },
+    "_meta": {
+      "title": "Existing H3 Ref2VA BF16"
+    }
+  },
+  "13": {
+    "class_type": "CLIPLoader",
+    "inputs": {
+      "clip_name": [
+        "11",
+        6
+      ],
+      "type": "minimax",
+      "device": "default"
+    },
+    "_meta": {
+      "title": "Existing H3 encoder BF16: NOT Ollama"
+    }
+  },
+  "14": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": [
+        "11",
+        7
+      ]
+    },
+    "_meta": {
+      "title": "Existing H3 video VAE"
+    }
+  },
+  "15": {
+    "class_type": "ModelPatchLoader",
+    "inputs": {
+      "name": [
+        "11",
+        8
+      ]
+    },
+    "_meta": {
+      "title": "NEW: Fun ControlNet Union 2.0 BF16"
+    }
+  },
+  "16": {
+    "class_type": "WBH3MotionCheckPatch",
+    "inputs": {
+      "model_patch": [
+        "15",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Verify all 10 control injection layers"
+    }
+  },
+  "17": {
+    "class_type": "MiniMaxH3ReferenceToVideo",
+    "inputs": {
+      "prompt": "<Picture 1> and <Picture 2> depict the same replacement character. <Picture 1> defines the primary facial identity; <Picture 2> provides a supporting view and body proportions. Use the photographs for identity, not their pose, framing or background.\n\nReplace the main performer in <Video 1> with that character. Follow the supplied pose-control sequence frame by frame: keep the timing, direction, trajectory, body orientation, limb positions, gestures and changes of pose. Do not invent a different performance, pause or camera move. The source video supplies the scene, clothing, lighting, framing, camera movement and interaction with the environment. Retain those attributes while using the replacement character's recognizable identity.\n\nOne continuous photorealistic shot with coherent anatomy and scene-matched lighting. Preserve natural facial proportions; do not blend the source performer's face with the replacement. Do not add people, cuts, captions or unrelated actions. No spoken dialogue or music. The control frames are structural guidance, not a visible skeleton to draw in the output.",
+      "width": [
+        "11",
+        2
+      ],
+      "height": [
+        "11",
+        3
+      ],
+      "length": [
+        "11",
+        4
+      ],
+      "ref_image_size": "max",
+      "clip": [
+        "13",
+        0
+      ],
+      "vae": [
+        "14",
+        0
+      ],
+      "ref_images.ref_image_0": [
+        "1",
+        0
+      ],
+      "ref_images.ref_image_1": [
+        "2",
+        0
+      ],
+      "ref_videos.ref_video_0": [
+        "11",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "7. DIRECT PROMPT + CHARACTER REFERENCES"
+    }
+  },
+  "18": {
+    "class_type": "MiniMaxH3SigmaShift",
+    "inputs": {
+      "shift_video": 12.0,
+      "shift_audio": 3.0,
+      "model": [
+        "12",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Native H3 shifts"
+    }
+  },
+  "19": {
+    "class_type": "MiniMaxH3FunControlNetApply",
+    "inputs": {
+      "strength": 1.0,
+      "start_percent": 0.0,
+      "end_percent": 1.0,
+      "model": [
+        "18",
+        0
+      ],
+      "model_patch": [
+        "16",
+        0
+      ],
+      "vae": [
+        "14",
+        0
+      ],
+      "control_video": [
+        "11",
+        1
+      ]
+    },
+    "_meta": {
+      "title": "8. MOTION CONTROL STRENGTH"
+    }
+  },
+  "20": {
+    "class_type": "BasicGuider",
+    "inputs": {
+      "model": [
+        "19",
+        0
+      ],
+      "conditioning": [
+        "17",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Native guidance = 1"
+    }
+  },
+  "21": {
+    "class_type": "BasicScheduler",
+    "inputs": {
+      "scheduler": "beta",
+      "steps": 40,
+      "denoise": 1.0,
+      "model": [
+        "19",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "40 steps; no Turbo"
+    }
+  },
+  "22": {
+    "class_type": "RandomNoise",
+    "inputs": {
+      "noise_seed": 42
+    },
+    "_meta": {
+      "title": "Fixed seed for comparisons"
+    }
+  },
+  "23": {
+    "class_type": "KSamplerSelect",
+    "inputs": {
+      "sampler_name": "res_multistep"
+    },
+    "_meta": {
+      "title": "Full-step sampler"
+    }
+  },
+  "24": {
+    "class_type": "SamplerCustomAdvanced",
+    "inputs": {
+      "noise": [
+        "22",
+        0
+      ],
+      "guider": [
+        "20",
+        0
+      ],
+      "sampler": [
+        "23",
+        0
+      ],
+      "sigmas": [
+        "21",
+        0
+      ],
+      "latent_image": [
+        "17",
+        1
+      ]
+    },
+    "_meta": {
+      "title": "H3: pose-controlled sampling"
+    }
+  },
+  "25": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "24",
+        0
+      ],
+      "vae": [
+        "14",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Decode generated frames"
+    }
+  },
+  "26": {
+    "class_type": "WBH3LosslessMaster",
+    "inputs": {
+      "fps": 24.0,
+      "filename_prefix": "video/H3_Motion_Control/native/H3_motion",
+      "images": [
+        "25",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "LOSSLESS RGB16 MASTER"
+    }
+  },
+  "27": {
+    "class_type": "CreateVideo",
+    "inputs": {
+      "fps": 24.0,
+      "bit_depth": 8,
+      "color_space": "sRGB",
+      "codec": "none",
+      "images": [
+        "26",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Silent video at source-time 24 fps"
+    }
+  },
+  "28": {
+    "class_type": "SaveVideo",
+    "inputs": {
+      "filename_prefix": "video/H3_Motion_Control/H3_motion",
+      "format": "mp4",
+      "format.codec": "auto",
+      "video": [
+        "27",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "9. RESULT: native motion-controlled MP4"
+    }
+  },
+  "30": {
+    "class_type": "WBH3MotionCompare",
+    "inputs": {
+      "label": "POSE CONTROL",
+      "source": [
+        "4",
+        0
+      ],
+      "other": [
+        "10",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "SOURCE | POSE: inspect this before rendering"
+    }
+  },
+  "31": {
+    "class_type": "CreateVideo",
+    "inputs": {
+      "fps": 24.0,
+      "bit_depth": 8,
+      "color_space": "sRGB",
+      "codec": "none",
+      "images": [
+        "30",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Pose check: 24 fps"
+    }
+  },
+  "34": {
+    "class_type": "SaveVideo",
+    "inputs": {
+      "filename_prefix": "video/H3_Motion_Control/checks/Source_vs_Pose",
+      "format": "mp4",
+      "format.codec": "auto",
+      "video": [
+        "31",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "CONTROL CHECK: same source frames and timing"
+    }
+  },
+  "35": {
+    "class_type": "WBH3MotionCompare",
+    "inputs": {
+      "label": "GENERATED",
+      "source": [
+        "4",
+        0
+      ],
+      "other": [
+        "25",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "SOURCE | GENERATED: motion comparison"
+    }
+  },
+  "36": {
+    "class_type": "CreateVideo",
+    "inputs": {
+      "fps": 24.0,
+      "bit_depth": 8,
+      "color_space": "sRGB",
+      "codec": "none",
+      "images": [
+        "35",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Output comparison: 24 fps"
+    }
+  },
+  "37": {
+    "class_type": "SaveVideo",
+    "inputs": {
+      "filename_prefix": "video/H3_Motion_Control/checks/Source_vs_Generated",
+      "format": "mp4",
+      "format.codec": "auto",
+      "video": [
+        "36",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "OUTPUT CHECK: synchronized side by side"
+    }
+  },
+  "41": {
+    "class_type": "PreviewAny",
+    "inputs": {
+      "source": [
+        "4",
+        1
+      ]
+    },
+    "_meta": {
+      "title": "Exact source timing and auto dimensions"
+    }
+  },
+  "42": {
+    "class_type": "PreviewAny",
+    "inputs": {
+      "source": [
+        "8",
+        1
+      ]
+    },
+    "_meta": {
+      "title": "Performer-tracking report"
+    }
+  },
+  "43": {
+    "class_type": "DrawBBoxes",
+    "inputs": {
+      "image": [
+        "4",
+        0
+      ],
+      "bboxes": [
+        "8",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Selected performer overlay"
+    }
+  }
+}

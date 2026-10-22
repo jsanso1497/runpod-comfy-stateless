@@ -2,6 +2,80 @@
   "schema_version": 1,
   "tasks": [
     {
+      "id": "HCLIPS",
+      "title": "Prepare long videos: selected or consecutive 5.17-second clips",
+      "description": "CPU-only source-video preparation. Export one selected section, a range or all full chunks at exactly 124 frames / 24 fps. Optional final-frame hold, source audio, ZIP, CSV and direct reuse in Load Video. No generation models used by this workflow.",
+      "family": "h3",
+      "category": "tasks",
+      "requires": [
+
+      ],
+      "workspaces": [
+        "h3"
+      ],
+      "status": "CPU media tests passed; live ComfyUI validation pending",
+      "approved": false,
+      "required_nodes": [
+        "LoadVideo",
+        "WBH3ExportClips",
+        "PreviewAny"
+      ],
+      "sources": [
+        "https://ffmpeg.org/ffmpeg-all.html",
+        "https://ffmpeg.org/ffmpeg-filters.html"
+      ],
+      "variants": [
+        {
+          "label": "1. Extract a selected 124-frame clip",
+          "file": "workflows/h3/HCLIPS_Video_Preparation/01_H3_Extract_Selected_124_Frame_Clip.json",
+          "source": "Bounded FFmpeg extraction"
+        },
+        {
+          "label": "2. Split a longer video into 124-frame clips",
+          "file": "workflows/h3/HCLIPS_Video_Preparation/02_H3_Split_Long_Video_Into_124_Frame_Clips.json",
+          "source": "Rational source-time chunking with frame-count verification"
+        }
+      ]
+    },
+    {
+      "id": "HMOTION",
+      "title": "Character swap: frame-by-frame pose control (no Ollama)",
+      "description": "Full BF16 H3 plus native Fun ControlNet Union 2.0 and SDPose. Shared source/control/output timeline, source aspect, pose preview and comparison. Stronger structural guidance, not a pixel-exact face/background swap. GPU validation pending.",
+      "sources": [
+        "https://huggingface.co/alibaba-pai/MiniMax-H3-Fun-Controlnet-Union-2.0",
+        "https://docs.comfy.org/tutorials/video/minimax/minimax-h3-fun-controlnet"
+      ],
+      "family": "h3",
+      "category": "tasks",
+      "requires": [
+        "h3",
+        "h3_motion"
+      ],
+      "workspaces": [
+        "h3"
+      ],
+      "status": "source-adapted; GPU validation pending",
+      "approved": false,
+      "required_nodes": [
+        "MiniMaxH3FunControlNetApply",
+        "SDPoseKeypointExtractor",
+        "RTDETR_detect",
+        "WBH3MotionReady"
+      ],
+      "variants": [
+        {
+          "label": "1. Preview source motion first (no H3 inference)",
+          "file": "workflows/h3/HMOTION_Pose_Control/00_H3_Motion_Preview.json",
+          "source": "Native SDPose and RT-DETR with bounded frame-aligned source"
+        },
+        {
+          "label": "2. Character swap: ControlNet 2.0 BF16 + source/pose alignment",
+          "file": "workflows/h3/HMOTION_Pose_Control/01_H3_Character_Swap_Pose_Control.json",
+          "source": "Native H3 Fun ControlNet composition with character and source references"
+        }
+      ]
+    },
+    {
       "id": "HFL",
       "title": "First + last frame: identity-focused H3 HQ",
       "description": "Native BF16 Ref2VA with high-resolution image references and guide anchors at frame 0 and -1. Saves an RGB16 lossless native master plus an MP4 preview. Requires live GPU validation; not yet approved.",

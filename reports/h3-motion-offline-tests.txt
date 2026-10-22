@@ -1,0 +1,41 @@
+test_actual_60fps_clip_becomes_aligned_24fps_without_tail_padding (test_h3_motion_hq.FFmpegIntegrationTests.test_actual_60fps_clip_becomes_aligned_24fps_without_tail_padding) ... ok
+test_comparison_is_frame_aligned (test_h3_motion_hq.FFmpegIntegrationTests.test_comparison_is_frame_aligned) ... ok
+test_conversion_preserves_elapsed_time_not_just_frame_count (test_h3_motion_hq.FFmpegIntegrationTests.test_conversion_preserves_elapsed_time_not_just_frame_count) ... ok
+test_large_loaders_are_after_pose_gate (test_h3_motion_hq.GraphTests.test_large_loaders_are_after_pose_gate) ... ok
+test_model_manifest_precision_and_pins (test_h3_motion_hq.GraphTests.test_model_manifest_precision_and_pins) ... ok
+test_no_ollama_refpack_turbo_or_quantized_weights (test_h3_motion_hq.GraphTests.test_no_ollama_refpack_turbo_or_quantized_weights) ... ok
+test_no_source_face_landmarks_default (test_h3_motion_hq.GraphTests.test_no_source_face_landmarks_default) ... ok
+test_payload_python_syntax (test_h3_motion_hq.GraphTests.test_payload_python_syntax) ... ok
+test_preview_has_no_h3_diffusion_or_encoder (test_h3_motion_hq.GraphTests.test_preview_has_no_h3_diffusion_or_encoder) ... ok
+test_reciprocal_links_types_and_no_cycles (test_h3_motion_hq.GraphTests.test_reciprocal_links_types_and_no_cycles) ... ok
+test_sampler_uses_control_patched_model (test_h3_motion_hq.GraphTests.test_sampler_uses_control_patched_model) ... ok
+test_saved_graphs_and_api_match_builder (test_h3_motion_hq.GraphTests.test_saved_graphs_and_api_match_builder) ... ok
+test_single_source_drives_reference_control_and_output_length (test_h3_motion_hq.GraphTests.test_single_source_drives_reference_control_and_output_length) ... ok
+test_alignment_requires_identical_timeline_and_dimensions (test_h3_motion_hq.MotionMathTests.test_alignment_requires_identical_timeline_and_dimensions) ... ok
+test_canvas_respects_source_orientation (test_h3_motion_hq.MotionMathTests.test_canvas_respects_source_orientation) ... ok
+test_controlnet_v2_only (test_h3_motion_hq.MotionMathTests.test_controlnet_v2_only) ... ok
+test_frame_grid_never_extends_source (test_h3_motion_hq.MotionMathTests.test_frame_grid_never_extends_source) ... ok
+test_invalid_geometry_and_nonfinite_values (test_h3_motion_hq.MotionMathTests.test_invalid_geometry_and_nonfinite_values) ... ok
+test_multiple_unselected_people_rejected (test_h3_motion_hq.MotionMathTests.test_multiple_unselected_people_rejected) ... ok
+test_native_pose_health_check (test_h3_motion_hq.MotionMathTests.test_native_pose_health_check) ... ok
+test_pixel_aspect_and_rotation (test_h3_motion_hq.MotionMathTests.test_pixel_aspect_and_rotation) ... ok
+test_short_clip_rejected (test_h3_motion_hq.MotionMathTests.test_short_clip_rejected) ... ok
+test_core_pin_guard (test_h3_motion_hq.RuntimeContractTests.test_core_pin_guard) ... ok
+test_live_schema_catches_missing_assets (test_h3_motion_hq.RuntimeContractTests.test_live_schema_catches_missing_assets) ... ok
+test_local_video_path_safety (test_h3_motion_hq.RuntimeContractTests.test_local_video_path_safety) ... ok
+test_node_output_contract (test_h3_motion_hq.RuntimeContractTests.test_node_output_contract) ... ok
+test_preview_gate_blocks_before_gpu_import (test_h3_motion_hq.RuntimeContractTests.test_preview_gate_blocks_before_gpu_import) ... [H3 MOTION] Pose check: {"frames": 124, "weak_pose_frames": [], "face_landmarks": "Not drawn by default, to avoid copying the original facial shape."}
+ok
+test_render_gate_derives_shape_and_releases_preprocessors (test_h3_motion_hq.RuntimeContractTests.test_render_gate_derives_shape_and_releases_preprocessors) ... [H3 MOTION] Pose check: {"frames": 124, "weak_pose_frames": [], "face_landmarks": "Not drawn by default, to avoid copying the original facial shape."}
+ok
+test_bad_input_or_frame_count (test_h3_motion_hq.TrackingTests.test_bad_input_or_frame_count) ... ok
+test_explicit_first_person_left_to_right (test_h3_motion_hq.TrackingTests.test_explicit_first_person_left_to_right) ... ok
+test_largest_person_first_then_track_not_largest_each_frame (test_h3_motion_hq.TrackingTests.test_largest_person_first_then_track_not_largest_each_frame) ... ok
+test_lost_track_does_not_jump_to_remote_person (test_h3_motion_hq.TrackingTests.test_lost_track_does_not_jump_to_remote_person) ... ok
+test_missing_first_frame_and_invalid_index (test_h3_motion_hq.TrackingTests.test_missing_first_frame_and_invalid_index) ... ok
+test_short_gap_holds_crop_not_video_frames (test_h3_motion_hq.TrackingTests.test_short_gap_holds_crop_not_video_frames) ... ok
+
+----------------------------------------------------------------------
+Ran 34 tests in 4.407s
+
+OK

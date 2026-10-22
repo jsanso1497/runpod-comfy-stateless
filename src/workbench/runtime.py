@@ -44,7 +44,7 @@ def configure_files()->dict[str,str]:
     for name in ('input','output','comfy-user','models','workbench','ollama'):(root/name).mkdir(parents=True,exist_ok=True)
     # Keep one immutable code tree; only user data and assets live on mounted storage.
     comfy=Path('/opt/ComfyUI')
-    for category in ('checkpoints','diffusion_models','text_encoders','vae','loras','SEEDVR2','clip_vision','upscale_models','refmods'):
+    for category in ('checkpoints','diffusion_models','text_encoders','vae','loras','SEEDVR2','clip_vision','upscale_models','refmods','model_patches'):
         dest=root/'models'/category;dest.mkdir(parents=True,exist_ok=True)
         target=comfy/'models'/category
         if target.is_symlink():
@@ -84,6 +84,9 @@ class Runtime:
           '--user-directory',str(data_root()/'comfy-user'),'--disable-auto-launch']
         if os.environ.get('WB_SAVE_METADATA','0')!='1':args+=['--disable-metadata']
         args += launch_options(Path('/opt/ComfyUI'), workspace())
+        if workspace() == 'h3':
+            from .h3_clip_tools import upload_cli_args
+            args += upload_cli_args()
         # No arbitrary shell command string or forced reduced-precision flags.
         self.comfy=subprocess.Popen(args,cwd='/opt/ComfyUI',env=self.env)
     async def start_ollama(self):
@@ -156,7 +159,7 @@ class Runtime:
         rows=[]
         for p in root.rglob('*'):
             if len(rows)>=2000:break
-            if p.is_file() and not p.is_symlink() and p.suffix.lower() in ('.png','.jpg','.jpeg','.webp','.mp4','.mov','.mkv','.wav','.flac','.mp3'):
+            if p.is_file() and not p.is_symlink() and p.suffix.lower() in ('.png','.jpg','.jpeg','.webp','.mp4','.mov','.mkv','.wav','.flac','.mp3','.zip','.csv'):
                 rows.append({'path':str(p.relative_to(root)),'bytes':p.stat().st_size})
         return web.json_response({'kind':kind,'files':rows,'limit':2000})
     async def proxy(self,request):

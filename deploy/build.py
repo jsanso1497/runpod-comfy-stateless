@@ -41,6 +41,9 @@ def main():
  if name == 'h3':
   from workbench.h3_still_contract import verify_sources
   verify_sources(COMFY, model['comfy_commit'])
+ if name == 'h3':
+  from workbench.h3_motion_contract import verify_core as verify_motion_core
+  verify_motion_core(COMFY, model['comfy_commit'])
  for id in model['local_nodes']+['workbench_tools','workbench_ui']:
   dest=COMFY/'custom_nodes'/('Workbench_'+id)
   dest.symlink_to(ROOT/'src/nodes'/id,target_is_directory=True)

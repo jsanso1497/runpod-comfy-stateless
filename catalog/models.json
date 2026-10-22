@@ -96,13 +96,17 @@
         "qwen_native",
         "everyday",
         "h3_first_last_hq",
-        "h3_still_hq"
+        "h3_still_hq",
+        "h3_motion_hq",
+        "h3_clip_tools"
       ],
       "toolbox": [
         "ollama",
         "seedvr2"
       ],
       "default_tasks": [
+        "HCLIPS",
+        "HMOTION",
         "HFL",
         "HFL4K",
         "HSTILL"
@@ -115,7 +119,9 @@
       "storage_gb": 300,
       "hardware_note": "Quality-first planning target: H200-class 141 GB VRAM, 256 GB system RAM and a 300 GB volume. Not a measured minimum. An 80 GB GPU needs offloading and may require lower reference sizes. Full BF16 H3 assets plus SeedVR2 consume approximately 141 GB before cache overhead and outputs. Native generation, 4K finishing and peak memory still require live validation. Still references reuse the existing weights. Optional HSTXT adds about 66.3 GB of FL2VA weights; use a larger volume when keeping both families and caches. 8 MP still generation and memory usage remain unbenchmarked.",
       "h3_first_last_release": "2026-10-19.1",
-      "h3_still_release": "2026-10-20.1"
+      "h3_still_release": "2026-10-20.1",
+      "h3_clips_release": "2026-10-22.2",
+      "h3_motion_release": "2026-10-22.1"
     },
     {
       "id": "restoration",

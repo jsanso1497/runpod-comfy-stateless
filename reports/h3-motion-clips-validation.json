@@ -1,0 +1,69 @@
+{
+  "release": "2026-10-22.2",
+  "base_repository_commit": "6669a835744669b21c1f124ba9ef63388fb230bc",
+  "completed_test_runs": [
+    {
+      "suite": "initial clip unit/graph/real-media tests",
+      "passed": 36,
+      "failures": 0
+    },
+    {
+      "suite": "additional VFR/anamorphic/source-picture tests",
+      "passed": 3,
+      "failures": 0
+    },
+    {
+      "suite": "retained motion-control offline tests",
+      "passed": 34,
+      "failures": 0
+    },
+    {
+      "suite": "combined installer tests",
+      "passed": 12,
+      "failures": 0
+    }
+  ],
+  "completed_test_total": 85,
+  "test_execution_note": "Cases passed in separate completed runs. Two subsequent aggregate reruns exceeded the execution-tool timeout and are not counted as completed runs.",
+  "real_video_test": {
+    "source_seconds": 180,
+    "source_fps": 60,
+    "source_size": [
+      96,
+      64
+    ],
+    "complete_clips": 34,
+    "frames_per_clip": 124,
+    "output_fps": 24,
+    "leftover_seconds": 4.333333333333333,
+    "scope": "Synthetic low-resolution test content; not the user source video, not a full-resolution performance benchmark."
+  },
+  "ffmpeg": "ffmpeg version 7.1.5-0+deb13u1 Copyright (c) 2000-2026 the FFmpeg developers",
+  "python": "Python 3.13.5",
+  "ruby": "ruby 3.3.8 (2025-04-09 revision b200bad6cd) [x86_64-linux-gnu]",
+  "previous_motion_payload_preserved_byte_for_byte": [
+    "automation/HMOTION/00_H3_Motion_Preview.api.json",
+    "automation/HMOTION/01_H3_Character_Swap_Pose_Control.api.json",
+    "catalog/h3-motion-update.json",
+    "docs/H3_MOTION_CONTROL.md",
+    "reports/h3-motion-installer-tests.txt",
+    "reports/h3-motion-offline-tests.txt",
+    "reports/h3-motion-validation.json",
+    "scripts/build_h3_motion_hq.py",
+    "src/nodes/h3_motion_hq/__init__.py",
+    "src/workbench/h3_motion_contract.py",
+    "src/workbench/h3_motion_tools.py",
+    "tests/test_h3_motion_hq.py",
+    "workflows/h3/HMOTION_Pose_Control/00_H3_Motion_Preview.json",
+    "workflows/h3/HMOTION_Pose_Control/01_H3_Character_Swap_Pose_Control.json"
+  ],
+  "new_model_bytes_for_clip_preparation": 0,
+  "not_run": [
+    "Complete repository CI suite",
+    "Docker image build",
+    "Live ComfyUI import/execution/UI",
+    "GPU inference",
+    "Full-resolution performance or memory benchmark"
+  ],
+  "file_generation": "No remote repository changes, commit or push performed."
+}

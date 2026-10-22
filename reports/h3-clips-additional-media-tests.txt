@@ -1,0 +1,14 @@
+test_variable_frame_rate_source (test_h3_clip_tools.RealMediaTests.test_variable_frame_rate_source) ... [H3 CLIPS] 1/1: source 0.000000s; 124 frames; tail_pad=False
+[H3 CLIPS] COMPLETE: 1 verified clips in /tmp/tmpd1rh85nm/out_test_variable_frame_rate_source/h3_clips/H3_clips_20261022_111342_f9fa98c7
+ok
+test_anamorphic_source_becomes_square_pixels (test_h3_clip_tools.RealMediaTests.test_anamorphic_source_becomes_square_pixels) ... [H3 CLIPS] 1/1: source 0.000000s; 124 frames; tail_pad=False
+[H3 CLIPS] COMPLETE: 1 verified clips in /tmp/tmpd1rh85nm/out_test_anamorphic_source_becomes_square_pixels/h3_clips/H3_clips_20261022_111342_f7137f99
+ok
+test_selected_start_matches_source_picture (test_h3_clip_tools.RealMediaTests.test_selected_start_matches_source_picture) ... [H3 CLIPS] 1/1: source 93.250000s; 124 frames; tail_pad=False
+[H3 CLIPS] COMPLETE: 1 verified clips in /tmp/tmpd1rh85nm/out_test_selected_start_matches_source_picture/h3_clips/H3_clips_20261022_111343_e1e9fe49
+ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 5.748s
+
+OK

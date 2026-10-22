@@ -1,0 +1,17 @@
+test_asset_collision_stops (__main__.InstallerTests.test_asset_collision_stops) ... ok
+test_different_local_new_file_stops_without_changes (__main__.InstallerTests.test_different_local_new_file_stops_without_changes) ... ok
+test_dry_run (__main__.InstallerTests.test_dry_run) ... ok
+test_idempotent (__main__.InstallerTests.test_idempotent) ... ok
+test_modified_integration_anchor_stops (__main__.InstallerTests.test_modified_integration_anchor_stops) ... ok
+test_normal_install_preserves_other_workspaces (__main__.InstallerTests.test_normal_install_preserves_other_workspaces) ... ok
+test_payload_tampering_stops (__main__.InstallerTests.test_payload_tampering_stops) ... ok
+test_refuses_another_repository (__main__.InstallerTests.test_refuses_another_repository) ... ok
+test_refuses_symlink_target (__main__.InstallerTests.test_refuses_symlink_target) ... ok
+test_rollback_after_simulated_write_failure (__main__.InstallerTests.test_rollback_after_simulated_write_failure) ... ok
+test_unexpected_core_stops_without_changes (__main__.InstallerTests.test_unexpected_core_stops_without_changes) ... ok
+test_upgrade_over_previous_motion_package (__main__.InstallerTests.test_upgrade_over_previous_motion_package) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 1.814s
+
+OK

@@ -1,0 +1,200 @@
+{
+  "id": "3f0c4c01-3e60-5f39-9e89-1644c1465b3c",
+  "revision": 0,
+  "last_node_id": 4,
+  "last_link_id": 2,
+  "version": 0.4,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "LoadVideo",
+      "title": "1. UPLOAD LONG SOURCE VIDEO",
+      "pos": [
+        0,
+        0
+      ],
+      "size": [
+        430,
+        420
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "file",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "file"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "VIDEO",
+          "type": "VIDEO",
+          "links": [
+            1
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadVideo"
+      },
+      "widgets_values": [
+        ""
+      ],
+      "widgets_values_named": {
+        "file": ""
+      }
+    },
+    {
+      "id": 2,
+      "type": "WBH3ExportClips",
+      "title": "2. EXPORT 124-FRAME CLIPS",
+      "pos": [
+        500,
+        0
+      ],
+      "size": [
+        520,
+        650
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "video",
+          "type": "VIDEO",
+          "link": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "export_report",
+          "type": "STRING",
+          "links": [
+            2
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "WBH3ExportClips"
+      },
+      "widgets_values": [
+        "Selected chunk",
+        0.0,
+        1,
+        0,
+        "Skip incomplete tail",
+        "Keep source audio",
+        "H3_clips",
+        true,
+        true,
+        16
+      ],
+      "widgets_values_named": {
+        "mode": "Selected chunk",
+        "start_seconds": 0.0,
+        "first_chunk": 1,
+        "chunk_count": 0,
+        "final_chunk": "Skip incomplete tail",
+        "audio": "Keep source audio",
+        "output_prefix": "H3_clips",
+        "make_loadable": true,
+        "make_zip": true,
+        "crf": 16
+      }
+    },
+    {
+      "id": 3,
+      "type": "PreviewAny",
+      "title": "3. EXPORT REPORT + CLIP NAMES",
+      "pos": [
+        1080,
+        0
+      ],
+      "size": [
+        620,
+        650
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "source",
+          "type": "*",
+          "link": 2
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewAny"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 4,
+      "type": "MarkdownNote",
+      "title": "USAGE",
+      "pos": [
+        0,
+        490
+      ],
+      "size": [
+        440,
+        650
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "MarkdownNote"
+      },
+      "widgets_values": [
+        "H3 SOURCE CLIP PREPARATION\n\nUpload a long video in Load Video. Three minutes or longer is fine.\n\nExactly 124 frames / 24 fps = 5.1666667 seconds. The 5.17 label is rounded; cutting arithmetic is not.\n\nONE SECTION: mode=Selected chunk; set start_seconds; first_chunk=1.\nONE NUMBERED CHUNK: mode=Selected chunk; start_seconds=0; first_chunk=N.\nALL CHUNKS: mode=Consecutive chunks; start_seconds=0; first_chunk=1; chunk_count=0.\nA RANGE: Consecutive chunks; choose first_chunk and chunk_count.\n\nShort tail is skipped by default. Hold last frame is optional and explicitly marked in the manifest. No motion is invented.\n\nOutputs: output/h3_clips/<unique run>/. Two or more clips also get a ZIP. Workbench > Files exposes MP4, ZIP and CSV.\n\nRefresh ComfyUI after export. In the HMOTION Load Video dropdown choose an h3clip_ file; set source start_seconds=0 and leave window_seconds=5.25. No re-upload needed.\n\nCPU-only FFmpeg; no H3, pose, or Ollama model loading in this workflow. Source is unchanged. H.264 CRF 16 by default, not lossless. SDR inputs only.\n\nThis creates source chunks. It does not automatically render a whole movie, maintain identity between generations, or stitch generated outputs.\n\nRequires the rebuilt H3 image containing H3 Clip Preparation. The JSON alone does not install its new node."
+      ],
+      "widgets_values_named": {
+        "text": "H3 SOURCE CLIP PREPARATION\n\nUpload a long video in Load Video. Three minutes or longer is fine.\n\nExactly 124 frames / 24 fps = 5.1666667 seconds. The 5.17 label is rounded; cutting arithmetic is not.\n\nONE SECTION: mode=Selected chunk; set start_seconds; first_chunk=1.\nONE NUMBERED CHUNK: mode=Selected chunk; start_seconds=0; first_chunk=N.\nALL CHUNKS: mode=Consecutive chunks; start_seconds=0; first_chunk=1; chunk_count=0.\nA RANGE: Consecutive chunks; choose first_chunk and chunk_count.\n\nShort tail is skipped by default. Hold last frame is optional and explicitly marked in the manifest. No motion is invented.\n\nOutputs: output/h3_clips/<unique run>/. Two or more clips also get a ZIP. Workbench > Files exposes MP4, ZIP and CSV.\n\nRefresh ComfyUI after export. In the HMOTION Load Video dropdown choose an h3clip_ file; set source start_seconds=0 and leave window_seconds=5.25. No re-upload needed.\n\nCPU-only FFmpeg; no H3, pose, or Ollama model loading in this workflow. Source is unchanged. H.264 CRF 16 by default, not lossless. SDR inputs only.\n\nThis creates source chunks. It does not automatically render a whole movie, maintain identity between generations, or stitch generated outputs.\n\nRequires the rebuilt H3 image containing H3 Clip Preparation. The JSON alone does not install its new node."
+      }
+    }
+  ],
+  "links": [
+    [
+      1,
+      1,
+      0,
+      2,
+      0,
+      "VIDEO"
+    ],
+    [
+      2,
+      2,
+      0,
+      3,
+      0,
+      "STRING"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.75,
+      "offset": [
+        60,
+        60
+      ]
+    },
+    "h3_clips_release": "2026-10-22.2",
+    "cpu_media_tests_run": true,
+    "live_comfyui_tested": false
+  }
+}
