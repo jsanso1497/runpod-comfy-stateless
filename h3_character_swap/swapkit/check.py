@@ -77,6 +77,13 @@ def inspect_schema(schema, selected=("akatz",), check_models=True):
     for p in (ROOT/"workflows").glob("*.json"):
         if p.name.endswith(".api.json") or ("BFS" in p.name and "bfs" not in selected) or ("Akatz" in p.name and "akatz" not in selected): continue
         needed |= graph_nodes(json.loads(p.read_text()))
+    if (ROOT/"workflows/06_H3_LowMemory_Chain_Control.json").exists():
+        # The launcher queues these internal nodes later; check them during
+        # the image smoke test as well, not only when a paid GPU run starts.
+        needed |= {"H3SwapDiskChain", "H3SwapDiskSave", "H3SwapDiskHistory", "H3SwapClipPrep", "PreviewAny"}
+        recipe = ROOT/"swapkit/data/akatz_disk_base.api.json"
+        if recipe.exists():
+            needed |= {n["class_type"] for n in json.loads(recipe.read_text()).values()}
     missing=sorted(needed-set(schema))
     problems=[]
     if check_models:

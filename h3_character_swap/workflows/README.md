@@ -18,3 +18,16 @@ The build stops rather than guessing if the pinned graph's widget schema differs
 
 Do not drag these files into an old h3-hq image. Use the new h3-character-swap
 image, which contains the required pinned runtime and helpers.
+
+
+## 2026-10-26.2 additions
+
+- 05_Face_And_Body_Style_Sheet: two-photo layout utility, no synthesis.
+- 06_H3_LowMemory_Chain_Control: launch/review/resume independent short jobs.
+- 07_Akatz_LowMemory_Manual_Chunk.api.json: manual live-Pod fallback.
+- 08_H3_Prepare_5s_Clips: CPU-only source splitter inside this image.
+
+06 requires the new checkpoint/control nodes and a rebuilt image. Its controller
+returns immediately, then the Pod-local runner queues the actual short jobs.
+The original model/adapter recipe and its baseline workflows remain unchanged.
+See ../LOW_MEMORY_CHAIN.md. A successful gate is not a seamless-motion guarantee.

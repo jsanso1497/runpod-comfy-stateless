@@ -1,6 +1,20 @@
 # H3 Character Replacement: Akatz V1.5 + optional BFS v1.1
 
-Release: 2026-10-22.1
+Release: 2026-10-26.2
+
+## Latest addition: low-memory chain with continuity review
+
+Open **06_H3_LowMemory_Chain_Control** in the new versioned workflow folder.
+It queues independent short jobs, saves float history and 16-bit disk masters,
+clears model/node caches between jobs, checks joins and pauses for review when
+necessary. It is not a seamless-motion guarantee. The model/sampler recipe stays
+unchanged. **[Usage and limitations](LOW_MEMORY_CHAIN.md)** | **[Research](CONTINUITY_RESEARCH.md)**.
+
+The update also includes the reference-sheet helper and restores source clip
+preparation to this isolated image as **08_H3_Prepare_5s_Clips**. Rebuild the
+existing character-replacement image; no new model weights or public ports.
+The original setup below is retained for the baseline and BFS comparison.
+
 
 This is an ISOLATED experiment image added to the existing repository. It does not
 replace `h3-hq`, modify the approved SAM build, or alter HMOTION/HCLIPS/HSTILL.
@@ -62,7 +76,7 @@ The new image keeps its user settings/workflow copies in
    `comfy_password` secret. Open `/_swap/status` on the same service and wait
    until `ready` is true. Refresh ComfyUI once preparation completes.
 2. In the **ComfyUI Workflows sidebar**, open the folder
-   `H3_Character_Replacement_2026-10-22.1`. Use **one** approved character image
+   `H3_Character_Replacement_2026-10-26.2`. Use **one** approved character image
    and the same short continuous source shot for the first comparison.
 3. Optional but recommended: open **00_Analyze_Clip_Build_Prompts**. Select that
    source video and character image. Describe the source performer to replace,
@@ -154,8 +168,8 @@ identity resets and long-source preparation can still cause issues. The fact tha
 a control allows a long video is not a hardware or quality guarantee.
 
 Previously prepared HCLIPS outputs are visible here when the same input volume
-is attached. This isolated image does not add the old HMOTION/HCLIPS UI or models;
-return to the existing h3-hq image to run those tools. Their repository files and
+is attached. This image does not add the old HMOTION models. Clip preparation is now
+available through 08_H3_Prepare_5s_Clips; the h3-hq tools remain separate. Their repository files and
 published images remain unchanged.
 
 ## Output and diagnostics

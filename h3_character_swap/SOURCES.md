@@ -51,3 +51,7 @@ claimed to be immutable in the source package. Prompt caches include that digest
 
 No controlled ranking, verified identity lock, frame-exact replacement or GPU
 certification is claimed by this package.
+
+
+October 26 continuity research, source links and integration-vs-upstream distinctions
+are recorded in CONTINUITY_RESEARCH.md. Models and pins remain unchanged.

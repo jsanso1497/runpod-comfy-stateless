@@ -7,7 +7,7 @@ import re
 import tempfile
 
 ROOT = Path(os.environ.get("H3_SWAP_ROOT", Path(__file__).resolve().parents[1]))
-RELEASE = "2026-10-22.1"
+RELEASE = "2026-10-26.2"
 
 
 def data_root() -> Path:

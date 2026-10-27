@@ -134,3 +134,21 @@ limit. Files already in /workspace/input can be selected without another browser
 upload. Persistent volume contents survive according to the chosen storage type;
 terminate a Pod only after confirming the desired files reside on a network volume
 or have been copied elsewhere.
+
+
+## October 26 low-memory chain update
+
+Rebuild **Build H3 character replacement**, then use the newly published image
+reference. All template fields and environment variables above remain the same.
+No extra model downloads are introduced. Keep `/workspace` persistent. Allow
+additional free disk space for lossless intermediate masters and checkpoints;
+50 GB free is a planning allowance for a two-minute trial, not a guarantee.
+
+The new factory folder is `H3_Character_Replacement_2026-10-26.2`.
+Open `06_H3_LowMemory_Chain_Control`; monitor/review at `/_swap/chain` on the
+existing authenticated 8188 service. Start with 19 seconds and Review every
+chunk. Only after inspecting those outputs attempt 120 seconds.
+
+This update does not add FileBrowser startup. Existing 8080 exposure may remain,
+but a manually installed FileBrowser still needs starting after a Pod restart.
+See LOW_MEMORY_CHAIN.md for control fields, disk requirements and validation limits.

@@ -1,0 +1,29 @@
+{
+  "1": {
+    "class_type": "H3SwapClipPrep",
+    "inputs": {
+      "source_video": "source.mp4",
+      "mode": "Consecutive chunks",
+      "start_seconds": 0.0,
+      "first_chunk": 1,
+      "chunk_count": 0,
+      "final_chunk": "Skip incomplete tail",
+      "audio": "Keep source audio"
+    },
+    "_meta": {
+      "title": "1. SPLIT ONLY: 124 frames / 24 fps"
+    }
+  },
+  "2": {
+    "class_type": "PreviewAny",
+    "inputs": {
+      "source": [
+        "1",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "2. EXPORTED FILES: refresh Load Video afterwards"
+    }
+  }
+}

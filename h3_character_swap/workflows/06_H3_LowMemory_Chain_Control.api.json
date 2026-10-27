@@ -1,0 +1,38 @@
+{
+  "1": {
+    "class_type": "H3SwapDiskChain",
+    "inputs": {
+      "action": "Start new run",
+      "run_name": "shot_01",
+      "source_video": "source.mp4",
+      "character_image": "character.png",
+      "duration_seconds": 19.0,
+      "start_seconds": 0.0,
+      "resolution": "768",
+      "window_frames": "124",
+      "target_person": "person",
+      "selection": "largest",
+      "selection_index": 0,
+      "mask_expansion": 64,
+      "seed": 904239,
+      "review_mode": "Auto check + retry",
+      "max_retries": 2,
+      "prompt": "Replace the selected person in <Video 1> with the same character shown in <Picture 1>. Keep the reference character's face, hair, body proportions and clothing. Follow the source performance's pose, gaze, expression, gestures, object interactions and movement at the source timing. Preserve the source scene, lighting, camera and other people. The selected performer is replaced, not duplicated."
+    },
+    "_meta": {
+      "title": "1. DISK CHAIN: Start, review or resume a shot"
+    }
+  },
+  "2": {
+    "class_type": "PreviewAny",
+    "inputs": {
+      "source": [
+        "1",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "2. STATUS: open /_swap/chain on the same 8188 address"
+    }
+  }
+}

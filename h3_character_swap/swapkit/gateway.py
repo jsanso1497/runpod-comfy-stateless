@@ -139,12 +139,14 @@ def make_app(password, status):
     async def index(request):
         files=sorted((ROOT/"workflows").glob("*.json"))
         items="".join(f'<li><a href="/_swap/workflow/{html.escape(p.name)}">{html.escape(p.name)}</a></li>' for p in files if not p.name.endswith(".api.json"))
-        return web.Response(content_type="text/html",text='<h1>H3 Character Replacement</h1><p><a href="/">Open ComfyUI</a> | <a href="/_swap/status">Preparation status</a></p><p>Workflows are also in the ComfyUI Workflows sidebar. Review source masks and prompt drafts before rendering.</p><ul>'+items+'</ul>')
+        return web.Response(content_type="text/html",text='<h1>H3 Character Replacement</h1><p><a href="/">Open ComfyUI</a> | <a href="/_swap/status">Preparation status</a> | <a href="/_swap/chain">Low-memory chain review</a></p><p>Workflows are also in the ComfyUI Workflows sidebar. Review source masks and prompt drafts before rendering.</p><ul>'+items+'</ul>')
     async def graph(request):
         name=request.match_info["name"]
         if name not in {p.name for p in (ROOT/"workflows").glob("*.json")}:
             raise web.HTTPNotFound()
         return web.FileResponse(ROOT/"workflows"/name)
+    from .disk_web import install_routes
+    install_routes(app)
     app.router.add_get("/_swap",index)
     app.router.add_get("/_swap/status",get_status)
     app.router.add_get("/_swap/workflow/{name}",graph)
