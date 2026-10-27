@@ -5,7 +5,7 @@
       "file": "source.mp4"
     },
     "_meta": {
-      "title": "SOURCE: use the same clip as your render"
+      "title": "SOURCE: the same selected clip as the native render"
     }
   },
   "2": {
@@ -18,13 +18,19 @@
     }
   },
   "3": {
-    "class_type": "H3SwapAnalyzeClip",
+    "class_type": "H3SwapAnalyzeAkatz",
     "inputs": {
       "target_person": "the main performer",
       "start_seconds": 0.0,
       "frames": 124,
       "wardrobe": "Reference clothing",
       "reuse_cached_draft": true,
+      "detail_level": "Exhaustive",
+      "max_output_tokens": 16384,
+      "context_tokens": "32768",
+      "sampled_frames": 16,
+      "reference_layout": "Single character image",
+      "timeout_seconds": 1800,
       "video": [
         "1",
         0
@@ -35,7 +41,7 @@
       ]
     },
     "_meta": {
-      "title": "ANALYZE ONLY: 16K local draft, then unload"
+      "title": "AKATZ ONLY: 16K output / 32K context / 16 samples"
     }
   },
   "4": {
@@ -47,7 +53,7 @@
       ]
     },
     "_meta": {
-      "title": "REVIEW, then paste into Akatz's native prompt"
+      "title": "DETAILED CLIP PROMPT: only for this analyzed interval"
     }
   },
   "5": {
@@ -59,7 +65,7 @@
       ]
     },
     "_meta": {
-      "title": "REVIEW, then paste into BFS character_details"
+      "title": "CHAIN-SAFE PROMPT: identity + source-following, no replayed timeline"
     }
   },
   "6": {
@@ -71,7 +77,7 @@
       ]
     },
     "_meta": {
-      "title": "Evidence and uncertainty report"
+      "title": "ANALYSIS REPORT: evidence, actual tokens, limits and saved files"
     }
   },
   "7": {
@@ -83,7 +89,7 @@
       ]
     },
     "_meta": {
-      "title": "These are the exact source samples analyzed"
+      "title": "All source samples inspected (audio NOT analyzed)"
     }
   }
 }

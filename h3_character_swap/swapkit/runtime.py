@@ -19,6 +19,7 @@ def sync_workflows(root):
     folder.mkdir(parents=True,exist_ok=True)
     for src in (ROOT/"workflows").glob("*.json"):
         if src.name.endswith(".api.json"): continue
+        if "BFS" in src.name and "bfs" not in variants(): continue
         dest=folder/src.name
         if dest.exists() and dest.read_bytes()!=src.read_bytes():
             dest=folder/(src.stem+"_factory_"+file_sha(src)[:10]+src.suffix)
@@ -43,7 +44,7 @@ def configure():
         else: target.parent.mkdir(parents=True,exist_ok=True);target.symlink_to(dest,target_is_directory=True)
     sync_workflows(root)
     env=public_child_env()
-    env.update({"H3_SWAP_ROOT":str(ROOT),"PYTHONPATH":str(ROOT),"OLLAMA_HOST":"127.0.0.1:11434", "OLLAMA_MODELS":str(root/"ollama"),"OLLAMA_CONTEXT_LENGTH":"16384","OLLAMA_NUM_PARALLEL":"1","OLLAMA_MAX_LOADED_MODELS":"1","OLLAMA_KEEP_ALIVE":"0","OLLAMA_NO_CLOUD":"1"})
+    env.update({"H3_SWAP_ROOT":str(ROOT),"PYTHONPATH":str(ROOT),"OLLAMA_HOST":"127.0.0.1:11434", "OLLAMA_MODELS":str(root/"ollama"),"OLLAMA_CONTEXT_LENGTH":"32768","OLLAMA_NUM_PARALLEL":"1","OLLAMA_MAX_LOADED_MODELS":"1","OLLAMA_KEEP_ALIVE":"0","OLLAMA_NO_CLOUD":"1"})
     return env
 
 
@@ -74,7 +75,7 @@ async def prepare_ollama(env,status):
         async with session.get("http://127.0.0.1:11434/api/tags") as r:
             r.raise_for_status();tags=await r.json()
         record=next((x for x in tags.get("models",[]) if x.get("name")==model),None)
-        atomic_json(data_root()/"h3-swap/prompt-model.json",{"model":model,"record":record,"context":16384,"downloaded_at":time.time()})
+        atomic_json(data_root()/"h3-swap/prompt-model.json",{"model":model,"record":record,"context":32768,"downloaded_at":time.time()})
 
 
 async def main_async():

@@ -1,8 +1,8 @@
-# H3 Character Replacement: Akatz V1.5 + optional BFS v1.1
+# H3 Character Replacement: Akatz V1.5
 
-Release: 2026-10-26.2
+Release: 2026-10-27.1
 
-## Latest addition: low-memory chain with continuity review
+## Low-memory chain with continuity review
 
 Open **06_H3_LowMemory_Chain_Control** in the new versioned workflow folder.
 It queues independent short jobs, saves float history and 16-bit disk masters,
@@ -19,6 +19,11 @@ The original setup below is retained for the baseline and BFS comparison.
 This is an ISOLATED experiment image added to the existing repository. It does not
 replace `h3-hq`, modify the approved SAM build, or alter HMOTION/HCLIPS/HSTILL.
 No repository push or image publication is performed by the local installer.
+
+## Current analysis update
+
+The longer Akatz analyzer and audit fixes are documented in [LONG_ANALYSIS.md](LONG_ANALYSIS.md).
+No 1080p finishing or generation-recipe change is added.
 
 ## Start with Akatz
 
@@ -76,7 +81,7 @@ The new image keeps its user settings/workflow copies in
    `comfy_password` secret. Open `/_swap/status` on the same service and wait
    until `ready` is true. Refresh ComfyUI once preparation completes.
 2. In the **ComfyUI Workflows sidebar**, open the folder
-   `H3_Character_Replacement_2026-10-26.2`. Use **one** approved character image
+   `H3_Character_Replacement_2026-10-27.1`. Use **one** approved character image
    and the same short continuous source shot for the first comparison.
 3. Optional but recommended: open **00_Analyze_Clip_Build_Prompts**. Select that
    source video and character image. Describe the source performer to replace,
@@ -94,17 +99,17 @@ trimming. Prompt Studio's `start_seconds` must describe the SAME section being
 rendered. Easiest first trial: use the same already-trimmed 124-frame file in all
 three workflows and keep both start controls at zero.
 
-Prompt Studio has two reviewed outputs: an Akatz prompt and BFS character details.
-It samples eight frames from the selected window, not every video frame. It does
-not listen to source audio or infer unheard dialogue. Rapid actions between
-samples can be missed, so inspect the draft against the actual source clip.
-It can describe visible action; it cannot turn reference conditioning into a
-pixel or pose lock. No automatic text rewrite runs inside the rendering loop.
+Prompt Studio now has two AKATZ outputs: a long prompt for the analyzed clip and
+an identity/preservation prompt safe to reuse across a longer chain. The new
+analyzer defaults to **16,384 output tokens, 32,768 context, Exhaustive detail and
+16 sampled frames**. It uses the same local `qwen3-vl:8b`, unloads after analysis,
+and records actual token usage. Up to 32,768 output tokens with 65,536 context
+is available explicitly. It does not analyze audio or unseen intermediate action.
 
-The helper uses LOCAL `qwen3-vl:8b`, a 16,384-token context, 1,800 output-token cap,
-one request at a time, cached drafts, no cloud backend and explicit unloading.
-The source frames and character image never leave the Pod for prompt inference.
-The only external transfers are software/model downloads during preparation.
+Open the NEW factory canvas rather than an old saved legacy analyzer. The old
+node remains compatible but retains its old settings. BFS output is removed from
+the new analyzer. See [LONG_ANALYSIS.md](LONG_ANALYSIS.md) for exact controls,
+cache behavior, prompt selection, limits and deployment instructions.
 
 ## Mask selection and what is actually preserved
 

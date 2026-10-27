@@ -31,3 +31,10 @@ image, which contains the required pinned runtime and helpers.
 returns immediately, then the Pod-local runner queues the actual short jobs.
 The original model/adapter recipe and its baseline workflows remain unchanged.
 See ../LOW_MEMORY_CHAIN.md. A successful gate is not a seamless-motion guarantee.
+
+## New factory analyzer, 2026-10-27.1
+
+00_Analyze_Clip_Build_Prompts now uses H3SwapAnalyzeAkatz. It offers a long
+selected-clip prompt, a chain-safe Akatz prompt, evidence/usage report and all
+sampled frames. No BFS output is generated. Old saved canvases using
+H3SwapAnalyzeClip remain legacy-compatible and do not inherit these controls.

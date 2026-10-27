@@ -166,15 +166,30 @@ def add_image(g, x, y):
 
 
 def prompt_studio():
-    g=Graph("H3 Swap Prompt Studio 2026-10-22")
-    v=g.add("LoadVideo","SOURCE: use the same clip as your render",0,0,outputs=[("VIDEO","VIDEO")],widgets={"file":"source.mp4"},size=(350,350))
-    im=add_image(g,0,420)
-    a=g.add("H3SwapAnalyzeClip","ANALYZE ONLY: 16K local draft, then unload",430,0,inputs=[("video","VIDEO"),("character","IMAGE")],outputs=[("akatz_prompt","STRING"),("bfs_details","STRING"),("report","STRING"),("contact_sheet","IMAGE")],widgets={"target_person":"the main performer","start_seconds":0.0,"frames":124,"wardrobe":"Reference clothing","reuse_cached_draft":True},size=(480,400))
-    g.connect(v,0,a,"video");g.connect(im,0,a,"character")
-    for i,title in enumerate(("REVIEW, then paste into Akatz's native prompt","REVIEW, then paste into BFS character_details","Evidence and uncertainty report")):
-        p=g.add("PreviewAny",title,980+i*500,0,inputs=[("source","*")],outputs=[("output","*")],size=(470,600))
-        g.connect(a,i,p,"source","STRING")
-    p=g.add("PreviewImage","These are the exact source samples analyzed",430,500,inputs=[("images","IMAGE")],outputs=[],size=(900,400));g.connect(a,3,p,"images")
+    g = Graph("H3 Akatz Long Analysis 2026-10-27")
+    v = g.add("LoadVideo", "SOURCE: the same selected clip as the native render", 0, 0,
+        outputs=[("VIDEO", "VIDEO")], widgets={"file": "source.mp4"}, size=(350, 350))
+    im = add_image(g, 0, 420)
+    a = g.add("H3SwapAnalyzeAkatz", "AKATZ ONLY: 16K output / 32K context / 16 samples", 430, 0,
+        inputs=[("video", "VIDEO"), ("character", "IMAGE")],
+        outputs=[("clip_prompt", "STRING"), ("chain_prompt", "STRING"),
+                 ("report", "STRING"), ("contact_sheet", "IMAGE")],
+        widgets={"target_person": "the main performer", "start_seconds": 0., "frames": 124,
+                 "wardrobe": "Reference clothing", "reuse_cached_draft": True,
+                 "detail_level": "Exhaustive", "max_output_tokens": 16384,
+                 "context_tokens": "32768", "sampled_frames": 16,
+                 "reference_layout": "Single character image", "timeout_seconds": 1800},
+        size=(490, 570))
+    g.connect(v, 0, a, "video"); g.connect(im, 0, a, "character")
+    for i, title in enumerate(("DETAILED CLIP PROMPT: only for this analyzed interval",
+                               "CHAIN-SAFE PROMPT: identity + source-following, no replayed timeline",
+                               "ANALYSIS REPORT: evidence, actual tokens, limits and saved files")):
+        output = g.add("PreviewAny", title, 980 + i*560, 0, inputs=[("source", "*")],
+                       outputs=[("output", "*")], size=(530, 700))
+        g.connect(a, i, output, "source", "STRING")
+    sheet = g.add("PreviewImage", "All source samples inspected (audio NOT analyzed)",
+                  430, 650, inputs=[("images", "IMAGE")], outputs=[], size=(1100, 700))
+    g.connect(a, 3, sheet, "images")
     return g.result()
 
 

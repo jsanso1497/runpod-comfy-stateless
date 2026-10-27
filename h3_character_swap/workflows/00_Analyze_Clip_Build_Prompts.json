@@ -1,5 +1,5 @@
 {
-  "id": "3f973a34-8cb6-550d-ab61-95aa4d6e8dca",
+  "id": "10e4252a-c57e-55f3-93da-d01960f26abb",
   "revision": 0,
   "last_node_id": 7,
   "last_link_id": 6,
@@ -7,7 +7,7 @@
     {
       "id": 1,
       "type": "LoadVideo",
-      "title": "SOURCE: use the same clip as your render",
+      "title": "SOURCE: the same selected clip as the native render",
       "pos": [
         0,
         0
@@ -83,15 +83,15 @@
     },
     {
       "id": 3,
-      "type": "H3SwapAnalyzeClip",
-      "title": "ANALYZE ONLY: 16K local draft, then unload",
+      "type": "H3SwapAnalyzeAkatz",
+      "title": "AKATZ ONLY: 16K output / 32K context / 16 samples",
       "pos": [
         430,
         0
       ],
       "size": [
-        480,
-        400
+        490,
+        570
       ],
       "flags": {},
       "order": 2,
@@ -110,14 +110,14 @@
       ],
       "outputs": [
         {
-          "name": "akatz_prompt",
+          "name": "clip_prompt",
           "type": "STRING",
           "links": [
             3
           ]
         },
         {
-          "name": "bfs_details",
+          "name": "chain_prompt",
           "type": "STRING",
           "links": [
             4
@@ -139,34 +139,46 @@
         }
       ],
       "properties": {
-        "Node name for S&R": "H3SwapAnalyzeClip"
+        "Node name for S&R": "H3SwapAnalyzeAkatz"
       },
       "widgets_values": [
         "the main performer",
         0.0,
         124,
         "Reference clothing",
-        true
+        true,
+        "Exhaustive",
+        16384,
+        "32768",
+        16,
+        "Single character image",
+        1800
       ],
       "widgets_values_named": {
         "target_person": "the main performer",
         "start_seconds": 0.0,
         "frames": 124,
         "wardrobe": "Reference clothing",
-        "reuse_cached_draft": true
+        "reuse_cached_draft": true,
+        "detail_level": "Exhaustive",
+        "max_output_tokens": 16384,
+        "context_tokens": "32768",
+        "sampled_frames": 16,
+        "reference_layout": "Single character image",
+        "timeout_seconds": 1800
       }
     },
     {
       "id": 4,
       "type": "PreviewAny",
-      "title": "REVIEW, then paste into Akatz's native prompt",
+      "title": "DETAILED CLIP PROMPT: only for this analyzed interval",
       "pos": [
         980,
         0
       ],
       "size": [
-        470,
-        600
+        530,
+        700
       ],
       "flags": {},
       "order": 3,
@@ -194,14 +206,14 @@
     {
       "id": 5,
       "type": "PreviewAny",
-      "title": "REVIEW, then paste into BFS character_details",
+      "title": "CHAIN-SAFE PROMPT: identity + source-following, no replayed timeline",
       "pos": [
-        1480,
+        1540,
         0
       ],
       "size": [
-        470,
-        600
+        530,
+        700
       ],
       "flags": {},
       "order": 4,
@@ -229,14 +241,14 @@
     {
       "id": 6,
       "type": "PreviewAny",
-      "title": "Evidence and uncertainty report",
+      "title": "ANALYSIS REPORT: evidence, actual tokens, limits and saved files",
       "pos": [
-        1980,
+        2100,
         0
       ],
       "size": [
-        470,
-        600
+        530,
+        700
       ],
       "flags": {},
       "order": 5,
@@ -264,14 +276,14 @@
     {
       "id": 7,
       "type": "PreviewImage",
-      "title": "These are the exact source samples analyzed",
+      "title": "All source samples inspected (audio NOT analyzed)",
       "pos": [
         430,
-        500
+        650
       ],
       "size": [
-        900,
-        400
+        1100,
+        700
       ],
       "flags": {},
       "order": 6,

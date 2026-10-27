@@ -135,15 +135,23 @@ def decode_clip(path, start_seconds=0.0, frames=124, short_edge=768, input_start
     return images, waveform, report
 
 
-def sample_frames(path, start_seconds=0.0, frames=124, input_start=0.0, input_duration=0.0):
-    """Decode only the selected window and retain eight small JPEGs for analysis."""
+def sample_frames(path, start_seconds=0.0, frames=124, input_start=0.0, input_duration=0.0,
+                  sample_count=8, check_interrupt=lambda: None):
+    """Decode one selected window; retain 8-32 small JPEGs, never a long tensor."""
     from PIL import Image
     info, start, duration = window(path, start_seconds, frames, input_start, input_duration)
-    positions = sorted(set(round(i * (frames - 1) / 7) for i in range(8)))
+    if type(sample_count) is not int or not 8 <= sample_count <= 32 or sample_count > frames:
+        raise ValueError("Use 8-32 samples, not more than the selected frame count")
+    positions = sorted(set(round(i * (frames - 1) / (sample_count - 1)) for i in range(sample_count)))
     select = "+".join(f"eq(n\\,{n})" for n in positions)
-    vf = f"fps=24:start_time=0,select='{select}',scale=576:576:force_original_aspect_ratio=decrease:flags=lanczos,setsar=1"
+    display_w, display_h = displayed_size(info["video"])
+    factor = min(1., 576 / max(display_w, display_h))
+    sample_w, sample_h = max(2, round(display_w * factor)), max(2, round(display_h * factor))
+    vf = f"fps=24:start_time=0,select='{select}',scale={sample_w}:{sample_h}:flags=lanczos,setsar=1"
     with tempfile.TemporaryDirectory(prefix="h3swap-analysis-") as d:
+        check_interrupt()
         run(["ffmpeg", "-v", "error", "-nostdin", "-threads", "2", "-protocol_whitelist", "file,pipe", "-ss", f"{start:.9f}", "-t", f"{duration:.9f}", "-i", str(path), "-map", f"0:{info['video']['index']}", "-an", "-vf", vf, "-fps_mode", "vfr", "-frames:v", str(len(positions)), "-threads", "2", "-q:v", "3", str(Path(d) / "%02d.jpg")])
+        check_interrupt()
         paths = sorted(Path(d).glob("*.jpg"))
         if len(paths) != len(positions):
             raise ValueError("Could not read all selected analysis frames")

@@ -143,7 +143,10 @@ def query(images, timestamps, target, check_interrupt=lambda: None):
 
 def contact_sheet(images, timestamps):
     width, height = 384, 256
-    sheet = Image.new("RGB", (width * 4, (height + 28) * 2), "#202020")
+    if not images or len(images) != len(timestamps) or len(images) > 32:
+        raise ValueError("Contact sheet needs 1-32 matching images and timestamps")
+    rows = (len(images) + 3) // 4
+    sheet = Image.new("RGB", (width * 4, (height + 28) * rows), "#202020")
     draw = ImageDraw.Draw(sheet)
     for i, (im, t) in enumerate(zip(images, timestamps)):
         im = im.copy(); im.thumbnail((width, height), Image.Resampling.LANCZOS)

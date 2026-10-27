@@ -24,6 +24,7 @@ from .disk_common import (ChainError, Stopped, FPS, HISTORY, VALID_WINDOWS, atom
     check_stop)
 from .disk_storage import verify_receipt, load_arrays
 from .disk_quality import assess_join
+from .analysis_options import validate_prompt
 
 VERSION='2026-10-26.2'
 RECIPE=Path(__file__).parent/'data/akatz_disk_base.api.json'
@@ -101,8 +102,10 @@ def create_run(*, source, reference, input_root, output_root, run_name, duration
     base=read_json(RECIPE)
     validate_api_graph(base)
     prompt=str(prompt or base['reference_conditioning']['inputs']['prompt'])
-    if len(prompt)>20000:
-        raise ChainError('Prompt is too long')
+    try:
+        validate_prompt(prompt)
+    except ValueError as exc:
+        raise ChainError(str(exc)) from exc
     run.mkdir()
     try:
         config={'version':VERSION,'run_name':run_name,'source':str(source),'reference':str(reference),
@@ -267,7 +270,7 @@ def execute(run_dir, client=None):
         check_stop(stop)
         fingerprint=json_digest(config)
         if state.get('config_digest',fingerprint)!=fingerprint: raise ChainError('Run settings changed; start a new run')
-        persist(config_digest=fingerprint,status='checking')
+        persist(config_digest=fingerprint,status='checking',error=None)
         if sha256(Path(config['source']))!=config['source_sha256'] or sha256(Path(config['reference']))!=config['reference_sha256']:
             raise ChainError('Source or reference changed; do not resume this run')
         base=read_json(run/'base.api.json')

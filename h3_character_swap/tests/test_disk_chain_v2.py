@@ -281,6 +281,7 @@ def test_failed_second_job_resumes_without_resampling_first(tmp_path):
     second=FakeClient(run)
     finished=d.execute(run,second)
     assert finished['status']=='complete' and len(second.jobs)==1
+    assert finished.get('error') is None
     assert c.sha256(path)==digest
 
 

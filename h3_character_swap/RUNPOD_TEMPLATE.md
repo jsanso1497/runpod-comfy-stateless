@@ -152,3 +152,13 @@ chunk. Only after inspecting those outputs attempt 120 seconds.
 This update does not add FileBrowser startup. Existing 8080 exposure may remain,
 but a manually installed FileBrowser still needs starting after a Pod restart.
 See LOW_MEMORY_CHAIN.md for control fields, disk requirements and validation limits.
+
+## Long analysis update (2026-10-27.1)
+
+Use the rebuilt image and the new factory `00_Analyze_Clip_Build_Prompts`. The
+Akatz analyzer defaults to 16,384 output tokens and 32,768 total helper context.
+These are separate from H3 generation length/resolution. Adjust them on the new
+node; no extra environment variable is required. Use H3_SWAP_VARIANTS=akatz and
+omit the BFS license flag. Keep current ports and persistent volume. See
+LONG_ANALYSIS.md. This focused update does not install the uncommitted
+automatic-FileBrowser add-on.
