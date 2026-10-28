@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 import numpy as np
 from . import akatz_analysis as analysis, media, prompts
-from .analysis_options import AnalysisOptions, DETAIL_LEVELS, LAYOUTS, VERSION
+from .analysis_options import AnalysisOptions, DETAIL_LEVELS, LAYOUTS, DUAL_LAYOUT, VERSION
 from .config import atomic_json, data_root
 
 
@@ -59,13 +59,16 @@ class H3SwapAnalyzeAkatz:
 
     def analyze(self, video, character, target_person, start_seconds, frames, wardrobe,
                 reuse_cached_draft=True, detail_level='Exhaustive', max_output_tokens=16384,
-                context_tokens='32768', sampled_frames=16, reference_layout=LAYOUTS[0], timeout_seconds=1800):
+                context_tokens='32768', sampled_frames=16, reference_layout=LAYOUTS[0], timeout_seconds=1800, body=None):
         import torch
         from PIL import Image
         import comfy.model_management as mm
         options = AnalysisOptions(max_output_tokens, int(context_tokens), sampled_frames,
-                                  detail_level, reference_layout, timeout_seconds).validate()
+                                  detail_level, DUAL_LAYOUT if body is not None else reference_layout,
+                                  timeout_seconds, 2 if body is not None else 1).validate()
         target = analysis.validate_target(target_person)
+        if body is not None and wardrobe != 'Reference clothing':
+            raise ValueError('Face/body mode takes body and outfit from Picture 2, not source clothing')
         media.frame_count(frames)
         if wardrobe not in ('Reference clothing', 'Source clothing (experimental)'):
             raise ValueError('Invalid wardrobe mode')
@@ -73,19 +76,26 @@ class H3SwapAnalyzeAkatz:
         if getattr(video, '_VideoFromFile__crop', None):
             raise ValueError('Use Load Video directly or export the cropped clip first; analysis must match your render.')
         path, base_start, base_duration = media.source_file(video)
-        if character.ndim != 4 or character.shape[0] != 1 or character.shape[-1] not in (3, 4):
-            raise ValueError('Use one authoritative image or one face/body sheet')
-        if not torch.isfinite(character).all():
-            raise ValueError('Reference contains invalid pixels')
-        pixels = (character[0, ..., :3].detach().cpu().clamp(0, 1).numpy() * 255).round().astype(np.uint8)
+        def reference_pixels(image, label):
+            if image.ndim != 4 or image.shape[0] != 1 or image.shape[-1] not in (3, 4):
+                raise ValueError('Use one image for ' + label)
+            if not torch.isfinite(image).all():
+                raise ValueError(label + ' contains invalid pixels')
+            # Match the encoder's RGB treatment; do not invent transparency masks.
+            return (image[0, ..., :3].detach().cpu().clamp(0, 1).numpy() * 255).round().astype(np.uint8)
+        pixels = reference_pixels(character, 'face' if body is not None else 'character')
         reference = Image.fromarray(pixels)
+        body_pixels = reference_pixels(body, 'body/outfit') if body is not None else None
+        references = [reference] + ([Image.fromarray(body_pixels)] if body_pixels is not None else [])
         model = analysis.model_name()
         with analysis_lock():
             mm.throw_exception_if_processing_interrupted()
             digest = analysis.current_model_digest(model)
             key = analysis.cache_key(path, pixels.tobytes(), pixels.shape, base_start + start_seconds,
-                                     frames, base_duration, target, wardrobe, model, digest, options)
-            folder = data_root() / 'output/h3_character_swap/prompt_drafts_long'
+                                     frames, base_duration, target, wardrobe, model, digest, options,
+                                     body_bytes=body_pixels.tobytes() if body_pixels is not None else None,
+                                     body_shape=body_pixels.shape if body_pixels is not None else None)
+            folder = data_root() / 'output/h3_character_swap' / ('prompt_drafts_face_body' if body is not None else 'prompt_drafts_long')
             folder.mkdir(parents=True, exist_ok=True)
             result_path = folder / (key + '.json')
             images, times, report = media.sample_frames(path, start_seconds, frames, base_start,
@@ -111,9 +121,13 @@ class H3SwapAnalyzeAkatz:
                 mm.throw_exception_if_processing_interrupted()
                 mm.unload_all_models()
                 mm.soft_empty_cache()
-                evidence, stats = analysis.query([reference] + images, times, target, options,
+                evidence, stats = analysis.query(references + images, times, target, options,
                     mm.throw_exception_if_processing_interrupted, folder / key)
-            clip_prompt, chain_prompt = analysis.build_prompts(evidence, target, wardrobe, reference_layout)
+            if body is not None:
+                from .face_body import build_prompts
+                clip_prompt, chain_prompt = build_prompts(evidence, target)
+            else:
+                clip_prompt, chain_prompt = analysis.build_prompts(evidence, target, wardrobe, reference_layout)
             files = {'clip_prompt': str(folder / (key + '_akatz_clip.txt')),
                      'chain_prompt': str(folder / (key + '_akatz_chain.txt')),
                      'report': str(result_path), 'contact_sheet': str(folder / (key + '_source_samples.jpg'))}
@@ -123,6 +137,9 @@ class H3SwapAnalyzeAkatz:
                         'Longer H3 input prompts can increase its memory use and rendering time.']
             if reference_layout == LAYOUTS[1]:
                 warnings.append('Face/body panel roles remain guidance, not separately weighted identity controls.')
+            if body is not None:
+                warnings.append('Picture 1 is FACE/HEAD; Picture 2 is BODY/OUTFIT. Roles are prompt guidance, not regional locks.')
+                report['reference_roles'] = {'Picture 1': 'face/head/hair', 'Picture 2': 'physique/proportions/outfit'}
             if cache_error:
                 warnings.append('Ignored invalid cached draft: ' + cache_error)
             report.update(version=VERSION, model=model, model_digest=digest, generation=stats,
@@ -141,5 +158,28 @@ class H3SwapAnalyzeAkatz:
                     torch.from_numpy(np.asarray(sheet).copy().astype(np.float32) / 255.)[None])
 
 
-NODE_CLASS_MAPPINGS = {'H3SwapAnalyzeAkatz': H3SwapAnalyzeAkatz}
-NODE_DISPLAY_NAME_MAPPINGS = {'H3SwapAnalyzeAkatz': 'H3 Akatz - Long evidence-based prompt analysis'}
+class H3SwapAnalyzeFaceBody(H3SwapAnalyzeAkatz):
+    """Two separate photos, not a flattened reference sheet."""
+    @classmethod
+    def INPUT_TYPES(cls):
+        old = super().INPUT_TYPES()['required']
+        fields = {'video': old['video'], 'face': ('IMAGE',), 'body': ('IMAGE',)}
+        fields.update({k: v for k, v in old.items()
+                       if k not in ('video', 'character', 'wardrobe', 'reference_layout')})
+        return {'required': fields}
+
+    DESCRIPTION = ('Experimental face/body analysis: Picture 1 supplies face/head/hair, '
+                   'Picture 2 supplies physique and wardrobe. Neither supplies the source performance.')
+
+    def analyze(self, video, face, body, target_person, start_seconds, frames,
+                reuse_cached_draft=True, detail_level='Exhaustive', max_output_tokens=16384,
+                context_tokens='32768', sampled_frames=16, timeout_seconds=1800):
+        return super().analyze(video, face, target_person, start_seconds, frames,
+            'Reference clothing', reuse_cached_draft, detail_level, max_output_tokens,
+            context_tokens, sampled_frames, LAYOUTS[0], timeout_seconds, body=body)
+
+
+NODE_CLASS_MAPPINGS = {'H3SwapAnalyzeAkatz': H3SwapAnalyzeAkatz,
+                       'H3SwapAnalyzeFaceBody': H3SwapAnalyzeFaceBody}
+NODE_DISPLAY_NAME_MAPPINGS = {'H3SwapAnalyzeAkatz': 'H3 Akatz - Long evidence-based prompt analysis',
+    'H3SwapAnalyzeFaceBody': 'H3 Akatz - FACE + BODY long analysis (experimental)'}

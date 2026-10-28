@@ -162,3 +162,12 @@ node; no extra environment variable is required. Use H3_SWAP_VARIANTS=akatz and
 omit the BFS license flag. Keep current ports and persistent volume. See
 LONG_ANALYSIS.md. This focused update does not install the uncommitted
 automatic-FileBrowser add-on.
+
+
+## Optional face + body chain
+
+The 2026-10-27.2 source update adds workflows 04 (paired long analysis) and 09
+(two-reference low-memory chain). Rebuild and deploy the new digest. No environment
+variable, port, model, disk-mount, or start-command change is required. Keep
+`H3_SWAP_VARIANTS=akatz`. See FACE_BODY_CHAIN.md. Extra image/text conditioning can
+increase per-window memory, so test a 10-second run before the full shot.

@@ -121,14 +121,22 @@ def current_model_digest(name):
 
 
 def cache_key(path, character_bytes, character_shape, start, frames, input_duration,
-              target, wardrobe, model, digest, options):
+              target, wardrobe, model, digest, options, *, body_bytes=None, body_shape=None):
+    options.validate()
+    from .face_body import DUAL_SYSTEM, CONTRACT
+    dual = options.reference_count == 2
+    if dual != (body_bytes is not None and body_shape is not None):
+        raise ValueError('Two-reference cache requires both body pixels and shape')
     stat = path.stat()
     record = {'version': VERSION, 'source': str(path.resolve()), 'bytes': stat.st_size,
               'mtime_ns': stat.st_mtime_ns, 'start': start, 'frames': frames,
               'input_duration': input_duration, 'character_sha256': hashlib.sha256(character_bytes).hexdigest(),
               'character_shape': list(character_shape), 'target': target, 'wardrobe': wardrobe,
               'model': model, 'model_digest': digest, 'options': options.record(),
-              'system_sha256': hashlib.sha256(SYSTEM.encode()).hexdigest(), 'schema': SCHEMA}
+              'system_sha256': hashlib.sha256((DUAL_SYSTEM if dual else SYSTEM).encode()).hexdigest(), 'schema': SCHEMA}
+    if dual:
+        record.update(body_sha256=hashlib.sha256(body_bytes).hexdigest(),
+                      body_shape=list(body_shape), role_contract=CONTRACT)
     return hashlib.sha256(json.dumps(record, sort_keys=True).encode()).hexdigest()
 
 
@@ -173,22 +181,26 @@ def build_prompts(analysis, target, wardrobe, reference_layout):
 def query(images, timestamps, target, options, check_interrupt=lambda: None, diagnostic_prefix=None):
     options.validate()
     target = validate_target(target)
-    if len(images) != len(timestamps) + 1 or len(timestamps) != options.sampled_frames:
+    if len(images) != len(timestamps) + options.reference_count or len(timestamps) != options.sampled_frames:
         raise ValueError('Image count and timestamp labels must match the selected sampling setting')
+    from .face_body import DUAL_SYSTEM
+    dual = options.reference_count == 2
+    system = DUAL_SYSTEM if dual else SYSTEM
     name = model_name()
     labels = ', '.join(f'S{i+1:02d} at +{t:.3f}s' for i, t in enumerate(timestamps))
     content = (f'Target ORIGINAL performer: {target}. Reference layout: {options.reference_layout}. '
                f'Detail level: {options.detail_level}; aim for {LENGTH_TARGETS[options.detail_level]} '
                'across the eight evidence fields when genuinely supported. The token budget is a ceiling, '
                'not a quota. Return fewer words rather than inventing details. '
-               'Image 1 is the replacement reference. Images 2 onward correspond, in order, to: ' + labels +
+               + ('Image 1 is FACE/HEAD only; image 2 is BODY/OUTFIT only. Images 3 onward correspond, in order, to: ' if dual else
+                  'Image 1 is the replacement reference. Images 2 onward correspond, in order, to: ') + labels +
                '. Times are relative to the selected clip, not absolute timestamps in a longer video.')
     payload = {'model': name, 'stream': True, 'think': False, 'format': SCHEMA, 'keep_alive': 0,
                'options': {'num_ctx': options.context_tokens, 'num_predict': options.max_output_tokens,
                            'temperature': 0.1, 'seed': 42},
-               'messages': [{'role': 'system', 'content': SYSTEM},
+               'messages': [{'role': 'system', 'content': system},
                             {'role': 'user', 'content': content,
-                             'images': [prompts.jpeg_b64(im, max_edge=768 if i == 0 else 576)
+                             'images': [prompts.jpeg_b64(im, max_edge=768 if i < options.reference_count else 576)
                                         for i, im in enumerate(images)]}]}
     print(f'[H3 LONG ANALYSIS] {len(timestamps)} samples; output cap {options.max_output_tokens}; '
           f'context {options.context_tokens}; {options.detail_level}', flush=True)

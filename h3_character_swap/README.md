@@ -1,5 +1,19 @@
 # H3 Character Replacement: Akatz V1.5
 
+## Separate face + body references (2026-10-27.2)
+
+New optional workflows **04_Analyze_Face_Body_Build_Prompts** and
+**09_H3_LowMemory_Face_Body_Chain** assign Picture 1 to face/head/hair and
+Picture 2 to physique/proportions/outfit. Both images enter every chunk and retry.
+The runner preserves explicit role instructions and fingerprints both references
+for resume. The original single-reference workflows remain available.
+
+See [FACE_BODY_CHAIN.md](FACE_BODY_CHAIN.md) for installation, the 10-second
+comparison and limitations. This is experimental prompt-directed separation, not
+independent regional strengths or a proven likeness improvement. No new model,
+1080p finish or FileBrowser change is included. Rebuild the H3 character-swap image
+and use the new `H3_Character_Replacement_2026-10-27.2` factory folder.
+
 Release: 2026-10-27.1
 
 ## Low-memory chain with continuity review

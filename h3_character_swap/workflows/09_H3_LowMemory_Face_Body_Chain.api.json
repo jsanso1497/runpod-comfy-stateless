@@ -1,0 +1,39 @@
+{
+  "1": {
+    "class_type": "H3SwapDiskChainFaceBody",
+    "inputs": {
+      "action": "Start new run",
+      "run_name": "face_body_test_01",
+      "source_video": "source.mp4",
+      "face_image": "face.png",
+      "body_image": "body.png",
+      "duration_seconds": 10.0,
+      "start_seconds": 0.0,
+      "resolution": "768",
+      "window_frames": "124",
+      "target_person": "person",
+      "selection": "largest",
+      "selection_index": 0,
+      "mask_expansion": 64,
+      "seed": 904239,
+      "review_mode": "Review every chunk",
+      "max_retries": 2,
+      "additional_instructions": ""
+    },
+    "_meta": {
+      "title": "FACE + BODY: one source performer, two reference photos"
+    }
+  },
+  "2": {
+    "class_type": "PreviewAny",
+    "inputs": {
+      "source": [
+        "1",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "STATUS: open /_swap/chain on this same service"
+    }
+  }
+}

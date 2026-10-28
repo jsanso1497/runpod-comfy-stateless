@@ -16,7 +16,7 @@ section{padding:18px;margin:18px 0;border:1px solid #465268;border-radius:10px}v
 pre{white-space:pre-wrap;overflow-wrap:anywhere;font:13px ui-monospace}.warn{color:#ffce85}img{max-height:280px;max-width:48%;object-fit:contain}
 </style></head><body><h1>H3 Low-Memory Chain</h1>
 <p><a href="/">ComfyUI</a> | <a href="/_swap/status">Model preparation</a></p>
-<p>Start a new shot in workflow <strong>06_H3_LowMemory_Chain_Control</strong>. Keep other generation jobs out of the queue while a chain runs.</p>
+<p>Start a new shot in workflow <strong>06_H3_LowMemory_Chain_Control</strong> or <strong>09_H3_LowMemory_Face_Body_Chain</strong>. Keep other generation jobs out of the queue while a chain runs.</p>
 <p class="warn">A green check from the heuristic is not a seamless-motion or identity guarantee. Watch every join at normal speed. Approving a candidate explicitly accepts its visible result.</p>
 <p id="message"></p><div id="runs">Loading...</div>
 <script>
@@ -37,6 +37,7 @@ async function refresh(){try{
  if(!filtered.length){el('p','No matching runs. Start one in ComfyUI, then refresh this page.',node);return;}
  for(const row of filtered){const s=el('section',null,node);el('h2',row.run+' | '+row.status,s);
  el('p',`${row.accepted_chunks}/${row.total_chunks||'?'} accepted chunks; ${row.accepted_seconds.toFixed(3)} seconds. Controller: ${row.controller_running?'running':'stopped'}`,s);
+ if(row.reference_roles)el('pre',JSON.stringify({references:row.reference_files,roles:row.reference_roles},null,2),s);
  if(row.error)el('pre',row.error,s);
  if(row.candidate_quality)el('pre',JSON.stringify(row.candidate_quality,null,2),s);
  for(const [name,url] of Object.entries(row.links||{})){const a=el('a',name,s);a.href=url;a.target='_blank';el('br',null,s);

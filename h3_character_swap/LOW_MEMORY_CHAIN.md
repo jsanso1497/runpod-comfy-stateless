@@ -1,5 +1,9 @@
 # H3 low-memory chain and continuity review
 
+For the optional TWO-reference variant added in 2026-10-27.2, use workflow 09 and
+[FACE_BODY_CHAIN.md](FACE_BODY_CHAIN.md). This document describes the original
+single-reference workflow 06 and the shared disk/history/review engine.
+
 Release: **2026-10-26.2**. This is an integration update for the existing
 `h3-character-swap` image, not a new model or an H3 quality certification.
 

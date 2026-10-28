@@ -84,6 +84,8 @@ def inspect_schema(schema, selected=("akatz",), check_models=True):
         recipe = ROOT/"swapkit/data/akatz_disk_base.api.json"
         if recipe.exists():
             needed |= {n["class_type"] for n in json.loads(recipe.read_text()).values()}
+    if (ROOT/"workflows/09_H3_LowMemory_Face_Body_Chain.json").exists():
+        needed |= {"H3SwapDiskChainFaceBody", "H3SwapAnalyzeFaceBody"}
     missing=sorted(needed-set(schema))
     problems=[]
     if check_models:

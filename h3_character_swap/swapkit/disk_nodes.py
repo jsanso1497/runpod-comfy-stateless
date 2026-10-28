@@ -77,6 +77,60 @@ class H3SwapDiskChain:
         return {'ui':{'text':[text]},'result':(text,)}
 
 
+class H3SwapDiskChainFaceBody(H3SwapDiskChain):
+    """Separate file-backed references, used in every short generation job."""
+    @classmethod
+    def INPUT_TYPES(cls):
+        old = super().INPUT_TYPES()['required']
+        fields = {}
+        for name, spec in old.items():
+            if name == 'character_image':
+                fields['face_image'] = spec
+                fields['body_image'] = spec
+            elif name == 'prompt':
+                fields['additional_instructions'] = ('STRING', {'default': '', 'multiline': True,
+                    'tooltip': 'Optional FACE+BODY chain-safe draft or additional details. Built-in role instructions are retained.'})
+            else:
+                fields[name] = spec
+        # Review is deliberate for this experimental two-photo adaptation.
+        fields['review_mode'] = (list(MODES), {'default': 'Review every chunk'})
+        return {'required': fields}
+
+    @classmethod
+    def VALIDATE_INPUTS(cls, action, source_video, face_image, body_image, **kwargs):
+        if action != 'Start new run':
+            return True
+        inputs, _ = _inputs()
+        try:
+            for name in (source_video, face_image, body_image):
+                if not inside(inputs / name, inputs).is_file():
+                    return 'Upload the source video, face and body references first'
+        except (ValueError, ChainError):
+            return 'All inputs must be files inside ComfyUI input storage'
+        return True
+
+    def control(self, action, run_name, source_video, face_image, body_image, duration_seconds,
+                start_seconds, resolution, window_frames, target_person, selection, selection_index,
+                mask_expansion, seed, review_mode, max_retries, additional_instructions=''):
+        inputs, outputs = _inputs()
+        if action == 'Start new run':
+            prep = data_root() / 'h3-swap/status.json'
+            if prep.exists() and not json.loads(prep.read_text()).get('ready'):
+                raise ChainError('Wait for /_swap/status to show ready before starting a chain')
+            run = create_run(source=inputs/source_video, reference=inputs/face_image,
+                body_reference=inputs/body_image, input_root=inputs, output_root=outputs,
+                run_name=run_name, duration=duration_seconds, start=start_seconds,
+                resolution=resolution, window=int(window_frames), target=target_person,
+                selection=selection, selection_index=selection_index, expansion=mask_expansion,
+                seed=seed, review=review_mode, retries=max_retries, prompt=additional_instructions)
+            launch(run)
+            result = summarize(run)
+        else:
+            result = act(outputs, run_name, action)
+        text = json.dumps(result, indent=2)
+        return {'ui': {'text': [text]}, 'result': (text,)}
+
+
 class H3SwapDiskHistory:
     @classmethod
     def INPUT_TYPES(cls):
@@ -166,8 +220,9 @@ DIRECT_PROMPT=("Replace the selected person in <Video 1> with the same character
     "Follow the source performance's pose, gaze, expression, gestures, object interactions and movement at the source timing. "
     "Preserve the source scene, lighting, camera and other people. The selected performer is replaced, not duplicated.")
 
-NODE_CLASS_MAPPINGS={c.__name__:c for c in (H3SwapDiskChain,H3SwapDiskHistory,H3SwapDiskSave,H3SwapClipPrep)}
+NODE_CLASS_MAPPINGS={c.__name__:c for c in (H3SwapDiskChain,H3SwapDiskChainFaceBody,H3SwapDiskHistory,H3SwapDiskSave,H3SwapClipPrep)}
 NODE_DISPLAY_NAME_MAPPINGS={
+    'H3SwapDiskChainFaceBody':'H3 Low-Memory Chain: FACE + BODY (experimental)',
     'H3SwapDiskChain':'H3 Low-Memory Chain: Start / Review / Resume',
     'H3SwapDiskHistory':'H3 Load Accepted Frame History',
     'H3SwapDiskSave':'H3 Save Lossless Chunk + Checkpoint',

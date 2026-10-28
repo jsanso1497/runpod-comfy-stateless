@@ -228,9 +228,65 @@ def bfs_graph():
     return g.result()
 
 
+def face_body_studio():
+    g = Graph('H3 Face Body Long Analysis 2026-10-27.2')
+    video = g.add('LoadVideo', 'SOURCE VIDEO: selected original performer and interval', 0, 0,
+        outputs=[('VIDEO','VIDEO')], widgets={'file':'source.mp4'}, size=(350,300))
+    face = g.add('LoadImage', 'PICTURE 1: FACE / HEAD / HAIR', 0, 360,
+        outputs=[('IMAGE','IMAGE'),('MASK','MASK')],
+        widgets={'image':'face.png','upload':'image'}, size=(350,350))
+    body = g.add('LoadImage', 'PICTURE 2: BODY / PROPORTIONS / OUTFIT', 0, 770,
+        outputs=[('IMAGE','IMAGE'),('MASK','MASK')],
+        widgets={'image':'body.png','upload':'image'}, size=(350,450))
+    a = g.add('H3SwapAnalyzeFaceBody', 'ONE CHARACTER: separate face and body evidence', 430, 0,
+        inputs=[('video','VIDEO'),('face','IMAGE'),('body','IMAGE')],
+        outputs=[('clip_prompt','STRING'),('chain_prompt','STRING'),('report','STRING'),('samples','IMAGE')],
+        widgets={'target_person':'person','start_seconds':0.,'frames':124,'reuse_cached_draft':True,
+                 'detail_level':'Exhaustive','max_output_tokens':16384,'context_tokens':'32768',
+                 'sampled_frames':16,'timeout_seconds':1800}, size=(480,600))
+    g.connect(video,0,a,'video');g.connect(face,0,a,'face');g.connect(body,0,a,'body')
+    for i, title in enumerate(('SELECTED-CLIP PROMPT: only this analyzed interval',
+                               'CHAIN-SAFE PROMPT: paste into workflow 09',
+                               'REPORT: evidence, uncertainty and actual token use')):
+        out = g.add('PreviewAny',title,1000+i*550,0,inputs=[('source','*')],
+                    outputs=[('output','*')],size=(520,700))
+        g.connect(a,i,out,'source','STRING')
+    sheet = g.add('PreviewImage','All SOURCE samples (not a reference collage)',430,680,
+                  inputs=[('images','IMAGE')],size=(1080,580))
+    g.connect(a,3,sheet,'images')
+    return g.result()
+
+
+def face_body_chain():
+    g = Graph('H3 Low Memory Face Body Chain 2026-10-27.2')
+    control = g.add('H3SwapDiskChainFaceBody','FACE + BODY: one source performer, two reference photos',0,0,
+        outputs=[('status_and_review_link','STRING')],
+        widgets={'action':'Start new run','run_name':'face_body_test_01','source_video':'source.mp4',
+                 'face_image':'face.png','body_image':'body.png','duration_seconds':10.,'start_seconds':0.,
+                 'resolution':'768','window_frames':'124','target_person':'person','selection':'largest',
+                 'selection_index':0,'mask_expansion':64,'seed':904239,'review_mode':'Review every chunk',
+                 'max_retries':2,'additional_instructions':''},size=(650,850))
+    status = g.add('PreviewAny','STATUS: open /_swap/chain on this same service',740,0,
+                  inputs=[('source','*')],outputs=[('output','*')],size=(700,650))
+    g.connect(control,0,status,'source','STRING')
+    note = g.add('Note','Reference roles and first test',740,710,widgets={'text':
+        'Upload the full source video and TWO separate photos into /workspace/input. Refresh the file lists. '
+        'Picture 1 is the FACE close-up; Picture 2 is the BODY and COMPLETE OUTFIT. '
+        'Do NOT combine them into a sheet for this workflow. Use workflow 04 for optional two-image long analysis, '
+        'then paste its CHAIN-SAFE PROMPT into additional_instructions. Use the SAME target_person wording. '
+        'Leaving that field blank uses the built-in deliberate role prompt. '
+        'Check a full-person edit mask first. Queue ONCE, review each candidate at /_swap/chain. '
+        'Both references are passed to every short job. This is prompt-directed, not hard face/body control. '
+        'Use a NEW run name to change references/settings. Existing single-ref runs remain single-ref. '
+        'The first test is 10 seconds; set 48 only after a good face/body and join review.'},size=(700,350))
+    canvas, api = g.result()
+    api.pop(str(note), None)
+    return canvas, api
+
+
 def build_local(output):
     output=Path(output);output.mkdir(parents=True,exist_ok=True)
-    for filename, pair in (("00_Analyze_Clip_Build_Prompts", prompt_studio()), ("03_BFS_V11_Guide_Comparison", bfs_graph())):
+    for filename, pair in (("00_Analyze_Clip_Build_Prompts", prompt_studio()), ("03_BFS_V11_Guide_Comparison", bfs_graph()), ("04_Analyze_Face_Body_Build_Prompts", face_body_studio()), ("09_H3_LowMemory_Face_Body_Chain", face_body_chain())):
         g,api=pair
         atomic_json(output/(filename+".json"),g);atomic_json(output/(filename+".api.json"),api)
 

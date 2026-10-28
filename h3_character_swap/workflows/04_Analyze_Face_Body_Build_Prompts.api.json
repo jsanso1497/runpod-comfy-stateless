@@ -1,0 +1,106 @@
+{
+  "1": {
+    "class_type": "LoadVideo",
+    "inputs": {
+      "file": "source.mp4"
+    },
+    "_meta": {
+      "title": "SOURCE VIDEO: selected original performer and interval"
+    }
+  },
+  "2": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "face.png"
+    },
+    "_meta": {
+      "title": "PICTURE 1: FACE / HEAD / HAIR"
+    }
+  },
+  "3": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "body.png"
+    },
+    "_meta": {
+      "title": "PICTURE 2: BODY / PROPORTIONS / OUTFIT"
+    }
+  },
+  "4": {
+    "class_type": "H3SwapAnalyzeFaceBody",
+    "inputs": {
+      "target_person": "person",
+      "start_seconds": 0.0,
+      "frames": 124,
+      "reuse_cached_draft": true,
+      "detail_level": "Exhaustive",
+      "max_output_tokens": 16384,
+      "context_tokens": "32768",
+      "sampled_frames": 16,
+      "timeout_seconds": 1800,
+      "video": [
+        "1",
+        0
+      ],
+      "face": [
+        "2",
+        0
+      ],
+      "body": [
+        "3",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "ONE CHARACTER: separate face and body evidence"
+    }
+  },
+  "5": {
+    "class_type": "PreviewAny",
+    "inputs": {
+      "source": [
+        "4",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "SELECTED-CLIP PROMPT: only this analyzed interval"
+    }
+  },
+  "6": {
+    "class_type": "PreviewAny",
+    "inputs": {
+      "source": [
+        "4",
+        1
+      ]
+    },
+    "_meta": {
+      "title": "CHAIN-SAFE PROMPT: paste into workflow 09"
+    }
+  },
+  "7": {
+    "class_type": "PreviewAny",
+    "inputs": {
+      "source": [
+        "4",
+        2
+      ]
+    },
+    "_meta": {
+      "title": "REPORT: evidence, uncertainty and actual token use"
+    }
+  },
+  "8": {
+    "class_type": "PreviewImage",
+    "inputs": {
+      "images": [
+        "4",
+        3
+      ]
+    },
+    "_meta": {
+      "title": "All SOURCE samples (not a reference collage)"
+    }
+  }
+}

@@ -94,7 +94,11 @@ def summarize(run):
             'error':state.get('error'),'candidate_quality':candidate.get('quality') if candidate else None,
             'review_mode':config.get('review_mode'),'output_folder':str(run),'links':links,
             'review_url':'/_swap/chain?run='+urllib.parse.quote(run.name),
-            'seamless_motion_guaranteed':False}
+            'seamless_motion_guaranteed':False,
+            'reference_mode':config.get('reference_mode','single'),
+            'reference_roles':config.get('reference_roles', {'Picture 1':'complete character'}),
+            'reference_files':{'Picture 1':Path(config['reference']).name,
+                **({'Picture 2':Path(config['body_reference']).name} if config.get('reference_mode')=='face_body' else {})}}
 
 
 def summaries(output_root):

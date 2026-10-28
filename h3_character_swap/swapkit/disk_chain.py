@@ -25,6 +25,7 @@ from .disk_common import (ChainError, Stopped, FPS, HISTORY, VALID_WINDOWS, atom
 from .disk_storage import verify_receipt, load_arrays
 from .disk_quality import assess_join
 from .analysis_options import validate_prompt
+from .face_body import CONTRACT as FACE_BODY_CONTRACT, compose_prompt as face_body_prompt
 
 VERSION='2026-10-26.2'
 RECIPE=Path(__file__).parent/'data/akatz_disk_base.api.json'
@@ -70,7 +71,7 @@ def runtime_signature(input_root, base):
 def create_run(*, source, reference, input_root, output_root, run_name, duration=19.,
                start=0., resolution='768', window=124, target='person', selection='largest',
                selection_index=0, expansion=64, seed=904239, review=MODES[0], retries=2,
-               prompt=None):
+               prompt=None, body_reference=None):
     input_root,output_root=Path(input_root).resolve(),Path(output_root).resolve()
     if not input_root.is_dir() or not output_root.is_dir():
         raise ChainError('Comfy input/output directories must exist')
@@ -82,6 +83,12 @@ def create_run(*, source, reference, input_root, output_root, run_name, duration
         raise ChainError('Choose a supported local video and PNG/JPG/WebP reference')
     if not source.is_file() or not reference.is_file():
         raise ChainError('Source/reference not found')
+    if body_reference is not None:
+        body_reference = Path(body_reference).resolve()
+        if (not any(body_reference.is_relative_to(r) and body_reference != r for r in (input_root, output_root))
+                or body_reference.suffix.lower() not in IMAGE_EXT or not body_reference.is_file()):
+            raise ChainError('Body reference must be a PNG/JPG/WebP file in Comfy input or output storage')
+
     if not math.isfinite(float(duration)) or not 1<=float(duration)<=3600:
         raise ChainError('Duration must be between 1 and 3600 seconds')
     if not math.isfinite(float(start)) or not 0<=float(start)<=86400:
@@ -101,7 +108,13 @@ def create_run(*, source, reference, input_root, output_root, run_name, duration
         raise ChainError('At least 4 GiB free is needed to start; long lossless runs need more.')
     base=read_json(RECIPE)
     validate_api_graph(base)
-    prompt=str(prompt or base['reference_conditioning']['inputs']['prompt'])
+    if body_reference is not None:
+        try:
+            prompt = face_body_prompt(target, '' if prompt is None else prompt)
+        except ValueError as exc:
+            raise ChainError(str(exc)) from exc
+    else:
+        prompt=str(prompt or base['reference_conditioning']['inputs']['prompt'])
     try:
         validate_prompt(prompt)
     except ValueError as exc:
@@ -117,6 +130,14 @@ def create_run(*, source, reference, input_root, output_root, run_name, duration
                 'seed':int(seed),'review_mode':review,'max_retries':int(retries),'prompt':prompt,
                 'url':'http://127.0.0.1:8189','history_contract':'17 prior + 1 boundary, native Relay sliding history',
                 'continuity_guarantee':False,'runtime_signature':runtime_signature(input_root,base)}
+        if body_reference is not None:
+            config.update(reference_mode='face_body', reference_roles_version=FACE_BODY_CONTRACT,
+                          body_reference=str(body_reference), body_reference_sha256=sha256(body_reference),
+                          reference_roles={'Picture 1': 'face/head/hair',
+                                           'Picture 2': 'physique/proportions/complete outfit',
+                                           'Video 1': 'selected source performance/scene'})
+            from .akatz_analysis import atomic_text
+            atomic_text(run/'effective_prompt.txt', prompt+'\n')
         atomic_json(run/'base.api.json',base)
         atomic_json(run/'config.json',config)
         atomic_json(run/'state.json',{'version':VERSION,'status':'created','chunks':[],
@@ -131,10 +152,30 @@ def retry_seed(seed,index,attempt):
     return int(seed) if attempt==0 else (int(seed)+index*7919+attempt*1000003)%(2**64)
 
 
-def make_job(base, config, segment, source_file, reference_file, prefix, previous=None, attempt=0):
+def make_job(base, config, segment, source_file, reference_file, prefix, previous=None, attempt=0, *, body_reference_file=None):
     graph=copy.deepcopy(base)
     graph['source']['inputs']['file']=source_file
     graph['reference']['inputs']['image']=reference_file
+    mode = config.get('reference_mode', 'single')
+    if mode not in ('single', 'face_body'):
+        raise ChainError('Unsupported reference mode')
+    if mode == 'face_body':
+        if config.get('reference_roles_version') != FACE_BODY_CONTRACT or not body_reference_file:
+            raise ChainError('Two-reference mode is missing its body image or role contract')
+        # Do not batch or flatten the references: the native node must receive
+        # separate slots in the same order for text and VAE conditioning.
+        graph['reference']['_meta'] = {'title': 'Picture 1: FACE / HEAD / HAIR'}
+        graph['body_reference'] = {'class_type': 'LoadImage',
+            'inputs': {'image': body_reference_file},
+            '_meta': {'title': 'Picture 2: BODY PROPORTIONS / COMPLETE OUTFIT'}}
+        cond = graph['reference_conditioning']['inputs']
+        cond['ref_images.ref_image_0'] = ['reference', 0]
+        cond['ref_images.ref_image_1'] = ['body_reference', 0]
+        if cond.get('vae') != ['video_vae', 0]:
+            raise ChainError('Native reference VAE connection is missing')
+    elif body_reference_file is not None:
+        raise ChainError('Cannot add a body reference to an existing single-reference run')
+
     graph['prepare']['inputs'].update(duration_seconds=0.,resolution=config['resolution'])
     graph['subject']['inputs']['text']=config['target_person']
     graph['select']['inputs'].update(selection=config['selection'],index=config['selection_index'])
@@ -273,6 +314,19 @@ def execute(run_dir, client=None):
         persist(config_digest=fingerprint,status='checking',error=None)
         if sha256(Path(config['source']))!=config['source_sha256'] or sha256(Path(config['reference']))!=config['reference_sha256']:
             raise ChainError('Source or reference changed; do not resume this run')
+        mode = config.get('reference_mode', 'single')
+        if mode not in ('single', 'face_body'):
+            raise ChainError('Unsupported reference mode')
+        if mode == 'face_body':
+            if (config.get('reference_roles_version') != FACE_BODY_CONTRACT
+                    or not config.get('body_reference') or not config.get('body_reference_sha256')):
+                raise ChainError('Face/body role contract is missing or changed; start a new run')
+            if sha256(Path(config['body_reference'])) != config['body_reference_sha256']:
+                raise ChainError('Body reference changed; start a new run instead of resuming')
+            if face_body_prompt(config['target_person'], config['prompt']) != config['prompt']:
+                raise ChainError('Face/body prompt contract changed; start a new run')
+        elif any(k in config for k in ('body_reference', 'body_reference_sha256', 'reference_roles_version')):
+            raise ChainError('A body reference cannot be injected into a single-reference run')
         base=read_json(run/'base.api.json')
         if json_digest(base)!=config['workflow_digest']: raise ChainError('Workflow changed; do not mix settings')
         if runtime_signature(inputs,base)!=config['runtime_signature']:
@@ -298,6 +352,14 @@ def execute(run_dir, client=None):
         reference=stage/('character'+Path(config['reference']).suffix.lower())
         if not reference.exists(): shutil.copy2(config['reference'],reference)
         if sha256(reference)!=config['reference_sha256']: raise ChainError('Staged reference changed')
+        body_reference = None
+        if mode == 'face_body':
+            body_reference = stage/('body'+Path(config['body_reference']).suffix.lower())
+            if not body_reference.exists():
+                shutil.copy2(config['body_reference'], body_reference)
+            if sha256(body_reference) != config['body_reference_sha256']:
+                raise ChainError('Staged body reference changed; no new job was queued')
+
         for i,row in enumerate(state['chunks']):
             if row['index']!=i or row['new_frames']!=plan[i]['new_frames']:
                 raise ChainError('Accepted timeline is inconsistent')
@@ -343,8 +405,15 @@ def execute(run_dir, client=None):
                     # receipt means this incomplete attempt can be retried safely.
                     persist(pending=None)
                 extract_segment(source,bounded_source,segment,logs,stop)
+                # Recheck the snapshots for EVERY job/retry, not only the first
+                # chunk. FileBrowser edits must not silently change appearance.
+                if sha256(reference) != config['reference_sha256']:
+                    raise ChainError('Staged face/character reference changed; no new job was queued')
+                if body_reference is not None and sha256(body_reference) != config['body_reference_sha256']:
+                    raise ChainError('Staged body reference changed; no new job was queued')
                 graph=make_job(base,config,segment,bounded_source.relative_to(inputs).as_posix(),
-                    reference.relative_to(inputs).as_posix(),prefix,previous,attempt)
+                    reference.relative_to(inputs).as_posix(),prefix,previous,attempt,
+                    body_reference_file=body_reference.relative_to(inputs).as_posix() if body_reference is not None else None)
                 atomic_json(part/'job.api.json',graph)
                 client.wait_idle();check_stop(stop)
                 ident=client.queue(graph)
