@@ -26,6 +26,7 @@ from .disk_storage import verify_receipt, load_arrays
 from .disk_quality import assess_join
 from .analysis_options import validate_prompt
 from .face_body import CONTRACT as FACE_BODY_CONTRACT, compose_prompt as face_body_prompt
+from .recovery import export_run, ffmetadata, sidecars, enabled as metadata_enabled
 
 VERSION='2026-10-26.2'
 RECIPE=Path(__file__).parent/'data/akatz_disk_base.api.json'
@@ -65,6 +66,9 @@ def runtime_signature(input_root, base):
         path=model_root/category/name
         if path.exists():
             stat=path.stat();models[category+'/'+name]={'bytes':stat.st_size,'mtime_ns':stat.st_mtime_ns}
+    from .precision import profile, BF16
+    if profile()==BF16:
+        build['precision-profile.json']=sha256(here/'precision-profile.json')
     return {'build':build,'models':models,'integration_version':VERSION}
 
 
@@ -139,12 +143,15 @@ def create_run(*, source, reference, input_root, output_root, run_name, duration
             from .akatz_analysis import atomic_text
             atomic_text(run/'effective_prompt.txt', prompt+'\n')
         atomic_json(run/'base.api.json',base)
+        from .precision import profile
+        config['model_profile']=profile()
         atomic_json(run/'config.json',config)
         atomic_json(run/'state.json',{'version':VERSION,'status':'created','chunks':[],
                                      'pending':None,'candidate':None,'attempt':0})
     except BaseException:
         shutil.rmtree(run)
         raise
+    if metadata_enabled(): export_run(run)
     return run
 
 
@@ -242,7 +249,7 @@ def join_preview(previous_folder,current_folder,target,logdir,stop):
     temp.unlink(missing_ok=True)
 
 
-def assemble(rows, normalized, target, frames, logs, stop):
+def assemble(rows, normalized, target, frames, logs, stop, metadata=None):
     """Decode one disk master at a time, encode once. Never stack whole movie."""
     manifest=Path(target).parent/'concat_masters.txt'
     out=[]
@@ -253,13 +260,19 @@ def assemble(rows, normalized, target, frames, logs, stop):
     manifest.write_text('\n'.join(out)+'\n')
     temp=Path(target).with_suffix('.partial.mp4')
     cmd=['ffmpeg','-hide_banner','-loglevel','error','-nostdin','-y','-f','concat','-safe','0',
-         '-i',str(manifest),'-i',str(normalized),'-map','0:v:0','-c:v','libx264','-preset','medium',
+         '-i',str(manifest),'-i',str(normalized)]
+    if metadata:
+        meta_path=ffmetadata(Path(target).parent/'final.ffmetadata.txt',metadata)
+        cmd += ['-f','ffmetadata','-i',str(meta_path)]
+        sidecars(target,metadata)
+    cmd += ['-map','0:v:0','-c:v','libx264','-preset','medium',
          '-crf','16','-pix_fmt','yuv420p','-threads','2']
     if media_info(normalized)['audio']:
         cmd+=['-map','1:a:0','-af',f'apad,atrim=end_sample={frames*2000}',
               '-c:a','aac','-b:a','192k','-ar','48000','-ac','2']
     else: cmd+=['-an']
-    cmd+=['-t',f'{frames/24:.12f}','-map_metadata','-1','-movflags','+faststart',str(temp)]
+    cmd+=['-t',f'{frames/24:.12f}','-map_metadata','2' if metadata else '-1',
+          '-movflags','+faststart+use_metadata_tags' if metadata else '+faststart',str(temp)]
     run_media(cmd,logs/'assemble.log',stop)
     info=verify_video(temp,frames)
     os.replace(temp,target)
@@ -294,11 +307,16 @@ def execute(run_dir, client=None):
         raise ChainError('Use a new v2 run. Earlier runs use different history precision/contracts.')
     output=Path(config['output_root']);inputs=Path(config['input_root'])
     if resolve_run(output,config['run_name'])!=run: raise ChainError('Run location mismatch')
+    from .precision import profile
+    if config.get('model_profile','baseline') != profile():
+        raise ChainError('Saved run uses a different precision profile. Resume in its original image, or create a NEW run.')
     state_path=run/'state.json';state=read_json(state_path)
+    recovery=export_run(run) if metadata_enabled() else {}
     if state.get('status')=='complete': return state
     lock=(root_dir(output)/'.controller.lock').open('a+')
     client=client or ComfyClient()
     client.stop_file=run/'STOP'
+    client.recovery_workflow=(recovery.get('resume') or {}).get('workflow')
     logs=run/'logs';logs.mkdir(exist_ok=True)
     stage=inside(inputs/('h3_chain_v2_'+config['run_name']),inputs);stage.mkdir(exist_ok=True)
     stop=run/'STOP'
@@ -415,6 +433,8 @@ def execute(run_dir, client=None):
                     reference.relative_to(inputs).as_posix(),prefix,previous,attempt,
                     body_reference_file=body_reference.relative_to(inputs).as_posix() if body_reference is not None else None)
                 atomic_json(part/'job.api.json',graph)
+                if recovery:
+                    sidecars(part/'master.mkv', {'workflow': recovery['resume']['workflow'], 'prompt': graph})
                 client.wait_idle();check_stop(stop)
                 ident=client.queue(graph)
                 persist(pending={'prompt_id':ident,'index':index,'attempt':attempt},status='rendering',
@@ -448,7 +468,8 @@ def execute(run_dir, client=None):
         persist(status='joining')
         event('Joining accepted disk masters and the continuous original soundtrack.')
         final=run/'final.mp4'
-        info=assemble(state['chunks'],source,final,state['prepared']['frames'],logs,stop)
+        info=assemble(state['chunks'],source,final,state['prepared']['frames'],logs,stop,
+                      metadata=recovery.get('repeat'))
         persist(status='complete',final=str(final),final_sha256=sha256(final),final_info=info)
         event('COMPLETE: '+str(final))
         return state

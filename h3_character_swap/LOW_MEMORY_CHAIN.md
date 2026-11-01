@@ -1,3 +1,8 @@
+> Current combined image: **2026-11-01.1**. The new factory folder is
+> `H3_Character_Replacement_2026-11-01.1`. Workflow recovery, preview behavior and
+> the now-included FileBrowser service are documented in [RECOVERY_AND_PREVIEWS.md](RECOVERY_AND_PREVIEWS.md).
+> The earlier feature-specific notes below are retained as historical scope.
+
 # H3 low-memory chain and continuity review
 
 For the optional TWO-reference variant added in 2026-10-27.2, use workflow 09 and

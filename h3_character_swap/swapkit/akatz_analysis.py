@@ -205,6 +205,7 @@ def query(images, timestamps, target, options, check_interrupt=lambda: None, dia
     print(f'[H3 LONG ANALYSIS] {len(timestamps)} samples; output cap {options.max_output_tokens}; '
           f'context {options.context_tokens}; {options.detail_level}', flush=True)
     parts, characters, final = [], 0, None
+    reasoning_characters, stream_messages = 0, 0
     primary_error = None
     started = time.monotonic()
     progress_at = started
@@ -233,6 +234,9 @@ def query(images, timestamps, target, options, check_interrupt=lambda: None, dia
                     row = json.loads(line)
                     if row.get('error'):
                         raise ValueError('Ollama analysis failed; check its local log')
+                    stream_messages += 1
+                    reasoning = (row.get('message') or {}).get('thinking', '')
+                    if isinstance(reasoning, str): reasoning_characters += len(reasoning)
                     fragment = (row.get('message') or {}).get('content', '')
                     if not isinstance(fragment, str):
                         raise ValueError('Invalid Ollama streaming message')
@@ -241,7 +245,7 @@ def query(images, timestamps, target, options, check_interrupt=lambda: None, dia
                     if characters > min(530000, options.max_output_tokens * 16 + 8192):
                         raise ValueError('Analysis response exceeded its bounded storage allowance')
                     if now - progress_at >= 15:
-                        print(f'[H3 LONG ANALYSIS] {now-started:.0f}s; {characters:,} characters received', flush=True)
+                        print(f'[H3 LONG ANALYSIS] {now-started:.0f}s; answer {characters:,} chars; reasoning {reasoning_characters:,} chars; {stream_messages} messages (no reasoning text saved)', flush=True)
                         progress_at = now
                     if row.get('done'):
                         final = row
@@ -255,7 +259,8 @@ def query(images, timestamps, target, options, check_interrupt=lambda: None, dia
             stats = {key: final.get(key) for key in
                      ('done_reason', 'prompt_eval_count', 'eval_count', 'total_duration', 'eval_duration')}
             stats.update(elapsed_seconds=round(time.monotonic()-started, 3),
-                         output_characters=characters,
+                         output_characters=characters, reasoning_characters=reasoning_characters,
+                         stream_messages=stream_messages,
                          analysis_words=sum(len(v.split()) for v in analysis.values()),
                          requested=options.record(), token_budget_is_not_a_length_guarantee=True)
             print(f"[H3 LONG ANALYSIS] Finished: {stats['eval_count']} output tokens; "

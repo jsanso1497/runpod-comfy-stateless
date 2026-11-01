@@ -1,0 +1,159 @@
+{
+  "id": "55a3011e-550a-5a52-a3e0-01df11cc2025",
+  "revision": 0,
+  "last_node_id": 3,
+  "last_link_id": 1,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "H3SwapDiskChain",
+      "title": "ONE REFERENCE + NATIVE SIMPLE PROMPT: 10-second test",
+      "pos": [
+        0,
+        0
+      ],
+      "size": [
+        600,
+        760
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "status_and_review_link",
+          "type": "STRING",
+          "links": [
+            1
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3SwapDiskChain"
+      },
+      "widgets_values": [
+        "Start new run",
+        "native_simple_test10",
+        "source.mp4",
+        "character.png",
+        10.0,
+        0.0,
+        "768",
+        "124",
+        "person",
+        "largest",
+        0,
+        64,
+        904239,
+        "Review every chunk",
+        0,
+        "Replace the selected person with the reference character. Preserve source performance, scene and audio timing."
+      ],
+      "widgets_values_named": {
+        "action": "Start new run",
+        "run_name": "native_simple_test10",
+        "source_video": "source.mp4",
+        "character_image": "character.png",
+        "duration_seconds": 10.0,
+        "start_seconds": 0.0,
+        "resolution": "768",
+        "window_frames": "124",
+        "target_person": "person",
+        "selection": "largest",
+        "selection_index": 0,
+        "mask_expansion": 64,
+        "seed": 904239,
+        "review_mode": "Review every chunk",
+        "max_retries": 0,
+        "prompt": "Replace the selected person with the reference character. Preserve source performance, scene and audio timing."
+      }
+    },
+    {
+      "id": 2,
+      "type": "PreviewAny",
+      "title": "2. STATUS: open /_swap/chain on the same 8188 address",
+      "pos": [
+        690,
+        0
+      ],
+      "size": [
+        590,
+        600
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "source",
+          "type": "*",
+          "link": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "STRING",
+          "links": []
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewAny"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 3,
+      "type": "Note",
+      "title": "Read before Run",
+      "pos": [
+        0,
+        820
+      ],
+      "size": [
+        1270,
+        220
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "Note"
+      },
+      "widgets_values": [
+        "Select the SAME source, reference, seed and mask as your good native result. No Ollama and no face/body prompt wrapper. Queue once; use /_swap/chain. This still uses the disk controller, not the native in-memory loop. After reviewing the first 10 seconds start a NEW run for 48 seconds. Recovered workflows and the final MP4 keep the recorded settings."
+      ],
+      "widgets_values_named": {
+        "text": "Select the SAME source, reference, seed and mask as your good native result. No Ollama and no face/body prompt wrapper. Queue once; use /_swap/chain. This still uses the disk controller, not the native in-memory loop. After reviewing the first 10 seconds start a NEW run for 48 seconds. Recovered workflows and the final MP4 keep the recorded settings."
+      }
+    }
+  ],
+  "links": [
+    [
+      1,
+      1,
+      0,
+      2,
+      0,
+      "STRING"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.65,
+      "offset": [
+        50,
+        50
+      ]
+    },
+    "validation": "source candidate; GPU execution not certified",
+    "h3_disk_chain_version": "2026-10-26.2"
+  },
+  "version": 0.4
+}

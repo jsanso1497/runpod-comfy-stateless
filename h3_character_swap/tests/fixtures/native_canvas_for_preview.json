@@ -1,0 +1,3162 @@
+{
+  "id": "f8ebaf3d-2976-5418-adda-74d45d8862f1",
+  "revision": 0,
+  "last_node_id": 50,
+  "last_link_id": 90,
+  "nodes": [
+    {
+      "id": "model",
+      "type": "UNETLoader",
+      "title": "UNETLoader",
+      "pos": [
+        500,
+        1980
+      ],
+      "size": [
+        440,
+        200
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            1
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "UNETLoader"
+      },
+      "widgets_values": [
+        "minimax_h3_ref2va_pruned_int8_convrot.safetensors",
+        "default"
+      ],
+      "widgets_values_named": {
+        "unet_name": "minimax_h3_ref2va_pruned_int8_convrot.safetensors",
+        "weight_dtype": "default"
+      }
+    },
+    {
+      "id": "shift",
+      "type": "MiniMaxH3SigmaShift",
+      "title": "MiniMaxH3SigmaShift",
+      "pos": [
+        860,
+        1980
+      ],
+      "size": [
+        440,
+        200
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            2
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "MiniMaxH3SigmaShift"
+      },
+      "widgets_values": [
+        12.0,
+        3.0
+      ],
+      "widgets_values_named": {
+        "shift_video": 12.0,
+        "shift_audio": 3.0
+      }
+    },
+    {
+      "id": "attention",
+      "type": "ModelAttentionBackend",
+      "title": "ModelAttentionBackend",
+      "pos": [
+        1200,
+        1980
+      ],
+      "size": [
+        440,
+        200
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "links": [
+            5
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ModelAttentionBackend"
+      },
+      "widgets_values": [
+        "comfy kitchen attention"
+      ],
+      "widgets_values_named": {
+        "attention": "comfy kitchen attention"
+      }
+    },
+    {
+      "id": "text",
+      "type": "CLIPLoader",
+      "title": "CLIPLoader",
+      "pos": [
+        500,
+        2460
+      ],
+      "size": [
+        440,
+        200
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            3
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPLoader"
+      },
+      "widgets_values": [
+        "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+        "minimax",
+        "default"
+      ],
+      "widgets_values_named": {
+        "clip_name": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+        "type": "minimax",
+        "device": "default"
+      }
+    },
+    {
+      "id": "text_device",
+      "type": "SelectCLIPDevice",
+      "title": "SelectCLIPDevice",
+      "pos": [
+        870,
+        2460
+      ],
+      "size": [
+        440,
+        200
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 3
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            4
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SelectCLIPDevice"
+      },
+      "widgets_values": [
+        "gpu:0"
+      ],
+      "widgets_values_named": {
+        "device": "gpu:0"
+      }
+    },
+    {
+      "id": "text_memory",
+      "type": "H3RelayTextMemory",
+      "title": "H3RelayTextMemory",
+      "pos": [
+        1220,
+        2460
+      ],
+      "size": [
+        440,
+        200
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            37
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3RelayTextMemory"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": "video_vae",
+      "type": "VAELoader",
+      "title": "VAELoader",
+      "pos": [
+        500,
+        2940
+      ],
+      "size": [
+        440,
+        200
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            43,
+            49,
+            55,
+            78
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAELoader"
+      },
+      "widgets_values": [
+        "minimax_h3_video_vae_fp16.safetensors"
+      ],
+      "widgets_values_named": {
+        "vae_name": "minimax_h3_video_vae_fp16.safetensors"
+      }
+    },
+    {
+      "id": "audio_vae",
+      "type": "VAELoader",
+      "title": "VAELoader",
+      "pos": [
+        870,
+        2940
+      ],
+      "size": [
+        440,
+        200
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            44,
+            50,
+            61
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAELoader"
+      },
+      "widgets_values": [
+        "minimax_h3_audio_vae_fp32.safetensors"
+      ],
+      "widgets_values_named": {
+        "vae_name": "minimax_h3_audio_vae_fp32.safetensors"
+      }
+    },
+    {
+      "id": "turbo",
+      "type": "LoraLoaderModelOnly",
+      "title": "LoraLoaderModelOnly",
+      "pos": [
+        1560,
+        1980
+      ],
+      "size": [
+        440,
+        200
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 5
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            6
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoraLoaderModelOnly"
+      },
+      "widgets_values": [
+        "minimax_h3_fl2v_turbo_8step_v1.0_768p_comfyui_bf16.safetensors",
+        1.0
+      ],
+      "widgets_values_named": {
+        "lora_name": "minimax_h3_fl2v_turbo_8step_v1.0_768p_comfyui_bf16.safetensors",
+        "strength_model": 1.0
+      }
+    },
+    {
+      "id": "adapter",
+      "type": "LoraLoaderModelOnly",
+      "title": "LoraLoaderModelOnly",
+      "pos": [
+        1910,
+        1980
+      ],
+      "size": [
+        440,
+        200
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 6
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            63,
+            70
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoraLoaderModelOnly"
+      },
+      "widgets_values": [
+        "h3_character_swap_v1.5.safetensors",
+        1.0
+      ],
+      "widgets_values_named": {
+        "lora_name": "h3_character_swap_v1.5.safetensors",
+        "strength_model": 1.0
+      }
+    },
+    {
+      "id": "source",
+      "type": "LoadVideo",
+      "title": "1. SOURCE VIDEO - FIRST 5.17 SECONDS",
+      "pos": [
+        0,
+        0
+      ],
+      "size": [
+        440,
+        340
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "VIDEO",
+          "type": "VIDEO",
+          "links": [
+            7
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadVideo"
+      },
+      "widgets_values": [
+        "source.mp4",
+        "image"
+      ],
+      "widgets_values_named": {
+        "file": "source.mp4",
+        "upload": "image"
+      }
+    },
+    {
+      "id": "prepare",
+      "type": "H3RelayPrepareSource",
+      "title": "7. 768 PRESET, 124 FRAMES / 24FPS",
+      "pos": [
+        470,
+        0
+      ],
+      "size": [
+        440,
+        200
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "video",
+          "type": "VIDEO",
+          "link": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "reference_frames",
+          "type": "IMAGE",
+          "links": [
+            8,
+            10,
+            16,
+            21,
+            27,
+            31
+          ]
+        },
+        {
+          "name": "source_audio",
+          "type": "AUDIO",
+          "links": [
+            35,
+            85
+          ]
+        },
+        {
+          "name": "width",
+          "type": "INT",
+          "links": []
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "links": []
+        },
+        {
+          "name": "h3_length",
+          "type": "INT",
+          "links": []
+        },
+        {
+          "name": "source_frames",
+          "type": "INT",
+          "links": [
+            22,
+            28,
+            29
+          ]
+        },
+        {
+          "name": "fps",
+          "type": "FLOAT",
+          "links": []
+        },
+        {
+          "name": "summary",
+          "type": "STRING",
+          "links": []
+        },
+        {
+          "name": "prepared_video",
+          "type": "VIDEO",
+          "links": []
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3RelayPrepareSource"
+      },
+      "widgets_values": [
+        "768",
+        120.0,
+        "silence"
+      ],
+      "widgets_values_named": {
+        "resolution": "768",
+        "duration_seconds": 120.0,
+        "missing_audio": "silence"
+      }
+    },
+    {
+      "id": "dimensions",
+      "type": "GetImageSize",
+      "title": "GetImageSize",
+      "pos": [
+        900,
+        40
+      ],
+      "size": [
+        440,
+        200
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 8
+        }
+      ],
+      "outputs": [
+        {
+          "name": "width",
+          "type": "INT",
+          "links": [
+            38
+          ]
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "links": [
+            39
+          ]
+        },
+        {
+          "name": "batch_size",
+          "type": "INT",
+          "links": []
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "GetImageSize"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": "reference",
+      "type": "LoadImage",
+      "title": "2. PICTURE 1 - FACE / SKIN / HAIR",
+      "pos": [
+        0,
+        450
+      ],
+      "size": [
+        440,
+        340
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            42
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": []
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "character.png",
+        "image"
+      ],
+      "widgets_values_named": {
+        "image": "character.png",
+        "upload": "image"
+      }
+    },
+    {
+      "id": "sam",
+      "type": "CheckpointLoaderSimple",
+      "title": "CheckpointLoaderSimple",
+      "pos": [
+        470,
+        1300
+      ],
+      "size": [
+        440,
+        200
+      ],
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            11,
+            15,
+            23
+          ]
+        },
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            9
+          ]
+        },
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": []
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CheckpointLoaderSimple"
+      },
+      "widgets_values": [
+        "sam3.1_multiplex_fp16.safetensors"
+      ],
+      "widgets_values_named": {
+        "ckpt_name": "sam3.1_multiplex_fp16.safetensors"
+      }
+    },
+    {
+      "id": "subject",
+      "type": "CLIPTextEncode",
+      "title": "4. SAM TARGET - DESCRIBE ORIGINAL PERSON",
+      "pos": [
+        900,
+        1350
+      ],
+      "size": [
+        440,
+        200
+      ],
+      "flags": {},
+      "order": 15,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 9
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            13,
+            18,
+            24
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "widgets_values": [
+        "person"
+      ],
+      "widgets_values_named": {
+        "text": "person"
+      }
+    },
+    {
+      "id": "first_frame",
+      "type": "ImageFromBatch",
+      "title": "ImageFromBatch",
+      "pos": [
+        915,
+        570
+      ],
+      "size": [
+        440,
+        200
+      ],
+      "flags": {},
+      "order": 16,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 10
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            12
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ImageFromBatch"
+      },
+      "widgets_values": [
+        0,
+        1
+      ],
+      "widgets_values_named": {
+        "batch_index": 0,
+        "length": 1
+      }
+    },
+    {
+      "id": "detect",
+      "type": "SAM3_Detect",
+      "title": "SAM3_Detect",
+      "pos": [
+        1260,
+        1250
+      ],
+      "size": [
+        440,
+        200
+      ],
+      "flags": {},
+      "order": 17,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 11
+        },
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 12
+        },
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "link": 13
+        }
+      ],
+      "outputs": [
+        {
+          "name": "masks",
+          "type": "MASK",
+          "links": [
+            14
+          ]
+        },
+        {
+          "name": "bboxes",
+          "type": "BOUNDING_BOX",
+          "links": []
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SAM3_Detect"
+      },
+      "widgets_values": [
+        0.35,
+        2,
+        true
+      ],
+      "widgets_values_named": {
+        "threshold": 0.35,
+        "refine_iterations": 2,
+        "individual_masks": true
+      }
+    },
+    {
+      "id": "select",
+      "type": "H3RelaySelectMask",
+      "title": "H3RelaySelectMask",
+      "pos": [
+        1630,
+        1250
+      ],
+      "size": [
+        440,
+        200
+      ],
+      "flags": {},
+      "order": 18,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "masks",
+          "type": "MASK",
+          "link": 14
+        }
+      ],
+      "outputs": [
+        {
+          "name": "selected_mask",
+          "type": "MASK",
+          "links": [
+            17
+          ]
+        },
+        {
+          "name": "selection",
+          "type": "H3_SUBJECT_SELECTION",
+          "links": [
+            25
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3RelaySelectMask"
+      },
+      "widgets_values": [
+        "largest",
+        0
+      ],
+      "widgets_values_named": {
+        "selection": "largest",
+        "index": 0
+      }
+    },
+    {
+      "id": "track",
+      "type": "SAM3_VideoTrack",
+      "title": "SAM3_VideoTrack",
+      "pos": [
+        1970,
+        1250
+      ],
+      "size": [
+        440,
+        200
+      ],
+      "flags": {},
+      "order": 19,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 15
+        },
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 16
+        },
+        {
+          "name": "initial_mask",
+          "type": "MASK",
+          "link": 17
+        },
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "link": 18
+        }
+      ],
+      "outputs": [
+        {
+          "name": "track_data",
+          "type": "SAM3_TRACK_DATA",
+          "links": [
+            19
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SAM3_VideoTrack"
+      },
+      "widgets_values": [
+        0.5,
+        1,
+        1
+      ],
+      "widgets_values_named": {
+        "detection_threshold": 0.5,
+        "max_objects": 1,
+        "detect_interval": 1
+      }
+    },
+    {
+      "id": "mask",
+      "type": "SAM3_TrackToMask",
+      "title": "SAM3_TrackToMask",
+      "pos": [
+        2310,
+        1250
+      ],
+      "size": [
+        440,
+        200
+      ],
+      "flags": {},
+      "order": 20,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "track_data",
+          "type": "SAM3_TRACK_DATA",
+          "link": 19
+        }
+      ],
+      "outputs": [
+        {
+          "name": "masks",
+          "type": "MASK",
+          "links": [
+            20
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SAM3_TrackToMask"
+      },
+      "widgets_values": [
+        ""
+      ],
+      "widgets_values_named": {
+        "object_indices": ""
+      }
+    },
+    {
+      "id": "recover",
+      "type": "H3RelayRecoverMasks",
+      "title": "H3RelayRecoverMasks",
+      "pos": [
+        2640,
+        1250
+      ],
+      "size": [
+        440,
+        200
+      ],
+      "flags": {},
+      "order": 21,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "masks",
+          "type": "MASK",
+          "link": 20
+        },
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 21
+        },
+        {
+          "name": "source_frames",
+          "type": "INT",
+          "link": 22,
+          "widget": {
+            "name": "source_frames"
+          }
+        },
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 23
+        },
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "link": 24
+        },
+        {
+          "name": "selection",
+          "type": "H3_SUBJECT_SELECTION",
+          "link": 25
+        }
+      ],
+      "outputs": [
+        {
+          "name": "recovered_masks",
+          "type": "MASK",
+          "links": [
+            26
+          ]
+        },
+        {
+          "name": "report",
+          "type": "STRING",
+          "links": []
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3RelayRecoverMasks"
+      },
+      "widgets_values": [
+        0,
+        true
+      ],
+      "widgets_values_named": {
+        "source_frames": 0,
+        "recover_empty_frames": true
+      }
+    },
+    {
+      "id": "expand_mask",
+      "type": "H3RelayExpandMask",
+      "title": "H3RelayExpandMask",
+      "pos": [
+        2990,
+        1250
+      ],
+      "size": [
+        440,
+        200
+      ],
+      "flags": {},
+      "order": 22,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "masks",
+          "type": "MASK",
+          "link": 26
+        },
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 27
+        },
+        {
+          "name": "source_frames",
+          "type": "INT",
+          "link": 28,
+          "widget": {
+            "name": "source_frames"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "generation_mask",
+          "type": "MASK",
+          "links": [
+            36
+          ]
+        },
+        {
+          "name": "mask_overlay",
+          "type": "IMAGE",
+          "links": [
+            90
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3RelayExpandMask"
+      },
+      "widgets_values": [
+        120,
+        64
+      ],
+      "widgets_values_named": {
+        "source_frames": 120,
+        "expansion_px": 64
+      }
+    },
+    {
+      "id": "plan",
+      "type": "H3RelayWindowPlan",
+      "title": "4. AUTO CHAIN - 124-frame windows, 18-frame history",
+      "pos": [
+        1290,
+        100
+      ],
+      "size": [
+        440,
+        200
+      ],
+      "flags": {},
+      "order": 23,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "source_frames",
+          "type": "INT",
+          "link": 29,
+          "widget": {
+            "name": "source_frames"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "window_list",
+          "type": "H3_RELAY_WINDOW",
+          "links": []
+        },
+        {
+          "name": "timeline",
+          "type": "STRING",
+          "links": []
+        },
+        {
+          "name": "count",
+          "type": "INT",
+          "links": [
+            30
+          ]
+        },
+        {
+          "name": "windows",
+          "type": "H3_RELAY_WINDOWS",
+          "links": [
+            32
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3RelayWindowPlan"
+      },
+      "widgets_values": [
+        120,
+        "124",
+        "18",
+        904239,
+        "fixed",
+        "adaptive",
+        "fixed",
+        "{}"
+      ],
+      "widgets_values_named": {
+        "source_frames": 120,
+        "window_frames": "124",
+        "history_frames": "18",
+        "seed": 904239,
+        "control_after_generate": "fixed",
+        "schedule": "adaptive",
+        "seed_mode": "fixed",
+        "seed_overrides": "{}"
+      }
+    },
+    {
+      "id": "start",
+      "type": "StartLoop",
+      "title": "AUTO LOOP - runs the calculated number of windows",
+      "pos": [
+        1690,
+        100
+      ],
+      "size": [
+        440,
+        200
+      ],
+      "flags": {},
+      "order": 24,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "mode.num_iterations",
+          "type": "INT",
+          "link": 30,
+          "widget": {
+            "name": "mode.num_iterations"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "iteration_index",
+          "type": "INT",
+          "links": [
+            33
+          ]
+        },
+        {
+          "name": "is_first",
+          "type": "BOOLEAN",
+          "links": []
+        },
+        {
+          "name": "is_last",
+          "type": "BOOLEAN",
+          "links": []
+        },
+        {
+          "name": "list_item",
+          "type": "*",
+          "links": []
+        },
+        {
+          "name": "current_iteration_value",
+          "type": "*",
+          "links": [
+            34,
+            81
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "StartLoop"
+      },
+      "widgets_values": [
+        "simple",
+        1,
+        false
+      ],
+      "widgets_values_named": {
+        "mode": "simple",
+        "mode.num_iterations": 1,
+        "cache_iterations": false
+      }
+    },
+    {
+      "id": "window",
+      "type": "H3RelayWindowInputs",
+      "title": "H3RelayWindowInputs",
+      "pos": [
+        2100,
+        70
+      ],
+      "size": [
+        440,
+        200
+      ],
+      "flags": {},
+      "order": 25,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "source",
+          "type": "IMAGE",
+          "link": 31
+        },
+        {
+          "name": "window",
+          "type": "H3_RELAY_WINDOWS",
+          "link": 32
+        },
+        {
+          "name": "iteration_index",
+          "type": "INT",
+          "link": 33,
+          "widget": {
+            "name": "iteration_index"
+          }
+        },
+        {
+          "name": "previous",
+          "type": "*",
+          "link": 34
+        },
+        {
+          "name": "source_audio",
+          "type": "AUDIO",
+          "link": 35
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": 36
+        }
+      ],
+      "outputs": [
+        {
+          "name": "source_window",
+          "type": "IMAGE",
+          "links": [
+            54
+          ]
+        },
+        {
+          "name": "edit_mask",
+          "type": "MASK",
+          "links": [
+            58
+          ]
+        },
+        {
+          "name": "target_audio",
+          "type": "AUDIO",
+          "links": [
+            62
+          ]
+        },
+        {
+          "name": "history",
+          "type": "IMAGE",
+          "links": [
+            51
+          ]
+        },
+        {
+          "name": "history_audio",
+          "type": "AUDIO",
+          "links": [
+            53
+          ]
+        },
+        {
+          "name": "reference_video",
+          "type": "IMAGE",
+          "links": [
+            41
+          ]
+        },
+        {
+          "name": "reference_audio",
+          "type": "AUDIO",
+          "links": [
+            45
+          ]
+        },
+        {
+          "name": "history_frames",
+          "type": "INT",
+          "links": [
+            52
+          ]
+        },
+        {
+          "name": "conditioning_length",
+          "type": "INT",
+          "links": [
+            40
+          ]
+        },
+        {
+          "name": "target_frames",
+          "type": "INT",
+          "links": []
+        },
+        {
+          "name": "seed",
+          "type": "INT",
+          "links": [
+            66
+          ]
+        },
+        {
+          "name": "anchor",
+          "type": "IMAGE",
+          "links": []
+        },
+        {
+          "name": "window",
+          "type": "H3_RELAY_WINDOW",
+          "links": [
+            80
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3RelayWindowInputs"
+      },
+      "widgets_values": [
+        true,
+        24.0,
+        "source",
+        0,
+        true
+      ],
+      "widgets_values_named": {
+        "reference_history": true,
+        "fps": 24.0,
+        "history_audio_mode": "source",
+        "iteration_index": 0,
+        "resize_anchor": true
+      }
+    },
+    {
+      "id": "reference_conditioning",
+      "type": "MiniMaxH3ReferenceToVideo",
+      "title": "5. SHORT NATURAL SKIN PROMPT - EDIT HERE",
+      "pos": [
+        2640,
+        60
+      ],
+      "size": [
+        440,
+        340
+      ],
+      "flags": {},
+      "order": 26,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 37
+        },
+        {
+          "name": "width",
+          "type": "INT",
+          "link": 38,
+          "widget": {
+            "name": "width"
+          }
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "link": 39,
+          "widget": {
+            "name": "height"
+          }
+        },
+        {
+          "name": "length",
+          "type": "INT",
+          "link": 40,
+          "widget": {
+            "name": "length"
+          }
+        },
+        {
+          "name": "ref_videos.ref_video_0",
+          "type": "IMAGE",
+          "link": 41
+        },
+        {
+          "name": "ref_images.ref_image_0",
+          "type": "IMAGE",
+          "link": 42
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 43
+        },
+        {
+          "name": "audio_vae",
+          "type": "VAE",
+          "link": 44
+        },
+        {
+          "name": "ref_audios.ref_audio_0",
+          "type": "AUDIO",
+          "link": 45
+        },
+        {
+          "name": "ref_images.ref_image_1",
+          "type": "IMAGE",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "links": [
+            47
+          ]
+        },
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            48
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "MiniMaxH3ReferenceToVideo"
+      },
+      "widgets_values": [
+        "Replace the selected person in <Video 1> with the same character shown in <Picture 1>. Keep the reference character's face, hair, body proportions and clothing. Follow the source performance's pose, gaze, expression, gestures, object interactions and movement at the source timing. Preserve the source scene, lighting, camera and other people. The selected performer is replaced, not duplicated.",
+        1344,
+        768,
+        124,
+        "match"
+      ],
+      "widgets_values_named": {
+        "prompt": "Replace the selected person in <Video 1> with the same character shown in <Picture 1>. Keep the reference character's face, hair, body proportions and clothing. Follow the source performance's pose, gaze, expression, gestures, object interactions and movement at the source timing. Preserve the source scene, lighting, camera and other people. The selected performer is replaced, not duplicated.",
+        "width": 1344,
+        "height": 768,
+        "length": 124,
+        "ref_image_size": "match"
+      }
+    },
+    {
+      "id": "history",
+      "type": "H3RelayApplyHistory",
+      "title": "H3RelayApplyHistory",
+      "pos": [
+        3060,
+        40
+      ],
+      "size": [
+        440,
+        200
+      ],
+      "flags": {},
+      "order": 27,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 47
+        },
+        {
+          "name": "latent",
+          "type": "LATENT",
+          "link": 48
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 49
+        },
+        {
+          "name": "audio_vae",
+          "type": "VAE",
+          "link": 50
+        },
+        {
+          "name": "frames",
+          "type": "IMAGE",
+          "link": 51
+        },
+        {
+          "name": "history_frames",
+          "type": "INT",
+          "link": 52,
+          "widget": {
+            "name": "history_frames"
+          }
+        },
+        {
+          "name": "audio",
+          "type": "AUDIO",
+          "link": 53
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            59
+          ]
+        },
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            56
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3RelayApplyHistory"
+      },
+      "widgets_values": [
+        0,
+        false,
+        true
+      ],
+      "widgets_values_named": {
+        "history_frames": 0,
+        "first_frame_guide": false,
+        "target_audio_guide": true
+      }
+    },
+    {
+      "id": "encode_source",
+      "type": "VAEEncode",
+      "title": "VAEEncode",
+      "pos": [
+        2430,
+        530
+      ],
+      "size": [
+        440,
+        200
+      ],
+      "flags": {},
+      "order": 28,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "pixels",
+          "type": "IMAGE",
+          "link": 54
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 55
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            57
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAEEncode"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": "edit_mask",
+      "type": "H3RelayApplyEditMask",
+      "title": "H3RelayApplyEditMask",
+      "pos": [
+        3040,
+        530
+      ],
+      "size": [
+        440,
+        200
+      ],
+      "flags": {},
+      "order": 29,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "latent",
+          "type": "LATENT",
+          "link": 56
+        },
+        {
+          "name": "source_latent",
+          "type": "LATENT",
+          "link": 57
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": 58
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            60,
+            64,
+            75
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3RelayApplyEditMask"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": "guide",
+      "type": "MiniMaxH3AddGuide",
+      "title": "Native target guide",
+      "pos": [
+        3440,
+        100
+      ],
+      "size": [
+        440,
+        200
+      ],
+      "flags": {},
+      "order": 30,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 59
+        },
+        {
+          "name": "latent",
+          "type": "LATENT",
+          "link": 60
+        },
+        {
+          "name": "audio_vae",
+          "type": "VAE",
+          "link": 61
+        },
+        {
+          "name": "audio",
+          "type": "AUDIO",
+          "link": 62
+        }
+      ],
+      "outputs": [
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "links": [
+            65,
+            68,
+            69
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "MiniMaxH3AddGuide"
+      },
+      "widgets_values": [
+        0
+      ],
+      "widgets_values_named": {
+        "frame_idx": 0
+      }
+    },
+    {
+      "id": "sampling_memory",
+      "type": "H3RelaySamplingMemory",
+      "title": "H3RelaySamplingMemory",
+      "pos": [
+        3430,
+        600
+      ],
+      "size": [
+        440,
+        200
+      ],
+      "flags": {},
+      "order": 31,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 63
+        },
+        {
+          "name": "latent",
+          "type": "LATENT",
+          "link": 64
+        },
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "link": 65
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            67
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3RelaySamplingMemory"
+      },
+      "widgets_values": [
+        17.0
+      ],
+      "widgets_values_named": {
+        "activation_memory_gib": 17.0
+      }
+    },
+    {
+      "id": "noise",
+      "type": "RandomNoise",
+      "title": "RandomNoise",
+      "pos": [
+        3810,
+        1350
+      ],
+      "size": [
+        440,
+        200
+      ],
+      "flags": {},
+      "order": 32,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "noise_seed",
+          "type": "INT",
+          "link": 66,
+          "widget": {
+            "name": "noise_seed"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "NOISE",
+          "type": "NOISE",
+          "links": [
+            71
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "RandomNoise"
+      },
+      "widgets_values": [
+        0,
+        "fixed"
+      ],
+      "widgets_values_named": {
+        "noise_seed": 0,
+        "control_after_generate": "fixed"
+      }
+    },
+    {
+      "id": "guider",
+      "type": "CFGGuider",
+      "title": "CFGGuider",
+      "pos": [
+        3800,
+        100
+      ],
+      "size": [
+        440,
+        200
+      ],
+      "flags": {},
+      "order": 33,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 67
+        },
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 68
+        },
+        {
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 69
+        }
+      ],
+      "outputs": [
+        {
+          "name": "GUIDER",
+          "type": "GUIDER",
+          "links": [
+            72
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CFGGuider"
+      },
+      "widgets_values": [
+        1.0
+      ],
+      "widgets_values_named": {
+        "cfg": 1.0
+      }
+    },
+    {
+      "id": "sampler",
+      "type": "KSamplerSelect",
+      "title": "KSamplerSelect",
+      "pos": [
+        3810,
+        1610
+      ],
+      "size": [
+        440,
+        200
+      ],
+      "flags": {},
+      "order": 34,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "SAMPLER",
+          "type": "SAMPLER",
+          "links": [
+            73
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "KSamplerSelect"
+      },
+      "widgets_values": [
+        "er_sde"
+      ],
+      "widgets_values_named": {
+        "sampler_name": "er_sde"
+      }
+    },
+    {
+      "id": "schedule",
+      "type": "BasicScheduler",
+      "title": "BasicScheduler",
+      "pos": [
+        3810,
+        1900
+      ],
+      "size": [
+        440,
+        200
+      ],
+      "flags": {},
+      "order": 35,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 70
+        }
+      ],
+      "outputs": [
+        {
+          "name": "SIGMAS",
+          "type": "SIGMAS",
+          "links": [
+            74
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BasicScheduler"
+      },
+      "widgets_values": [
+        "normal",
+        8,
+        1.0
+      ],
+      "widgets_values_named": {
+        "scheduler": "normal",
+        "steps": 8,
+        "denoise": 1.0
+      }
+    },
+    {
+      "id": "sample",
+      "type": "SamplerCustomAdvanced",
+      "title": "SamplerCustomAdvanced",
+      "pos": [
+        4200,
+        170
+      ],
+      "size": [
+        440,
+        200
+      ],
+      "flags": {},
+      "order": 36,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "noise",
+          "type": "NOISE",
+          "link": 71
+        },
+        {
+          "name": "guider",
+          "type": "GUIDER",
+          "link": 72
+        },
+        {
+          "name": "sampler",
+          "type": "SAMPLER",
+          "link": 73
+        },
+        {
+          "name": "sigmas",
+          "type": "SIGMAS",
+          "link": 74
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 75
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "LATENT",
+          "links": [
+            76
+          ]
+        },
+        {
+          "name": "denoised_output",
+          "type": "LATENT",
+          "links": []
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SamplerCustomAdvanced"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": "separate",
+      "type": "LTXVSeparateAVLatent",
+      "title": "LTXVSeparateAVLatent",
+      "pos": [
+        4560,
+        150
+      ],
+      "size": [
+        440,
+        200
+      ],
+      "flags": {},
+      "order": 37,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "av_latent",
+          "type": "LATENT",
+          "link": 76
+        }
+      ],
+      "outputs": [
+        {
+          "name": "video_latent",
+          "type": "LATENT",
+          "links": [
+            77
+          ]
+        },
+        {
+          "name": "audio_latent",
+          "type": "LATENT",
+          "links": []
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LTXVSeparateAVLatent"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": "decode",
+      "type": "VAEDecode",
+      "title": "VAEDecode",
+      "pos": [
+        4910,
+        120
+      ],
+      "size": [
+        440,
+        200
+      ],
+      "flags": {},
+      "order": 38,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 77
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 78
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            79
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAEDecode"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": "append",
+      "type": "H3RelayAppendWindow",
+      "title": "REMOVE OVERLAP - keep generated history for the next window",
+      "pos": [
+        5220,
+        120
+      ],
+      "size": [
+        440,
+        200
+      ],
+      "flags": {},
+      "order": 39,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "frames",
+          "type": "IMAGE",
+          "link": 79
+        },
+        {
+          "name": "window",
+          "type": "H3_RELAY_WINDOW",
+          "link": 80
+        },
+        {
+          "name": "previous",
+          "type": "*",
+          "link": 81
+        }
+      ],
+      "outputs": [
+        {
+          "name": "H3_RELAY_WINDOW_STATE",
+          "type": "H3_RELAY_WINDOW_STATE",
+          "links": [
+            82,
+            83
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3RelayAppendWindow"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": "end",
+      "type": "EndLoop",
+      "title": "EndLoop",
+      "pos": [
+        5480,
+        80
+      ],
+      "size": [
+        440,
+        200
+      ],
+      "flags": {},
+      "order": 40,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "output_value",
+          "type": "H3_RELAY_WINDOW_STATE",
+          "link": 82
+        },
+        {
+          "name": "next_iteration_value",
+          "type": "H3_RELAY_WINDOW_STATE",
+          "link": 83
+        }
+      ],
+      "outputs": [
+        {
+          "name": "outputs",
+          "type": "H3_RELAY_WINDOW_STATE",
+          "links": [
+            84
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "EndLoop"
+      },
+      "widgets_values": [
+        false
+      ],
+      "widgets_values_named": {
+        "accumulate": false
+      }
+    },
+    {
+      "id": "finish",
+      "type": "H3RelayFinishWindows",
+      "title": "ASSEMBLE - exact selected source duration and original audio",
+      "pos": [
+        5750,
+        70
+      ],
+      "size": [
+        440,
+        200
+      ],
+      "flags": {},
+      "order": 41,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "state",
+          "type": "H3_RELAY_WINDOW_STATE",
+          "link": 84
+        },
+        {
+          "name": "source_audio",
+          "type": "AUDIO",
+          "link": 85
+        }
+      ],
+      "outputs": [
+        {
+          "name": "frames",
+          "type": "IMAGE",
+          "links": [
+            86
+          ]
+        },
+        {
+          "name": "audio",
+          "type": "AUDIO",
+          "links": [
+            88
+          ]
+        },
+        {
+          "name": "fps",
+          "type": "FLOAT",
+          "links": [
+            87
+          ]
+        },
+        {
+          "name": "report",
+          "type": "STRING",
+          "links": []
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3RelayFinishWindows"
+      },
+      "widgets_values": [
+        "source"
+      ],
+      "widgets_values_named": {
+        "audio_mode": "source"
+      }
+    },
+    {
+      "id": "video",
+      "type": "CreateVideo",
+      "title": "CreateVideo",
+      "pos": [
+        6090,
+        80
+      ],
+      "size": [
+        440,
+        200
+      ],
+      "flags": {},
+      "order": 42,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 86
+        },
+        {
+          "name": "fps",
+          "type": "FLOAT",
+          "link": 87,
+          "widget": {
+            "name": "fps"
+          }
+        },
+        {
+          "name": "audio",
+          "type": "AUDIO",
+          "link": 88
+        }
+      ],
+      "outputs": [
+        {
+          "name": "VIDEO",
+          "type": "VIDEO",
+          "links": [
+            89
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CreateVideo"
+      },
+      "widgets_values": [
+        30,
+        "auto",
+        "sRGB",
+        "none"
+      ],
+      "widgets_values_named": {
+        "fps": 30,
+        "bit_depth": "auto",
+        "color_space": "sRGB",
+        "codec": "none"
+      }
+    },
+    {
+      "id": "save",
+      "type": "SaveVideo",
+      "title": "6. OUTPUT - H3 NATIVE NATURAL SKIN TEST",
+      "pos": [
+        6420,
+        70
+      ],
+      "size": [
+        440,
+        200
+      ],
+      "flags": {},
+      "order": 43,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "video",
+          "type": "VIDEO",
+          "link": 89
+        }
+      ],
+      "outputs": [
+        {
+          "name": "video",
+          "type": "VIDEO",
+          "links": []
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SaveVideo"
+      },
+      "widgets_values": [
+        "h3_character_swap/auto_chain/akatz",
+        "mp4",
+        "h264",
+        "re-encode",
+        16,
+        "auto"
+      ],
+      "widgets_values_named": {
+        "filename_prefix": "h3_character_swap/auto_chain/akatz",
+        "format": "mp4",
+        "format.codec": "h264",
+        "format.codec.encoding": "re-encode",
+        "format.codec.encoding.crf": 16,
+        "codec": "auto"
+      }
+    },
+    {
+      "id": "mask_preview",
+      "type": "PreviewImage",
+      "title": "CHECK MASK - ONE PERSON ONLY",
+      "pos": [
+        3360,
+        1450
+      ],
+      "size": [
+        440,
+        200
+      ],
+      "flags": {},
+      "order": 45,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 90
+        }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": []
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    }
+  ],
+  "links": [
+    [
+      1,
+      "model",
+      0,
+      "shift",
+      0,
+      "MODEL"
+    ],
+    [
+      2,
+      "shift",
+      0,
+      "attention",
+      0,
+      "MODEL"
+    ],
+    [
+      3,
+      "text",
+      0,
+      "text_device",
+      0,
+      "CLIP"
+    ],
+    [
+      4,
+      "text_device",
+      0,
+      "text_memory",
+      0,
+      "CLIP"
+    ],
+    [
+      5,
+      "attention",
+      0,
+      "turbo",
+      0,
+      "MODEL"
+    ],
+    [
+      6,
+      "turbo",
+      0,
+      "adapter",
+      0,
+      "MODEL"
+    ],
+    [
+      7,
+      "source",
+      0,
+      "prepare",
+      0,
+      "VIDEO"
+    ],
+    [
+      8,
+      "prepare",
+      0,
+      "dimensions",
+      0,
+      "IMAGE"
+    ],
+    [
+      9,
+      "sam",
+      1,
+      "subject",
+      0,
+      "CLIP"
+    ],
+    [
+      10,
+      "prepare",
+      0,
+      "first_frame",
+      0,
+      "IMAGE"
+    ],
+    [
+      11,
+      "sam",
+      0,
+      "detect",
+      0,
+      "MODEL"
+    ],
+    [
+      12,
+      "first_frame",
+      0,
+      "detect",
+      1,
+      "IMAGE"
+    ],
+    [
+      13,
+      "subject",
+      0,
+      "detect",
+      2,
+      "CONDITIONING"
+    ],
+    [
+      14,
+      "detect",
+      0,
+      "select",
+      0,
+      "MASK"
+    ],
+    [
+      15,
+      "sam",
+      0,
+      "track",
+      0,
+      "MODEL"
+    ],
+    [
+      16,
+      "prepare",
+      0,
+      "track",
+      1,
+      "IMAGE"
+    ],
+    [
+      17,
+      "select",
+      0,
+      "track",
+      2,
+      "MASK"
+    ],
+    [
+      18,
+      "subject",
+      0,
+      "track",
+      3,
+      "CONDITIONING"
+    ],
+    [
+      19,
+      "track",
+      0,
+      "mask",
+      0,
+      "SAM3_TRACK_DATA"
+    ],
+    [
+      20,
+      "mask",
+      0,
+      "recover",
+      0,
+      "MASK"
+    ],
+    [
+      21,
+      "prepare",
+      0,
+      "recover",
+      1,
+      "IMAGE"
+    ],
+    [
+      22,
+      "prepare",
+      5,
+      "recover",
+      2,
+      "INT"
+    ],
+    [
+      23,
+      "sam",
+      0,
+      "recover",
+      3,
+      "MODEL"
+    ],
+    [
+      24,
+      "subject",
+      0,
+      "recover",
+      4,
+      "CONDITIONING"
+    ],
+    [
+      25,
+      "select",
+      1,
+      "recover",
+      5,
+      "H3_SUBJECT_SELECTION"
+    ],
+    [
+      26,
+      "recover",
+      0,
+      "expand_mask",
+      0,
+      "MASK"
+    ],
+    [
+      27,
+      "prepare",
+      0,
+      "expand_mask",
+      1,
+      "IMAGE"
+    ],
+    [
+      28,
+      "prepare",
+      5,
+      "expand_mask",
+      2,
+      "INT"
+    ],
+    [
+      29,
+      "prepare",
+      5,
+      "plan",
+      0,
+      "INT"
+    ],
+    [
+      30,
+      "plan",
+      2,
+      "start",
+      0,
+      "INT"
+    ],
+    [
+      31,
+      "prepare",
+      0,
+      "window",
+      0,
+      "IMAGE"
+    ],
+    [
+      32,
+      "plan",
+      3,
+      "window",
+      1,
+      "H3_RELAY_WINDOWS"
+    ],
+    [
+      33,
+      "start",
+      0,
+      "window",
+      2,
+      "INT"
+    ],
+    [
+      34,
+      "start",
+      4,
+      "window",
+      3,
+      "*"
+    ],
+    [
+      35,
+      "prepare",
+      1,
+      "window",
+      4,
+      "AUDIO"
+    ],
+    [
+      36,
+      "expand_mask",
+      0,
+      "window",
+      5,
+      "MASK"
+    ],
+    [
+      37,
+      "text_memory",
+      0,
+      "reference_conditioning",
+      0,
+      "CLIP"
+    ],
+    [
+      38,
+      "dimensions",
+      0,
+      "reference_conditioning",
+      1,
+      "INT"
+    ],
+    [
+      39,
+      "dimensions",
+      1,
+      "reference_conditioning",
+      2,
+      "INT"
+    ],
+    [
+      40,
+      "window",
+      8,
+      "reference_conditioning",
+      3,
+      "INT"
+    ],
+    [
+      41,
+      "window",
+      5,
+      "reference_conditioning",
+      4,
+      "IMAGE"
+    ],
+    [
+      42,
+      "reference",
+      0,
+      "reference_conditioning",
+      5,
+      "IMAGE"
+    ],
+    [
+      43,
+      "video_vae",
+      0,
+      "reference_conditioning",
+      6,
+      "VAE"
+    ],
+    [
+      44,
+      "audio_vae",
+      0,
+      "reference_conditioning",
+      7,
+      "VAE"
+    ],
+    [
+      45,
+      "window",
+      6,
+      "reference_conditioning",
+      8,
+      "AUDIO"
+    ],
+    [
+      47,
+      "reference_conditioning",
+      0,
+      "history",
+      0,
+      "CONDITIONING"
+    ],
+    [
+      48,
+      "reference_conditioning",
+      1,
+      "history",
+      1,
+      "LATENT"
+    ],
+    [
+      49,
+      "video_vae",
+      0,
+      "history",
+      2,
+      "VAE"
+    ],
+    [
+      50,
+      "audio_vae",
+      0,
+      "history",
+      3,
+      "VAE"
+    ],
+    [
+      51,
+      "window",
+      3,
+      "history",
+      4,
+      "IMAGE"
+    ],
+    [
+      52,
+      "window",
+      7,
+      "history",
+      5,
+      "INT"
+    ],
+    [
+      53,
+      "window",
+      4,
+      "history",
+      6,
+      "AUDIO"
+    ],
+    [
+      54,
+      "window",
+      0,
+      "encode_source",
+      0,
+      "IMAGE"
+    ],
+    [
+      55,
+      "video_vae",
+      0,
+      "encode_source",
+      1,
+      "VAE"
+    ],
+    [
+      56,
+      "history",
+      1,
+      "edit_mask",
+      0,
+      "LATENT"
+    ],
+    [
+      57,
+      "encode_source",
+      0,
+      "edit_mask",
+      1,
+      "LATENT"
+    ],
+    [
+      58,
+      "window",
+      1,
+      "edit_mask",
+      2,
+      "MASK"
+    ],
+    [
+      59,
+      "history",
+      0,
+      "guide",
+      0,
+      "CONDITIONING"
+    ],
+    [
+      60,
+      "edit_mask",
+      0,
+      "guide",
+      1,
+      "LATENT"
+    ],
+    [
+      61,
+      "audio_vae",
+      0,
+      "guide",
+      2,
+      "VAE"
+    ],
+    [
+      62,
+      "window",
+      2,
+      "guide",
+      3,
+      "AUDIO"
+    ],
+    [
+      63,
+      "adapter",
+      0,
+      "sampling_memory",
+      0,
+      "MODEL"
+    ],
+    [
+      64,
+      "edit_mask",
+      0,
+      "sampling_memory",
+      1,
+      "LATENT"
+    ],
+    [
+      65,
+      "guide",
+      0,
+      "sampling_memory",
+      2,
+      "CONDITIONING"
+    ],
+    [
+      66,
+      "window",
+      10,
+      "noise",
+      0,
+      "INT"
+    ],
+    [
+      67,
+      "sampling_memory",
+      0,
+      "guider",
+      0,
+      "MODEL"
+    ],
+    [
+      68,
+      "guide",
+      0,
+      "guider",
+      1,
+      "CONDITIONING"
+    ],
+    [
+      69,
+      "guide",
+      0,
+      "guider",
+      2,
+      "CONDITIONING"
+    ],
+    [
+      70,
+      "adapter",
+      0,
+      "schedule",
+      0,
+      "MODEL"
+    ],
+    [
+      71,
+      "noise",
+      0,
+      "sample",
+      0,
+      "NOISE"
+    ],
+    [
+      72,
+      "guider",
+      0,
+      "sample",
+      1,
+      "GUIDER"
+    ],
+    [
+      73,
+      "sampler",
+      0,
+      "sample",
+      2,
+      "SAMPLER"
+    ],
+    [
+      74,
+      "schedule",
+      0,
+      "sample",
+      3,
+      "SIGMAS"
+    ],
+    [
+      75,
+      "edit_mask",
+      0,
+      "sample",
+      4,
+      "LATENT"
+    ],
+    [
+      76,
+      "sample",
+      0,
+      "separate",
+      0,
+      "LATENT"
+    ],
+    [
+      77,
+      "separate",
+      0,
+      "decode",
+      0,
+      "LATENT"
+    ],
+    [
+      78,
+      "video_vae",
+      0,
+      "decode",
+      1,
+      "VAE"
+    ],
+    [
+      79,
+      "decode",
+      0,
+      "append",
+      0,
+      "IMAGE"
+    ],
+    [
+      80,
+      "window",
+      12,
+      "append",
+      1,
+      "H3_RELAY_WINDOW"
+    ],
+    [
+      81,
+      "start",
+      4,
+      "append",
+      2,
+      "*"
+    ],
+    [
+      82,
+      "append",
+      0,
+      "end",
+      0,
+      "H3_RELAY_WINDOW_STATE"
+    ],
+    [
+      83,
+      "append",
+      0,
+      "end",
+      1,
+      "H3_RELAY_WINDOW_STATE"
+    ],
+    [
+      84,
+      "end",
+      0,
+      "finish",
+      0,
+      "H3_RELAY_WINDOW_STATE"
+    ],
+    [
+      85,
+      "prepare",
+      1,
+      "finish",
+      1,
+      "AUDIO"
+    ],
+    [
+      86,
+      "finish",
+      0,
+      "video",
+      0,
+      "IMAGE"
+    ],
+    [
+      87,
+      "finish",
+      2,
+      "video",
+      1,
+      "FLOAT"
+    ],
+    [
+      88,
+      "finish",
+      1,
+      "video",
+      2,
+      "AUDIO"
+    ],
+    [
+      89,
+      "video",
+      0,
+      "save",
+      0,
+      "VIDEO"
+    ],
+    [
+      90,
+      "expand_mask",
+      1,
+      "mask_preview",
+      0,
+      "IMAGE"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "fixture_origin": "Prior supplied native-derived canvas, remapped to upstream semantic IDs. Offline wiring fixture, not a live frontend export."
+  },
+  "version": 0.4
+}

@@ -11,7 +11,7 @@ from .disk_common import ChainError, atomic_json, read_json
 from .disk_chain import create_run, resolve_run, root_dir
 from .disk_storage import verify_receipt
 
-ACTIONS=('Start new run','Status','Resume','Approve candidate and continue','Retry candidate','Stop')
+ACTIONS=('Start new run','Status','Resume','Approve candidate and continue','Retry candidate','Stop','Export workflow files')
 
 
 def is_running(run):
@@ -44,6 +44,10 @@ def act(output_root,run_name,action):
     if not (run/'state.json').is_file(): raise ChainError('Run not found: '+run_name)
     state=read_json(run/'state.json')
     if action=='Status': return summarize(run)
+    if action=='Export workflow files':
+        from .recovery import export_run
+        export_run(run)
+        return summarize(run)
     if action=='Stop':
         (run/'STOP').write_text('stop requested\n')
         return summarize(run)
@@ -84,6 +88,9 @@ def summarize(run):
         for name in ('preview.mp4','join_review.mp4','first_frame.png','source_mask.png'):
             link=_view(folder/name,output)
             if link: links[name]=link
+    from .recovery_web import download_url
+    for name in ('repeat.workflow.json', 'resume.workflow.json'):
+        if (run/name).is_file(): links[name]=download_url(run/name, output)
     if state.get('final'):
         link=_view(state['final'],output)
         if link: links['final.mp4']=link

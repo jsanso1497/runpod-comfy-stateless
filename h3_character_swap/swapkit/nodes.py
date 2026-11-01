@@ -109,13 +109,13 @@ class H3SwapComparison:
 class H3SwapSaveVideo:
     @classmethod
     def INPUT_TYPES(cls):
-        return {"required": {"video": ("VIDEO",), "filename_prefix": ("STRING", {"default": "h3_character_swap/bfs"}), "crf": ("INT", {"default": 16, "min": 0, "max": 40})}}
+        return {"required": {"video": ("VIDEO",), "filename_prefix": ("STRING", {"default": "h3_character_swap/bfs"}), "crf": ("INT", {"default": 16, "min": 0, "max": 40})}, "hidden": {"prompt": "PROMPT", "extra_pnginfo": "EXTRA_PNGINFO"}}
     RETURN_TYPES = ()
     OUTPUT_NODE = True
     FUNCTION = "save"
     CATEGORY = "H3 Character Replacement"
 
-    def save(self, video, filename_prefix, crf):
+    def save(self, video, filename_prefix, crf, prompt=None, extra_pnginfo=None):
         import folder_paths
         from comfy_api.latest import Types, ui, io
         from pathlib import PurePosixPath
@@ -125,7 +125,12 @@ class H3SwapSaveVideo:
         width, height = video.get_dimensions()
         folder, name, counter, subfolder, _ = folder_paths.get_save_image_path(filename_prefix, folder_paths.get_output_directory(), width, height)
         filename = f"{name}_{counter:05d}_{uuid.uuid4().hex[:8]}.mp4"
-        video.save_to(str(Path(folder) / filename), format=Types.VideoContainer("mp4"), codec=Types.VideoCodec("h264"), crf=int(crf), metadata=None)
+        from .recovery import media_metadata, sidecars
+        from comfy.cli_args import args
+        metadata = {} if args.disable_metadata else media_metadata(prompt, extra_pnginfo)
+        path = Path(folder) / filename
+        sidecars(path, metadata)
+        video.save_to(str(path), format=Types.VideoContainer("mp4"), codec=Types.VideoCodec("h264"), crf=int(crf), metadata=metadata or None)
         return {"ui": ui.PreviewVideo([ui.SavedResult(filename, subfolder, io.FolderType.output)]).as_dict()}
 
 

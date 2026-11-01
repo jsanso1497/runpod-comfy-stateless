@@ -29,6 +29,8 @@ COPY licenses/ ./licenses/
 COPY LICENSE ./licenses/INTEGRATION_LICENSE
 COPY workflows/ ./workflows/
 # Separate build stages keep the actual failing command visible in CI logs.
+ARG H3_BUILD_PROFILE=baseline
+RUN python -m swapkit.precision --prepare-build "$H3_BUILD_PROFILE"
 RUN python -m swapkit.build
 RUN curl --fail --location --retry 3 \
        https://github.com/ollama/ollama/releases/download/v0.35.1/ollama-linux-amd64.tar.zst \
@@ -36,6 +38,17 @@ RUN curl --fail --location --retry 3 \
     && echo '9fcd79ac4575b2bd31b992eee18b1000c8ad126b451627c8f8cd091714cfbb10  /tmp/ollama.tar.zst' | sha256sum -c - \
     && tar --zstd -xf /tmp/ollama.tar.zst -C /usr \
     && rm /tmp/ollama.tar.zst
+# Classic FileBrowser is private behind the authenticated 8188 gateway.
+RUN curl --fail --location --retry 3 --connect-timeout 20 --max-time 180 \
+       https://github.com/filebrowser/filebrowser/releases/download/v2.63.23/linux-amd64-filebrowser.tar.gz \
+       -o /tmp/filebrowser.tar.gz \
+    && echo 'b14db2bb8033caa3f80205eb6578b2ed0744ebd9e716b790bc4a9703ce909e88  /tmp/filebrowser.tar.gz' | sha256sum -c - \
+    && tar -xzf /tmp/filebrowser.tar.gz -C /usr/local/bin filebrowser \
+    && chmod 755 /usr/local/bin/filebrowser \
+    && rm /tmp/filebrowser.tar.gz \
+    && python -m swapkit.filebrowser --smoke
+# Tiny preview weights are only 22.7 MB and never replace the final H3 VAE.
+RUN python -m swapkit.preview_assets --download
 RUN python -m compileall -q swapkit custom_nodes \
     && python -m swapkit.check --static
 WORKDIR /workspace

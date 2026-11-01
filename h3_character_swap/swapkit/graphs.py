@@ -301,6 +301,12 @@ def build_all(relay):
     atomic_json(dest/"01_Akatz_V15_Mask_Check.json",preview)
     atomic_json(dest/"02_Akatz_V15_Native_Replacement.json",graph)
     atomic_json(dest/"02_Akatz_V15_Native_Replacement.api.json",api)
+    from .preview_graph import native_preview, simple_chain
+    for name, pair in (("02B_Akatz_Native_Simple_Preview", native_preview(graph, api)),
+                       ("10_Akatz_Simple_Single_Reference_Chain", simple_chain())):
+        canvas, recipe = pair
+        atomic_json(dest/(name+".json"), canvas)
+        atomic_json(dest/(name+".api.json"), recipe)
     atomic_json(ROOT/"workflow-provenance.json", {"relay_source_sha256":hashlib.sha256(source.read_bytes()).hexdigest(), "relay_api_sha256":hashlib.sha256(source_api.read_bytes()).hexdigest(), "changes":["canonical adapter filename", "5.166667-second test window", "neutral input filenames", "explicit editable reference-role prompt", "output subfolder", "separate mask-only ancestor graph"], "sampling_and_history":"preserved from pinned developer graph", "bfs":"simplified guide-based first pass, not an unmodified upstream canvas; author low-resolution baseline and Euler/simple eight-step schedule"})
 
 if __name__=="__main__":

@@ -1,3 +1,23 @@
+# Combined image additions: 2026-11-01.1
+
+Deploy the NEW digest from **Build H3 character replacement**. Expose HTTP **8188 only**.
+Leave start command and entrypoint overrides blank. Preserve `/workspace` and your
+existing secrets and chosen `H3_SWAP_PROMPT_MODEL`. Do not terminate a Pod with the only
+copy of its volume data. Remove the old manual FileBrowser HTTP 8080 exposure once
+switching to the new `/files/` route on 8188.
+
+Additional defaults:
+
+```text
+H3_SWAP_SAVE_METADATA=1
+H3_SWAP_PREVIEW_METHOD=taesd
+H3_SWAP_FILE_BROWSER=1
+```
+
+The tiny preview decoder is approximately 22.7 MB. `latent2rgb` or `none` can replace
+`taesd` for cheaper/no sampling previews. See [RECOVERY_AND_PREVIEWS.md](RECOVERY_AND_PREVIEWS.md).
+The baseline hardware and storage planning notes below are not new benchmark results.
+
 # RunPod template: H3 Character Replacement
 
 Use **Pods**, not Serverless. Create a new template instead of editing the old

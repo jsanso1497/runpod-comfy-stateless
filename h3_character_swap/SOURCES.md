@@ -55,3 +55,12 @@ certification is claimed by this package.
 
 October 26 continuity research, source links and integration-vs-upstream distinctions
 are recorded in CONTINUITY_RESEARCH.md. Models and pins remain unchanged.
+
+See RECOVERY_PREVIEW_AUDIT.md for the pinned preview decoder, metadata, FileBrowser and progress-logging sources reviewed in 2026-11-01.1.
+
+
+## BF16 high-precision profile
+
+See BF16_RESEARCH.md for verified original BF16 checkpoint hashes, attention backend,
+matched-adapter recipe, hardware sources and the distinction between source checks
+and unmeasured H3 GPU/visual results.

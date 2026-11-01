@@ -44,6 +44,7 @@ async function refresh(){try{
   if(name==='join_review.mp4'||(name==='preview.mp4'&&!row.links['join_review.mp4'])){const v=el('video',null,s);v.controls=true;v.preload='metadata';v.src=url;}
   if(name==='source_mask.png'){const i=el('img',null,s);i.src=url;i.alt='Raw mask at the first new source frame';}}
  const options=row.controller_running?['Stop']:(row.status==='needs_review'?['Approve candidate and continue','Retry candidate','Resume']:(row.status==='complete'?[]:['Resume']));
+ options.push('Export workflow files');
  for(const a of options){const b=el('button',a,s);b.onclick=()=>action(row.run,a);}
  el('pre',row.output_folder,s);}
  }catch(e){msg.textContent='Status error: '+e.message;}}
@@ -67,7 +68,7 @@ def install_routes(app):
             data=await request.json()
             if not isinstance(data,dict) or set(data)!={'run','action'}:
                 raise ValueError('Expected run and action only')
-            if data['action'] not in ('Status','Resume','Approve candidate and continue','Retry candidate','Stop'):
+            if data['action'] not in ('Status','Resume','Approve candidate and continue','Retry candidate','Stop','Export workflow files'):
                 raise ValueError('Unsupported review action')
             return web.json_response(await asyncio.to_thread(act,data_root()/'output',data['run'],data['action']))
         except (ChainError,OSError,ValueError,KeyError) as exc:

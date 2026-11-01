@@ -1,4 +1,29 @@
+# H3 workflow recovery and native previews (2026-11-01.1)
+
+Use **02B_Akatz_Native_Simple_Preview** for a short one-reference native test,
+or **10_Akatz_Simple_Single_Reference_Chain** for the simple disk-chain preset.
+New outputs save recoverable workflow metadata and sidecars. Submitted H3
+canvases are journaled before generation. Classic FileBrowser now starts at
+`/files/` through authenticated 8188. See [RECOVERY_AND_PREVIEWS.md](RECOVERY_AND_PREVIEWS.md)
+for deployment, preview limitations, cancel controls and older-run recovery.
+
+No generation model/sampler or analysis-model selection is changed. The two-reference
+experiments remain available, but are not the default for these new presets.
+
 # H3 Character Replacement: Akatz V1.5
+
+## Unquantized BF16 image (2026-11-01.2)
+
+Build **H3 BF16 high precision** for the separate `:h3-character-swap-bf16` image.
+It uses original full BF16 Ref2VA, BF16 H3 encoder and PyTorch attention. The
+baseline image tag is retained. One B200 180 GB is the recommended starting host,
+not a measured minimum. Native previews, workflow recovery and automatic
+FileBrowser are included. [Setup](BF16_HIGH_PRECISION.md) |
+[RunPod template](RUNPOD_BF16_TEMPLATE.md) | [Environment](RUNPOD_BF16_ENVIRONMENT.txt).
+
+Use the simple single-reference native preview first; precision is not a guarantee
+of better likeness. GPU H3 execution remains untested in the authoring environment.
+
 
 ## Separate face + body references (2026-10-27.2)
 
@@ -14,7 +39,7 @@ independent regional strengths or a proven likeness improvement. No new model,
 1080p finish or FileBrowser change is included. Rebuild the H3 character-swap image
 and use the new `H3_Character_Replacement_2026-10-27.2` factory folder.
 
-Release: 2026-10-27.1
+Release: 2026-11-01.1
 
 ## Low-memory chain with continuity review
 
@@ -95,7 +120,7 @@ The new image keeps its user settings/workflow copies in
    `comfy_password` secret. Open `/_swap/status` on the same service and wait
    until `ready` is true. Refresh ComfyUI once preparation completes.
 2. In the **ComfyUI Workflows sidebar**, open the folder
-   `H3_Character_Replacement_2026-10-27.1`. Use **one** approved character image
+   `H3_Character_Replacement_2026-11-01.1`. Use **one** approved character image
    and the same short continuous source shot for the first comparison.
 3. Optional but recommended: open **00_Analyze_Clip_Build_Prompts**. Select that
    source video and character image. Describe the source performer to replace,

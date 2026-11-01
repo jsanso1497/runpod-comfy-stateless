@@ -41,6 +41,8 @@ jobs:
           provenance: false
       - name: Actual ComfyUI CPU startup and native/custom-node schema check
         run: docker run --rm --entrypoint python h3-character-swap-check:local -m swapkit.check --smoke
+      - name: Actual tiny H3 preview decoder CPU smoke
+        run: docker run --rm --entrypoint python h3-character-swap-check:local -m swapkit.preview_assets --smoke
       - name: Export build provenance and exact installed workflows
         run: |
           mkdir -p h3-character-swap-build

@@ -38,3 +38,12 @@ See ../LOW_MEMORY_CHAIN.md. A successful gate is not a seamless-motion guarantee
 selected-clip prompt, a chain-safe Akatz prompt, evidence/usage report and all
 sampled frames. No BFS output is generated. Old saved canvases using
 H3SwapAnalyzeClip remain legacy-compatible and do not inherit these controls.
+
+## Recovery/preview additions: 2026-11-01.1
+
+02B_Akatz_Native_Simple_Preview is derived from the exact pinned native canvas
+at image build. It uses the short default prompt, one reference and unchanged
+native generation nodes, adding a pass-through decoded preview and metadata saver.
+Core TAEH3 sampling previews are approximate; the decoded preview is the actual
+output. 10_Akatz_Simple_Single_Reference_Chain adds the existing simple disk preset.
+No UI import of these JSONs can install missing Python nodes into an old image.

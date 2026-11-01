@@ -49,7 +49,7 @@ def filtered(headers, request=False):
     for value in headers.getall("Connection", []):
         blocked.update(x.strip().lower() for x in value.split(","))
     if request:
-        blocked |= {"authorization", "host", "origin", "accept-encoding", "expect", "forwarded", "x-forwarded-for", "x-forwarded-host", "x-forwarded-proto"}
+        blocked |= {"authorization", "host", "origin", "accept-encoding", "expect", "forwarded", "x-forwarded-for", "x-forwarded-host", "x-forwarded-proto", "x-h3-filebrowser-user"}
     out = CIMultiDict()
     for k,v in headers.items():
         if k.lower() in blocked or (request and (k.lower().startswith("sec-websocket-") or k.lower().startswith("sec-fetch-"))):
@@ -60,13 +60,16 @@ def filtered(headers, request=False):
     return out
 
 
-async def proxy(request):
+async def proxy(request, *, upstream_base=UPSTREAM, identity=None):
     session = request.app["session"]
-    url = URL(UPSTREAM + request.rel_url.raw_path_qs, encoded=True)
+    outgoing = filtered(request.headers, True)
+    if identity is not None:
+        outgoing["X-H3-Filebrowser-User"] = identity
+    url = URL(upstream_base + request.rel_url.raw_path_qs, encoded=True)
     if request.headers.get("Upgrade", "").lower() == "websocket":
         protocols = tuple(x.strip() for x in request.headers.get("Sec-WebSocket-Protocol", "").split(",") if x.strip())
         try:
-            up = await session.ws_connect(url, headers=filtered(request.headers, True), protocols=protocols, heartbeat=30, max_msg_size=0, compress=0)
+            up = await session.ws_connect(url, headers=outgoing, protocols=protocols, heartbeat=30, max_msg_size=0, compress=0)
         except (ClientError, OSError, asyncio.TimeoutError):
             return web.Response(status=503, text="ComfyUI is starting. See /_swap/status")
         down = web.WebSocketResponse(protocols=(up.protocol,) if up.protocol else (), heartbeat=30, max_msg_size=0, compress=False)
@@ -96,7 +99,7 @@ async def proxy(request):
             yield part
     downstream = None
     try:
-        async with session.request(request.method,url,headers=filtered(request.headers,True),data=body() if request.can_read_body else None,allow_redirects=False) as upstream:
+        async with session.request(request.method,url,headers=outgoing,data=body() if request.can_read_body else None,allow_redirects=False) as upstream:
             downstream=web.StreamResponse(status=upstream.status,headers=filtered(upstream.headers))
             await downstream.prepare(request)
             if request.method != "HEAD" and upstream.status not in (204,304):
@@ -139,12 +142,27 @@ def make_app(password, status):
     async def index(request):
         files=sorted((ROOT/"workflows").glob("*.json"))
         items="".join(f'<li><a href="/_swap/workflow/{html.escape(p.name)}">{html.escape(p.name)}</a></li>' for p in files if not p.name.endswith(".api.json"))
-        return web.Response(content_type="text/html",text='<h1>H3 Character Replacement</h1><p><a href="/">Open ComfyUI</a> | <a href="/_swap/status">Preparation status</a> | <a href="/_swap/chain">Low-memory chain review</a></p><p>Workflows are also in the ComfyUI Workflows sidebar. Review source masks and prompt drafts before rendering.</p><ul>'+items+'</ul>')
+        return web.Response(content_type="text/html",text='<h1>H3 Character Replacement</h1><p><a href="/">Open ComfyUI</a> | <a href="/_swap/status">Preparation status</a> | <a href="/_swap/chain">Low-memory chain review</a> | <a href="/files/">FileBrowser</a> | <a href="/_swap/recovery">Saved workflows</a></p><p>Workflows are also in the ComfyUI Workflows sidebar. Review source masks and prompt drafts before rendering.</p><ul>'+items+'</ul>')
     async def graph(request):
         name=request.match_info["name"]
         if name not in {p.name for p in (ROOT/"workflows").glob("*.json")}:
             raise web.HTTPNotFound()
         return web.FileResponse(ROOT/"workflows"/name)
+    from .filebrowser import enabled as files_enabled, UPSTREAM as FILES_UPSTREAM, USERNAME as FILES_USER
+    async def filebrowser_proxy(request):
+        if not files_enabled():
+            raise web.HTTPNotFound(text="FileBrowser is disabled")
+        if not status.get("filebrowser", {}).get("ready"):
+            return web.Response(status=503, text="FileBrowser is starting or unavailable. Check /_swap/status and h3-swap/logs/filebrowser.log", headers={"Retry-After":"5"})
+        return await proxy(request, upstream_base=FILES_UPSTREAM, identity=FILES_USER)
+    async def files_redirect(request):
+        if not files_enabled():
+            raise web.HTTPNotFound()
+        raise web.HTTPTemporaryRedirect(location="/files/")
+    app.router.add_get("/files", files_redirect)
+    app.router.add_route("*", "/files/{path:.*}", filebrowser_proxy)
+    from .recovery_web import install_routes as install_recovery_routes
+    install_recovery_routes(app)
     from .disk_web import install_routes
     install_routes(app)
     app.router.add_get("/_swap",index)

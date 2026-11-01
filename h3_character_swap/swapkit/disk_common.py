@@ -296,7 +296,10 @@ class ComfyClient:
             raise ChainError("Cannot reach the Pod's ComfyUI backend: " + str(exc)) from exc
 
     def queue(self, graph):
-        result = self.request("/prompt", {"prompt": graph, "client_id": self.client_id})
+        payload = {"prompt": graph, "client_id": self.client_id}
+        if getattr(self, 'recovery_workflow', None) is not None and 'disk_save' in graph:
+            payload['extra_data'] = {'extra_pnginfo': {'workflow': self.recovery_workflow}}
+        result = self.request("/prompt", payload)
         if result.get("node_errors") or not result.get("prompt_id"):
             raise ChainError("ComfyUI rejected the short job: " + json.dumps(result))
         self.current = result["prompt_id"]

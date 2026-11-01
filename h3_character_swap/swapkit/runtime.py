@@ -15,7 +15,8 @@ from .gateway import make_app
 
 
 def sync_workflows(root):
-    folder=root/"comfy-user-h3-swap/default/workflows"/("H3_Character_Replacement_"+RELEASE)
+    from .precision import folder_suffix
+    folder=root/"comfy-user-h3-swap/default/workflows"/("H3_Character_Replacement_"+RELEASE+folder_suffix())
     folder.mkdir(parents=True,exist_ok=True)
     for src in (ROOT/"workflows").glob("*.json"):
         if src.name.endswith(".api.json"): continue
@@ -32,7 +33,7 @@ def configure():
     for name in ("input","output","models","h3-swap","ollama","comfy-user-h3-swap"):
         (root/name).mkdir(parents=True,exist_ok=True)
     comfy=Path("/opt/ComfyUI")
-    for name in ("diffusion_models","text_encoders","vae","loras","checkpoints"):
+    for name in ("diffusion_models","text_encoders","vae","loras","checkpoints","vae_approx"):
         dest=root/"models"/name;dest.mkdir(parents=True,exist_ok=True)
         target=comfy/"models"/name
         if target.is_symlink():
@@ -42,8 +43,19 @@ def configure():
                 raise ValueError("Image contains unexpected model files")
             shutil.rmtree(target);target.symlink_to(dest,target_is_directory=True)
         else: target.parent.mkdir(parents=True,exist_ok=True);target.symlink_to(dest,target_is_directory=True)
+    from .preview_assets import method as preview_method, install_workspace
+    requested_preview=preview_method(); active_preview=requested_preview; preview_warning=""
+    if requested_preview == "taesd":
+        try: install_workspace()
+        except (OSError, ValueError) as exc:
+            active_preview="latent2rgb"; preview_warning=str(exc)
+            print("[H3 PREVIEW WARNING] "+preview_warning+"; using rough latent2rgb preview only",flush=True)
     sync_workflows(root)
     env=public_child_env()
+    from .precision import profile, BF16, DEFAULT_HELPER
+    if profile()==BF16: env.setdefault("H3_SWAP_PROMPT_MODEL", DEFAULT_HELPER)
+    env.update(H3_SWAP_PREVIEW_METHOD=active_preview,H3_SWAP_PREVIEW_REQUESTED=requested_preview,
+               H3_SWAP_PREVIEW_WARNING=preview_warning)
     env.update({"H3_SWAP_ROOT":str(ROOT),"PYTHONPATH":str(ROOT),"OLLAMA_HOST":"127.0.0.1:11434", "OLLAMA_MODELS":str(root/"ollama"),"OLLAMA_CONTEXT_LENGTH":"32768","OLLAMA_NUM_PARALLEL":"1","OLLAMA_MAX_LOADED_MODELS":"1","OLLAMA_KEEP_ALIVE":"0","OLLAMA_NO_CLOUD":"1"})
     return env
 
@@ -83,6 +95,12 @@ async def main_async():
         raise ValueError("This image requires WB_AUTH_MODE=basic; only port 8188 should be exposed")
     selected=variants();env=configure();root=data_root()
     status={"ready":False,"stage":"starting","release":RELEASE,"variants":sorted(selected),"gpu_validation":"not certified"}
+    status["preview"]={"requested":env["H3_SWAP_PREVIEW_REQUESTED"],
+                       "active":env["H3_SWAP_PREVIEW_METHOD"],"warning":env["H3_SWAP_PREVIEW_WARNING"]}
+    status["workflow_metadata"]=boolean("H3_SWAP_SAVE_METADATA",True)
+    from .precision import profile, cli_flags, folder_suffix, audit_weights, BF16
+    status["model_profile"]=profile()
+    status["workflow_folder"]="H3_Character_Replacement_"+RELEASE+folder_suffix()
     app=make_app(os.environ.get("WB_PASSWORD",""),status)
     runner=web.AppRunner(app);await runner.setup();await web.TCPSite(runner,"0.0.0.0",8188).start()
     logdir=root/"h3-swap/logs";logdir.mkdir(exist_ok=True)
@@ -90,9 +108,24 @@ async def main_async():
     stop=asyncio.Event()
     loop=asyncio.get_running_loop()
     for sig in (signal.SIGTERM,signal.SIGINT):loop.add_signal_handler(sig,stop.set)
+    from .filebrowser import supervise as supervise_filebrowser
+    files_task=asyncio.create_task(supervise_filebrowser(stop,status,logdir))
     try:
         comfy_log=(logdir/"comfy.log").open("a",buffering=1);logs.append(comfy_log)
-        args=[sys.executable,"/opt/ComfyUI/main.py","--listen","127.0.0.1","--port","8189","--input-directory",str(root/"input"),"--output-directory",str(root/"output"),"--user-directory",str(root/"comfy-user-h3-swap"),"--disable-auto-launch","--disable-metadata","--max-upload-size",str(upload_mb())]
+        args=[sys.executable,"/opt/ComfyUI/main.py","--listen","127.0.0.1","--port","8189","--input-directory",str(root/"input"),"--output-directory",str(root/"output"),"--user-directory",str(root/"comfy-user-h3-swap"),"--disable-auto-launch","--max-upload-size",str(upload_mb())]
+        args += ["--preview-method", env["H3_SWAP_PREVIEW_METHOD"]]
+        args += cli_flags()
+        if profile()==BF16:
+            # Run in a child so the supervisor retains no CUDA allocation.
+            probe=await asyncio.to_thread(subprocess.run,
+                [sys.executable,"-m","swapkit.precision","--gpu-smoke"],
+                cwd=str(ROOT),env=env,capture_output=True,text=True,timeout=120)
+            if probe.returncode:
+                print(probe.stderr[-4000:],flush=True)
+                raise ValueError("BF16 GPU preflight failed. Inspect the Pod log; no precision fallback was used.")
+            print(probe.stdout,flush=True)
+            status["gpu_preflight"]="small BF16 matmul/SDPA passed; H3 not benchmarked"
+        if not boolean("H3_SWAP_SAVE_METADATA", True): args.append("--disable-metadata")
         # Deliberately retain native normal offloading and the qualified kernels.
         comfy=subprocess.Popen(args,cwd="/opt/ComfyUI",env=env,stdout=comfy_log,stderr=subprocess.STDOUT);children.append(comfy)
         use_assistant=boolean("H3_SWAP_PROMPT_ASSIST",True)
@@ -103,6 +136,10 @@ async def main_async():
             status.update(kwargs);atomic_json(root/"h3-swap/status.json",dict(status))
         from .assets import prepare
         result=await asyncio.to_thread(prepare,selected,update)
+        if profile()==BF16:
+            status["stage"]="precision audit"
+            audit=await asyncio.to_thread(audit_weights,selected=selected)
+            status["precision_audit"]={"file":"h3-swap/precision-audit.json","model_bytes":audit["model_bytes"]}
         if use_assistant: await prepare_ollama(env,status)
         # A real source/schema smoke check runs on the Pod after models are visible.
         from .check import live_report
@@ -115,7 +152,7 @@ async def main_async():
             await asyncio.sleep(1)
         else: raise ValueError("Required native/custom nodes or prepared models are missing; inspect logs and run python -m swapkit.check --live")
         update(ready=True,stage="ready",asset=None,preparation=result)
-        print("[H3 SWAP READY] Open HTTP 8188. Username: workbench. Workflows sidebar: H3_Character_Replacement_"+RELEASE,flush=True)
+        print("[H3 SWAP READY] Open HTTP 8188. Username: workbench. Workflows sidebar: H3_Character_Replacement_"+RELEASE+folder_suffix(),flush=True)
         while not stop.is_set():
             if any(p.poll() is not None for p in children):
                 raise ValueError("A managed service exited; inspect /workspace/h3-swap/logs")
@@ -127,6 +164,8 @@ async def main_async():
         # Keep the authenticated status page available for diagnosis; no auto-restart loop.
         await stop.wait()
     finally:
+        stop.set()
+        await asyncio.gather(files_task, return_exceptions=True)
         for proc in children:
             if proc.poll() is None: proc.terminate()
         for proc in children:

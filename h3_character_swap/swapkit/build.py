@@ -149,6 +149,8 @@ def main():
         shutil.copy2(relay / filename, licenses / ("RELAY_" + filename))
     from .graphs import build_all
     build_all(relay)
+    from .precision import finalize_build
+    finalize_build(ROOT)
     run(sys.executable, "-m", "pip", "check")
     record = {"pins": pins, "asset_bytes_by_group": {g: sum(a["bytes"] for a in locked if a["group"] == g) for g in ("common", "akatz", "bfs")}, "python": sys.version, "packages": subprocess.check_output([sys.executable, "-m", "pip", "freeze"], text=True).splitlines(), "gpu_tested": False}
     record["python_environment"] = python_environment

@@ -1,0 +1,26 @@
+{
+  "1": {
+    "class_type": "H3SwapDiskChain",
+    "inputs": {
+      "action": "Start new run",
+      "run_name": "native_simple_test10",
+      "source_video": "source.mp4",
+      "character_image": "character.png",
+      "duration_seconds": 10.0,
+      "start_seconds": 0.0,
+      "resolution": "768",
+      "window_frames": "124",
+      "target_person": "person",
+      "selection": "largest",
+      "selection_index": 0,
+      "mask_expansion": 64,
+      "seed": 904239,
+      "review_mode": "Review every chunk",
+      "max_retries": 0,
+      "prompt": "Replace the selected person with the reference character. Preserve source performance, scene and audio timing."
+    },
+    "_meta": {
+      "title": "ONE REFERENCE + NATIVE SIMPLE PROMPT: 10-second test"
+    }
+  }
+}
