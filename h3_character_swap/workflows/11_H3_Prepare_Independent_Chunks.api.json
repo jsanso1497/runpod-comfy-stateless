@@ -1,0 +1,28 @@
+{
+  "1": {
+    "class_type": "H3SwapPrepareIndependentClips",
+    "inputs": {
+      "source_video": "input/source.mp4",
+      "set_name": "shot48_independent",
+      "duration_seconds": 48.0,
+      "start_seconds": 0.0,
+      "window_frames": "124",
+      "overlap_frames": 12
+    },
+    "_meta": {
+      "title": "1. PREPARE SOURCE CLIPS: no GPU generation"
+    }
+  },
+  "2": {
+    "class_type": "PreviewAny",
+    "inputs": {
+      "source": [
+        "1",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "2. CLIP LIST / SETTINGS TO KEEP FOR JOINING"
+    }
+  }
+}

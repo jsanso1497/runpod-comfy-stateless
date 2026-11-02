@@ -1,0 +1,23 @@
+{
+  "1": {
+    "class_type": "H3SwapRecoverPastWorkflow",
+    "inputs": {
+      "generation_video": "output/select_a_past_video.mp4"
+    },
+    "_meta": {
+      "title": "1. SELECT A PAST GENERATION"
+    }
+  },
+  "2": {
+    "class_type": "PreviewAny",
+    "inputs": {
+      "source": [
+        "1",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "2. RECOVERED JSON PATHS OR EXPLANATION"
+    }
+  }
+}

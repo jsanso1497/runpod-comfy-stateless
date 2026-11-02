@@ -1,49 +1,21 @@
-# Workflows
+# Current H3 workflow choices (2026-11-02.1)
 
-00_Analyze_Clip_Build_Prompts and 03_BFS_V11_Guide_Comparison are included here
-as editable canvases and paired API exports.
+The same workflow set is built for baseline INT8/NVFP4 and original BF16 images.
+The profile is compiled into the image; output pixel budgets are separately editable.
 
-The image build installs the pinned developer-native Akatz canvas and API graph
-from akatz-ai/h3-relay at e2a7665b6eb8ea37a88c0de2c9c6b69a8f7c9220.
-It generates 01_Akatz_V15_Mask_Check and
-02_Akatz_V15_Native_Replacement automatically after validating the upstream
-recipe. It changes only the adapter's local filename, initial clip duration,
-neutral source filenames, editable reference-role prompt and output prefix.
-The canonical model, masks, loops, sampling and continuation path are retained.
+| Workflow | Purpose |
+| --- | --- |
+| 02B Akatz Native Simple Preview | Native single-reference preview, 768 preset |
+| 02D Akatz Native Simple Preview 480 | Explicit lower-resolution native preview |
+| 10 Akatz Simple Single Reference Chain | Existing automatic continuation chain |
+| 11 H3 Prepare Independent Chunks | Split original footage with optional editing overlap |
+| 12 Akatz Independent Chunk Preview | One short native generation without prior generated history |
+| 12B Akatz Independent Chunk Preview 480 | Same independent path at the lower pixel budget |
+| 13 H3 Join Rendered Chunks | Trim duplicate overlap, concatenate chosen videos, restore original audio |
+| 14 H3 Recover Past Generation Workflow | Recover sidecars, embedded metadata, chain config or matching live history |
 
-This build-time retrieval deliberately avoids hand-reconstructing the complex
-native loop graph from partial snippets. Both final JSONs are included in the
-GitHub Actions artifact and copied to the Pod's ComfyUI Workflows sidebar.
-The build stops rather than guessing if the pinned graph's widget schema differs.
+The BF16-only 02C higher-reference-size comparison remains available. Mask checks,
+face/body and analysis workflows are retained. Use 02B or 12 with the simple prompt
+first. Read ../INDEPENDENT_CHUNKS.md for instructions and limits.
 
-Do not drag these files into an old h3-hq image. Use the new h3-character-swap
-image, which contains the required pinned runtime and helpers.
-
-
-## 2026-10-26.2 additions
-
-- 05_Face_And_Body_Style_Sheet: two-photo layout utility, no synthesis.
-- 06_H3_LowMemory_Chain_Control: launch/review/resume independent short jobs.
-- 07_Akatz_LowMemory_Manual_Chunk.api.json: manual live-Pod fallback.
-- 08_H3_Prepare_5s_Clips: CPU-only source splitter inside this image.
-
-06 requires the new checkpoint/control nodes and a rebuilt image. Its controller
-returns immediately, then the Pod-local runner queues the actual short jobs.
-The original model/adapter recipe and its baseline workflows remain unchanged.
-See ../LOW_MEMORY_CHAIN.md. A successful gate is not a seamless-motion guarantee.
-
-## New factory analyzer, 2026-10-27.1
-
-00_Analyze_Clip_Build_Prompts now uses H3SwapAnalyzeAkatz. It offers a long
-selected-clip prompt, a chain-safe Akatz prompt, evidence/usage report and all
-sampled frames. No BFS output is generated. Old saved canvases using
-H3SwapAnalyzeClip remain legacy-compatible and do not inherit these controls.
-
-## Recovery/preview additions: 2026-11-01.1
-
-02B_Akatz_Native_Simple_Preview is derived from the exact pinned native canvas
-at image build. It uses the short default prompt, one reference and unchanged
-native generation nodes, adding a pass-through decoded preview and metadata saver.
-Core TAEH3 sampling previews are approximate; the decoded preview is the actual
-output. 10_Akatz_Simple_Single_Reference_Chain adds the existing simple disk preset.
-No UI import of these JSONs can install missing Python nodes into an old image.
+These are build-generated canvases. Both images need rebuilding for new node code.

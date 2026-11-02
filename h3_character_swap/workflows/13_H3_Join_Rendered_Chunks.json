@@ -1,0 +1,147 @@
+{
+  "id": "d91f5ade-82dd-51a8-8c40-b3a338fd7a14",
+  "revision": 0,
+  "last_node_id": 3,
+  "last_link_id": 1,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "H3SwapJoinIndependentClips",
+      "title": "1. JOIN CHOSEN MASTERS: hard cuts, no regeneration",
+      "pos": [
+        0,
+        0
+      ],
+      "size": [
+        760,
+        850
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "joined_video",
+          "type": "VIDEO",
+          "links": []
+        },
+        {
+          "name": "report",
+          "type": "STRING",
+          "links": [
+            1
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3SwapJoinIndependentClips"
+      },
+      "widgets_values": [
+        "",
+        "shot48_join01",
+        12,
+        "Middle of overlap",
+        "Original source",
+        "input/source.mp4",
+        0.0,
+        16
+      ],
+      "widgets_values_named": {
+        "ordered_videos": "",
+        "join_name": "shot48_join01",
+        "overlap_frames": 12,
+        "cut_placement": "Middle of overlap",
+        "audio_mode": "Original source",
+        "original_source": "input/source.mp4",
+        "source_start_seconds": 0.0,
+        "crf": 16
+      }
+    },
+    {
+      "id": 2,
+      "type": "PreviewAny",
+      "title": "2. FRAME COUNTS / OUTPUT PATHS / VALIDATION",
+      "pos": [
+        850,
+        0
+      ],
+      "size": [
+        850,
+        800
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "source",
+          "type": "*",
+          "link": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "STRING",
+          "links": []
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewAny"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 3,
+      "type": "Note",
+      "title": "JOIN RULES",
+      "pos": [
+        0,
+        930
+      ],
+      "size": [
+        1600,
+        230
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "Note"
+      },
+      "widgets_values": [
+        "Paste one output/.../master.mkv per line in timeline order. Pick one accepted take per source clip. Overlap=12 matches workflow 11 defaults; use 0 for non-overlapping clips. Middle of overlap keeps half from each take; no crossfade or morphing. Select the original FULL source for uninterrupted audio and the same original start time. 24 fps, equal dimensions and valid order are required. No silent resizing, retiming, colour matching or identity correction. Saves lossless final.mkv plus final.mp4 and workflow JSONs. A correct frame count does not guarantee an invisible join."
+      ],
+      "widgets_values_named": {
+        "text": "Paste one output/.../master.mkv per line in timeline order. Pick one accepted take per source clip. Overlap=12 matches workflow 11 defaults; use 0 for non-overlapping clips. Middle of overlap keeps half from each take; no crossfade or morphing. Select the original FULL source for uninterrupted audio and the same original start time. 24 fps, equal dimensions and valid order are required. No silent resizing, retiming, colour matching or identity correction. Saves lossless final.mkv plus final.mp4 and workflow JSONs. A correct frame count does not guarantee an invisible join."
+      }
+    }
+  ],
+  "links": [
+    [
+      1,
+      1,
+      1,
+      2,
+      0,
+      "STRING"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.65,
+      "offset": [
+        50,
+        50
+      ]
+    },
+    "validation": "source candidate; GPU execution not certified"
+  },
+  "version": 0.4
+}

@@ -1,4 +1,19 @@
 > Current combined image: **2026-11-01.1**. The new factory folder is
+
+## November 2 update: both profiles, independent clips and recovery
+
+The current workflow release is **2026-11-02.1**, with `_BF16` appended for the
+BF16 image. See [INDEPENDENT_CHUNKS.md](INDEPENDENT_CHUNKS.md) for current setup.
+Both images include 02B native previews, an explicit 02D lower-resolution preview,
+11 source splitting, 12/12B independent native renders, 13 frame-exact joins and
+14 past-generation workflow recovery. The NaN metadata fix is included.
+Rebuild the baseline and BF16 actions separately for the versions you use.
+Model precision and output resolution remain separate settings. The existing
+matched models/sampler and optional analysis model are not replaced by this update.
+Hardware/budget selection remains your chosen under-$3/hour host; check the actual
+RunPod offer. No new GPU capability or measured BF16 memory-fit claim is made.
+The material below documents earlier releases where its dates differ.
+
 > `H3_Character_Replacement_2026-11-01.1`. Workflow recovery, preview behavior and
 > the now-included FileBrowser service are documented in [RECOVERY_AND_PREVIEWS.md](RECOVERY_AND_PREVIEWS.md).
 > The earlier feature-specific notes below are retained as historical scope.

@@ -298,12 +298,27 @@ def build_all(relay):
     source=relay/"example_workflows/toolkit/H3-Character-Swap.json"
     source_api=relay/"example_workflows/toolkit/H3-Character-Swap.api.json"
     graph,api,preview=adapt_akatz(json.loads(source.read_text()),json.loads(source_api.read_text()))
+    from .preview_graph import native_recoverable
+    graph, api = native_recoverable(graph, api)
     atomic_json(dest/"01_Akatz_V15_Mask_Check.json",preview)
     atomic_json(dest/"02_Akatz_V15_Native_Replacement.json",graph)
     atomic_json(dest/"02_Akatz_V15_Native_Replacement.api.json",api)
     from .preview_graph import native_preview, simple_chain
     for name, pair in (("02B_Akatz_Native_Simple_Preview", native_preview(graph, api)),
                        ("10_Akatz_Simple_Single_Reference_Chain", simple_chain())):
+        canvas, recipe = pair
+        atomic_json(dest/(name+".json"), canvas)
+        atomic_json(dest/(name+".api.json"), recipe)
+    from .independent_graph import independent_native, low_resolution, prepare_graph, join_graph, recover_graph
+    independent = independent_native(graph, api)
+    for name, pair in (
+        ("02D_Akatz_Native_Simple_Preview_480", low_resolution(*native_preview(graph, api))),
+        ("11_H3_Prepare_Independent_Chunks", prepare_graph()),
+        ("12_Akatz_Independent_Chunk_Preview", independent),
+        ("12B_Akatz_Independent_Chunk_Preview_480", low_resolution(*independent)),
+        ("13_H3_Join_Rendered_Chunks", join_graph()),
+        ("14_H3_Recover_Past_Generation_Workflow", recover_graph()),
+    ):
         canvas, recipe = pair
         atomic_json(dest/(name+".json"), canvas)
         atomic_json(dest/(name+".api.json"), recipe)

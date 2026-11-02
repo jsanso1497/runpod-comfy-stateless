@@ -1,0 +1,30 @@
+{
+  "1": {
+    "class_type": "H3SwapJoinIndependentClips",
+    "inputs": {
+      "ordered_videos": "",
+      "join_name": "shot48_join01",
+      "overlap_frames": 12,
+      "cut_placement": "Middle of overlap",
+      "audio_mode": "Original source",
+      "original_source": "input/source.mp4",
+      "source_start_seconds": 0.0,
+      "crf": 16
+    },
+    "_meta": {
+      "title": "1. JOIN CHOSEN MASTERS: hard cuts, no regeneration"
+    }
+  },
+  "2": {
+    "class_type": "PreviewAny",
+    "inputs": {
+      "source": [
+        "1",
+        1
+      ]
+    },
+    "_meta": {
+      "title": "2. FRAME COUNTS / OUTPUT PATHS / VALIDATION"
+    }
+  }
+}

@@ -32,6 +32,23 @@ def json_text(value):
     return text
 
 
+
+def prompt_for_metadata(prompt):
+    """Copy an API prompt without execution-only cache fingerprints.
+
+    ComfyUI intentionally uses NaN in node-level ``is_changed`` values to
+    force loop/cache reevaluation. Those values are not workflow inputs and
+    must remain untouched in the live execution graph. Drop them only from
+    the export copy. Do not replace arbitrary NaNs with null: a nonfinite
+    actual input is still an error under the strict JSON serializer.
+    """
+    exported = copy.deepcopy(prompt)
+    for node in exported.values():
+        if isinstance(node, dict) and 'class_type' in node:
+            node.pop('is_changed', None)
+    return exported
+
+
 def media_metadata(prompt=None, extra_pnginfo=None):
     if not enabled():
         return {}
@@ -40,7 +57,7 @@ def media_metadata(prompt=None, extra_pnginfo=None):
     if isinstance(workflow, dict) and isinstance(workflow.get('nodes'), list):
         result['workflow'] = copy.deepcopy(workflow)
     if isinstance(prompt, dict):
-        result['prompt'] = copy.deepcopy(prompt)
+        result['prompt'] = prompt_for_metadata(prompt)
     json_text(result)
     return result
 

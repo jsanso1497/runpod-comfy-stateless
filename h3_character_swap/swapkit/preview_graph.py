@@ -91,3 +91,18 @@ def simple_chain():
                                '_meta': {'title': control['title']}}}
     validate_graph(graph)
     return graph, api
+
+
+def native_recoverable(original, original_api):
+    """Preserve the non-preview native recipe, but strip cache markers on export."""
+    canvas,api=copy.deepcopy(original),copy.deepcopy(original_api)
+    node=next(n for n in canvas['nodes'] if n['id']=='save')
+    if any(p.get('links') for p in node.get('outputs',[])):
+        raise ValueError('Native output has consumers; cannot substitute its saver blindly')
+    node.update(type='H3SwapSaveVideo',title='FINAL MP4 + reopenable workflow JSON',outputs=[])
+    node['properties']['Node name for S&R']='H3SwapSaveVideo'
+    node['widgets_values_named']={'filename_prefix':'h3_character_swap/native_preview/akatz_native','crf':16}
+    node['widgets_values']=list(node['widgets_values_named'].values())
+    api['save']={'class_type':'H3SwapSaveVideo','inputs':{'video':['video',0],**node['widgets_values_named']}}
+    validate_graph(canvas)
+    return canvas,api

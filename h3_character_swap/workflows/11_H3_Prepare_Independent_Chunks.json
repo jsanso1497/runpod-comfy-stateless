@@ -1,0 +1,111 @@
+{
+  "id": "4d379337-bd3b-53a3-89d1-607077ff8452",
+  "revision": 0,
+  "last_node_id": 2,
+  "last_link_id": 1,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "H3SwapPrepareIndependentClips",
+      "title": "1. PREPARE SOURCE CLIPS: no GPU generation",
+      "pos": [
+        0,
+        0
+      ],
+      "size": [
+        600,
+        470
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "clip_list_and_instructions",
+          "type": "STRING",
+          "links": [
+            1
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3SwapPrepareIndependentClips"
+      },
+      "widgets_values": [
+        "input/source.mp4",
+        "shot48_independent",
+        48.0,
+        0.0,
+        "124",
+        12
+      ],
+      "widgets_values_named": {
+        "source_video": "input/source.mp4",
+        "set_name": "shot48_independent",
+        "duration_seconds": 48.0,
+        "start_seconds": 0.0,
+        "window_frames": "124",
+        "overlap_frames": 12
+      }
+    },
+    {
+      "id": 2,
+      "type": "PreviewAny",
+      "title": "2. CLIP LIST / SETTINGS TO KEEP FOR JOINING",
+      "pos": [
+        700,
+        0
+      ],
+      "size": [
+        850,
+        600
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "source",
+          "type": "*",
+          "link": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "STRING",
+          "links": []
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewAny"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    }
+  ],
+  "links": [
+    [
+      1,
+      1,
+      0,
+      2,
+      0,
+      "STRING"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.65,
+      "offset": [
+        50,
+        50
+      ]
+    },
+    "validation": "source candidate; GPU execution not certified"
+  },
+  "version": 0.4
+}

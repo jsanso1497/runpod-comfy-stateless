@@ -17,7 +17,7 @@ def allowed_file(output_root, relative):
         raise ValueError('Missing recovery path')
     path = safe_path(Path(output_root), relative)
     rel = path.relative_to(Path(output_root).resolve())
-    allowed_roots = {'workflow_history', 'disk_chain_v2', 'native_preview'}
+    allowed_roots = {'workflow_history', 'disk_chain_v2', 'native_preview', 'native_bf16_highref', 'independent', 'joined', 'recovered'}
     if (len(rel.parts) < 3 or rel.parts[0] != 'h3_character_swap' or rel.parts[1] not in allowed_roots
             or not path.name.endswith(('.workflow.json', '.api.json'))
             or not path.is_file() or path.stat().st_size > 16*1024**2):
@@ -59,6 +59,7 @@ def install_routes(app):
                 '<strong>repeat</strong> starts a new run; <strong>resume</strong> continues its saved state. '
                 'Inputs and model weights must still be available. Old videos without saved settings cannot be reconstructed.</p>'
                 '<p>JSONs and embedded metadata include prompts and input filenames. Treat them as private when sharing media.</p>'
+                '<p>Workflow 14 can recover recorded settings from an existing sidecar, embedded video metadata, a saved chain config, or matching live ComfyUI history. It cannot infer missing settings from pixels.</p>'
                 '<h2>Latest 100 submissions</h2><ul>'+(''.join(items) or '<li>No saved submissions yet.</li>')+'</ul></html>')
         return web.Response(text=body, content_type='text/html')
     app.router.add_get('/_swap/recovery', page)
