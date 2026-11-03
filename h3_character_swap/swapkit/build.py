@@ -137,13 +137,15 @@ def main():
     specs = json.loads((ROOT / "assets.spec.json").read_text())["assets"]
     locked = metadata_lock(specs, HfApi())
     atomic_json(ROOT / "assets.lock.json", {"assets": locked, "scope": "metadata only; weights not downloaded"})
-    bfs_revision = next(r["revision"] for r in locked if r["id"] == "bfs-v11")
-    docs = download_public_text("Alissonerdx/Minimax-H3-ComfyUI", bfs_revision, "docs/character-swap.md")
-    (ROOT / "bfs-template.txt").write_text(extract_bfs_template(docs) + "\n")
     licenses = ROOT / "licenses"
     licenses.mkdir(exist_ok=True)
-    (licenses / "BFS_CHARACTER_SWAP.md").write_text(download_public_text("Alissonerdx/Minimax-H3-ComfyUI", bfs_revision, "LICENSE_CHARACTER_SWAP.md"))
-    (licenses / "BFS_CHARACTER_SWAP_GUIDE.md").write_text(docs)
+    from .precision import profile, ECONOMY
+    if profile() != ECONOMY:
+        bfs_revision = next(r["revision"] for r in locked if r["id"] == "bfs-v11")
+        docs = download_public_text("Alissonerdx/Minimax-H3-ComfyUI", bfs_revision, "docs/character-swap.md")
+        (ROOT / "bfs-template.txt").write_text(extract_bfs_template(docs) + "\n")
+        (licenses / "BFS_CHARACTER_SWAP.md").write_text(download_public_text("Alissonerdx/Minimax-H3-ComfyUI", bfs_revision, "LICENSE_CHARACTER_SWAP.md"))
+        (licenses / "BFS_CHARACTER_SWAP_GUIDE.md").write_text(docs)
     # Preserve upstream source, licenses and exact provenance for the supplied recipe.
     for filename in ("LICENSE", "LICENSE-Apache-2.0", "NOTICE.md"):
         shutil.copy2(relay / filename, licenses / ("RELAY_" + filename))
@@ -151,6 +153,8 @@ def main():
     build_all(relay)
     from .precision import finalize_build
     finalize_build(ROOT)
+    from .economy_graphs import build_economy
+    build_economy(ROOT)
     run(sys.executable, "-m", "pip", "check")
     record = {"pins": pins, "asset_bytes_by_group": {g: sum(a["bytes"] for a in locked if a["group"] == g) for g in ("common", "akatz", "bfs")}, "python": sys.version, "packages": subprocess.check_output([sys.executable, "-m", "pip", "freeze"], text=True).splitlines(), "gpu_tested": False}
     record["python_environment"] = python_environment

@@ -52,7 +52,7 @@ def configure():
             print("[H3 PREVIEW WARNING] "+preview_warning+"; using rough latent2rgb preview only",flush=True)
     sync_workflows(root)
     env=public_child_env()
-    from .precision import profile, BF16, DEFAULT_HELPER
+    from .precision import profile, BF16, DEFAULT_HELPER, is_bf16, ECONOMY
     if profile()==BF16: env.setdefault("H3_SWAP_PROMPT_MODEL", DEFAULT_HELPER)
     env.update(H3_SWAP_PREVIEW_METHOD=active_preview,H3_SWAP_PREVIEW_REQUESTED=requested_preview,
                H3_SWAP_PREVIEW_WARNING=preview_warning)
@@ -93,14 +93,18 @@ async def prepare_ollama(env,status):
 async def main_async():
     if os.environ.get("WB_AUTH_MODE","basic")!="basic":
         raise ValueError("This image requires WB_AUTH_MODE=basic; only port 8188 should be exposed")
-    selected=variants();env=configure();root=data_root()
+    selected=variants();root=data_root();root.mkdir(parents=True,exist_ok=True)
     status={"ready":False,"stage":"starting","release":RELEASE,"variants":sorted(selected),"gpu_validation":"not certified"}
-    status["preview"]={"requested":env["H3_SWAP_PREVIEW_REQUESTED"],
-                       "active":env["H3_SWAP_PREVIEW_METHOD"],"warning":env["H3_SWAP_PREVIEW_WARNING"]}
-    status["workflow_metadata"]=boolean("H3_SWAP_SAVE_METADATA",True)
-    from .precision import profile, cli_flags, folder_suffix, audit_weights, BF16
+    from .precision import profile, cli_flags, folder_suffix, audit_weights, BF16, ECONOMY, is_bf16
     status["model_profile"]=profile()
+    status["workflow_metadata"]=boolean("H3_SWAP_SAVE_METADATA",True)
     status["workflow_folder"]="H3_Character_Replacement_"+RELEASE+folder_suffix()
+    if profile()==ECONOMY:
+        os.environ['H3_SWAP_FILES_BACKEND']='builtin'
+        os.environ['H3_SWAP_PROMPT_ASSIST']='0'
+        os.environ['H3_SWAP_SAVE_METADATA']='1'
+        os.environ['H3_SWAP_FILE_BROWSER']='1'
+        status['workflow_metadata']=True
     app=make_app(os.environ.get("WB_PASSWORD",""),status)
     runner=web.AppRunner(app);await runner.setup();await web.TCPSite(runner,"0.0.0.0",8188).start()
     logdir=root/"h3-swap/logs";logdir.mkdir(exist_ok=True)
@@ -109,13 +113,22 @@ async def main_async():
     loop=asyncio.get_running_loop()
     for sig in (signal.SIGTERM,signal.SIGINT):loop.add_signal_handler(sig,stop.set)
     from .filebrowser import supervise as supervise_filebrowser
-    files_task=asyncio.create_task(supervise_filebrowser(stop,status,logdir))
+    from .files_builtin import backend as files_backend
+    files_task=(asyncio.create_task(supervise_filebrowser(stop,status,logdir))
+                if files_backend()=='classic' else asyncio.create_task(stop.wait()))
     try:
+        # Bind the gateway and built-in file browser BEFORE setup, model checks,
+        # imports that may create CUDA contexts, or network downloads.
+        env=await asyncio.to_thread(configure)
+        status["preview"]={"requested":env["H3_SWAP_PREVIEW_REQUESTED"],
+            "active":env["H3_SWAP_PREVIEW_METHOD"],"warning":env["H3_SWAP_PREVIEW_WARNING"]}
+        if profile()==ECONOMY and selected != {'akatz'}:
+            raise ValueError('Economy supports akatz only. Remove BFS variables.')
         comfy_log=(logdir/"comfy.log").open("a",buffering=1);logs.append(comfy_log)
         args=[sys.executable,"/opt/ComfyUI/main.py","--listen","127.0.0.1","--port","8189","--input-directory",str(root/"input"),"--output-directory",str(root/"output"),"--user-directory",str(root/"comfy-user-h3-swap"),"--disable-auto-launch","--max-upload-size",str(upload_mb())]
         args += ["--preview-method", env["H3_SWAP_PREVIEW_METHOD"]]
         args += cli_flags()
-        if profile()==BF16:
+        if is_bf16():
             # Run in a child so the supervisor retains no CUDA allocation.
             probe=await asyncio.to_thread(subprocess.run,
                 [sys.executable,"-m","swapkit.precision","--gpu-smoke"],
@@ -128,7 +141,7 @@ async def main_async():
         if not boolean("H3_SWAP_SAVE_METADATA", True): args.append("--disable-metadata")
         # Deliberately retain native normal offloading and the qualified kernels.
         comfy=subprocess.Popen(args,cwd="/opt/ComfyUI",env=env,stdout=comfy_log,stderr=subprocess.STDOUT);children.append(comfy)
-        use_assistant=boolean("H3_SWAP_PROMPT_ASSIST",True)
+        use_assistant=profile()!=ECONOMY and boolean("H3_SWAP_PROMPT_ASSIST",True)
         if use_assistant:
             ollama_log=(logdir/"ollama.log").open("a",buffering=1);logs.append(ollama_log)
             children.append(subprocess.Popen(["ollama","serve"],env=env,stdout=ollama_log,stderr=subprocess.STDOUT))
@@ -136,7 +149,7 @@ async def main_async():
             status.update(kwargs);atomic_json(root/"h3-swap/status.json",dict(status))
         from .assets import prepare
         result=await asyncio.to_thread(prepare,selected,update)
-        if profile()==BF16:
+        if is_bf16():
             status["stage"]="precision audit"
             audit=await asyncio.to_thread(audit_weights,selected=selected)
             status["precision_audit"]={"file":"h3-swap/precision-audit.json","model_bytes":audit["model_bytes"]}

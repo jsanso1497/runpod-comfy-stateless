@@ -159,8 +159,14 @@ def make_app(password, status):
         if not files_enabled():
             raise web.HTTPNotFound()
         raise web.HTTPTemporaryRedirect(location="/files/")
-    app.router.add_get("/files", files_redirect)
-    app.router.add_route("*", "/files/{path:.*}", filebrowser_proxy)
+    from .files_builtin import backend as files_backend, install as install_builtin_files
+    if files_backend() == 'builtin':
+        install_builtin_files(app, status)
+    else:
+        app.router.add_get("/files", files_redirect)
+        app.router.add_route("*", "/files/{path:.*}", filebrowser_proxy)
+    from .economy_web import install_routes as install_economy_routes
+    install_economy_routes(app)
     from .recovery_web import install_routes as install_recovery_routes
     install_recovery_routes(app)
     from .disk_web import install_routes
@@ -168,5 +174,20 @@ def make_app(password, status):
     app.router.add_get("/_swap",index)
     app.router.add_get("/_swap/status",get_status)
     app.router.add_get("/_swap/workflow/{name}",graph)
-    app.router.add_route("*","/{path:.*}",proxy)
+    async def front(request):
+        # A ready HTTP root gives RunPod a useful service page even while H3's
+        # backend is importing or its weights are downloading. Files stay usable.
+        if (request.method == "GET" and request.path == "/" and
+                files_backend() == "builtin" and not status.get("ready")):
+            return web.Response(content_type="text/html", text=STARTUP_PAGE)
+        return await proxy(request)
+    app.router.add_route("*","/{path:.*}",front)
     return app
+
+
+STARTUP_PAGE = """<!doctype html><html lang="en"><meta charset="utf-8"><title>H3 starting</title>
+<style>body{font:18px system-ui;background:#131922;color:#e6edf6;max-width:850px;margin:70px auto;padding:20px}a{color:#9dccff}pre{white-space:pre-wrap}</style>
+<h1>Your workspace is running</h1><p>H3 generation is still preparing. File access is available now.</p>
+<p><a href="/files/">Open files: upload or download</a> | <a href="/_swap/status">Startup details</a></p>
+<pre id="status">Checking model preparation...</pre>
+<script>async function update(){try{let r=await fetch('/_swap/status');let s=await r.json();document.getElementById('status').textContent=JSON.stringify(s,null,2);if(s.ready)location.reload()}catch(e){document.getElementById('status').textContent='Connection interrupted. Refresh after the Pod is running.'}}update();setInterval(update,5000)</script></html>"""

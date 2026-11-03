@@ -1,3 +1,16 @@
+# H3 BF16 Economy, Files and Open Workflow (2026-11-02.2)
+
+A separate **Build H3 BF16 economy** action publishes the pruned-BF16 / BF16-encoder
+image without Ollama. Workflow 15 renders independent chunks automatically after
+first-chunk approval. The economy image serves a built-in `/files/` page before
+model downloads, with no classic FileBrowser daemon or database. Native completed
+job records persist so ComfyUI **Open workflow** can resolve the original editable
+canvas across restarts. See [ECONOMY.md](ECONOMY.md) and
+[RunPod settings](RUNPOD_ECONOMY_TEMPLATE.md). Prior image tags remain separate.
+
+The sections below describe earlier updates. The economy guide above controls
+current economy settings; nothing silently converts existing full-BF16 runs.
+
 # H3 workflow recovery and native previews (2026-11-01.1)
 
 ## November 2 update: both profiles, independent clips and recovery

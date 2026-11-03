@@ -17,7 +17,9 @@ from .config import ROOT, atomic_json, data_root
 
 BASELINE = 'baseline'
 BF16 = 'bf16_full'
-PROFILES = (BASELINE, BF16)
+ECONOMY = 'bf16_economy'
+PROFILES = (BASELINE, BF16, ECONOMY)
+PRUNED = 'minimax_h3_ref2va_pruned_bf16.safetensors'
 REVISION = 'e5eb578a89295337b8ff433a035929ce0279e0b6'
 DIFFUSION_OLD = 'minimax_h3_ref2va_pruned_int8_convrot.safetensors'
 ENCODER_OLD = 'qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors'
@@ -38,6 +40,21 @@ UPGRADES = {
 }
 
 
+def is_bf16(root=None):
+    return profile(root) in (BF16, ECONOMY)
+
+
+def upgrades_for(name):
+    result = copy.deepcopy(UPGRADES)
+    if name == ECONOMY:
+        result['h3-ref2va-int8'] = dict(
+            id='h3-ref2va-bf16-pruned', group='common', repo='Comfy-Org/MiniMax-H3',
+            revision='3792b245ac4685dda00ebf43a33c646f7ce98064',
+            file='diffusion_models/'+PRUNED, destination='diffusion_models/'+PRUNED,
+            expected_sha256='37c0da793e20ca735272ec2be655f08a2e10f97a3ec8fdfb40f5b39a736ed6fe')
+    return result
+
+
 def profile(root=None):
     p = Path(root or ROOT)/'precision-profile.json'
     if not p.exists():
@@ -51,25 +68,29 @@ def profile(root=None):
 def prepare_build(name, root=None):
     root = Path(root or ROOT)
     if name not in PROFILES:
-        raise ValueError('Build profile must be baseline or bf16_full')
+        raise ValueError('Unknown H3 build profile: '+str(name))
     marker = root/'precision-profile.json'
     if marker.exists() and profile(root) != name:
         raise ValueError('Build profiles must use separate clean image layers')
     specs_path = root/'assets.spec.json'
     data = json.loads(specs_path.read_text())
-    if name == BF16:
+    upgrades = upgrades_for(name)
+    if name in (BF16, ECONOMY):
         ids = {x['id'] for x in data['assets']}
-        required = set(UPGRADES)
-        upgraded = {x['id'] for x in UPGRADES.values()}
+        required = set(upgrades)
+        upgraded = {x['id'] for x in upgrades.values()}
         if not (required <= ids or upgraded <= ids):
             raise ValueError('Source asset definitions changed; cannot upgrade safely')
-        data['assets'] = [copy.deepcopy(UPGRADES.get(x['id'], x)) for x in data['assets']]
+        data['assets'] = [copy.deepcopy(upgrades.get(x['id'], x)) for x in data['assets']]
+        atomic_json(specs_path, data)
+    if name == ECONOMY:
+        data['assets'] = [x for x in data['assets'] if x['group'] != 'bfs']
         atomic_json(specs_path, data)
     atomic_json(marker, {'profile':name, 'version':1,
-        'diffusion_file':DIFFUSION if name==BF16 else DIFFUSION_OLD,
-        'encoder_file':ENCODER if name==BF16 else ENCODER_OLD,
-        'attention':'pytorch attention' if name==BF16 else 'comfy kitchen attention',
-        'checkpoint_precision':'BF16 source weights, not recast INT8/NVFP4' if name==BF16 else 'existing quantized recipe',
+        'diffusion_file':(PRUNED if name==ECONOMY else DIFFUSION) if name in (BF16, ECONOMY) else DIFFUSION_OLD,
+        'encoder_file':ENCODER if name in (BF16, ECONOMY) else ENCODER_OLD,
+        'attention':'pytorch attention' if name in (BF16, ECONOMY) else 'comfy kitchen attention',
+        'checkpoint_precision':'BF16 source weights, not recast INT8/NVFP4' if name in (BF16, ECONOMY) else 'existing quantized recipe',
         'generation_recipe':'Akatz V1.5 + FL2V Turbo8, both 1.0, 8/er_sde/normal/CFG1',
         'reference_sizing':'match; optional high-reference native canvas uses max',
         'visual_quality_validated':False, 'peak_memory_measured':False})
@@ -96,20 +117,26 @@ def _widget(node, key, value):
     named[key] = value
 
 
-def transform(document):
+def transform(document, *, diffusion=DIFFUSION, build_profile=BF16):
     """Only model files, attention and presentation; never sampler/mask/timeline."""
     g = _replace(copy.deepcopy(document))
+    if diffusion != DIFFUSION:
+        def swap(value):
+            if isinstance(value, dict): return {k: swap(v) for k, v in value.items()}
+            if isinstance(value, list): return [swap(v) for v in value]
+            return diffusion if value == DIFFUSION else value
+        g = swap(g)
     if isinstance(g.get('nodes'), list):
         for node in g['nodes']:
             kind = node.get('type')
             if kind == 'ModelAttentionBackend':
                 _widget(node, 'attention', 'pytorch attention')
             if kind == 'UNETLoader':
-                node['title'] = 'FULL BF16 H3 Ref2VA: original unpruned weights'
+                node['title'] = ('ECONOMY BF16 H3 Ref2VA: pruned BF16, NOT INT8' if build_profile==ECONOMY else 'FULL BF16 H3 Ref2VA: original unpruned weights')
             elif kind == 'CLIPLoader' and node.get('widgets_values_named', {}).get('type') == 'minimax':
                 node['title'] = 'BF16 H3 Qwen reference encoder: no NVFP4/AWQ'
-        g.setdefault('extra', {})['h3_build_profile'] = BF16
-        g['id'] = str(uuid.uuid5(uuid.NAMESPACE_URL, str(g.get('id'))+'/bf16_full'))
+        g.setdefault('extra', {})['h3_build_profile'] = build_profile
+        g['id'] = str(uuid.uuid5(uuid.NAMESPACE_URL, str(g.get('id'))+'/'+build_profile))
     else:
         for node in g.values():
             if not isinstance(node, dict): continue
@@ -118,10 +145,10 @@ def transform(document):
     return g
 
 
-def validate_recipe(api):
+def validate_recipe(api, *, diffusion=DIFFUSION):
     models = [n['inputs']['unet_name'] for n in api.values() if n['class_type']=='UNETLoader']
     encoders = [n['inputs']['clip_name'] for n in api.values() if n['class_type']=='CLIPLoader']
-    if models != [DIFFUSION] or encoders != [ENCODER]:
+    if models != [diffusion] or encoders != [ENCODER]:
         raise ValueError('BF16 recipe uses unexpected diffusion/text checkpoints')
     for n in api.values():
         v = n['inputs']; k=n['class_type']
@@ -141,14 +168,16 @@ def validate_recipe(api):
 def finalize_build(root=None):
     """Called after upstream native canvases are assembled in the image build."""
     root=Path(root or ROOT)
-    if profile(root)!=BF16: return
+    selected = profile(root)
+    if selected not in (BF16, ECONOMY): return
+    diffusion = PRUNED if selected==ECONOMY else DIFFUSION
     from .graphs import validate_graph
     for p in sorted((root/'workflows').glob('*.json')):
-        doc = transform(json.loads(p.read_text()))
+        doc = transform(json.loads(p.read_text()), diffusion=diffusion, build_profile=selected)
         if isinstance(doc.get('nodes'),list): validate_graph(doc)
         atomic_json(p,doc)
     recipe=root/'swapkit/data/akatz_disk_base.api.json'
-    api=transform(json.loads(recipe.read_text())); validate_recipe(api)
+    api=transform(json.loads(recipe.read_text()), diffusion=diffusion, build_profile=selected); validate_recipe(api, diffusion=diffusion)
     atomic_json(recipe,api)
     # Native 02B retains match for an isolated precision comparison. 02C is an
     # explicit second test: more pixels in each reference, no upscaling invented.
@@ -157,7 +186,7 @@ def finalize_build(root=None):
     if not canvas_path.exists() or not api_path.exists():
         raise ValueError('Native preview factory files were not built')
     canvas=json.loads(canvas_path.read_text()); native=json.loads(api_path.read_text())
-    validate_recipe(native)
+    validate_recipe(native, diffusion=diffusion)
     for node in canvas['nodes']:
         if node['type']=='MiniMaxH3ReferenceToVideo': _widget(node,'ref_image_size','max')
         if node['type']=='H3SwapSaveVideo':
@@ -180,11 +209,11 @@ def finalize_build(root=None):
 def cli_flags(root=None):
     # Do not force VAE precision or full GPU residency. Preserve the original
     # FP16 video and FP32 audio checkpoint handling and stage offloading.
-    return ['--bf16-unet','--bf16-text-enc','--use-pytorch-cross-attention'] if profile(root)==BF16 else []
+    return ['--bf16-unet','--bf16-text-enc','--use-pytorch-cross-attention'] if is_bf16(root) else []
 
 
 def folder_suffix(root=None):
-    return '_BF16' if profile(root)==BF16 else ''
+    return '_ECONOMY' if profile(root)==ECONOMY else ('_BF16' if profile(root)==BF16 else '')
 
 
 def read_header(path):
@@ -219,10 +248,10 @@ def audit_weights(root=None, storage=None, selected=('akatz',)):
     records=[]
     for row in rows:
         p=storage/'models'/row['destination'];report=read_header(p)
-        if profile(root)==BF16:
+        if is_bf16(root):
             if any(x not in {'BF16','F16','F32','F64'} for x in report['weight_dtypes']):
                 raise ValueError('Unexpected quantized weight dtype: '+row['destination'])
-            if row['id'] in {x['id'] for x in UPGRADES.values()}:
+            if row['id'] in {x['id'] for x in upgrades_for(profile(root)).values()}:
                 if 'BF16' not in report['weight_dtypes']:
                     raise ValueError('Expected source BF16 weight tensors: '+row['destination'])
         records.append({'id':row['id'],'file':row['destination'],'sha256':row['sha256'],
