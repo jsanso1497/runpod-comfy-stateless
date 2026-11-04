@@ -1,0 +1,11 @@
+{
+  "reviewed_user_repository": "jsanso1497/runpod-comfy-stateless",
+  "reviewed_user_commit": "250a33cf28b3ce36b00e496684a7dd819eaf53b7",
+  "comfy_repository": "https://github.com/Comfy-Org/ComfyUI.git",
+  "comfy_commit": "52f98af2e2e42c421070a3e147c161c47cdeaf22",
+  "seedvr_repository": "https://github.com/numz/ComfyUI-SeedVR2_VideoUpscaler.git",
+  "seedvr_commit": "4490bd1f482e026674543386bb2a4d176da245b9",
+  "seedvr_cli_git_blob": "2d4fff18667e12a7d35ec8a43b952820a6b73ee9",
+  "base_image": "pytorch/pytorch:2.9.1-cuda12.8-cudnn9-runtime",
+  "note": "Source/model pins are fixed. Pip freeze is recorded inside the built image; use its published digest. No GPU acceptance test has been performed by the package author."
+}

@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "models": [
+    {
+      "repo": "numz/SeedVR2_comfyUI",
+      "filename": "seedvr2_ema_7b_fp16.safetensors",
+      "revision": "fc8e71533b1b2a07f149b9b090c72a39e05f64ec",
+      "sha256": "7b8241aa957606ab6cfb66edabc96d43234f9819c5392b44d2492d9f0b0bbe4a"
+    },
+    {
+      "repo": "numz/SeedVR2_comfyUI",
+      "filename": "ema_vae_fp16.safetensors",
+      "revision": "0de17b6c1cf41a234f525775f77df24b992c4246",
+      "sha256": "20678548f420d98d26f11442d3528f8b8c94e57ee046ef93dbb7633da8612ca1"
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+name: Build Faithful Video Minimal
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  packages: write
+concurrency:
+  group: faithful-video-minimal-build
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Offline contracts and real CPU media tests
+        run: |
+          sudo apt-get update && sudo apt-get install -y ffmpeg
+          python3 -m pip install pytest numpy opencv-python-headless aiohttp filelock
+          python3 video_fidelity/validate_package.py
+          python3 -m pytest -q video_fidelity/tests
+          python3 -m compileall -q video_fidelity
+      - name: Reclaim optional runner software
+        run: sudo rm -rf /usr/local/lib/android /opt/ghc /usr/share/dotnet
+      - uses: docker/setup-buildx-action@v3
+      - name: Build separate video-only image without publishing
+        uses: docker/build-push-action@v6
+        with:
+          context: video_fidelity
+          file: video_fidelity/Dockerfile
+          load: true
+          push: false
+          platforms: linux/amd64
+          tags: faithful-video-checked:local
+          provenance: false
+      - name: Real pinned ComfyUI startup and CPU VIDEO execution
+        run: docker run --rm --entrypoint python faithful-video-checked:local /opt/video-fidelity/cpu_smoke.py
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish only after the CPU checks pass
+        env:
+          REPOSITORY: ${{ github.repository }}
+          COMMIT: ${{ github.sha }}
+        run: |
+          IMAGE="ghcr.io/${REPOSITORY,,}"
+          docker tag faithful-video-checked:local "$IMAGE:faithful-video-$COMMIT"
+          docker tag faithful-video-checked:local "$IMAGE:faithful-video-v1"
+          docker push "$IMAGE:faithful-video-$COMMIT"
+          docker push "$IMAGE:faithful-video-v1"
+          REF=$(docker image inspect "$IMAGE:faithful-video-$COMMIT" --format '{{index .RepoDigests 0}}')
+          test -n "$REF"
+          printf '%s\n' "$REF" > faithful-video-image-reference.txt
+          {
+            echo '## Faithful Video Minimal'
+            echo 'Use the following exact image reference in RunPod:'
+            echo
+            echo "\`$REF\`"
+            echo
+            echo 'Video-only: standard SeedVR2 7B FP16 + FP16 VAE. No Qwen, SAM, Ollama or Sharp checkpoint.'
+            echo 'Port 8188 only. Leave container start command blank. Username workbench.'
+            echo 'COMFY_PASSWORD={{ RUNPOD_SECRET_comfy_password }}'
+            echo 'Optional HF_TOKEN={{ RUNPOD_SECRET_hf_token }}'
+            echo 'Suggested first validation: A40 48 GB, preferably 128 GB host RAM; 30 GB container disk and 150 GB persistent volume.'
+            echo 'Default workflow: original size, strength 0.50, 3-second test, temporal batch 9.'
+            echo 'Passed CPU contracts and real ComfyUI zero-AI media execution. GPU restoration quality and memory are NOT certified.'
+            echo 'See FAITHFUL_VIDEO_START_HERE.md for setup, limits and acceptance testing.'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: faithful-video-runpod-settings
+          path: |
+            faithful-video-image-reference.txt
+            FAITHFUL_VIDEO_START_HERE.md
+            video_fidelity/workflows/
+            video_fidelity/models.lock.json
+            video_fidelity/sources.lock.json

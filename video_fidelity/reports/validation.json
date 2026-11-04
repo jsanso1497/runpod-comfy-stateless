@@ -1,0 +1,45 @@
+{
+  "status": "CPU/source tested; GPU and Docker untested here",
+  "local_tests": {
+    "passed": 87,
+    "failed": 0,
+    "command": "python -m pytest -q video_fidelity/tests",
+    "coverage": [
+      "frame indexing",
+      "generated overlap blending",
+      "scene cut reset",
+      "source blending",
+      "exact integer dimensions",
+      "8-bit SDR guards",
+      "fractional FPS",
+      "VFR rejection",
+      "audio presence",
+      "16-bit PNG output",
+      "FFmpeg final encoding",
+      "authentication",
+      "graph/API contracts",
+      "process termination"
+    ]
+  },
+  "python_test_environment": "3.13.5",
+  "actual_gpu_inference": "not run; CUDA is not available",
+  "actual_docker_build": "not run; Docker is not available",
+  "actual_comfy_smoke": "implemented as required GitHub Action gate, not run here",
+  "input_footage_validation": "Only the supplied JPEG crop was available, not a source video.",
+  "installer_tests": {
+    "passed": 10,
+    "failed": 0,
+    "checks": [
+      "dry run creates no payload files",
+      "full installation verifies every payload byte and preserves unrelated files",
+      "repeat installation is idempotent",
+      "installer does not stage or commit",
+      "conflict is refused before any package writes",
+      "symlink path is refused without following it",
+      "wrong repository origin is refused",
+      "non-root working directory is refused",
+      "payload checksum tampering is refused",
+      "new files roll back on mid-install failure"
+    ]
+  }
+}

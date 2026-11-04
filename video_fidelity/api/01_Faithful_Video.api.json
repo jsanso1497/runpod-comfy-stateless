@@ -1,0 +1,23 @@
+{
+  "1": {
+    "class_type": "LoadVideo",
+    "inputs": {
+      "file": "UPLOAD_YOUR_VIDEO.mp4"
+    }
+  },
+  "2": {
+    "class_type": "FaithfulVideoRestore",
+    "inputs": {
+      "video": [
+        "1",
+        0
+      ],
+      "output_size": "Original size",
+      "restoration_strength": 0.5,
+      "start_seconds": 0.0,
+      "duration_seconds": 3.0,
+      "temporal_batch": 9,
+      "keep_16bit_frames": false
+    }
+  }
+}
