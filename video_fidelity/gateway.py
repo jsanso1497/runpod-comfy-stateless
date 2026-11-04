@@ -4,6 +4,7 @@ import asyncio
 import base64
 import hmac
 import os
+import re
 from urllib.parse import urlsplit
 from aiohttp import web, ClientSession, ClientTimeout, WSMsgType
 from fv_common import terminate
@@ -29,14 +30,37 @@ def authorized(header: str, password: str) -> bool:
         return False
 
 
-def same_origin(origin: str, host: str) -> bool:
+def same_origin(origin: str, host: str, pod_id: str = '', public_origin: str = '') -> bool:
+    """Accept local same-origin requests or THIS RunPod pod's HTTPS origin.
+
+    RunPod can rewrite the Host header when proxying to port 8188. Never
+    trust X-Forwarded-Host blindly: it may be supplied by a client. Instead,
+    derive the one allowed external origin from the server-owned pod ID.
+    An explicit FAITHFUL_PUBLIC_ORIGIN can be used when the pod ID is absent.
+    """
     if not origin:
         return True
     try:
-        url=urlsplit(origin)
-        return url.scheme in ('http','https') and url.netloc.lower()==host.lower()
+        url = urlsplit(origin)
+        if (url.scheme not in ('http', 'https') or not url.netloc or
+                url.username is not None or url.password is not None or
+                url.path or url.query or url.fragment):
+            return False
+        if url.netloc.lower() == host.lower():
+            return True
+        normalized = origin.lower()
+        if (pod_id and re.fullmatch(r'[a-z0-9]{6,64}', pod_id.lower()) and
+                normalized == f'https://{pod_id.lower()}-8188.proxy.runpod.net'):
+            return True
+        # Optional explicit operator configuration for nonstandard Pod setups.
+        if (public_origin and
+                re.fullmatch(r'https://[a-z0-9]{6,64}-8188\.proxy\.runpod\.net',
+                             public_origin.lower()) and
+                normalized == public_origin.lower()):
+            return True
     except ValueError:
         return False
+    return False
 
 
 def create_app(password: str, comfy_process=None) -> web.Application:
@@ -49,7 +73,9 @@ def create_app(password: str, comfy_process=None) -> web.Application:
         if not authorized(request.headers.get('Authorization',''),password):
             return web.Response(status=401,text='Authentication required',
                 headers={'WWW-Authenticate':'Basic realm="Faithful Video", charset="UTF-8"','Cache-Control':'no-store'})
-        if not same_origin(request.headers.get('Origin',''),request.host):
+        if not same_origin(request.headers.get('Origin',''), request.host,
+                           pod_id=os.environ.get('RUNPOD_POD_ID',''),
+                           public_origin=os.environ.get('FAITHFUL_PUBLIC_ORIGIN','')):
             raise web.HTTPForbidden(text='Cross-origin request refused')
         return await handler(request)
     app=web.Application(middlewares=[guard],client_max_size=20*1024**3)
