@@ -84,11 +84,13 @@ class Runtime:
           '--user-directory',str(data_root()/'comfy-user'),'--disable-auto-launch']
         if os.environ.get('WB_SAVE_METADATA','0')!='1':args+=['--disable-metadata']
         args += launch_options(Path('/opt/ComfyUI'), workspace())
+        from .video_runtime import launch_args, spawn_comfy
+        args += launch_args(Path('/opt/ComfyUI'), workspace())
         if workspace() == 'h3':
             from .h3_clip_tools import upload_cli_args
             args += upload_cli_args()
         # No arbitrary shell command string or forced reduced-precision flags.
-        self.comfy=subprocess.Popen(args,cwd='/opt/ComfyUI',env=self.env)
+        self.comfy=spawn_comfy(args,cwd='/opt/ComfyUI',env=self.env)
     async def start_ollama(self):
         if self.ollama is None or self.ollama.poll() is not None:
             if not shutil.which('ollama'):raise ValueError('Ollama binary is missing from the image.')
@@ -216,6 +218,9 @@ def make_app(password:str='',runtime:Runtime|None=None,auth_mode:str|None=None):
     async def index(req):return web.FileResponse(ROOT/'site/index.html')
     app.router.add_get('/_workbench/',index)
     if (ROOT/'site').exists():app.router.add_static('/_workbench/site/',ROOT/'site',show_index=False,follow_symlinks=False)
+    if workspace() == 'qwen' and os.environ.get('WB_VIDEO_REPAIR', '0') == '1':
+        from .video_portal import routes as video_routes
+        video_routes(app, r)
     app.router.add_route('*','/{path:.*}',r.proxy)
     app.on_startup.append(r.startup);app.on_cleanup.append(r.cleanup);return app
 

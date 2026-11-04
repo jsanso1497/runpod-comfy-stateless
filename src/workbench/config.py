@@ -77,6 +77,8 @@ def read_catalog(name: str):
     value = apply_people(name, value, ROOT)
     from .moss_catalog import apply as apply_moss
     value = apply_moss(name, value, ROOT)
+    from .video_repair_catalog import apply as apply_video_repair
+    value = apply_video_repair(name, value)
     from .qwen_only import apply_catalog as apply_qwen_only
     return apply_qwen_only(name, value)
 

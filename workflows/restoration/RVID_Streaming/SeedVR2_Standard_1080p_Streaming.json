@@ -1,0 +1,139 @@
+{
+  "id": "36e45c44-3e05-59a5-80e0-4f491719660b",
+  "revision": 0,
+  "last_node_id": 3,
+  "last_link_id": 1,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "LoadVideo",
+      "pos": [
+        40,
+        80
+      ],
+      "size": [
+        360,
+        420
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "VIDEO",
+          "type": "VIDEO",
+          "links": [
+            1
+          ]
+        }
+      ],
+      "title": "Original video | upload here",
+      "properties": {
+        "Node name for S&R": "LoadVideo",
+        "cnr_id": "comfy-core",
+        "ver": "52f98af2e2e42c421070a3e147c161c47cdeaf22"
+      },
+      "widgets_values": [
+        "",
+        "image"
+      ]
+    },
+    {
+      "id": 2,
+      "type": "WBSeedVR2StreamVideo",
+      "pos": [
+        480,
+        80
+      ],
+      "size": [
+        460,
+        420
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "video",
+          "type": "VIDEO",
+          "link": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "video",
+          "type": "VIDEO",
+          "links": []
+        },
+        {
+          "name": "file_path",
+          "type": "STRING",
+          "links": []
+        }
+      ],
+      "title": "Restore + save | 1080p | standard FP16",
+      "properties": {
+        "Node name for S&R": "WBSeedVR2StreamVideo"
+      },
+      "widgets_values": [
+        "1080p",
+        "standard",
+        0.0,
+        24.0,
+        42,
+        16,
+        false
+      ]
+    },
+    {
+      "id": 3,
+      "type": "Note",
+      "pos": [
+        1000,
+        80
+      ],
+      "size": [
+        540,
+        870
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "Read first | full-clip disk-backed processing",
+      "properties": {},
+      "widgets_values": [
+        "NEW QWEN + VIDEO BUILD REQUIRED\n\nUpload the ORIGINAL video and Run. 24 seconds from 0; duration 0 means the rest. No frame cap.\n\nSame quality direction as the pre-AusBoss Sharp workflows: FP16 model + FP16 VAE, wavelet color match, no extra input/latent noise, no sharpening filter.\n\nFull frame modes preserve aspect ratio. 1920x1080 input -> 1920x1080 (1080p) or 3840x2160 (4k).\n2x3-source keeps the LEFT edge, crops the RIGHT before restoration, and returns to the cropped source dimensions. 768-high input -> 512x768 -> restore 1080x1620 -> finish 512x768. Heights not divisible by 6 lose at most 5 bottom rows. No stretching.\n\nThe node runs the pinned SeedVR2 engine in a separate child. Small frame chunks go to disk, not one whole-clip tensor. GPU process exits before CPU MP4 encoding. Cancel terminates/reaps the owned worker process group.\n\nBaseline tiles 512/128. A confirmed OOM gets ONE fresh-process retry at 256/128, 5-frame inference, 9-frame chunks and full block offload. No precision/resolution downgrade. A fused-SDPA check prevents silent math fallback. A failure remains a failure with the precise stage in the logs.\n\nSave is built into this node. Do not add Get Video Components / Create Video / a second Save node: those may rematerialize the whole clip. Output VIDEO is file-backed.\n\nFiles and per-job logs: Workbench Files and video jobs tab, or /_workbench/repair on the same 8188 host. Final output is under /workspace/output/video/seedvr_*/restored.mp4.\n\nSDR only; frame rate follows source average FPS. VFR is normalized to CFR. Models are prepared at startup. No Ollama, no model downloads inside the GPU worker, no AusBoss nodes in this graph.\n\nOffline contracts and CPU media tests only. A40 inference/peak memory and visual quality remain untested."
+      ]
+    }
+  ],
+  "links": [
+    [
+      1,
+      1,
+      0,
+      2,
+      0,
+      "VIDEO"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "version": 0.4,
+  "extra": {
+    "ds": {
+      "scale": 0.8,
+      "offset": [
+        10,
+        10
+      ]
+    },
+    "workbench": {
+      "task_id": "RVID",
+      "version": "2026-11-03.video-repair-1",
+      "gpu_tested": false
+    }
+  }
+}

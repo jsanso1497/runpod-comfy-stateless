@@ -1,0 +1,80 @@
+name: Build Qwen + SeedVR2 video repair
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  packages: write
+concurrency:
+  group: qwen-video-repair-build
+  cancel-in-progress: false
+jobs:
+  validate:
+    uses: ./.github/workflows/ci.yml
+  build:
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Real CPU media tests and static repair contracts
+        run: |
+          sudo apt-get update && sudo apt-get install -y ffmpeg
+          python -m pip install pytest pillow numpy aiohttp filelock
+          PYTHONPATH=src python -m pytest -q tests/test_video_repair.py
+          python -m compileall -q src/workbench src/nodes/seedvr_stream
+      - name: Reclaim optional runner software
+        run: sudo rm -rf /usr/local/lib/android /opt/ghc /usr/share/dotnet
+      - uses: docker/setup-buildx-action@v3
+      - name: Build without publishing
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile.qwen-video
+          load: true
+          push: false
+          platforms: linux/amd64
+          tags: qwen-video-checked:local
+          provenance: false
+      - name: Actual ComfyUI CPU startup, native and repaired node schemas
+        run: docker run --rm --entrypoint python qwen-video-checked:local -m workbench.video_smoke
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish only after checks pass
+        env:
+          REPOSITORY: ${{ github.repository }}
+          COMMIT: ${{ github.sha }}
+        run: |
+          IMAGE="ghcr.io/${REPOSITORY,,}"
+          docker tag qwen-video-checked:local "$IMAGE:qwen-video-$COMMIT"
+          docker tag qwen-video-checked:local "$IMAGE:qwen-video-hq"
+          docker push "$IMAGE:qwen-video-$COMMIT"
+          docker push "$IMAGE:qwen-video-hq"
+          REF=$(docker image inspect "$IMAGE:qwen-video-$COMMIT" --format '{{index .RepoDigests 0}}')
+          test -n "$REF"
+          printf '%s\n' "$REF" > qwen-video-image-reference.txt
+          {
+            echo '## Combined Qwen BF16 + SeedVR2 FP16'
+            echo
+            echo 'Use this exact image in the new RunPod template:'
+            echo
+            echo "\`$REF\`"
+            echo
+            echo 'Qwen workflows plus isolated streaming 1080p, 4K and 2:3 video.'
+            echo 'No optional LLMs. No AusBoss nodes in the repaired video graphs.'
+            echo 'Tests: repository CI, CPU media tests, actual ComfyUI CPU schema smoke.'
+            echo 'GPU inference, A40 memory peaks and visual quality are NOT certified.'
+            echo 'See docs/QWEN_SEEDVR_VIDEO_REPAIR.md for settings.'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: qwen-video-template
+          path: |
+            qwen-video-image-reference.txt
+            docs/QWEN_SEEDVR_VIDEO_REPAIR.md
+            workflows/restoration/RVID_Streaming/
