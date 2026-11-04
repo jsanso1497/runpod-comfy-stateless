@@ -3,6 +3,8 @@ from __future__ import annotations
 from fractions import Fraction
 import json
 import math
+import os
+import struct
 from pathlib import Path
 import re
 import subprocess
@@ -99,9 +101,12 @@ def prepare(source: Path, job: Path, plan: dict) -> Path:
                     '-c:a','pcm_s24le']
     command += [str(dest)]
     run_logged(command, job/'prepare.log')
-    v = video(probe(dest, True))
+    prepared_info = probe(dest, True)
+    v = video(prepared_info)
     if [v['width'],v['height']] != plan['source_size'] or int(v['nb_read_frames']) != plan['count']:
         raise RuntimeError('Prepared geometry or frame count differs from the source plan.')
+    if plan['source_audio']:
+        require_audio(prepared_info, 'Source preparation')
     check_cfr(dest, Fraction(plan['fps']), plan['count'], job)
     return dest
 
@@ -152,20 +157,85 @@ def detect_cuts(path: Path, job: Path, count: int) -> list[int]:
     return sorted(set(result))
 
 
+def require_audio(info: dict, phase: str) -> None:
+    """A declared audio stream without decodable frames is not saved audio."""
+    streams = [row for row in info['streams'] if row.get('codec_type') == 'audio']
+    if len(streams) != 1:
+        raise RuntimeError(f'{phase}: expected one audio stream, found {len(streams)}.')
+    try:
+        frames = int(streams[0].get('nb_read_frames', 0))
+    except (ValueError, TypeError):
+        frames = 0
+    if frames < 1:
+        raise RuntimeError(f'{phase}: audio stream has no decodable frames.')
+
+
+def validate_frame_sequence(folder: Path, plan: dict) -> None:
+    """Verify a finite contiguous sequence before allowing image2 to reach EOF.
+
+    No full images are loaded here. Directory entries have unique names, so
+    exact count plus indices in [0, count) establishes there are no gaps.
+    """
+    count = int(plan['count'])
+    if count < 1:
+        raise ValueError('Expected at least one restored frame.')
+    found = 0
+    with os.scandir(folder) as entries:
+        for entry in entries:
+            if not entry.name.lower().endswith('.png'):
+                continue
+            match = re.fullmatch(r'frame_(\d{8})\.png', entry.name)
+            if match is None or not 0 <= int(match[1]) < count:
+                raise RuntimeError('Unexpected restored PNG outside the planned sequence: ' + entry.name)
+            if not entry.is_file(follow_symlinks=False):
+                raise RuntimeError('Restored PNG must be a regular file: ' + entry.name)
+            with open(entry.path, 'rb') as handle:
+                header = handle.read(24)
+            if (len(header) != 24 or header[:8] != b'\x89PNG\r\n\x1a\n'
+                    or header[12:16] != b'IHDR'):
+                raise RuntimeError('Invalid restored PNG header: ' + entry.name)
+            if list(struct.unpack('>II', header[16:24])) != plan['output_size']:
+                raise RuntimeError('Restored PNG dimensions do not match the plan: ' + entry.name)
+            found += 1
+    if found != count:
+        raise RuntimeError(f'Incomplete restored sequence: expected {count} frames, found {found}.')
+
+
 def finish(job: Path, output: Path, plan: dict) -> None:
     output.parent.mkdir(parents=True, exist_ok=True)
     if output.exists():
         raise FileExistsError('Refusing to overwrite a completed output.')
-    # Native 16-bit PNGs avoid another 8-bit quantization before the delivery encode.
+    validate_frame_sequence(job/'frames', plan)
+    if plan['source_audio']:
+        # Fail before encoding if preparation lost audio. A missing expected
+        # track must never become optional or be replaced with synthetic silence.
+        require_audio(probe(job/'prepared.mkv', True), 'Prepared video')
+
+    # Native 16-bit PNGs avoid another 8-bit quantization before delivery.
+    # IMPORTANT: Do NOT use -frames:v on this mixed audio/video output.
+    # FFmpeg 4.4's need_output() closes every stream in the output file when
+    # one reaches max_frames. A short PNG stream can reach the limit before
+    # audio is encoded. The verified finite sequence must end naturally at EOF;
+    # audio drains independently. Do not replace this with -shortest or -t.
     partial = output.with_suffix('.partial.mp4')
-    command = ['ffmpeg','-nostdin','-hide_banner','-v','warning','-y','-threads','2','-filter_threads','1',
-               '-framerate',plan['fps'],'-start_number','0','-i',str(job/'frames/frame_%08d.png'),
-               '-i',str(job/'prepared.mkv'),'-map','0:v:0','-map','1:a:0?',
-               '-vf','scale=in_range=full:out_range=tv:out_color_matrix=bt709,setsar=1',
-               '-frames:v',str(plan['count']),'-c:v','libx264','-preset','slow','-crf','14',
-               '-pix_fmt','yuv420p','-threads','2','-color_primaries','bt709',
-               '-color_trc','bt709','-colorspace','bt709','-color_range','tv',
-               '-c:a','aac','-b:a','256k','-movflags','+faststart',str(partial)]
+    command = ['ffmpeg','-nostdin','-hide_banner','-v','warning','-y',
+               '-xerror','-abort_on','empty_output_stream',
+               '-threads','2','-filter_threads','1',
+               '-framerate',plan['fps'],'-start_number','0','-i',str(job/'frames/frame_%08d.png')]
+    if plan['source_audio']:
+        command += ['-i',str(job/'prepared.mkv')]
+    command += ['-map','0:v:0']
+    if plan['source_audio']:
+        command += ['-map','1:a:0']
+    else:
+        command += ['-an']
+    command += ['-vf','scale=in_range=full:out_range=tv:out_color_matrix=bt709,setsar=1',
+                *video_sync_args(),'-c:v','libx264','-preset','slow','-crf','14',
+                '-pix_fmt','yuv420p','-threads','2','-color_primaries','bt709',
+                '-color_trc','bt709','-colorspace','bt709','-color_range','tv']
+    if plan['source_audio']:
+        command += ['-c:a','aac','-b:a','256k']
+    command += ['-movflags','+faststart',str(partial)]
     run_logged(command, job/'encode.log')
     info = probe(partial, True)
     v = video(info)
@@ -175,6 +245,6 @@ def finish(job: Path, output: Path, plan: dict) -> None:
         raise RuntimeError('Output FPS changed; intermediate frames retained.')
     if abs(float(v['duration']) - plan['duration']) > 1.0 / float(Fraction(plan['fps'])):
         raise RuntimeError('Output duration check failed.')
-    if plan['source_audio'] and not any(x['codec_type']=='audio' for x in info['streams']):
-        raise RuntimeError('Audio was lost during encoding.')
+    if plan['source_audio']:
+        require_audio(info, 'Final encoding')
     partial.replace(output)
