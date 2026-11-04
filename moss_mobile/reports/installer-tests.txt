@@ -1,0 +1,6 @@
+PASS: dry run changes no files
+PASS: clean additive install
+PASS: unrelated existing file preserved
+PASS: repeat install is idempotent
+PASS: conflicting target aborts before writes
+PASS: modified payload fails integrity check before writes

@@ -1,0 +1,64 @@
+{
+  "date": "2026-11-03",
+  "release": "1.0.0",
+  "status": "source package; local CPU-helper and offline validation passed; deployment validation pending",
+  "local_node_tests": {
+    "passed": 23,
+    "failed": 0,
+    "device": "CPU",
+    "test_command": "python3 -m unittest discover -s moss_mobile/tests -v"
+  },
+  "workflow_checks": {
+    "native_app_graphs": 4,
+    "api_graphs": 4,
+    "link_consistency": "passed",
+    "app_input_output_metadata": "passed",
+    "dag_validation": "passed",
+    "generation_recipe": "25 er_sde/simple, CFG 2.5, SLG off",
+    "edit_recipe": "50 Euler/simple, CFG 3, SLG single layer 22",
+    "matched_positive_negative_references": "passed"
+  },
+  "geometry_checks": {
+    "no_crop_padding_round_trip": "passed",
+    "large_input_original_dimensions_restored": "passed",
+    "small_input_reference_prepared_at_1mp": "passed",
+    "pure_black_mask_tensor_preservation": "passed",
+    "grey_mask_blending": "passed",
+    "invalid_mask_guard": "passed"
+  },
+  "runtime_static_checks": {
+    "password_validation": "passed",
+    "authenticated_nginx_configuration": "inspected and unit-checked, not live-tested",
+    "persistent_symlink_layout": "passed",
+    "checksum_cache_simulation": "passed",
+    "model_weights_downloaded_here": false,
+    "expected_model_sha256": "pinned from upstream file metadata; actual files verified by runtime on first download"
+  },
+  "package_checks": {
+    "python_syntax": "passed",
+    "manual_only_build_action_yaml": "passed",
+    "deterministic_graph_generation": "passed",
+    "local_installer": {
+      "dry_run_no_writes": "passed",
+      "clean_additive_install": "passed",
+      "unrelated_file_preserved": "passed",
+      "idempotent_reapply": "passed",
+      "conflict_preflight_no_writes": "passed",
+      "tamper_preflight_no_writes": "passed"
+    }
+  },
+  "not_performed": [
+    "Docker build",
+    "actual ComfyUI CPU startup in this environment",
+    "native App Mode mobile browser rendering",
+    "GPU model loading or inference",
+    "quality comparison or performance benchmark",
+    "independent comparison against other image models"
+  ],
+  "build_action_additional_gates": [
+    "unit tests in built image",
+    "actual ComfyUI CPU startup and required node/selector checks",
+    "frontend package version check"
+  ],
+  "remote_git_writes_performed": false
+}

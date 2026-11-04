@@ -1,0 +1,78 @@
+name: Build MOSS Mobile HQ
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  packages: write
+concurrency:
+  group: moss-mobile-hq-build
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate native app graphs and locked model references
+        run: |
+          python3 moss_mobile/validate_package.py
+          python3 -m compileall -q moss_mobile
+      - name: Reclaim optional runner software
+        run: sudo rm -rf /usr/local/lib/android /opt/ghc /usr/share/dotnet
+      - uses: docker/setup-buildx-action@v3
+      - name: Build isolated MOSS image without publishing
+        uses: docker/build-push-action@v6
+        with:
+          context: moss_mobile
+          file: moss_mobile/Dockerfile
+          load: true
+          push: false
+          platforms: linux/amd64
+          tags: moss-mobile-checked:local
+          provenance: false
+      - name: Real ComfyUI CPU startup and schema test
+        run: docker run --rm --entrypoint python moss-mobile-checked:local /opt/moss-mobile/cpu_smoke.py
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish container after CPU checks pass
+        env:
+          REPOSITORY: ${{ github.repository }}
+          COMMIT: ${{ github.sha }}
+        run: |
+          IMAGE="ghcr.io/${REPOSITORY,,}"
+          docker tag moss-mobile-checked:local "$IMAGE:moss-mobile-$COMMIT"
+          docker tag moss-mobile-checked:local "$IMAGE:moss-mobile-hq"
+          docker push "$IMAGE:moss-mobile-$COMMIT"
+          docker push "$IMAGE:moss-mobile-hq"
+          REF=$(docker image inspect "$IMAGE:moss-mobile-$COMMIT" --format '{{index .RepoDigests 0}}')
+          test -n "$REF"
+          printf '%s\n' "$REF" > moss-mobile-image-reference.txt
+          {
+            echo '## MOSS Mobile HQ'
+            echo 'Use this exact successfully built image reference in RunPod:'
+            echo
+            echo "\`$REF\`"
+            echo
+            echo 'Suggested first validation: A40 or RTX A6000 48 GB; 60 GB persistent storage at /workspace; 20 GB container disk.'
+            echo 'HTTP port 8188 only. Leave the start command blank. Username: workbench.'
+            echo 'COMFY_PASSWORD={{ RUNPOD_SECRET_comfy_password }}'
+            echo 'Optional: HF_TOKEN={{ RUNPOD_SECRET_hf_token }}'
+            echo 'Model and frontend/source pins are in moss_mobile/.'
+            echo 'Passed: offline tests and actual CPU import/schema checks.'
+            echo 'Not certified: GPU inference, memory peaks, visual quality or mobile rendering.'
+            echo 'Open MOSS_MOBILE_START_HERE.md in this repository for the complete setup.'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: moss-mobile-runpod-settings
+          path: |
+            moss-mobile-image-reference.txt
+            MOSS_MOBILE_START_HERE.md
+            moss_mobile/workflows/
+            moss_mobile/models.lock.json

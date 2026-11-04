@@ -1,0 +1,31 @@
+test_exact_ratios (test_nodes.GeometryTests.test_exact_ratios) ... ok
+test_large_source_restores_dimensions (test_nodes.GeometryTests.test_large_source_restores_dimensions) ... ok
+test_pad_not_crop (test_nodes.GeometryTests.test_pad_not_crop) ... ok
+test_reject_batches (test_nodes.GeometryTests.test_reject_batches) ... ok
+test_reject_changed_generated_size (test_nodes.GeometryTests.test_reject_changed_generated_size) ... ok
+test_small_reference_uses_training_scale (test_nodes.GeometryTests.test_small_reference_uses_training_scale) ... ok
+test_black_fails (test_nodes.MaskTests.test_black_fails) ... ok
+test_grey_blends (test_nodes.MaskTests.test_grey_blends) ... ok
+test_mask_checked_before_sampling (test_nodes.MaskTests.test_mask_checked_before_sampling) ... ok
+test_protected_pixels_exact (test_nodes.MaskTests.test_protected_pixels_exact) ... ok
+test_wrong_size_fails (test_nodes.MaskTests.test_wrong_size_fails) ... ok
+test_auth_gateway (test_nodes.PackagingTests.test_auth_gateway) ... ok
+test_cached_model_symlink_stays_inside_model_root (test_nodes.PackagingTests.test_cached_model_symlink_stays_inside_model_root) ... ok
+test_graphs (test_nodes.PackagingTests.test_graphs) ... ok
+test_hash_marker_and_changed_file (test_nodes.PackagingTests.test_hash_marker_and_changed_file) ... PASS: 4 native App Mode graphs, 4 API graphs, four pinned model files, no edit prompt enhancer.
+Checking SHA-256: test
+Checking SHA-256: test
+ok
+test_live_checker_rejects_missing_nodes (test_nodes.PackagingTests.test_live_checker_rejects_missing_nodes) ... ok
+test_password (test_nodes.PackagingTests.test_password) ... ok
+test_paths (test_nodes.PackagingTests.test_paths) ... ok
+test_empty_falls_back (test_nodes.PromptTests.test_empty_falls_back) ... ok
+test_empty_prompt_fails (test_nodes.PromptTests.test_empty_prompt_fails) ... ok
+test_off_skips_expansion (test_nodes.PromptTests.test_off_skips_expansion) ... ok
+test_on_requests_expansion (test_nodes.PromptTests.test_on_requests_expansion) ... ok
+test_quoted_text_guard (test_nodes.PromptTests.test_quoted_text_guard) ... ok
+
+----------------------------------------------------------------------
+Ran 23 tests in 0.104s
+
+OK

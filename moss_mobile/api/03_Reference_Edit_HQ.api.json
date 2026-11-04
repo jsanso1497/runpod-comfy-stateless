@@ -1,0 +1,266 @@
+{
+  "1": {
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "moss_image_sft_bf16.safetensors",
+      "weight_dtype": "default"
+    },
+    "_meta": {
+      "title": "MOSS SFT - full BF16"
+    }
+  },
+  "2": {
+    "class_type": "CLIPLoader",
+    "inputs": {
+      "clip_name": "qwen3.5_9b_bf16.safetensors",
+      "type": "moss_image",
+      "device": "default"
+    },
+    "_meta": {
+      "title": "Shared Qwen3.5 9B - full BF16"
+    }
+  },
+  "3": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "flux2-vae.safetensors"
+    },
+    "_meta": {
+      "title": "Full FLUX.2 VAE"
+    }
+  },
+  "4": {
+    "class_type": "LoraLoaderModelOnly",
+    "inputs": {
+      "lora_name": "armV5.safetensors",
+      "strength_model": 1.0,
+      "model": [
+        "1",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "HQ Edit armV5 - native ai-toolkit"
+    }
+  },
+  "5": {
+    "class_type": "SkipLayerGuidanceDiTSimple",
+    "inputs": {
+      "double_layers": "",
+      "single_layers": "22",
+      "start_percent": 0.0,
+      "end_percent": 1.0,
+      "model": [
+        "4",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Keep SLG layer 22"
+    }
+  },
+  "6": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "upload_your_photo.png"
+    },
+    "_meta": {
+      "title": "Image 1 - photo to edit"
+    }
+  },
+  "7": {
+    "class_type": "MossMobilePrepare",
+    "inputs": {
+      "megapixels": 1.0,
+      "upscale_small": true,
+      "image": [
+        "6",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Prepare source without cropping"
+    }
+  },
+  "8": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "upload_reference.png"
+    },
+    "_meta": {
+      "title": "Image 2 - visual reference"
+    }
+  },
+  "9": {
+    "class_type": "MossMobilePrepare",
+    "inputs": {
+      "megapixels": 1.0,
+      "upscale_small": true,
+      "image": [
+        "8",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Prepare reference independently"
+    }
+  },
+  "10": {
+    "class_type": "PrimitiveStringMultiline",
+    "inputs": {
+      "value": "Edit image 1 using image 2 only as a reference for the requested change. Image 1 controls the framing, position, pose and background. Preserve everything not explicitly requested."
+    },
+    "_meta": {
+      "title": "Describe the change"
+    }
+  },
+  "11": {
+    "class_type": "TextEncodeMOSSImageEdit",
+    "inputs": {
+      "prompt": [
+        "10",
+        0
+      ],
+      "edit_format": "ai-toolkit",
+      "image_strength": 1.0,
+      "clip": [
+        "2",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ],
+      "images.image_0": [
+        "7",
+        0
+      ],
+      "images.image_1": [
+        "9",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Reference conditioning - positive"
+    }
+  },
+  "12": {
+    "class_type": "TextEncodeMOSSImageEdit",
+    "inputs": {
+      "prompt": "nsfw, worst quality, bad anatomy, watermark, jpeg artifact",
+      "edit_format": "ai-toolkit",
+      "image_strength": 1.0,
+      "clip": [
+        "2",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ],
+      "images.image_0": [
+        "7",
+        0
+      ],
+      "images.image_1": [
+        "9",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Reference conditioning - negative"
+    }
+  },
+  "13": {
+    "class_type": "EmptyFlux2LatentImage",
+    "inputs": {
+      "width": [
+        "7",
+        1
+      ],
+      "height": [
+        "7",
+        2
+      ],
+      "batch_size": 1
+    },
+    "_meta": {
+      "title": "Matched latent canvas"
+    }
+  },
+  "14": {
+    "class_type": "KSampler",
+    "inputs": {
+      "seed": 42,
+      "steps": 50,
+      "cfg": 3.0,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 1.0,
+      "model": [
+        "5",
+        0
+      ],
+      "positive": [
+        "11",
+        0
+      ],
+      "negative": [
+        "12",
+        0
+      ],
+      "latent_image": [
+        "13",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "HQ edit sampling"
+    }
+  },
+  "15": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "14",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Decode without an automatic face/detail pass"
+    }
+  },
+  "16": {
+    "class_type": "MossMobileRestore",
+    "inputs": {
+      "generated": [
+        "15",
+        0
+      ],
+      "geometry": [
+        "7",
+        3
+      ]
+    },
+    "_meta": {
+      "title": "Match the original output dimensions"
+    }
+  },
+  "17": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "filename_prefix": "MOSS_Mobile/03_Reference_Edit_HQ",
+      "images": [
+        "16",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Finished PNG"
+    }
+  }
+}

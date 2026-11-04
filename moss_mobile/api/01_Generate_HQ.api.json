@@ -1,0 +1,214 @@
+{
+  "1": {
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "moss_image_sft_bf16.safetensors",
+      "weight_dtype": "default"
+    },
+    "_meta": {
+      "title": "MOSS SFT - full BF16"
+    }
+  },
+  "2": {
+    "class_type": "CLIPLoader",
+    "inputs": {
+      "clip_name": "qwen3.5_9b_bf16.safetensors",
+      "type": "moss_image",
+      "device": "default"
+    },
+    "_meta": {
+      "title": "Shared Qwen3.5 9B - full BF16"
+    }
+  },
+  "3": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "flux2-vae.safetensors"
+    },
+    "_meta": {
+      "title": "Full FLUX.2 VAE"
+    }
+  },
+  "4": {
+    "class_type": "PrimitiveStringMultiline",
+    "inputs": {
+      "value": "A professional editorial photograph of a ceramic vase and fresh foliage beside a large window, soft natural daylight, lifelike surface textures, a restrained neutral palette and clear optical detail."
+    },
+    "_meta": {
+      "title": "Describe your image"
+    }
+  },
+  "5": {
+    "class_type": "MossMobileCanvas",
+    "inputs": {
+      "shape": "Portrait 4:5",
+      "detail": "Standard (~1 MP)"
+    },
+    "_meta": {
+      "title": "Shape and detail"
+    }
+  },
+  "6": {
+    "class_type": "PrimitiveStringMultiline",
+    "inputs": {
+      "value": "Write a complete English scene caption for a still-image generator. Return only the caption, without headings or explanation. Begin with the medium and subject. Retain every requested subject, quantity, action, garment, color, composition, style and exclusion. Preserve quoted text exactly in its original language; describe its position and typography when relevant. Add coherent, plausible material, lighting, camera and background detail only where the request leaves it open. Do not add people, products, brands, claims or text the user did not request. Describe visible details, not quality-tag lists or generation settings. Prefer realistic textures and consistent illumination for photographs; do not impose photography on an illustration request. Aim for 150 to 250 non-repetitive words, shorter when the original is already complete. This is text-to-image generation, not image editing."
+    },
+    "_meta": {
+      "title": "Generation-only expansion instructions"
+    }
+  },
+  "7": {
+    "class_type": "TextGenerate",
+    "inputs": {
+      "prompt": [
+        "4",
+        0
+      ],
+      "max_length": 1024,
+      "sampling_mode": "on",
+      "sampling_mode.temperature": 0.7,
+      "sampling_mode.top_k": 64,
+      "sampling_mode.top_p": 0.95,
+      "sampling_mode.min_p": 0.05,
+      "sampling_mode.repetition_penalty": 1.05,
+      "sampling_mode.seed": 0,
+      "sampling_mode.presence_penalty": 0.0,
+      "thinking": false,
+      "use_default_template": true,
+      "mtp": "auto",
+      "clip": [
+        "2",
+        0
+      ],
+      "system_prompt": [
+        "6",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Optional expansion using the same encoder"
+    }
+  },
+  "8": {
+    "class_type": "MossMobilePromptChoice",
+    "inputs": {
+      "expand_prompt": true,
+      "original": [
+        "4",
+        0
+      ],
+      "expanded": [
+        "7",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Expand short prompts"
+    }
+  },
+  "9": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "text": [
+        "8",
+        0
+      ],
+      "clip": [
+        "2",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Positive caption"
+    }
+  },
+  "10": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "text": "nsfw, worst quality, bad anatomy, watermark, jpeg artifact",
+      "clip": [
+        "2",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Model-recommended negatives"
+    }
+  },
+  "11": {
+    "class_type": "EmptyFlux2LatentImage",
+    "inputs": {
+      "width": [
+        "5",
+        0
+      ],
+      "height": [
+        "5",
+        1
+      ],
+      "batch_size": 1
+    },
+    "_meta": {
+      "title": "Matched latent canvas"
+    }
+  },
+  "12": {
+    "class_type": "KSampler",
+    "inputs": {
+      "seed": 42,
+      "steps": 25,
+      "cfg": 2.5,
+      "sampler_name": "er_sde",
+      "scheduler": "simple",
+      "denoise": 1.0,
+      "model": [
+        "1",
+        0
+      ],
+      "positive": [
+        "9",
+        0
+      ],
+      "negative": [
+        "10",
+        0
+      ],
+      "latent_image": [
+        "11",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Official SFT generation sampling"
+    }
+  },
+  "13": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "12",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Decode without an automatic face/detail pass"
+    }
+  },
+  "14": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "filename_prefix": "MOSS_Mobile/01_Generate_HQ",
+      "images": [
+        "13",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Finished PNG"
+    }
+  }
+}

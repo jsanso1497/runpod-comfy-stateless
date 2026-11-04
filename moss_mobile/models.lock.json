@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "checked_date": "2026-11-03",
+  "policy": "Full-precision files only. Downloads are pinned and SHA-256 checked. No automatic quantization, distillation or fallback model substitution.",
+  "models": [
+    {
+      "id": "moss_sft",
+      "repo": "Comfy-Org/MOSS-Image",
+      "revision": "530a4c94f92c35ef6818b1b035a983fe9dcf5f54",
+      "file": "diffusion_models/moss_image_sft_bf16.safetensors",
+      "destination": "diffusion_models/moss_image_sft_bf16.safetensors",
+      "sha256": "f96738d8116d78b7316b57c663d8c98591ddafab7488f48e3099b7655e34ab6f",
+      "approx_gb": 10.2
+    },
+    {
+      "id": "moss_text_encoder",
+      "repo": "Comfy-Org/MOSS-Image",
+      "revision": "530a4c94f92c35ef6818b1b035a983fe9dcf5f54",
+      "file": "text_encoders/qwen3.5_9b_bf16.safetensors",
+      "destination": "text_encoders/qwen3.5_9b_bf16.safetensors",
+      "sha256": "7e6e9f08d598f829cb940e60ac0c698e1f1c27a47daffd7e598cd78c78b4cc53",
+      "approx_gb": 19.3
+    },
+    {
+      "id": "flux2_vae",
+      "repo": "Comfy-Org/MOSS-Image",
+      "revision": "530a4c94f92c35ef6818b1b035a983fe9dcf5f54",
+      "file": "vae/flux2-vae.safetensors",
+      "destination": "vae/flux2-vae.safetensors",
+      "sha256": "868fe7b343cc8f3a19dbcfcafbc3d5f888802be3f89bd81b65b3621a066ce8f3",
+      "approx_gb": 0.336
+    },
+    {
+      "id": "moss_edit_armv5",
+      "repo": "akhaliq/MOSS-Image-Edit-HQ",
+      "revision": "7c4ba5407f012362761edfb04f0de87c904efcae",
+      "file": "weights/armV5/armV5.safetensors",
+      "destination": "loras/armV5.safetensors",
+      "sha256": "1fbfae4eaaafc62c66a298e63e16fc5211566e1e3de1c58f83c35c6bc226c9f9",
+      "approx_gb": 0.496,
+      "edit_format": "ai-toolkit",
+      "note": "Original ai-toolkit adapter, NOT the converted armV5-moss-edit-lora file. The native encoder format must remain ai-toolkit."
+    }
+  ]
+}

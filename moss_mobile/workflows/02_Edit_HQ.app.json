@@ -1,0 +1,993 @@
+{
+  "id": "a74879c7-7659-5c8f-a518-4c3f619a362c",
+  "revision": 0,
+  "last_node_id": 16,
+  "last_link_id": 21,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "UNETLoader",
+      "title": "MOSS SFT - full BF16",
+      "pos": [
+        0,
+        0
+      ],
+      "size": [
+        360,
+        160
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            1
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "UNETLoader"
+      },
+      "widgets_values": [
+        "moss_image_sft_bf16.safetensors",
+        "default"
+      ],
+      "widgets_values_named": {
+        "unet_name": "moss_image_sft_bf16.safetensors",
+        "weight_dtype": "default"
+      }
+    },
+    {
+      "id": 2,
+      "type": "CLIPLoader",
+      "title": "Shared Qwen3.5 9B - full BF16",
+      "pos": [
+        410,
+        0
+      ],
+      "size": [
+        360,
+        160
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            4,
+            8
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPLoader"
+      },
+      "widgets_values": [
+        "qwen3.5_9b_bf16.safetensors",
+        "moss_image",
+        "default"
+      ],
+      "widgets_values_named": {
+        "clip_name": "qwen3.5_9b_bf16.safetensors",
+        "type": "moss_image",
+        "device": "default"
+      }
+    },
+    {
+      "id": 3,
+      "type": "VAELoader",
+      "title": "Full FLUX.2 VAE",
+      "pos": [
+        820,
+        0
+      ],
+      "size": [
+        360,
+        160
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            5,
+            9,
+            18
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAELoader"
+      },
+      "widgets_values": [
+        "flux2-vae.safetensors"
+      ],
+      "widgets_values_named": {
+        "vae_name": "flux2-vae.safetensors"
+      }
+    },
+    {
+      "id": 4,
+      "type": "LoraLoaderModelOnly",
+      "title": "HQ Edit armV5 - native ai-toolkit",
+      "pos": [
+        1230,
+        0
+      ],
+      "size": [
+        360,
+        160
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            2
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoraLoaderModelOnly"
+      },
+      "widgets_values": [
+        "armV5.safetensors",
+        1.0
+      ],
+      "widgets_values_named": {
+        "lora_name": "armV5.safetensors",
+        "strength_model": 1.0
+      }
+    },
+    {
+      "id": 5,
+      "type": "SkipLayerGuidanceDiTSimple",
+      "title": "Keep SLG layer 22",
+      "pos": [
+        0,
+        310
+      ],
+      "size": [
+        360,
+        160
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            13
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SkipLayerGuidanceDiTSimple"
+      },
+      "widgets_values": [
+        "",
+        "22",
+        0.0,
+        1.0
+      ],
+      "widgets_values_named": {
+        "double_layers": "",
+        "single_layers": "22",
+        "start_percent": 0.0,
+        "end_percent": 1.0
+      }
+    },
+    {
+      "id": 6,
+      "type": "LoadImage",
+      "title": "Image 1 - photo to edit",
+      "pos": [
+        410,
+        310
+      ],
+      "size": [
+        360,
+        160
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            3
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": [],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "upload_your_photo.png",
+        "image"
+      ],
+      "widgets_values_named": {
+        "image": "upload_your_photo.png",
+        "upload": "image"
+      }
+    },
+    {
+      "id": 7,
+      "type": "MossMobilePrepare",
+      "title": "Prepare source without cropping",
+      "pos": [
+        820,
+        310
+      ],
+      "size": [
+        360,
+        160
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 3
+        }
+      ],
+      "outputs": [
+        {
+          "name": "working_image",
+          "type": "IMAGE",
+          "links": [
+            6,
+            10
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "width",
+          "type": "INT",
+          "links": [
+            11
+          ],
+          "slot_index": 1
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "links": [
+            12
+          ],
+          "slot_index": 2
+        },
+        {
+          "name": "geometry",
+          "type": "MOSS_GEOMETRY",
+          "links": [
+            20
+          ],
+          "slot_index": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "MossMobilePrepare"
+      },
+      "widgets_values": [
+        1.0,
+        true
+      ],
+      "widgets_values_named": {
+        "megapixels": 1.0,
+        "upscale_small": true
+      }
+    },
+    {
+      "id": 8,
+      "type": "PrimitiveStringMultiline",
+      "title": "Describe the change",
+      "pos": [
+        1230,
+        310
+      ],
+      "size": [
+        360,
+        250
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            7
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PrimitiveStringMultiline"
+      },
+      "widgets_values": [
+        "Change only the requested element in image 1. Preserve the subject identity, pose, framing, lighting and all unrequested content."
+      ],
+      "widgets_values_named": {
+        "value": "Change only the requested element in image 1. Preserve the subject identity, pose, framing, lighting and all unrequested content."
+      }
+    },
+    {
+      "id": 9,
+      "type": "TextEncodeMOSSImageEdit",
+      "title": "Reference conditioning - positive",
+      "pos": [
+        0,
+        620
+      ],
+      "size": [
+        360,
+        160
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 4
+        },
+        {
+          "name": "images.image_0",
+          "type": "IMAGE",
+          "link": 6
+        },
+        {
+          "name": "images.image_1",
+          "type": "IMAGE",
+          "shape": 7,
+          "link": null
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 5
+        },
+        {
+          "name": "prompt",
+          "type": "STRING",
+          "link": 7,
+          "widget": {
+            "name": "prompt"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            14
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "TextEncodeMOSSImageEdit"
+      },
+      "widgets_values": [
+        "",
+        "ai-toolkit",
+        1.0
+      ],
+      "widgets_values_named": {
+        "prompt": "",
+        "edit_format": "ai-toolkit",
+        "image_strength": 1.0
+      }
+    },
+    {
+      "id": 10,
+      "type": "TextEncodeMOSSImageEdit",
+      "title": "Reference conditioning - negative",
+      "pos": [
+        410,
+        620
+      ],
+      "size": [
+        360,
+        160
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 8
+        },
+        {
+          "name": "images.image_0",
+          "type": "IMAGE",
+          "link": 10
+        },
+        {
+          "name": "images.image_1",
+          "type": "IMAGE",
+          "shape": 7,
+          "link": null
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 9
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            15
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "TextEncodeMOSSImageEdit"
+      },
+      "widgets_values": [
+        "nsfw, worst quality, bad anatomy, watermark, jpeg artifact",
+        "ai-toolkit",
+        1.0
+      ],
+      "widgets_values_named": {
+        "prompt": "nsfw, worst quality, bad anatomy, watermark, jpeg artifact",
+        "edit_format": "ai-toolkit",
+        "image_strength": 1.0
+      }
+    },
+    {
+      "id": 11,
+      "type": "EmptyFlux2LatentImage",
+      "title": "Matched latent canvas",
+      "pos": [
+        820,
+        620
+      ],
+      "size": [
+        360,
+        160
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "width",
+          "type": "INT",
+          "link": 11,
+          "widget": {
+            "name": "width"
+          }
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "link": 12,
+          "widget": {
+            "name": "height"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            16
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "EmptyFlux2LatentImage"
+      },
+      "widgets_values": [
+        1024,
+        1024,
+        1
+      ],
+      "widgets_values_named": {
+        "width": 1024,
+        "height": 1024,
+        "batch_size": 1
+      }
+    },
+    {
+      "id": 12,
+      "type": "KSampler",
+      "title": "HQ edit sampling",
+      "pos": [
+        1230,
+        620
+      ],
+      "size": [
+        360,
+        160
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 13
+        },
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 14
+        },
+        {
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 15
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 16
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            17
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "KSampler"
+      },
+      "widgets_values": [
+        42,
+        "randomize",
+        50,
+        3.0,
+        "euler",
+        "simple",
+        1.0
+      ],
+      "widgets_values_named": {
+        "seed": 42,
+        "control_after_generate": "randomize",
+        "steps": 50,
+        "cfg": 3.0,
+        "sampler_name": "euler",
+        "scheduler": "simple",
+        "denoise": 1.0
+      }
+    },
+    {
+      "id": 13,
+      "type": "VAEDecode",
+      "title": "Decode without an automatic face/detail pass",
+      "pos": [
+        0,
+        930
+      ],
+      "size": [
+        360,
+        160
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 17
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 18
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            19
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAEDecode"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 14,
+      "type": "MossMobileRestore",
+      "title": "Match the original output dimensions",
+      "pos": [
+        410,
+        930
+      ],
+      "size": [
+        360,
+        160
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "generated",
+          "type": "IMAGE",
+          "link": 19
+        },
+        {
+          "name": "geometry",
+          "type": "MOSS_GEOMETRY",
+          "link": 20
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            21
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "MossMobileRestore"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 15,
+      "type": "SaveImage",
+      "title": "Finished PNG",
+      "pos": [
+        820,
+        930
+      ],
+      "size": [
+        360,
+        160
+      ],
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 21
+        }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": [],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SaveImage"
+      },
+      "widgets_values": [
+        "MOSS_Mobile/02_Edit_HQ"
+      ],
+      "widgets_values_named": {
+        "filename_prefix": "MOSS_Mobile/02_Edit_HQ"
+      }
+    },
+    {
+      "id": 16,
+      "type": "MarkdownNote",
+      "title": "Read before running",
+      "pos": [
+        1230,
+        930
+      ],
+      "size": [
+        360,
+        250
+      ],
+      "flags": {},
+      "order": 15,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "MarkdownNote"
+      },
+      "widgets_values": [
+        "MOSS SFT + community HQ Edit armV5, LoRA strength 1.0, native ai-toolkit format on BOTH conditionings, 50 Euler/simple steps, CFG 3, SLG layer 22. Not latent img2img. No prompt rewriting. Source is fitted to the selected working resolution (1 MP by default) and bottom/right padded to 16 pixels, not cropped. Padding is removed and the output returns to the exact original dimensions. Dimensions do not guarantee pixel-perfect generated content or restore missing source detail. Use Protected Mask Edit when unchanged pixels must be preserved exactly."
+      ],
+      "widgets_values_named": {
+        "text": "MOSS SFT + community HQ Edit armV5, LoRA strength 1.0, native ai-toolkit format on BOTH conditionings, 50 Euler/simple steps, CFG 3, SLG layer 22. Not latent img2img. No prompt rewriting. Source is fitted to the selected working resolution (1 MP by default) and bottom/right padded to 16 pixels, not cropped. Padding is removed and the output returns to the exact original dimensions. Dimensions do not guarantee pixel-perfect generated content or restore missing source detail. Use Protected Mask Edit when unchanged pixels must be preserved exactly."
+      }
+    }
+  ],
+  "links": [
+    [
+      1,
+      1,
+      0,
+      4,
+      0,
+      "MODEL"
+    ],
+    [
+      2,
+      4,
+      0,
+      5,
+      0,
+      "MODEL"
+    ],
+    [
+      3,
+      6,
+      0,
+      7,
+      0,
+      "IMAGE"
+    ],
+    [
+      4,
+      2,
+      0,
+      9,
+      0,
+      "CLIP"
+    ],
+    [
+      5,
+      3,
+      0,
+      9,
+      3,
+      "VAE"
+    ],
+    [
+      6,
+      7,
+      0,
+      9,
+      1,
+      "IMAGE"
+    ],
+    [
+      7,
+      8,
+      0,
+      9,
+      4,
+      "STRING"
+    ],
+    [
+      8,
+      2,
+      0,
+      10,
+      0,
+      "CLIP"
+    ],
+    [
+      9,
+      3,
+      0,
+      10,
+      3,
+      "VAE"
+    ],
+    [
+      10,
+      7,
+      0,
+      10,
+      1,
+      "IMAGE"
+    ],
+    [
+      11,
+      7,
+      1,
+      11,
+      0,
+      "INT"
+    ],
+    [
+      12,
+      7,
+      2,
+      11,
+      1,
+      "INT"
+    ],
+    [
+      13,
+      5,
+      0,
+      12,
+      0,
+      "MODEL"
+    ],
+    [
+      14,
+      9,
+      0,
+      12,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      15,
+      10,
+      0,
+      12,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      16,
+      11,
+      0,
+      12,
+      3,
+      "LATENT"
+    ],
+    [
+      17,
+      12,
+      0,
+      13,
+      0,
+      "LATENT"
+    ],
+    [
+      18,
+      3,
+      0,
+      13,
+      1,
+      "VAE"
+    ],
+    [
+      19,
+      13,
+      0,
+      14,
+      0,
+      "IMAGE"
+    ],
+    [
+      20,
+      7,
+      3,
+      14,
+      1,
+      "MOSS_GEOMETRY"
+    ],
+    [
+      21,
+      14,
+      0,
+      15,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "linearMode": true,
+    "linearData": {
+      "inputs": [
+        [
+          6,
+          "image",
+          {
+            "description": "Upload the photo to edit. PNG or JPEG; export HEIC/ProRAW as a supported image first."
+          }
+        ],
+        [
+          7,
+          "megapixels",
+          {
+            "description": "Working resolution: 1 MP is the baseline. 1.5 or 2 MP samples more native detail but costs more memory and has not been quality-benchmarked here. Output returns to the original canvas size."
+          }
+        ],
+        [
+          8,
+          "value",
+          {
+            "description": "Replace this with the actual change. Keep the instruction specific; it goes to the editor unchanged."
+          }
+        ]
+      ],
+      "outputs": [
+        "15"
+      ]
+    },
+    "frontendVersion": "1.57.4",
+    "ds": {
+      "scale": 0.6,
+      "offset": [
+        30,
+        30
+      ]
+    },
+    "moss_mobile": {
+      "release": "1.0.0",
+      "description": "MOSS SFT + community HQ Edit armV5, LoRA strength 1.0, native ai-toolkit format on BOTH conditionings, 50 Euler/simple steps, CFG 3, SLG layer 22. Not latent img2img. No prompt rewriting. Source is fitted to the selected working resolution (1 MP by default) and bottom/right padded to 16 pixels, not cropped. Padding is removed and the output returns to the exact original dimensions. Dimensions do not guarantee pixel-perfect generated content or restore missing source detail. Use Protected Mask Edit when unchanged pixels must be preserved exactly."
+    }
+  },
+  "version": 0.4
+}
