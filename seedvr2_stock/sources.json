@@ -1,0 +1,21 @@
+{
+  "prepared": "2026-11-04",
+  "upstream_template": "https://github.com/numz/ComfyUI-SeedVR2_VideoUpscaler/blob/4490bd1f482e026674543386bb2a4d176da245b9/example_workflows/SeedVR2_HD_video_upscale.json",
+  "seedvr2_repo": "https://github.com/numz/ComfyUI-SeedVR2_VideoUpscaler",
+  "seedvr2_ref": "4490bd1f482e026674543386bb2a4d176da245b9",
+  "comfyui_repo": "https://github.com/Comfy-Org/ComfyUI",
+  "comfyui_ref": "52f98af2e2e42c421070a3e147c161c47cdeaf22",
+  "model_repo": "https://huggingface.co/numz/SeedVR2_comfyUI",
+  "pytorch_install": "https://pytorch.org/get-started/previous-versions/",
+  "changes_from_hd_template": [
+    "7B FP16 replaces 3B FP16",
+    "9-frame temporal batch replaces 33",
+    "1080p/4K short-edge targets and long-edge limits",
+    "Removed bypassed alpha and torch.compile nodes",
+    "Rearranged nodes and added usage note",
+    "Retained upstream video/audio/FPS dataflow",
+    "Current core CreateVideo optional defaults are explicit"
+  ],
+  "runtime_inference_modifications": [],
+  "verification": "Local syntax/graph checks only; Docker build and CUDA inference not run in authoring environment."
+}

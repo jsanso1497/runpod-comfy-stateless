@@ -1,0 +1,749 @@
+{
+  "id": "d5384d73-2dee-5203-8f6c-b16906db33f2",
+  "revision": 0,
+  "last_node_id": 8,
+  "last_link_id": 8,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "LoadVideo",
+      "pos": [
+        30,
+        80
+      ],
+      "size": [
+        310,
+        250
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "file",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "file"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "VIDEO",
+          "type": "VIDEO",
+          "links": [
+            1
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadVideo",
+        "cnr_id": "comfy-core",
+        "ver": "52f98af2e2e42c421070a3e147c161c47cdeaf22"
+      },
+      "widgets_values": [
+        "",
+        "image"
+      ],
+      "title": "1. Upload video"
+    },
+    {
+      "id": 2,
+      "type": "GetVideoComponents",
+      "pos": [
+        390,
+        80
+      ],
+      "size": [
+        235,
+        110
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "video",
+          "type": "VIDEO",
+          "link": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": [
+            2
+          ]
+        },
+        {
+          "name": "audio",
+          "type": "AUDIO",
+          "links": [
+            6
+          ]
+        },
+        {
+          "name": "fps",
+          "type": "FLOAT",
+          "links": [
+            7
+          ]
+        },
+        {
+          "name": "bit_depth",
+          "type": "COMBO",
+          "links": null
+        },
+        {
+          "name": "color_space",
+          "type": "COMBO",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "GetVideoComponents",
+        "cnr_id": "comfy-core",
+        "ver": "52f98af2e2e42c421070a3e147c161c47cdeaf22"
+      },
+      "widgets_values": [],
+      "title": "2. Frames, audio and FPS"
+    },
+    {
+      "id": 3,
+      "type": "SeedVR2LoadDiTModel",
+      "pos": [
+        30,
+        420
+      ],
+      "size": [
+        350,
+        240
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "torch_compile_args",
+          "type": "TORCH_COMPILE_ARGS",
+          "link": null,
+          "shape": 7
+        },
+        {
+          "name": "model",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "model"
+          }
+        },
+        {
+          "name": "device",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "device"
+          }
+        },
+        {
+          "name": "blocks_to_swap",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "blocks_to_swap"
+          },
+          "shape": 7
+        },
+        {
+          "name": "swap_io_components",
+          "type": "BOOLEAN",
+          "link": null,
+          "widget": {
+            "name": "swap_io_components"
+          },
+          "shape": 7
+        },
+        {
+          "name": "offload_device",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "offload_device"
+          },
+          "shape": 7
+        },
+        {
+          "name": "cache_model",
+          "type": "BOOLEAN",
+          "link": null,
+          "widget": {
+            "name": "cache_model"
+          },
+          "shape": 7
+        },
+        {
+          "name": "attention_mode",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "attention_mode"
+          },
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "SEEDVR2_DIT",
+          "type": "SEEDVR2_DIT",
+          "links": [
+            3
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SeedVR2LoadDiTModel",
+        "cnr_id": "seedvr2_videoupscaler",
+        "ver": "2.5.24"
+      },
+      "widgets_values": [
+        "seedvr2_ema_7b_fp16.safetensors",
+        "cuda:0",
+        32,
+        false,
+        "cpu",
+        false,
+        "sdpa"
+      ],
+      "title": "SeedVR2 7B FP16"
+    },
+    {
+      "id": 4,
+      "type": "SeedVR2LoadVAEModel",
+      "pos": [
+        420,
+        420
+      ],
+      "size": [
+        350,
+        330
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "torch_compile_args",
+          "type": "TORCH_COMPILE_ARGS",
+          "link": null,
+          "shape": 7
+        },
+        {
+          "name": "model",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "model"
+          }
+        },
+        {
+          "name": "device",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "device"
+          }
+        },
+        {
+          "name": "encode_tiled",
+          "type": "BOOLEAN",
+          "link": null,
+          "widget": {
+            "name": "encode_tiled"
+          },
+          "shape": 7
+        },
+        {
+          "name": "encode_tile_size",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "encode_tile_size"
+          },
+          "shape": 7
+        },
+        {
+          "name": "encode_tile_overlap",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "encode_tile_overlap"
+          },
+          "shape": 7
+        },
+        {
+          "name": "decode_tiled",
+          "type": "BOOLEAN",
+          "link": null,
+          "widget": {
+            "name": "decode_tiled"
+          },
+          "shape": 7
+        },
+        {
+          "name": "decode_tile_size",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "decode_tile_size"
+          },
+          "shape": 7
+        },
+        {
+          "name": "decode_tile_overlap",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "decode_tile_overlap"
+          },
+          "shape": 7
+        },
+        {
+          "name": "tile_debug",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "tile_debug"
+          },
+          "shape": 7
+        },
+        {
+          "name": "offload_device",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "offload_device"
+          },
+          "shape": 7
+        },
+        {
+          "name": "cache_model",
+          "type": "BOOLEAN",
+          "link": null,
+          "widget": {
+            "name": "cache_model"
+          },
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "SEEDVR2_VAE",
+          "type": "SEEDVR2_VAE",
+          "links": [
+            4
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SeedVR2LoadVAEModel",
+        "cnr_id": "seedvr2_videoupscaler",
+        "ver": "2.5.24"
+      },
+      "widgets_values": [
+        "ema_vae_fp16.safetensors",
+        "cuda:0",
+        true,
+        1024,
+        128,
+        true,
+        768,
+        128,
+        "false",
+        "cpu",
+        false
+      ],
+      "title": "FP16 VAE"
+    },
+    {
+      "id": 5,
+      "type": "SeedVR2VideoUpscaler",
+      "pos": [
+        820,
+        80
+      ],
+      "size": [
+        350,
+        430
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 2
+        },
+        {
+          "name": "dit",
+          "type": "SEEDVR2_DIT",
+          "link": 3
+        },
+        {
+          "name": "vae",
+          "type": "SEEDVR2_VAE",
+          "link": 4
+        },
+        {
+          "name": "seed",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "seed"
+          }
+        },
+        {
+          "name": "resolution",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "resolution"
+          }
+        },
+        {
+          "name": "max_resolution",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "max_resolution"
+          }
+        },
+        {
+          "name": "batch_size",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "batch_size"
+          }
+        },
+        {
+          "name": "uniform_batch_size",
+          "type": "BOOLEAN",
+          "link": null,
+          "widget": {
+            "name": "uniform_batch_size"
+          }
+        },
+        {
+          "name": "color_correction",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "color_correction"
+          }
+        },
+        {
+          "name": "temporal_overlap",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "temporal_overlap"
+          },
+          "shape": 7
+        },
+        {
+          "name": "prepend_frames",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "prepend_frames"
+          },
+          "shape": 7
+        },
+        {
+          "name": "input_noise_scale",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "input_noise_scale"
+          },
+          "shape": 7
+        },
+        {
+          "name": "latent_noise_scale",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "latent_noise_scale"
+          },
+          "shape": 7
+        },
+        {
+          "name": "offload_device",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "offload_device"
+          },
+          "shape": 7
+        },
+        {
+          "name": "enable_debug",
+          "type": "BOOLEAN",
+          "link": null,
+          "widget": {
+            "name": "enable_debug"
+          },
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            5
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SeedVR2VideoUpscaler",
+        "cnr_id": "seedvr2_videoupscaler",
+        "ver": "2.5.24"
+      },
+      "widgets_values": [
+        42,
+        "fixed",
+        2160,
+        3840,
+        9,
+        true,
+        "lab",
+        3,
+        0,
+        0.0,
+        0.0,
+        "cpu",
+        false
+      ],
+      "title": "3. Upscale | 4K"
+    },
+    {
+      "id": 6,
+      "type": "CreateVideo",
+      "pos": [
+        1220,
+        80
+      ],
+      "size": [
+        285,
+        215
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 5
+        },
+        {
+          "name": "audio",
+          "type": "AUDIO",
+          "link": 6,
+          "shape": 7
+        },
+        {
+          "name": "fps",
+          "type": "FLOAT",
+          "link": 7,
+          "widget": {
+            "name": "fps"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "VIDEO",
+          "type": "VIDEO",
+          "links": [
+            8
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CreateVideo",
+        "cnr_id": "comfy-core",
+        "ver": "52f98af2e2e42c421070a3e147c161c47cdeaf22"
+      },
+      "widgets_values": [
+        30,
+        "auto",
+        "sRGB",
+        "none"
+      ],
+      "title": "4. Reattach original audio + FPS"
+    },
+    {
+      "id": 7,
+      "type": "SaveVideo",
+      "pos": [
+        1555,
+        80
+      ],
+      "size": [
+        320,
+        310
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "video",
+          "type": "VIDEO",
+          "link": 8
+        },
+        {
+          "name": "filename_prefix",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "filename_prefix"
+          }
+        },
+        {
+          "name": "format",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "format"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "video",
+          "type": "VIDEO",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SaveVideo",
+        "cnr_id": "comfy-core",
+        "ver": "52f98af2e2e42c421070a3e147c161c47cdeaf22"
+      },
+      "widgets_values": [
+        "SeedVR2/4K/upscaled",
+        "auto",
+        "auto"
+      ],
+      "title": "5. Save MP4"
+    },
+    {
+      "id": 8,
+      "type": "Note",
+      "pos": [
+        820,
+        570
+      ],
+      "size": [
+        685,
+        205
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "Note"
+      },
+      "widgets_values": [
+        "SEEDVR2 STOCK | 7B FP16 | 4K\n\nUpload a video in the first node, then Run. No prompt is needed.\n\nresolution = short edge; max_resolution = long-edge cap. Aspect ratio is preserved, not forced to 16:9.\n\nBatch 9 is temporal context, NOT a clip-length limit. Audio and source FPS bypass the AI.\n\nUse short SDR clips first. This stock graph keeps decoded frames in RAM; it is NOT a streaming workflow. Start with a 5-second clip, especially at 4K.\n\nFirst Run downloads only the selected 7B FP16 model and FP16 VAE. Existing matching models are reused."
+      ],
+      "title": "Start here"
+    }
+  ],
+  "links": [
+    [
+      1,
+      1,
+      0,
+      2,
+      0,
+      "VIDEO"
+    ],
+    [
+      2,
+      2,
+      0,
+      5,
+      0,
+      "IMAGE"
+    ],
+    [
+      3,
+      3,
+      0,
+      5,
+      1,
+      "SEEDVR2_DIT"
+    ],
+    [
+      4,
+      4,
+      0,
+      5,
+      2,
+      "SEEDVR2_VAE"
+    ],
+    [
+      5,
+      5,
+      0,
+      6,
+      0,
+      "IMAGE"
+    ],
+    [
+      6,
+      2,
+      1,
+      6,
+      1,
+      "AUDIO"
+    ],
+    [
+      7,
+      2,
+      2,
+      6,
+      2,
+      "FLOAT"
+    ],
+    [
+      8,
+      6,
+      0,
+      7,
+      0,
+      "VIDEO"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.72,
+      "offset": [
+        20,
+        40
+      ]
+    }
+  },
+  "version": 0.4
+}
