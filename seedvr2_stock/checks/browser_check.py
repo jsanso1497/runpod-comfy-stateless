@@ -12,6 +12,60 @@ ROOT=Path(__file__).resolve().parents[1]
 BASE='http://127.0.0.1:8188'
 REPORT=ROOT/'reports'
 
+
+async def frontend_state(page):
+    """Read-only diagnostics. Never import a frontend shim to probe readiness."""
+    return await page.evaluate("""() => {
+        const app=window.comfyAPI?.app?.app;
+        const api=window.comfyAPI?.api?.api;
+        const overlay=document.querySelector('[data-testid="app-loading-overlay"]');
+        return {
+            url:location.href, title:document.title,
+            hasWindowApp:!!window.app,
+            hasExtensionManager:!!window.app?.extensionManager,
+            hasExposedApp:!!app, hasGraph:!!app?.graph,
+            canLoadGraph:typeof app?.loadGraphData==='function',
+            canSerializeGraph:typeof app?.graphToPrompt==='function',
+            hasApi:!!api, hasClientId:!!api?.clientId,
+            loadingOverlayPresent:!!overlay,
+            loadingOverlayVisible:!!overlay && !!(overlay.offsetWidth ||
+                overlay.offsetHeight || overlay.getClientRects().length)
+        };
+    }""")
+
+
+async def wait_for_frontend(page, timeout=120000):
+    """Wait for the real app, not DOMContentLoaded or a guessed sleep.
+
+    The pinned frontend's /scripts/app.js is a compatibility shim reading
+    window.comfyAPI.app at module evaluation. Importing it too early throws
+    and caches a failed module evaluation for the rest of that page session.
+    Follow upstream browser readiness: extensionManager, then hidden loading
+    overlay. Also require the exposed graph methods and real WebSocket clientId
+    before this check serializes a workflow or subscribes to logs.
+    """
+    try:
+        await page.wait_for_function(
+            "() => !!window.app?.extensionManager", timeout=timeout)
+        overlay=page.get_by_test_id('app-loading-overlay')
+        await overlay.wait_for(state='attached', timeout=timeout)
+        await overlay.wait_for(state='hidden', timeout=timeout)
+        await page.wait_for_function("""() => {
+            const app=window.comfyAPI?.app?.app;
+            const api=window.comfyAPI?.api?.api;
+            return !!(app?.graph &&
+                typeof app.loadGraphData==='function' &&
+                typeof app.graphToPrompt==='function' &&
+                typeof api?.clientId==='string' && api.clientId.length>0);
+        }""", timeout=timeout)
+        await page.evaluate("() => new Promise(resolve => requestAnimationFrame(() => resolve(true)))")
+    except Exception as error:
+        try:
+            state=await frontend_state(page)
+        except Exception as diagnostic_error:
+            state={'diagnostic_error':str(diagnostic_error)}
+        raise RuntimeError('ComfyUI frontend did not become ready: '+json.dumps(state)) from error
+
 def cpu_graph(original,filename):
     g=copy.deepcopy(original)
     g['nodes']=[n for n in g['nodes'] if n['id'] not in (3,4,5)]
@@ -65,14 +119,13 @@ async def main():
         page.on('websocket',on_socket);page.on('pageerror',lambda e:errors.append(str(e)))
         try:
             await page.goto(BASE,wait_until='domcontentloaded',timeout=120000)
-            await page.wait_for_function("""async () => {
-                const {app}=await import('/scripts/app.js');
-                return app.graph && app.loadGraphData && app.graphToPrompt;
-            }""",timeout=120000)
+            await wait_for_frontend(page)
+            print('PASS: frontend initialized with a WebSocket clientId.',flush=True)
             encoded=await page.evaluate("""async graph => {
-                const {app}=await import('/scripts/app.js');
+                const app=window.comfyAPI.app.app;
                 await app.loadGraphData(graph); return (await app.graphToPrompt()).output;
             }""",graph)
+            (REPORT/'browser-serialized-prompt.json').write_text(json.dumps(encoded,indent=2)+'\n')
             assert encoded['8']['inputs']['crop']['crop']=={'x':120,'y':0,'width':72,'height':108},encoded['8']
             assert encoded['6']['inputs']['fps']==['2',2] and encoded['6']['inputs']['audio']==['2',1]
             assert encoded['13']['inputs']['direction']=='right' and not encoded['13']['inputs']['match_image_size']
@@ -80,7 +133,7 @@ async def main():
             assert encoded['10']['inputs']['expression']=='min(a,b)'
             assert encoded['10']['inputs']['values.a']==['9',0] and encoded['10']['inputs']['values.b']==['9',1]
             response=await page.evaluate("""async prompt => {
-                const {api}=await import('/scripts/api.js');
+                const api=window.comfyAPI.api.api;
                 if (!api.clientId) throw new Error('WebSocket clientId is missing');
                 const r=await fetch('/internal/logs/subscribe',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({clientId:api.clientId,enabled:true})});
                 if (!r.ok) throw new Error('Native log subscription failed: '+r.status);
@@ -109,9 +162,17 @@ async def main():
                 'crop_serialized':True,'native_cpu_execution':True,'stable_browser_websocket':True,
                 'logs_subscribed':True,'downloaded_mp4':True,'gpu_tested':False,'page_errors':errors,'sockets':sockets},indent=2)+'\n')
             print('PASS: real browser crop, native CPU execution, logs, sustained websocket and MP4 download through Nginx.')
-        except BaseException:
-            await page.screenshot(path=str(REPORT/'browser-failure.png'),full_page=True)
-            (REPORT/'browser-errors.json').write_text(json.dumps({'errors':errors,'sockets':sockets},indent=2))
+        except BaseException as error:
+            details={'error':str(error),'errors':errors,'sockets':sockets}
+            try:
+                details['frontend']=await frontend_state(page)
+            except Exception as diagnostic_error:
+                details['frontend_probe_error']=str(diagnostic_error)
+            try:
+                await page.screenshot(path=str(REPORT/'browser-failure.png'),full_page=True)
+            except Exception as screenshot_error:
+                details['screenshot_error']=str(screenshot_error)
+            (REPORT/'browser-errors.json').write_text(json.dumps(details,indent=2)+'\n')
             raise
         finally:await browser.close()
 
