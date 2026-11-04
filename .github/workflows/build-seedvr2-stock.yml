@@ -10,54 +10,97 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
-      - name: Validate the two stock workflows
-        run: python3 seedvr2_stock/validate.py
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate the single restoration workflow
+        run: |
+          python3 -m pip install pytest numpy
+          python3 seedvr2_stock/validate.py
+          python3 -m pytest -q seedvr2_stock/checks/test_workflow.py
       - name: Make space for the CUDA image
         run: |
           sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
-          docker system prune -af
           df -h /
       - uses: docker/setup-buildx-action@v3
-      - uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Image name
-        id: image
-        shell: bash
-        run: echo "name=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
-      - name: Build, check stock media I/O, and publish
-        id: build
+      - name: Build without publishing
         uses: docker/build-push-action@v6
         with:
           context: ./seedvr2_stock
           file: ./seedvr2_stock/Dockerfile
           platforms: linux/amd64
-          push: true
-          tags: |
-            ${{ steps.image.outputs.name }}:seedvr2-stock-fp16
-            ${{ steps.image.outputs.name }}:seedvr2-stock-${{ github.sha }}
-          labels: |
-            org.opencontainers.image.source=https://github.com/${{ github.repository }}
-            org.opencontainers.image.revision=${{ github.sha }}
+          load: true
+          push: false
+          tags: seedvr2-clarity-checked:local
           provenance: false
-      - name: RunPod image
-        env:
-          IMAGE: ${{ steps.image.outputs.name }}
-          DIGEST: ${{ steps.build.outputs.digest }}
+      - name: Start real CPU ComfyUI through the production Nginx config
         run: |
+          mkdir -p seedvr2_stock/reports
+          PASSWORD=$(python3 -c 'import secrets; print(secrets.token_hex(20))')
+          echo "::add-mask::$PASSWORD"
+          echo "COMFY_PASSWORD=$PASSWORD" >> "$GITHUB_ENV"
+          docker run -d --name clarity-check -p 127.0.0.1:8188:8188 \
+            -e COMFY_PASSWORD="$PASSWORD" --entrypoint bash seedvr2-clarity-checked:local \
+            /opt/seedvr2-stock/checks/ci_start.sh
+      - name: Native CPU crop, compare, audio, FPS, logs, download and range checks
+        run: |
+          docker exec -e COMFY_PASSWORD="$COMFY_PASSWORD" clarity-check \
+            python /opt/seedvr2-stock/checks/native_check.py
+          docker cp clarity-check:/workspace/seedvr2-stock/native-report.json seedvr2_stock/reports/native-report.json
+      - name: Actual Chromium UI and authenticated browser download
+        run: |
+          python3 -m pip install playwright
+          python3 -m playwright install --with-deps chromium
+          python3 seedvr2_stock/checks/browser_check.py
+      - name: Collect diagnostics
+        if: always()
+        run: |
+          mkdir -p seedvr2_stock/reports
+          docker logs clarity-check > seedvr2_stock/reports/container.log 2>&1 || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: seedvr2-clarity-validation
+          path: seedvr2_stock/reports/
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish only after native media and browser checks pass
+        env:
+          REPOSITORY: ${{ github.repository }}
+          COMMIT: ${{ github.sha }}
+        run: |
+          IMAGE="ghcr.io/${REPOSITORY,,}"
+          docker tag seedvr2-clarity-checked:local "$IMAGE:seedvr2-stock-$COMMIT"
+          docker tag seedvr2-clarity-checked:local "$IMAGE:seedvr2-stock-fp16"
+          docker push "$IMAGE:seedvr2-stock-$COMMIT"
+          docker push "$IMAGE:seedvr2-stock-fp16"
+          REF=$(docker image inspect "$IMAGE:seedvr2-stock-$COMMIT" --format '{{index .RepoDigests 0}}')
+          test -n "$REF"
+          printf '%s\n' "$REF" > seedvr2-image-reference.txt
           {
-            echo '## SeedVR2 Stock FP16'
-            echo 'Use this exact image in RunPod:'
+            echo '## SeedVR2 Video Clarity: one consolidated workflow'
+            echo 'Exact RunPod image:'
             echo '```text'
-            echo "${IMAGE}@${DIGEST}"
+            echo "$REF"
             echo '```'
-            echo 'Expose HTTP 8188. Set COMFY_PASSWORD. Username: workbench.'
-            echo 'No Qwen, custom restoration nodes, or model weights are included in this image.'
-            echo 'The two FP16 weights download on first Run and persist under /workspace/models/SEEDVR2.'
-            echo 'CPU media checks are not a CUDA inference or visual-quality test.'
+            echo 'HTTP 8188 only. Start command blank. COMFY_PASSWORD = your RunPod secret. Username workbench.'
+            echo 'Open 00_SeedVR2_Stock / 01_Video_Clarity. Upload; optionally crop; Run; download in Save Video.'
+            echo 'Same-size restoration, original audio/FPS, first-frame comparison. No forced 4K.'
+            echo 'CPU native I/O and Chromium checks passed. CUDA inference, GPU memory, RunPod public routing and visual quality are NOT certified by these tests.'
           } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: seedvr2-clarity-runpod
+          path: |
+            seedvr2-image-reference.txt
+            SEEDVR2_START_HERE.md
+            seedvr2_stock/workflows/01_Video_Clarity.json
+      - name: Clean up test container
+        if: always()
+        run: docker rm -f clarity-check || true

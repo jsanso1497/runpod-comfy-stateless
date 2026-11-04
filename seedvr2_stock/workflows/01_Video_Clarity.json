@@ -1,0 +1,892 @@
+{
+  "id": "0ecc98b6-1537-5ebc-87c5-1dbaa83ddd60",
+  "revision": 1,
+  "last_node_id": 15,
+  "last_link_id": 18,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "LoadVideo",
+      "title": "1. Upload the original video",
+      "pos": [
+        40,
+        80
+      ],
+      "size": [
+        330,
+        450
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "VIDEO",
+          "type": "VIDEO",
+          "links": [
+            1
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadVideo",
+        "cnr_id": "comfy-core",
+        "ver": "2c75dc1b379a59e0880619d029607af5169a62ef"
+      },
+      "widgets_values": [
+        ""
+      ]
+    },
+    {
+      "id": 8,
+      "type": "VideoCrop",
+      "title": "2. Optional crop | all zeros = full frame",
+      "pos": [
+        420,
+        80
+      ],
+      "size": [
+        400,
+        450
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "video",
+          "type": "VIDEO",
+          "link": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "VIDEO",
+          "type": "VIDEO",
+          "links": [
+            2
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VideoCrop",
+        "cnr_id": "comfy-core",
+        "ver": "0.44.0"
+      },
+      "widgets_values": [
+        {
+          "crop": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "GetVideoComponents",
+      "title": "Decode cropped video / keep source audio + FPS",
+      "pos": [
+        880,
+        80
+      ],
+      "size": [
+        300,
+        140
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "video",
+          "type": "VIDEO",
+          "link": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": [
+            3,
+            6,
+            14
+          ]
+        },
+        {
+          "name": "audio",
+          "type": "AUDIO",
+          "links": [
+            11
+          ]
+        },
+        {
+          "name": "fps",
+          "type": "FLOAT",
+          "links": [
+            12
+          ]
+        },
+        {
+          "name": "bit_depth",
+          "type": "COMBO",
+          "links": []
+        },
+        {
+          "name": "color_space",
+          "type": "COMBO",
+          "links": []
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "GetVideoComponents",
+        "cnr_id": "comfy-core",
+        "ver": "2c75dc1b379a59e0880619d029607af5169a62ef"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 3,
+      "type": "SeedVR2LoadDiTModel",
+      "title": "Model | standard FP16; Sharp is optional",
+      "pos": [
+        880,
+        290
+      ],
+      "size": [
+        330,
+        240
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "torch_compile_args",
+          "type": "TORCH_COMPILE_ARGS",
+          "link": null,
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "SEEDVR2_DIT",
+          "type": "SEEDVR2_DIT",
+          "links": [
+            7
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SeedVR2LoadDiTModel",
+        "cnr_id": "seedvr2_videoupscaler",
+        "ver": "2.5.24"
+      },
+      "widgets_values": [
+        "seedvr2_ema_7b_fp16.safetensors",
+        "cuda:0",
+        36,
+        true,
+        "cpu",
+        false,
+        "sdpa"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "SeedVR2LoadVAEModel",
+      "title": "FP16 VAE | memory controls",
+      "pos": [
+        1240,
+        230
+      ],
+      "size": [
+        340,
+        330
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "torch_compile_args",
+          "type": "TORCH_COMPILE_ARGS",
+          "link": null,
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "SEEDVR2_VAE",
+          "type": "SEEDVR2_VAE",
+          "links": [
+            8
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SeedVR2LoadVAEModel",
+        "cnr_id": "seedvr2_videoupscaler",
+        "ver": "2.5.24"
+      },
+      "widgets_values": [
+        "ema_vae_fp16.safetensors",
+        "cuda:0",
+        true,
+        1024,
+        128,
+        true,
+        1024,
+        128,
+        "false",
+        "cpu",
+        false
+      ]
+    },
+    {
+      "id": 9,
+      "type": "GetImageSize",
+      "title": "Automatic output dimensions",
+      "pos": [
+        900,
+        570
+      ],
+      "size": [
+        310,
+        160
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 3
+        }
+      ],
+      "outputs": [
+        {
+          "name": "width",
+          "type": "INT",
+          "links": [
+            4
+          ]
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "links": [
+            5
+          ]
+        },
+        {
+          "name": "batch_size",
+          "type": "INT",
+          "links": []
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "GetImageSize",
+        "cnr_id": "comfy-core",
+        "ver": "0.44.0"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 10,
+      "type": "ComfyMathExpression",
+      "title": "Keep native pixels | do not change",
+      "pos": [
+        1250,
+        570
+      ],
+      "size": [
+        310,
+        160
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "values.a",
+          "type": "FLOAT,INT,BOOLEAN",
+          "link": 4
+        },
+        {
+          "name": "values.b",
+          "type": "FLOAT,INT,BOOLEAN",
+          "link": 5
+        }
+      ],
+      "outputs": [
+        {
+          "name": "FLOAT",
+          "type": "FLOAT",
+          "links": []
+        },
+        {
+          "name": "INT",
+          "type": "INT",
+          "links": [
+            9
+          ]
+        },
+        {
+          "name": "BOOL",
+          "type": "BOOLEAN",
+          "links": []
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ComfyMathExpression",
+        "cnr_id": "comfy-core",
+        "ver": "0.44.0"
+      },
+      "widgets_values": [
+        "min(a,b)"
+      ]
+    },
+    {
+      "id": 5,
+      "type": "SeedVR2VideoUpscaler",
+      "title": "3. Restore clarity at the crop's original size",
+      "pos": [
+        1640,
+        80
+      ],
+      "size": [
+        350,
+        500
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 6
+        },
+        {
+          "name": "dit",
+          "type": "SEEDVR2_DIT",
+          "link": 7
+        },
+        {
+          "name": "vae",
+          "type": "SEEDVR2_VAE",
+          "link": 8
+        },
+        {
+          "name": "resolution",
+          "type": "INT",
+          "link": 9,
+          "widget": {
+            "name": "resolution"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            10,
+            15
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SeedVR2VideoUpscaler",
+        "cnr_id": "seedvr2_videoupscaler",
+        "ver": "2.5.24"
+      },
+      "widgets_values": [
+        42,
+        "fixed",
+        1080,
+        0,
+        9,
+        true,
+        "lab",
+        3,
+        4,
+        0.0,
+        0.0,
+        "cpu",
+        true
+      ]
+    },
+    {
+      "id": 6,
+      "type": "CreateVideo",
+      "title": "Original FPS + audio",
+      "pos": [
+        2050,
+        80
+      ],
+      "size": [
+        300,
+        230
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 10
+        },
+        {
+          "name": "audio",
+          "type": "AUDIO",
+          "link": 11,
+          "shape": 7
+        },
+        {
+          "name": "fps",
+          "type": "FLOAT",
+          "link": 12,
+          "widget": {
+            "name": "fps"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "VIDEO",
+          "type": "VIDEO",
+          "links": [
+            13
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CreateVideo",
+        "cnr_id": "comfy-core",
+        "ver": "2c75dc1b379a59e0880619d029607af5169a62ef"
+      },
+      "widgets_values": [
+        30.0,
+        "auto",
+        "sRGB",
+        "auto",
+        "none"
+      ]
+    },
+    {
+      "id": 7,
+      "type": "SaveVideo",
+      "title": "4. Finished video | preview and download",
+      "pos": [
+        2410,
+        80
+      ],
+      "size": [
+        470,
+        510
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "video",
+          "type": "VIDEO",
+          "link": 13
+        }
+      ],
+      "outputs": [
+        {
+          "name": "video",
+          "type": "VIDEO",
+          "links": []
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SaveVideo",
+        "cnr_id": "comfy-core",
+        "ver": "2c75dc1b379a59e0880619d029607af5169a62ef"
+      },
+      "widgets_values": [
+        "SeedVR2/Restored",
+        "mp4"
+      ]
+    },
+    {
+      "id": 11,
+      "type": "ImageFromBatch",
+      "title": "Before | first frame of the SAME crop",
+      "pos": [
+        900,
+        830
+      ],
+      "size": [
+        310,
+        160
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 14
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            16
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ImageFromBatch",
+        "cnr_id": "comfy-core",
+        "ver": "0.44.0"
+      },
+      "widgets_values": [
+        0,
+        1
+      ]
+    },
+    {
+      "id": 12,
+      "type": "ImageFromBatch",
+      "title": "After | first restored frame",
+      "pos": [
+        1250,
+        830
+      ],
+      "size": [
+        310,
+        160
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 15
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            17
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ImageFromBatch",
+        "cnr_id": "comfy-core",
+        "ver": "0.44.0"
+      },
+      "widgets_values": [
+        0,
+        1
+      ]
+    },
+    {
+      "id": 13,
+      "type": "ImageStitch",
+      "title": "Before LEFT | After RIGHT",
+      "pos": [
+        1600,
+        830
+      ],
+      "size": [
+        310,
+        160
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image1",
+          "type": "IMAGE",
+          "link": 16
+        },
+        {
+          "name": "image2",
+          "type": "IMAGE",
+          "link": 17,
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            18
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ImageStitch",
+        "cnr_id": "comfy-core",
+        "ver": "0.44.0"
+      },
+      "widgets_values": [
+        "right",
+        false,
+        0,
+        "black"
+      ]
+    },
+    {
+      "id": 14,
+      "type": "SaveImage",
+      "title": "5. First-frame comparison | native-size PNG",
+      "pos": [
+        1950,
+        700
+      ],
+      "size": [
+        460,
+        350
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 18
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "SaveImage",
+        "cnr_id": "comfy-core",
+        "ver": "0.44.0"
+      },
+      "widgets_values": [
+        "SeedVR2/Compare"
+      ]
+    },
+    {
+      "id": 15,
+      "type": "Note",
+      "title": "Read once | crops and limits",
+      "pos": [
+        40,
+        620
+      ],
+      "size": [
+        710,
+        650
+      ],
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "Note",
+        "cnr_id": "comfy-core",
+        "ver": "0.44.0"
+      },
+      "widgets_values": [
+        "ONE WORKFLOW / NATIVE SIZE\n\nUpload 1920x1080. Leave crop width/height at 0 for the full frame.\nOptional crop: set the rectangle BEFORE SeedVR2. Use even dimensions and keep the subject inside it for the entire shot.\n\n1920x1080 SOURCE: width x height, x, y\nFull frame: 0 x 0, 0, 0\nSquare LEFT: 1080 x 1080, 0, 0\nSquare CENTER: 1080 x 1080, 420, 0\nSquare RIGHT: 1080 x 1080, 840, 0\n2:3 LEFT: 720 x 1080, 0, 0\n2:3 CENTER: 720 x 1080, 600, 0\n2:3 RIGHT: 720 x 1080, 1200, 0\nCustom: choose x/y/width/height. Do not crop outside the source.\n\nThe automatic short edge keeps the cropped resolution; no forced 4K, stretching or source blend.\nStandard 7B is the baseline. Sharp 7B FP16 is optional in the SAME model dropdown; it can invent more texture.\nCompare PNG: source LEFT, restored RIGHT. Judge the finished video in motion too.\n\nThe whole selected clip occupies RAM. Batch 9 is temporal inference, not a 9-frame clip cap.\nFirst Run downloads the selected model + VAE. Progress/logs/save/download are native ComfyUI."
+      ]
+    }
+  ],
+  "links": [
+    [
+      1,
+      1,
+      0,
+      8,
+      0,
+      "VIDEO"
+    ],
+    [
+      2,
+      8,
+      0,
+      2,
+      0,
+      "VIDEO"
+    ],
+    [
+      3,
+      2,
+      0,
+      9,
+      0,
+      "IMAGE"
+    ],
+    [
+      4,
+      9,
+      0,
+      10,
+      0,
+      "INT"
+    ],
+    [
+      5,
+      9,
+      1,
+      10,
+      1,
+      "INT"
+    ],
+    [
+      6,
+      2,
+      0,
+      5,
+      0,
+      "IMAGE"
+    ],
+    [
+      7,
+      3,
+      0,
+      5,
+      1,
+      "SEEDVR2_DIT"
+    ],
+    [
+      8,
+      4,
+      0,
+      5,
+      2,
+      "SEEDVR2_VAE"
+    ],
+    [
+      9,
+      10,
+      1,
+      5,
+      3,
+      "INT"
+    ],
+    [
+      10,
+      5,
+      0,
+      6,
+      0,
+      "IMAGE"
+    ],
+    [
+      11,
+      2,
+      1,
+      6,
+      1,
+      "AUDIO"
+    ],
+    [
+      12,
+      2,
+      2,
+      6,
+      2,
+      "FLOAT"
+    ],
+    [
+      13,
+      6,
+      0,
+      7,
+      0,
+      "VIDEO"
+    ],
+    [
+      14,
+      2,
+      0,
+      11,
+      0,
+      "IMAGE"
+    ],
+    [
+      15,
+      5,
+      0,
+      12,
+      0,
+      "IMAGE"
+    ],
+    [
+      16,
+      11,
+      0,
+      13,
+      0,
+      "IMAGE"
+    ],
+    [
+      17,
+      12,
+      0,
+      13,
+      1,
+      "IMAGE"
+    ],
+    [
+      18,
+      13,
+      0,
+      14,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "version": 0.4,
+  "extra": {
+    "ds": {
+      "scale": 0.56,
+      "offset": [
+        20,
+        20
+      ]
+    },
+    "seedvr2_clarity": {
+      "version": "3.0",
+      "gpu_tested": false,
+      "whole_clip_ram": true,
+      "crop_before_restoration": true,
+      "target": "same-size"
+    }
+  }
+}

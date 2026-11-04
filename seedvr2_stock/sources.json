@@ -1,21 +1,17 @@
 {
-  "prepared": "2026-11-04",
-  "upstream_template": "https://github.com/numz/ComfyUI-SeedVR2_VideoUpscaler/blob/4490bd1f482e026674543386bb2a4d176da245b9/example_workflows/SeedVR2_HD_video_upscale.json",
-  "seedvr2_repo": "https://github.com/numz/ComfyUI-SeedVR2_VideoUpscaler",
-  "seedvr2_ref": "4490bd1f482e026674543386bb2a4d176da245b9",
-  "comfyui_repo": "https://github.com/Comfy-Org/ComfyUI",
-  "comfyui_ref": "52f98af2e2e42c421070a3e147c161c47cdeaf22",
-  "model_repo": "https://huggingface.co/numz/SeedVR2_comfyUI",
-  "pytorch_install": "https://pytorch.org/get-started/previous-versions/",
-  "changes_from_hd_template": [
-    "7B FP16 replaces 3B FP16",
-    "9-frame temporal batch replaces 33",
-    "1080p/4K short-edge targets and long-edge limits",
-    "Removed bypassed alpha and torch.compile nodes",
-    "Rearranged nodes and added usage note",
-    "Retained upstream video/audio/FPS dataflow",
-    "Current core CreateVideo optional defaults are explicit"
-  ],
-  "runtime_inference_modifications": [],
-  "verification": "Local syntax/graph checks only; Docker build and CUDA inference not run in authoring environment."
+  "release": "2026-11-04.video-clarity-v3",
+  "reviewed_user_commit": "d6e5f6a15cd03d31d262d6a31a6c825751c121e9",
+  "comfy_commit": "2c75dc1b379a59e0880619d029607af5169a62ef",
+  "comfy_release": "v0.44.0",
+  "comfy_frontend": "the version pinned by that ComfyUI requirements.txt; no separate override",
+  "seedvr_commit": "4490bd1f482e026674543386bb2a4d176da245b9",
+  "seedvr_version": "2.5.24",
+  "model": "seedvr2_ema_7b_fp16.safetensors",
+  "optional_model": "seedvr2_ema_7b_sharp_fp16.safetensors",
+  "vae": "ema_vae_fp16.safetensors",
+  "base_image": "nvidia/cuda:12.8.1-cudnn-runtime-ubuntu24.04",
+  "upstream_video_example": "https://github.com/numz/ComfyUI-SeedVR2_VideoUpscaler/blob/4490bd1f482e026674543386bb2a4d176da245b9/example_workflows/SeedVR2_HD_video_upscale.json",
+  "processing": "Unmodified official SeedVR2 nodes plus ComfyUI core nodes only. Same-size restoration; native crop before model; native first-frame comparison.",
+  "access": "Existing standard Nginx Basic authentication. No custom Python gateway, cookie service, or renderer.",
+  "verification": "See reports. CPU I/O and browser tests do not certify CUDA inference, GPU memory, RunPod routing or visual quality. No model weights are bundled."
 }
