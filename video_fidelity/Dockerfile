@@ -10,7 +10,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /opt/video-fidelity
 COPY . .
-RUN git init /opt/ComfyUI \
+# Exercise the installed FFmpeg before cloning/installing heavy dependencies.
+RUN python media_preflight.py \
+    && git init /opt/ComfyUI \
     && git -C /opt/ComfyUI remote add origin https://github.com/Comfy-Org/ComfyUI.git \
     && git -C /opt/ComfyUI fetch --depth 1 origin 52f98af2e2e42c421070a3e147c161c47cdeaf22 \
     && git -C /opt/ComfyUI checkout --detach FETCH_HEAD \

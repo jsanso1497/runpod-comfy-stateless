@@ -14,6 +14,7 @@ from streaming import windows,OverlapWriter,source_mix
 from media import make_plan,prepare,detect_cuts,finish,probe,video
 from worker import inference_args,render
 from fv_common import atomic_json,child_env,terminate
+from ffmpeg_compat import video_sync_args
 
 
 def request(**kw):
@@ -193,7 +194,7 @@ def test_fractional_fps_and_trim(tmp_path,rate):
 def test_actual_vfr_is_rejected_without_normalizing(tmp_path):
     src=tmp_path/'vfr.mkv'
     subprocess.run(['ffmpeg','-v','error','-y','-f','lavfi','-i','testsrc2=s=96x64:r=10:d=2',
-                    '-vf',"select='not(eq(n,7))'",'-fps_mode','vfr','-c:v','ffv1',str(src)],check=True)
+                    '-vf',"select='not(eq(n,7))'",*video_sync_args('vfr'),'-c:v','ffv1',str(src)],check=True)
     req=request(source=str(src))
     plan=make_plan(src,req)
     job=tmp_path/'job';job.mkdir()

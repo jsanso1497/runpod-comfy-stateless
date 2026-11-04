@@ -7,6 +7,7 @@ from pathlib import Path
 import re
 import subprocess
 from fv_common import run_logged
+from ffmpeg_compat import video_sync_args
 
 
 def probe(path: Path, count: bool = False) -> dict:
@@ -92,7 +93,7 @@ def prepare(source: Path, job: Path, plan: dict) -> Path:
                'format=bgr0', 'setsar=1']
     command = ['ffmpeg','-nostdin','-hide_banner','-v','warning','-y','-threads','2','-filter_threads','1',
                '-i',str(source),'-map','0:v:0','-map','0:a:0?','-vf',','.join(filters),
-               '-fps_mode','passthrough','-c:v','ffv1','-level','3','-pix_fmt','bgr0','-threads','2']
+               *video_sync_args(),'-c:v','ffv1','-level','3','-pix_fmt','bgr0','-threads','2']
     if plan['source_audio']:
         command += ['-af',f'atrim=start={plan["start"]}:duration={plan["duration"]},asetpts=PTS-STARTPTS',
                     '-c:a','pcm_s24le']
