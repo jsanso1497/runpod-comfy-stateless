@@ -1,0 +1,18 @@
+{
+  "checks_passed": [
+    "Authenticated /api/status returns 200",
+    "Unauthenticated API request returns 403",
+    "Authenticated Lab HTML is served",
+    "Authenticated file upload/write stays in configured workspace",
+    "Authenticated file read works",
+    "Authenticated browser terminal can be created",
+    "Terminal WebSocket accepts command and does not inherit login token",
+    "Authenticated cleanup works",
+    "Server log does not expose the login token"
+  ],
+  "environment": {
+    "jupyterlab": "4.5.3",
+    "jupyter_server": "2.17.0"
+  },
+  "limitation": "Local HTTP/API/WebSocket smoke test. Not RunPod proxy, mobile browser, or the Docker-pinned dependency versions."
+}

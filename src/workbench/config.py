@@ -8,7 +8,7 @@ from pathlib import Path
 ROOT = Path(os.environ.get('WB_ROOT', Path(__file__).resolve().parents[2]))
 FAMILIES = ('qwen', 'flux', 'h3', 'restoration', 'krea')
 FEATURES = ('sam', 'seedvr2', 'ollama')
-SECRET_KEYS = ('HF_TOKEN', 'CIVITAI_TOKEN', 'hf_token', 'civit_token', 'WB_LORA_URLS', 'WB_CHECKPOINTS', 'WB_PASSWORD')
+SECRET_KEYS = ('HF_TOKEN', 'CIVITAI_TOKEN', 'hf_token', 'civit_token', 'WB_LORA_URLS', 'WB_CHECKPOINTS', 'WB_PASSWORD', 'JUPYTER_TOKEN', 'JUPYTER_TOKEN_FILE')
 
 def read_catalog(name: str):
     # Approved-only profile runs before optional catalog add-ons.
@@ -79,6 +79,8 @@ def read_catalog(name: str):
     value = apply_moss(name, value, ROOT)
     from .video_repair_catalog import apply as apply_video_repair
     value = apply_video_repair(name, value)
+    from .qwen_mobile import apply_catalog as apply_qwen_mobile
+    value = apply_qwen_mobile(name, value)
     from .qwen_only import apply_catalog as apply_qwen_only
     return apply_qwen_only(name, value)
 

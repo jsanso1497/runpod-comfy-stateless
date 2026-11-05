@@ -24,6 +24,7 @@ RUN python scripts/build_identity_workflows.py \
     && python scripts/build_krea_workflow.py \
     && python scripts/build_site.py \
     && python deploy/build.py "$WB_WORKSPACE" \
+    && python deploy/build_qwen_mobile.py "$WB_WORKSPACE" \
     && python -m compileall -q src \
     && python -c 'from av.video.reformatter import ColorPrimaries, ColorRange, ColorTrc; import workbench.assets, workbench.runtime; from workbench.http_gateway import ACCESS_VERSION, AUTH_MODE_KEY; assert ACCESS_VERSION == "1.2.0"; app = workbench.runtime.make_app(auth_mode="none"); assert app[AUTH_MODE_KEY] == "none"'
 # Optional local helpers are executable here, but no model is downloaded at build time.
@@ -34,7 +35,7 @@ RUN curl --fail --location --retry 3 \
     && tar --zstd -xf /tmp/ollama.tar.zst -C /usr \
     && rm /tmp/ollama.tar.zst
 WORKDIR /workspace
-EXPOSE 8188
+EXPOSE 8188 8888
 HEALTHCHECK --interval=30s --timeout=10s --start-period=2m --retries=5 \
     CMD curl --fail --silent --max-time 8 http://127.0.0.1:8188/readyz >/dev/null || exit 1
-ENTRYPOINT ["/usr/bin/tini", "-s", "--", "python", "-m", "workbench.runtime"]
+ENTRYPOINT ["/usr/bin/tini", "-s", "--", "python", "-m", "workbench.qwen_mobile_launcher"]

@@ -1,0 +1,3 @@
+# Isolated from ComfyUI. Release versions verified on PyPI, 2026-11-04.
+jupyterlab==4.5.11
+jupyter-server==2.21.1

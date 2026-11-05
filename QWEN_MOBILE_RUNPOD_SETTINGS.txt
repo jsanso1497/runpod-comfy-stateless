@@ -1,0 +1,27 @@
+QWEN MOBILE + JUPYTER 1.0.0
+
+Build: GitHub Actions > Build HQ workspace > qwen
+Container image: use image_reference from the NEW successful build
+HTTP ports: 8188,8888
+TCP ports: blank
+Container start command: blank
+Volume mount: /workspace
+
+ENVIRONMENT VARIABLES (RunPod rows, not terminal commands):
+WB_WORKSPACE=qwen
+WB_QWEN_ONLY=1
+WB_APPROVED_ONLY=0
+WB_TASKS=SQ,Q01,QNATIVE,QOVERLAY,QAPP
+WB_TOOLBOX=sam,seedvr2
+WB_JUPYTER=1
+WB_AUTH_MODE=basic
+WB_PASSWORD={{ RUNPOD_SECRET_comfy_password }}
+JUPYTER_TOKEN={{ RUNPOD_SECRET_comfy_password }}
+HF_TOKEN={{ RUNPOD_SECRET_hf_token }}
+CIVITAI_TOKEN={{ RUNPOD_SECRET_civit_token }}
+
+ComfyUI: Connect > HTTP 8188. Username workbench, your secret's actual password.
+Mobile app: Workbench > QAPP > Qwen Mobile: Native BF16 Photo Edit.
+JupyterLab: Connect > HTTP 8888. Enter your secret's actual password as its token.
+No terminal install/start command is needed for Jupyter on the NEW image.
+Never commit actual secret values. Keep existing private-library variables.
