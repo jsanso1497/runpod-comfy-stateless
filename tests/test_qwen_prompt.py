@@ -208,9 +208,25 @@ def test_every_qwen_graph_has_shared_off_control():
     # Exclude only this explicit file, not all future approved/workspace graphs.
     approved_without_enhancer = ROOT / 'workflows/qwen/00_Approved/00_SAM_Guided_Local_Edit.json'
     assert approved_without_enhancer.is_file()
+    # QWEN_MOBILE_CI_FIX_V1_1: exclude only the explicit direct-prompt app.
+    # Check its no-enhancer contract instead of requiring an enhancer control.
+    mobile_without_enhancer = ROOT / 'workflows/qwen/QAPP/00_Qwen21_Native_Mobile_App_BF16.json'
+    assert mobile_without_enhancer.is_file()
+    mobile_graph = json.loads(mobile_without_enhancer.read_text())
+    assert mobile_graph['extra']['linearMode'] is True
+    assert mobile_graph['extra']['workbench_mobile']['prompt_enhancer'] is False
+    containers = [mobile_graph] + mobile_graph.get('definitions', {}).get('subgraphs', [])
+    for container in containers:
+        assert not {'WBQwenPromptControl', 'TextGenerate'}.intersection(
+            node['type'] for node in container['nodes'])
+        assert all(port['name'] != 'prompt_enhancer'
+                   for node in container['nodes'] for port in node.get('inputs', []))
+    assert sum(node['type'] == 'TextEncodeQwenImage21'
+               for node in mobile_graph['nodes']) == 1
     workflows = [
         path for path in (ROOT / 'workflows/qwen').rglob('*.json')
         if path != addon and path not in native_paths and path != approved_without_enhancer
+        and path != mobile_without_enhancer
     ]
     assert len(workflows) == 35
     total=0

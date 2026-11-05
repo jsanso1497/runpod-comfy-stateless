@@ -230,7 +230,13 @@ def test_catalog_merges_without_replacing_other_families(tmp_path,monkeypatch):
     assert assets['ollama']['models'] == ['huihui_ai/Qwen3.8-abliterated:27b-bf16']
     assert assets['ollama_by_workspace']['h3']['models'] == ['existing-f16-a','existing-f16-b']
     assert [m['id'] for m in config.read_catalog('models.json')['models']] == ['qwen','krea']
-    assert [t['id'] for t in config.read_catalog('tasks.json')['tasks']] == ['Q01','K01','KDEV','QDEV','QNATIVE','QOVERLAY','RVID']
+    # QWEN_MOBILE_CI_FIX_V1_1: QAPP is an additive, Qwen-only native app.
+    task_rows = config.read_catalog('tasks.json')['tasks']
+    assert [t['id'] for t in task_rows] == ['Q01','K01','KDEV','QDEV','QNATIVE','QOVERLAY','RVID','QAPP']
+    mobile = task_rows[-1]
+    assert mobile['family'] == 'qwen'
+    assert mobile['workspaces'] == ['qwen']
+    assert mobile['requires'] == ['qwen']
     monkeypatch.setenv('WB_WORKSPACE','krea')
     assert config.read_catalog('assets.json')['ollama']['models'] == ['huihui_ai/Qwen3.8-abliterated:27b-bf16']
     assert config.selected_tasks() == ['K01'] and config.requested_groups() == ['krea','ollama']
