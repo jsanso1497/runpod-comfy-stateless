@@ -1,0 +1,51 @@
+H3 Still Developer Workspace | Release 2026-11-05.1
+
+IMAGE
+Use image-reference.txt from a successful "Build H3 Still Developer Workspace"
+GitHub Actions run. It contains the actual ghcr.io image@sha256 digest.
+The :h3-still tag does not exist until your first successful build publishes it.
+
+FIRST-TEST PLANNING TARGET, NOT A MEASURED MINIMUM
+GPU: NVIDIA A100 80 GB or a comparable supported GPU with at least 80 GB VRAM
+System RAM: 128 GB or more
+Persistent volume mounted at /workspace: 100 GB
+Container disk: 30 GB
+Host driver: must support the image's CUDA 13.0 runtime
+HTTP ports: 8188 only
+TCP ports: none required
+Container start command: leave blank
+
+REQUIRED ENVIRONMENT VARIABLE
+COMFY_PASSWORD={{ RUNPOD_SECRET_comfy_password }}
+
+OPTIONAL ENVIRONMENT VARIABLE
+HF_TOKEN={{ RUNPOD_SECRET_hf_token }}
+
+Create comfy_password as a RunPod secret with a unique 16-72-byte password.
+Use the RunPod HTTPS proxy for port 8188. Login username: workbench.
+Do not expose the internal ComfyUI port 8189.
+Do not add WB_WORKSPACE=h3; this is a separate image, not the legacy H3 profile.
+No CIVITAI_TOKEN, Ollama settings or prompt-enhancer settings are required.
+
+FIRST START
+About 40 GB of verified model files are downloaded to /workspace/h3-still/models.
+The public port opens after model preparation and node/schema checks complete.
+Watch the container logs for progress and the "Ready" message.
+Use persistent storage to avoid downloading the same models on every new Pod.
+
+WORKFLOWS
+Open ComfyUI > Workflows > 00_H3_Still_Developer_2026_11_05_v1.
+00_H3_Still_8MP_NoTurbo.json: highest-quality developer example, 50 steps.
+01_H3_Still_Turbo_2_5MP.json: faster developer example, 20 steps, Turbo 0.38.
+02_H3_Still_Edit_README_2_5MP.json: editing, README's 2.5 MP reference setting.
+03_H3_Still_Edit_Original_2MP.json: editing, original JSON's 2 MP setting.
+For editing, upload your own source image in LoadImage before running.
+
+FILES
+Input: /workspace/h3-still/input
+Output PNGs: /workspace/h3-still/output
+Saved workflows: /workspace/h3-still/user/default/workflows
+Original immutable developer graphs: /opt/h3-still/upstream_workflows
+
+Stop the Pod in RunPod when finished. This workspace does not stop GPU billing.
+GPU inference, peak memory, output quality and runtime are not certified here.

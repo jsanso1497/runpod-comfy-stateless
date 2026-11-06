@@ -1,0 +1,94 @@
+name: Build H3 Still Developer Workspace
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  packages: write
+concurrency:
+  group: h3-still-developer-build
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Offline package and regression tests
+        run: |
+          python3 h3_still/validate_package.py
+          python3 -m unittest discover -s h3_still/checks -p '*_checks.py' -v
+      - name: Reclaim optional runner software
+        run: |
+          sudo rm -rf /usr/local/lib/android /opt/ghc /usr/share/dotnet
+          df -h
+      - uses: docker/setup-buildx-action@v3
+      - name: Build the isolated image without publishing
+        uses: docker/build-push-action@v6
+        with:
+          context: h3_still
+          file: h3_still/Dockerfile
+          platforms: linux/amd64
+          load: true
+          push: false
+          tags: h3-still-checked:local
+          provenance: false
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.title=H3 Still Developer Workspace
+      - name: Actual ComfyUI CPU startup, node schema and authentication smoke test
+        run: |
+          docker run --name h3-still-cpu-check --entrypoint python \
+            h3-still-checked:local /opt/h3-still/cpu_smoke.py
+      - name: Export the exact developer workflows and validation report
+        run: |
+          mkdir -p h3-still-build
+          for name in workflows upstream_workflows licenses UPSTREAM_FIZGIG_README.md models.lock.json sources.lock.json workflow-provenance.json build-provenance.json build-pip-freeze.txt cpu-smoke-report.json; do
+            docker cp "h3-still-cpu-check:/opt/h3-still/$name" h3-still-build/
+          done
+          cp H3_STILL_START_HERE.md h3_still/RUNPOD_SETTINGS.txt h3-still-build/
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish only after the CPU and authentication checks pass
+        env:
+          REPOSITORY: ${{ github.repository }}
+          COMMIT: ${{ github.sha }}
+        run: |
+          IMAGE="ghcr.io/${REPOSITORY,,}"
+          docker tag h3-still-checked:local "$IMAGE:h3-still-$COMMIT"
+          docker tag h3-still-checked:local "$IMAGE:h3-still"
+          docker push "$IMAGE:h3-still-$COMMIT"
+          docker push "$IMAGE:h3-still"
+          REF=$(docker image inspect "$IMAGE:h3-still-$COMMIT" --format '{{index .RepoDigests 0}}')
+          test -n "$REF"
+          printf '%s\n' "$REF" > h3-still-build/image-reference.txt
+          {
+            echo '## H3 Still Developer Workspace'
+            echo 'Use this exact successfully built image in RunPod:'
+            echo
+            echo "\`$REF\`"
+            echo
+            echo 'HTTP 8188 only. Leave the container start command blank. Username: workbench.'
+            echo 'COMFY_PASSWORD={{ RUNPOD_SECRET_comfy_password }}'
+            echo 'Optional: HF_TOKEN={{ RUNPOD_SECRET_hf_token }}'
+            echo 'Conservative first validation: A100 80 GB, 128 GB system RAM, 100 GB persistent /workspace, 30 GB container disk.'
+            echo 'Requires a host driver compatible with CUDA 13.0. Hardware values are planning targets, not measured minimums.'
+            echo 'About 40 GB of pinned model weights download on first Pod startup.'
+            echo 'Passed: source integrity, offline tests, actual CPU startup/schema checks and authenticated proxy checks.'
+            echo 'Not tested: GPU inference, peak VRAM, speed, generated-image quality or mobile layout.'
+            echo 'Download the h3-still-build artifact for the exact portable and original JSON workflows.'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: h3-still-build
+          path: h3-still-build
+          if-no-files-found: error
+      - name: Clean up the CPU smoke-test container
+        if: always()
+        run: docker rm -f h3-still-cpu-check >/dev/null 2>&1 || true

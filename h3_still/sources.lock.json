@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "release": "2026-11-05.1",
+  "reviewed_repository_head": "b0162d440e7da28fa8f563e8beec5cb955bee095",
+  "sources": {
+    "comfy": {
+      "url": "https://github.com/Comfy-Org/ComfyUI.git",
+      "commit": "426f5eea52a7ece1dd599fff4cb6cd1f352ddd24",
+      "version": "v0.43.0"
+    },
+    "fizgig": {
+      "url": "https://github.com/shootthesound/ComfyUI-Fizgig-H3-Still.git",
+      "commit": "10d5171f6e45b0757a03df977f53a660e060c33d",
+      "blobs": {
+        "__init__.py": "543b3bb79d346bcf22a0dbcfac47d912337fb7f9",
+        "example_workflows/h3_still_text_to_image.json": "7dc7f778148476bc86b0c72f26f3a803e9097ebe",
+        "example_workflows/h3_still_text_to_image-8MP-NoTurboVersion.json": "32d5cc9b175e37fcc95636ef0bf2b46797d510e4",
+        "example_workflows/Edit_Workflow_example.json": "5dccaf6fcd5f65004545d8fe01b1c8bef73b52d3"
+      }
+    },
+    "rmbg": {
+      "url": "https://github.com/1038lab/ComfyUI-RMBG.git",
+      "commit": "a66a5e641a54988d80ed6aad18946081c85f309e",
+      "blobs": {
+        "py/AILab_ImageMaskTools.py": "def0660095cccd21e5b620b5c574862916781d90",
+        "py/AILab_utils.py": "6bf3247e7947031c467f09969e29003b783b621c"
+      },
+      "registration": "Unmodified official AILab_ImageResize class only. Full pinned repository retained in image."
+    }
+  }
+}
