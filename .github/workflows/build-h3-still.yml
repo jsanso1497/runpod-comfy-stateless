@@ -43,13 +43,23 @@ jobs:
         run: |
           docker run --name h3-still-cpu-check --entrypoint python \
             h3-still-checked:local /opt/h3-still/cpu_smoke.py
+      - name: Check native conditioning and single-frame geometry without model weights
+        run: |
+          docker run --name h3-still-native-check --entrypoint python \
+            h3-still-checked:local /opt/h3-still/native_contract_smoke.py --cpu
+      - name: Verify real Jupyter password login and browser terminal
+        run: |
+          docker run --name h3-still-terminal-check --entrypoint python \
+            h3-still-checked:local /opt/h3-still/terminal_smoke.py
       - name: Export the exact developer workflows and validation report
         run: |
           mkdir -p h3-still-build
-          for name in workflows upstream_workflows licenses UPSTREAM_FIZGIG_README.md models.lock.json sources.lock.json workflow-provenance.json build-provenance.json build-pip-freeze.txt cpu-smoke-report.json; do
+          for name in workflows studio_workflows upstream_workflows licenses UPSTREAM_FIZGIG_README.md models.lock.json sources.lock.json workflow-provenance.json build-provenance.json build-pip-freeze.txt cpu-smoke-report.json; do
             docker cp "h3-still-cpu-check:/opt/h3-still/$name" h3-still-build/
           done
-          cp H3_STILL_START_HERE.md h3_still/RUNPOD_SETTINGS.txt h3-still-build/
+          docker cp h3-still-native-check:/opt/h3-still/native-contract-report.json h3-still-build/
+          docker cp h3-still-terminal-check:/opt/h3-still/terminal-smoke-report.json h3-still-build/
+          cp H3_STILL_START_HERE.md H3_STILL_STUDIO.md h3_still/RUNPOD_SETTINGS.txt h3-still-build/
       - uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -69,19 +79,21 @@ jobs:
           test -n "$REF"
           printf '%s\n' "$REF" > h3-still-build/image-reference.txt
           {
-            echo '## H3 Still Developer Workspace'
+            echo '## H3 Still Studio INT8'
             echo 'Use this exact successfully built image in RunPod:'
             echo
             echo "\`$REF\`"
             echo
-            echo 'HTTP 8188 only. Leave the container start command blank. Username: workbench.'
+            echo 'HTTP 8188 for ComfyUI, 8888 for Jupyter files and terminal. Leave the start command blank.'
+            echo 'ComfyUI username: workbench. Jupyter login uses the same comfy_password value, no username.'
             echo 'COMFY_PASSWORD={{ RUNPOD_SECRET_comfy_password }}'
             echo 'Optional: HF_TOKEN={{ RUNPOD_SECRET_hf_token }}'
-            echo 'Conservative first validation: A100 80 GB, 128 GB system RAM, 100 GB persistent /workspace, 30 GB container disk.'
+            echo 'Conservative first validation: A100 80 GB, 128 GB system RAM, 150 GB persistent /workspace, 30 GB container disk.'
             echo 'Requires a host driver compatible with CUDA 13.0. Hardware values are planning targets, not measured minimums.'
-            echo 'About 40 GB of pinned model weights download on first Pod startup.'
-            echo 'Passed: source integrity, offline tests, actual CPU startup/schema checks and authenticated proxy checks.'
+            echo 'About 61 GB total cached weights; approximately 21 GB new REF2VA download if the existing cache is intact.'
+            echo 'Passed: source integrity, offline tests, actual CPU startup/schema checks, native resize execution, zero/one/nine-photo routing, authenticated proxy and Jupyter shell tests.'
             echo 'Not tested: GPU inference, peak VRAM, speed, generated-image quality or mobile layout.'
+            echo 'Open Workflows > 00_H3_Studio_v1 > 00_H3_Studio_Auto_INT8.'
             echo 'Download the h3-still-build artifact for the exact portable and original JSON workflows.'
           } >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
@@ -91,4 +103,4 @@ jobs:
           if-no-files-found: error
       - name: Clean up the CPU smoke-test container
         if: always()
-        run: docker rm -f h3-still-cpu-check >/dev/null 2>&1 || true
+        run: docker rm -f h3-still-cpu-check h3-still-terminal-check h3-still-native-check >/dev/null 2>&1 || true

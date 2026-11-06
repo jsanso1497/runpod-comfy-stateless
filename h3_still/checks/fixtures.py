@@ -10,7 +10,7 @@ def graph(edit=False, hq=False):
         result = {'id': id, 'type': kind, 'inputs': [{'name': x, 'link': None} for x in inputs],
                   'outputs': [{'name': x, 'type': x, 'links': []} for x in outputs],
                   'widgets_values_named': named, 'widgets_values': list(named.values()),
-                  'properties': {}, 'mode': 0}
+                  'properties': {}, 'mode': 0, 'pos':[0,0]}
         nodes.append(result)
         return result
     unet = node(1, 'UNETLoader', {'unet_name':'minimax_h3_fl2va_pruned_int8_convrot.safetensors','weight_dtype':'default'}, outputs=['MODEL'])
@@ -24,7 +24,7 @@ def graph(edit=False, hq=False):
     cond = node(29 if edit else 8, 'MiniMaxH3ReferenceToVideo' if edit else 'MiniMaxH3ImageToVideo',
                 {'prompt':'<Picture 1> Change the dress to red.' if edit else 'A mountain lake.',
                  'width':1344,'height':768,'length':124 if edit else 5},
-                inputs=['clip','vae','width','height']+(['ref_images.ref_image_0'] if edit else []),outputs=['CONDITIONING','LATENT'])
+                inputs=['clip','vae','width','height']+(['ref_images.ref_image_0','ref_images.ref_image_1'] if edit else []),outputs=['CONDITIONING','LATENT'])
     latent = node(19, 'FizgigH3StillLatent', {'width':1344,'height':768,'batch_size':1},inputs=['width','height'],outputs=['LATENT'])
     sampler = node(13,'SamplerCustomAdvanced',inputs=['noise','guider','sampler','sigmas','latent_image'],outputs=['LATENT'])
     decode = node(14,'FizgigH3StillDecode',inputs=['samples','vae'],outputs=['IMAGE'])

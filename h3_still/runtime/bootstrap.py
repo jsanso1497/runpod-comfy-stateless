@@ -1,4 +1,4 @@
-"""Persistent, verified downloads for exactly the developer's four model files."""
+"""Persistent, verified downloads for the developer assets plus the INT8 reference checkpoint."""
 from __future__ import annotations
 import argparse
 import hashlib
@@ -9,7 +9,8 @@ import shutil
 import tempfile
 
 PACKAGE = Path(__file__).resolve().parents[1]
-FACTORY = '00_H3_Still_Developer_2026_11_05_v1'
+FACTORY = '00_H3_Studio_v1'
+LEGACY_FACTORY = '00_H3_Still_Core_Recovery_v2'
 
 
 def safe_child(root: Path, relative: str) -> Path:
@@ -68,16 +69,17 @@ def verified(path: Path, row: dict, marker: Path, force: bool = False) -> bool:
 
 
 def seed_workflows(root: Path) -> None:
-    factory = safe_child(root, 'user/default/workflows/' + FACTORY)
-    factory.mkdir(parents=True, exist_ok=True)
-    for source in sorted((PACKAGE / 'workflows').glob('*.json')):
-        target = safe_child(root, str(factory.relative_to(root) / source.name))
-        # Exclusive create means even user edits to factory copies are preserved.
-        try:
-            with target.open('xb') as file:
-                file.write(source.read_bytes())
-        except FileExistsError:
-            pass
+    # Keep saved user graphs and previous factories. Seed each new name only once.
+    for directory, name in [('workflows', LEGACY_FACTORY), ('studio_workflows', FACTORY)]:
+        factory = safe_child(root, 'user/default/workflows/' + name)
+        factory.mkdir(parents=True, exist_ok=True)
+        for source in sorted((PACKAGE / directory).glob('*.json')):
+            target = safe_child(root, str(factory.relative_to(root) / source.name))
+            try:
+                with target.open('xb') as file:
+                    file.write(source.read_bytes())
+            except FileExistsError:
+                pass
 
 
 def prepare(root: Path, download: bool = True) -> None:
@@ -111,7 +113,7 @@ def prepare(root: Path, download: bool = True) -> None:
             if not verified(expected_file, row, marker, force):
                 required = int(row['approx_gb'] * 1_000_000_000) + 2_000_000_000
                 if shutil.disk_usage(root).free < required:
-                    raise RuntimeError('Insufficient free persistent disk for ' + row['id'] + '. Allow 100 GB total.')
+                    raise RuntimeError('Insufficient free persistent disk for ' + row['id'] + '. Use a 150 GB persistent volume for both quantized checkpoints and outputs.')
                 from huggingface_hub import hf_hub_download
                 print('Downloading pinned asset:', row['id'], flush=True)
                 downloaded = Path(hf_hub_download(
@@ -124,6 +126,8 @@ def prepare(root: Path, download: bool = True) -> None:
                 expected_file = downloaded
             dest.parent.mkdir(parents=True, exist_ok=True)
             dest.symlink_to(os.path.relpath(expected_file, dest.parent))
+        # Optional adapters have a visible persistent folder even before upload.
+        safe_child(root, 'models/loras').mkdir(parents=True, exist_ok=True)
         seed_workflows(root)
         import yaml
         config = {'h3_still': {'base_path': str(root / 'models'), 'is_default': True,
@@ -132,7 +136,7 @@ def prepare(root: Path, download: bool = True) -> None:
         if path.is_symlink():
             raise ValueError('Model-path config must not be a symlink.')
         path.write_text(yaml.safe_dump(config), encoding='utf-8')
-        print('Verified assets and four developer-based workflows are ready.', flush=True)
+        print('Verified quantized assets and H3 Still Studio workflows are ready.', flush=True)
 
 
 def main():

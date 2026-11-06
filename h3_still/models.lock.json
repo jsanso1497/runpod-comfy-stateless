@@ -36,7 +36,16 @@
       "destination": "loras/minimax_h3_turbo_v4_step600_ema.safetensors",
       "approx_gb": 0.78,
       "sha256": "5f3a626cd72c93a8b9318d6760c510bc5092d2ab13aaba1f932c5bab07a416d3"
+    },
+    {
+      "id": "h3_ref2va_int8",
+      "repo": "Comfy-Org/MiniMax-H3",
+      "revision": "3f57e8291d2ef846f9a074b1b76d2767db434abe",
+      "file": "diffusion_models/minimax_h3_ref2va_pruned_int8_convrot.safetensors",
+      "destination": "diffusion_models/minimax_h3_ref2va_pruned_int8_convrot.safetensors",
+      "approx_gb": 20.970379616,
+      "sha256": "9255f52b6677845ad238f20dfaafa94727053694127ab7f255c048f0f9365779"
     }
   ],
-  "precision_policy": "Developer example weights, not a BF16 substitution. Required Qwen3-VL encoder is not a prompt enhancer."
+  "precision_policy": "INT8/ConvRot FL2VA + REF2VA, NVFP4/AWQ encoder, INT8 video VAE. No BF16 base model or encoder. Existing Turbo LoRA retained; no prompt enhancer."
 }

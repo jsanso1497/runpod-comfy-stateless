@@ -33,16 +33,15 @@ def main():
     sources = lock['sources']
     comfy = Path('/opt/ComfyUI')
     fizgig = comfy / 'custom_nodes' / 'ComfyUI-Fizgig-H3-Still'
-    rmbg = Path('/opt/vendor/ComfyUI-RMBG')
     checkout(sources['comfy'], comfy)
     checkout(sources['fizgig'], fizgig)
-    checkout(sources['rmbg'], rmbg)
-    shutil.copytree(PACKAGE / 'nodes/rmbg_resize', comfy / 'custom_nodes/H3_Still_RMBG_Resize')
+    # Only Fizgig and the small optional-input helpers are registered. No RMBG.
+    shutil.copytree(PACKAGE / 'nodes/studio', comfy / 'custom_nodes/H3_Still_Studio')
     original = PACKAGE / 'upstream_workflows'
     shutil.copytree(fizgig / 'example_workflows', original)
     licenses = PACKAGE / 'licenses'
     licenses.mkdir()
-    for name, path in [('Fizgig', fizgig), ('RMBG', rmbg), ('ComfyUI', comfy)]:
+    for name, path in [('Fizgig', fizgig), ('ComfyUI', comfy)]:
         for candidate in ('LICENSE', 'LICENSE.txt', 'LICENSE.md'):
             if (path / candidate).is_file():
                 shutil.copy2(path / candidate, licenses / (name + '-' + candidate))
@@ -57,7 +56,9 @@ def main():
         'source_lock': lock, 'python': sys.version,
         'status': 'Source assembly complete; CPU schema and GPU inference are separate tests.'
     }, indent=2)+'\n')
-    print('Built four portable presets from three verified developer files.')
+    from build_studio_workflow import main as build_studio
+    build_studio()
+    print('Built core-resize legacy presets and the new all-in-one INT8 Studio workflow.')
 
 
 if __name__ == '__main__':

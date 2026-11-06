@@ -10,6 +10,7 @@ FRONTEND_ONLY = {'MarkdownNote', 'Note', 'Reroute'}
 
 
 def validate(object_info: dict, folder: Path | None = None) -> list[str]:
+    check_studio = folder is None
     folder = folder or PACKAGE / 'workflows'
     issues = []
     for _, filename, profile in PRESETS:
@@ -31,6 +32,12 @@ def validate(object_info: dict, folder: Path | None = None) -> list[str]:
             for group in ('required', 'optional'):
                 fields.update(spec.get('input', {}).get(group, {}))
             named = node.get('widgets_values_named', {})
+            connected = {p['name'] for p in node.get('inputs',[]) if p.get('link') is not None}
+            for required_name in spec.get('input',{}).get('required',{}):
+                if kind == 'ResolutionSelector' and required_name == 'preview':
+                    continue  # UI-only live resolution display, no execution value.
+                if required_name not in named and required_name not in connected:
+                    issues.append(f'{filename}: required {kind}.{required_name} has no value or connection')
             # Native nested reference sockets are dynamic. Check each concrete
             # scalar widget in the schema without rejecting dynamic input names.
             for name, value in named.items():
@@ -42,7 +49,7 @@ def validate(object_info: dict, folder: Path | None = None) -> list[str]:
                     # All critical known scalar fields must still be present.
                     if name in ('sampler_name', 'scheduler', 'steps', 'denoise',
                                 'clip_name', 'unet_name', 'vae_name', 'lora_name',
-                                'megapixels', 'multiple', 'divisible_by', 'strength_model'):
+                                'megapixels', 'multiple', 'resolution_steps', 'divisible_by', 'strength_model'):
                         issues.append(f'{filename}: {kind}.{name} missing from installed schema')
                     continue
                 options = field[0]
@@ -60,6 +67,12 @@ def validate(object_info: dict, folder: Path | None = None) -> list[str]:
                 name = LOADER_FIELDS[kind][0]
                 if name not in fields:
                     issues.append(f'{filename}: loader schema has no {name}')
+    if check_studio:
+        from studio_validate import validate_studio
+        try:
+            validate_studio(object_info)
+        except (ValueError, KeyError, AssertionError) as error:
+            issues.append('H3 Studio: ' + str(error))
     return sorted(set(issues))
 
 

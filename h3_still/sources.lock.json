@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "release": "2026-11-05.1",
+  "release": "2026-11-06.1",
   "reviewed_repository_head": "b0162d440e7da28fa8f563e8beec5cb955bee095",
   "sources": {
     "comfy": {
@@ -25,7 +25,7 @@
         "py/AILab_ImageMaskTools.py": "def0660095cccd21e5b620b5c574862916781d90",
         "py/AILab_utils.py": "6bf3247e7947031c467f09969e29003b783b621c"
       },
-      "registration": "Unmodified official AILab_ImageResize class only. Full pinned repository retained in image."
+      "registration": "Historical provenance only. Not checked out or registered by Studio."
     }
   }
 }

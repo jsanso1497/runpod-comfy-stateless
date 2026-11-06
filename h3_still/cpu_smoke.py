@@ -1,7 +1,7 @@
 """Real ComfyUI CPU startup and authenticated proxy check, without model weights.
 
 The empty model-name fixtures are only for loader dropdown/schema validation.
-No inference is submitted. This test must never be described as a GPU test.
+Native image resizing is submitted; no model inference is submitted. This test must never be described as a GPU test.
 """
 from __future__ import annotations
 import base64
@@ -68,6 +68,10 @@ def main():
                 errors = validate(info)
                 if errors:
                     raise RuntimeError('\n'.join(errors))
+                from core_resize_smoke import run as test_native_resize
+                resize_report = test_native_resize(root)
+                from studio_smoke import run as test_studio
+                studio_report = test_studio(root, info)
                 password = 'ci-only-temporary-h3-still-credential'
                 config = prepare_auth(password)
                 subprocess.run(['nginx', '-t', '-c', str(config)], check=True)
@@ -105,7 +109,7 @@ def main():
                 finally:
                     connection.close()
                 result = {'cpu_startup': 'passed', 'node_schema': 'passed', 'authenticated_proxy': 'passed', 'websocket_upgrade': 'passed',
-                          'weights_loaded': False, 'gpu_inference': 'not tested', 'image_quality': 'not tested'}
+                          'weights_loaded': False, 'gpu_inference': 'not tested', 'image_quality': 'not tested', 'native_resize':resize_report, 'studio_inputs':studio_report}
                 (PACKAGE / 'cpu-smoke-report.json').write_text(json.dumps(result, indent=2)+'\n')
                 print(json.dumps(result, indent=2))
         except Exception:

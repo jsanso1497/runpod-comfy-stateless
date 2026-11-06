@@ -49,8 +49,8 @@ class WorkflowTests(unittest.TestCase):
         self.assertEqual(get_node(g,'LoraLoaderModelOnly')['widgets_values_named']['strength_model'],0)
         self.assertEqual(get_node(g,'ResolutionSelector')['widgets_values_named']['multiple'],32)
     def test_both_edit_resolutions_preserved(self):
-        self.assertEqual(get_node(converted('edit_readme'),'AILab_ImageResize')['widgets_values_named']['megapixels'],2.5)
-        self.assertEqual(get_node(converted('edit_original'),'AILab_ImageResize')['widgets_values_named']['megapixels'],2)
+        self.assertEqual(get_node(converted('edit_readme'),'ImageScaleToTotalPixels')['widgets_values_named']['megapixels'],2.5)
+        self.assertEqual(get_node(converted('edit_original'),'ImageScaleToTotalPixels')['widgets_values_named']['megapixels'],2)
     def test_topology_preserved(self):
         original=graph(); result=portable_graph(original,'t.json','turbo',MODELS)
         self.assertEqual(result['links'],original['links'])
@@ -167,7 +167,7 @@ class LiveSchemaTests(unittest.TestCase):
             for node in g['nodes']:
                 fields={}
                 for key,val in node['widgets_values_named'].items():
-                    if isinstance(val,str):fields[key]=[[val],{}]
+                    if isinstance(val,str):fields[key]=['STRING',{}] if key in ('prompt','filename_prefix','image','upload','control_after_generate') else [[val],{}]
                     else:fields[key]=['FLOAT',{}]
                 if node['type']=='LoadImage':fields['image']=[[],{}]
                 self.info[node['type']]={'input':{'required':fields}}
@@ -175,8 +175,8 @@ class LiveSchemaTests(unittest.TestCase):
     def test_real_schema_checker_accepts_compatible_fixture(self):
         self.assertEqual(validate_live(self.info,self.root),[])
     def test_missing_resize_node_detected(self):
-        del self.info['AILab_ImageResize']
-        self.assertTrue(any('AILab_ImageResize' in x for x in validate_live(self.info,self.root)))
+        del self.info['ImageScaleToTotalPixels']
+        self.assertTrue(any('ImageScaleToTotalPixels' in x for x in validate_live(self.info,self.root)))
     def test_missing_model_detected(self):
         self.info['UNETLoader']['input']['required']['unet_name']=[[],{}]
         self.assertTrue(any('unet_name' in x for x in validate_live(self.info,self.root)))

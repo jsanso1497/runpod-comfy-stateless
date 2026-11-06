@@ -26,9 +26,9 @@ def validate_manifest(data: dict) -> None:
             raise ValueError('Model revision is not an immutable commit.')
         if row['approx_gb'] <= 0:
             raise ValueError('Invalid storage estimate.')
-    expected = {'h3_fl2va_int8', 'h3_text_encoder', 'h3_video_vae', 'h3_turbo_v4_600_ema'}
+    expected = {'h3_fl2va_int8', 'h3_text_encoder', 'h3_video_vae', 'h3_turbo_v4_600_ema', 'h3_ref2va_int8'}
     if seen_ids != expected:
-        raise ValueError('Workspace must download exactly the four developer assets.')
+        raise ValueError('Workspace must download the four developer assets plus the locked INT8 reference checkpoint.')
 
 
 def main() -> None:
@@ -46,6 +46,9 @@ def main() -> None:
         print('Verified generated workflow topology and preset settings.')
     else:
         print('Source-package checks passed. Official workflows are fetched and checked during Docker build.')
+    from studio_validate import validate_studio
+    validate_studio()
+    print('Studio graph, blank input defaults and model routing contracts passed.')
     print('No Docker build, GPU memory or generated-image quality claim is implied.')
 
 

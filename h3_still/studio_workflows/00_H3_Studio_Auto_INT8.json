@@ -1,0 +1,1537 @@
+{
+  "id": "d85315e9-de90-58e6-b21b-bcbbb1a14857",
+  "revision": 0,
+  "last_node_id": 27,
+  "last_link_id": 32,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "H3StudioOptionalImage",
+      "title": "Reference slot 1 - optional",
+      "pos": [
+        0,
+        0
+      ],
+      "size": [
+        300,
+        320
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "reference",
+          "type": "H3_STILL_REFERENCE",
+          "links": [
+            1
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3StudioOptionalImage"
+      },
+      "widgets_values": [
+        "(none)",
+        true,
+        "image"
+      ],
+      "widgets_values_named": {
+        "image": "(none)",
+        "enabled": true,
+        "upload": "image"
+      }
+    },
+    {
+      "id": 2,
+      "type": "H3StudioOptionalImage",
+      "title": "Reference slot 2 - optional",
+      "pos": [
+        340,
+        0
+      ],
+      "size": [
+        300,
+        320
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "reference",
+          "type": "H3_STILL_REFERENCE",
+          "links": [
+            2
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3StudioOptionalImage"
+      },
+      "widgets_values": [
+        "(none)",
+        true,
+        "image"
+      ],
+      "widgets_values_named": {
+        "image": "(none)",
+        "enabled": true,
+        "upload": "image"
+      }
+    },
+    {
+      "id": 3,
+      "type": "H3StudioOptionalImage",
+      "title": "Reference slot 3 - optional",
+      "pos": [
+        680,
+        0
+      ],
+      "size": [
+        300,
+        320
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "reference",
+          "type": "H3_STILL_REFERENCE",
+          "links": [
+            3
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3StudioOptionalImage"
+      },
+      "widgets_values": [
+        "(none)",
+        true,
+        "image"
+      ],
+      "widgets_values_named": {
+        "image": "(none)",
+        "enabled": true,
+        "upload": "image"
+      }
+    },
+    {
+      "id": 4,
+      "type": "H3StudioOptionalImage",
+      "title": "Reference slot 4 - optional",
+      "pos": [
+        0,
+        390
+      ],
+      "size": [
+        300,
+        320
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 3,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "reference",
+          "type": "H3_STILL_REFERENCE",
+          "links": [
+            4
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3StudioOptionalImage"
+      },
+      "widgets_values": [
+        "(none)",
+        true,
+        "image"
+      ],
+      "widgets_values_named": {
+        "image": "(none)",
+        "enabled": true,
+        "upload": "image"
+      }
+    },
+    {
+      "id": 5,
+      "type": "H3StudioOptionalImage",
+      "title": "Reference slot 5 - optional",
+      "pos": [
+        340,
+        390
+      ],
+      "size": [
+        300,
+        320
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 4,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "reference",
+          "type": "H3_STILL_REFERENCE",
+          "links": [
+            5
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3StudioOptionalImage"
+      },
+      "widgets_values": [
+        "(none)",
+        true,
+        "image"
+      ],
+      "widgets_values_named": {
+        "image": "(none)",
+        "enabled": true,
+        "upload": "image"
+      }
+    },
+    {
+      "id": 6,
+      "type": "H3StudioOptionalImage",
+      "title": "Reference slot 6 - optional",
+      "pos": [
+        680,
+        390
+      ],
+      "size": [
+        300,
+        320
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 5,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "reference",
+          "type": "H3_STILL_REFERENCE",
+          "links": [
+            6
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3StudioOptionalImage"
+      },
+      "widgets_values": [
+        "(none)",
+        true,
+        "image"
+      ],
+      "widgets_values_named": {
+        "image": "(none)",
+        "enabled": true,
+        "upload": "image"
+      }
+    },
+    {
+      "id": 7,
+      "type": "H3StudioOptionalImage",
+      "title": "Reference slot 7 - optional",
+      "pos": [
+        0,
+        780
+      ],
+      "size": [
+        300,
+        320
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 6,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "reference",
+          "type": "H3_STILL_REFERENCE",
+          "links": [
+            7
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3StudioOptionalImage"
+      },
+      "widgets_values": [
+        "(none)",
+        true,
+        "image"
+      ],
+      "widgets_values_named": {
+        "image": "(none)",
+        "enabled": true,
+        "upload": "image"
+      }
+    },
+    {
+      "id": 8,
+      "type": "H3StudioOptionalImage",
+      "title": "Reference slot 8 - optional",
+      "pos": [
+        340,
+        780
+      ],
+      "size": [
+        300,
+        320
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 7,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "reference",
+          "type": "H3_STILL_REFERENCE",
+          "links": [
+            8
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3StudioOptionalImage"
+      },
+      "widgets_values": [
+        "(none)",
+        true,
+        "image"
+      ],
+      "widgets_values_named": {
+        "image": "(none)",
+        "enabled": true,
+        "upload": "image"
+      }
+    },
+    {
+      "id": 9,
+      "type": "H3StudioOptionalImage",
+      "title": "Reference slot 9 - optional",
+      "pos": [
+        680,
+        780
+      ],
+      "size": [
+        300,
+        320
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 8,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "reference",
+          "type": "H3_STILL_REFERENCE",
+          "links": [
+            9
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3StudioOptionalImage"
+      },
+      "widgets_values": [
+        "(none)",
+        true,
+        "image"
+      ],
+      "widgets_values_named": {
+        "image": "(none)",
+        "enabled": true,
+        "upload": "image"
+      }
+    },
+    {
+      "id": 10,
+      "type": "H3StudioPlan",
+      "title": "1. MODE + SIZE (Auto uses photo count)",
+      "pos": [
+        1100,
+        0
+      ],
+      "size": [
+        500,
+        370
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "reference_1",
+          "type": "H3_STILL_REFERENCE",
+          "link": 1,
+          "shape": 7
+        },
+        {
+          "name": "reference_2",
+          "type": "H3_STILL_REFERENCE",
+          "link": 2,
+          "shape": 7
+        },
+        {
+          "name": "reference_3",
+          "type": "H3_STILL_REFERENCE",
+          "link": 3,
+          "shape": 7
+        },
+        {
+          "name": "reference_4",
+          "type": "H3_STILL_REFERENCE",
+          "link": 4,
+          "shape": 7
+        },
+        {
+          "name": "reference_5",
+          "type": "H3_STILL_REFERENCE",
+          "link": 5,
+          "shape": 7
+        },
+        {
+          "name": "reference_6",
+          "type": "H3_STILL_REFERENCE",
+          "link": 6,
+          "shape": 7
+        },
+        {
+          "name": "reference_7",
+          "type": "H3_STILL_REFERENCE",
+          "link": 7,
+          "shape": 7
+        },
+        {
+          "name": "reference_8",
+          "type": "H3_STILL_REFERENCE",
+          "link": 8,
+          "shape": 7
+        },
+        {
+          "name": "reference_9",
+          "type": "H3_STILL_REFERENCE",
+          "link": 9,
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "plan",
+          "type": "H3_STILL_PLAN",
+          "links": [
+            10,
+            13,
+            30,
+            32
+          ]
+        },
+        {
+          "name": "width",
+          "type": "INT",
+          "links": [
+            16
+          ]
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "links": [
+            17
+          ]
+        },
+        {
+          "name": "steps",
+          "type": "INT",
+          "links": [
+            19
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3StudioPlan"
+      },
+      "widgets_values": [
+        "Auto",
+        "1:1",
+        4.0,
+        2.5,
+        "Quality - 50 steps, no Turbo",
+        2.5
+      ],
+      "widgets_values_named": {
+        "mode": "Auto",
+        "aspect_ratio": "1:1",
+        "generation_megapixels": 4.0,
+        "edit_megapixels": 2.5,
+        "preset": "Quality - 50 steps, no Turbo",
+        "reference_cap_megapixels": 2.5
+      }
+    },
+    {
+      "id": 11,
+      "type": "H3StudioModel",
+      "title": "INT8 model - selected automatically",
+      "pos": [
+        1770,
+        0
+      ],
+      "size": [
+        420,
+        90
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "plan",
+          "type": "H3_STILL_PLAN",
+          "link": 10
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            11
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3StudioModel"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 12,
+      "type": "H3StudioLora",
+      "title": "2. Optional H3 identity LoRA (OFF)",
+      "pos": [
+        1770,
+        170
+      ],
+      "size": [
+        420,
+        160
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 11
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            12
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3StudioLora"
+      },
+      "widgets_values": [
+        false,
+        "(none)",
+        1.0
+      ],
+      "widgets_values_named": {
+        "enabled": false,
+        "lora_name": "(none)",
+        "strength": 1.0
+      }
+    },
+    {
+      "id": 13,
+      "type": "H3StudioLora",
+      "title": "3. Optional H3 style LoRA (OFF)",
+      "pos": [
+        1770,
+        380
+      ],
+      "size": [
+        420,
+        160
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 12
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            18,
+            20
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3StudioLora"
+      },
+      "widgets_values": [
+        false,
+        "(none)",
+        1.0
+      ],
+      "widgets_values_named": {
+        "enabled": false,
+        "lora_name": "(none)",
+        "strength": 1.0
+      }
+    },
+    {
+      "id": 14,
+      "type": "CLIPLoader",
+      "title": "Required H3 encoder - NOT a prompt enhancer",
+      "pos": [
+        1770,
+        620
+      ],
+      "size": [
+        460,
+        135
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            14
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPLoader",
+        "cnr_id": "comfy-core",
+        "ver": "0.43.0"
+      },
+      "widgets_values": [
+        "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+        "minimax",
+        "default"
+      ],
+      "widgets_values_named": {
+        "clip_name": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+        "type": "minimax",
+        "device": "default"
+      }
+    },
+    {
+      "id": 15,
+      "type": "VAELoader",
+      "title": "INT8 video VAE",
+      "pos": [
+        1770,
+        810
+      ],
+      "size": [
+        460,
+        90
+      ],
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            15,
+            28
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAELoader",
+        "cnr_id": "comfy-core",
+        "ver": "0.43.0"
+      },
+      "widgets_values": [
+        "minimax_h3_video_vae_int8_convrot.safetensors"
+      ],
+      "widgets_values_named": {
+        "vae_name": "minimax_h3_video_vae_int8_convrot.safetensors"
+      }
+    },
+    {
+      "id": 16,
+      "type": "H3StudioConditioning",
+      "title": "4. YOUR PROMPT - no rewriting",
+      "pos": [
+        1100,
+        460
+      ],
+      "size": [
+        600,
+        330
+      ],
+      "flags": {},
+      "order": 15,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "plan",
+          "type": "H3_STILL_PLAN",
+          "link": 13
+        },
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 14
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 15
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            21
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3StudioConditioning"
+      },
+      "widgets_values": [
+        "An editorial photograph of a ceramic cup beside a window. Soft morning light, natural materials, balanced exposure, restrained detail."
+      ],
+      "widgets_values_named": {
+        "prompt": "An editorial photograph of a ceramic cup beside a window. Soft morning light, natural materials, balanced exposure, restrained detail."
+      }
+    },
+    {
+      "id": 17,
+      "type": "FizgigH3StillLatent",
+      "title": "True single frame - shared output dimensions",
+      "pos": [
+        2380,
+        650
+      ],
+      "size": [
+        340,
+        155
+      ],
+      "flags": {},
+      "order": 16,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "width",
+          "type": "INT",
+          "link": 16,
+          "widget": {
+            "name": "width"
+          }
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "link": 17,
+          "widget": {
+            "name": "height"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            26
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "FizgigH3StillLatent",
+        "cnr_id": "comfyui-fizgig-h3-still"
+      },
+      "widgets_values": [
+        2048,
+        2048,
+        1
+      ],
+      "widgets_values_named": {
+        "width": 2048,
+        "height": 2048,
+        "batch_size": 1
+      }
+    },
+    {
+      "id": 18,
+      "type": "RandomNoise",
+      "title": "Seed - keep fixed while comparing changes",
+      "pos": [
+        2380,
+        0
+      ],
+      "size": [
+        350,
+        100
+      ],
+      "flags": {},
+      "order": 17,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "NOISE",
+          "type": "NOISE",
+          "links": [
+            22
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "RandomNoise",
+        "cnr_id": "comfy-core",
+        "ver": "0.43.0"
+      },
+      "widgets_values": [
+        18071042,
+        "fixed"
+      ],
+      "widgets_values_named": {
+        "noise_seed": 18071042,
+        "control_after_generate": "fixed"
+      }
+    },
+    {
+      "id": 19,
+      "type": "KSamplerSelect",
+      "title": "Sampler - developer baseline",
+      "pos": [
+        2380,
+        150
+      ],
+      "size": [
+        310,
+        140
+      ],
+      "flags": {},
+      "order": 18,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "SAMPLER",
+          "type": "SAMPLER",
+          "links": [
+            24
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "KSamplerSelect",
+        "cnr_id": "comfy-core",
+        "ver": "0.43.0"
+      },
+      "widgets_values": [
+        "er_sde"
+      ],
+      "widgets_values_named": {
+        "sampler_name": "er_sde"
+      }
+    },
+    {
+      "id": 20,
+      "type": "BasicScheduler",
+      "title": "Schedule - steps from preset",
+      "pos": [
+        2380,
+        310
+      ],
+      "size": [
+        310,
+        140
+      ],
+      "flags": {},
+      "order": 19,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 18
+        },
+        {
+          "name": "steps",
+          "type": "INT",
+          "link": 19,
+          "widget": {
+            "name": "steps"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "SIGMAS",
+          "type": "SIGMAS",
+          "links": [
+            25
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BasicScheduler",
+        "cnr_id": "comfy-core",
+        "ver": "0.43.0"
+      },
+      "widgets_values": [
+        "simple",
+        50,
+        1.0
+      ],
+      "widgets_values_named": {
+        "scheduler": "simple",
+        "steps": 50,
+        "denoise": 1.0
+      }
+    },
+    {
+      "id": 21,
+      "type": "BasicGuider",
+      "title": "No CFG / negative prompt branch",
+      "pos": [
+        2380,
+        490
+      ],
+      "size": [
+        350,
+        90
+      ],
+      "flags": {},
+      "order": 20,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 20
+        },
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "link": 21
+        }
+      ],
+      "outputs": [
+        {
+          "name": "GUIDER",
+          "type": "GUIDER",
+          "links": [
+            23
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BasicGuider",
+        "cnr_id": "comfy-core",
+        "ver": "0.43.0"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 22,
+      "type": "SamplerCustomAdvanced",
+      "title": "5. SAMPLE STILL",
+      "pos": [
+        2880,
+        0
+      ],
+      "size": [
+        320,
+        300
+      ],
+      "flags": {},
+      "order": 21,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "noise",
+          "type": "NOISE",
+          "link": 22
+        },
+        {
+          "name": "guider",
+          "type": "GUIDER",
+          "link": 23
+        },
+        {
+          "name": "sampler",
+          "type": "SAMPLER",
+          "link": 24
+        },
+        {
+          "name": "sigmas",
+          "type": "SIGMAS",
+          "link": 25
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 26
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "LATENT",
+          "links": [
+            27
+          ]
+        },
+        {
+          "name": "denoised_output",
+          "type": "LATENT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SamplerCustomAdvanced",
+        "cnr_id": "comfy-core",
+        "ver": "0.43.0"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 23,
+      "type": "FizgigH3StillDecode",
+      "title": "Fizgig still decoder",
+      "pos": [
+        2880,
+        370
+      ],
+      "size": [
+        320,
+        110
+      ],
+      "flags": {},
+      "order": 22,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 27
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 28
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            29,
+            31
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "FizgigH3StillDecode",
+        "cnr_id": "comfyui-fizgig-h3-still"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 24,
+      "type": "SaveImage",
+      "title": "6. FINAL PNG",
+      "pos": [
+        3320,
+        0
+      ],
+      "size": [
+        520,
+        520
+      ],
+      "flags": {},
+      "order": 23,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 29
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "SaveImage",
+        "cnr_id": "comfy-core",
+        "ver": "0.43.0"
+      },
+      "widgets_values": [
+        "H3_Studio/Final"
+      ],
+      "widgets_values_named": {
+        "filename_prefix": "H3_Studio/Final"
+      }
+    },
+    {
+      "id": 25,
+      "type": "H3StudioCompare",
+      "title": "Edit comparison - source LEFT, edited RIGHT",
+      "pos": [
+        3320,
+        640
+      ],
+      "size": [
+        520,
+        300
+      ],
+      "flags": {},
+      "order": 24,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "plan",
+          "type": "H3_STILL_PLAN",
+          "link": 30
+        },
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 31
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "H3StudioCompare"
+      },
+      "widgets_values": [
+        true
+      ],
+      "widgets_values_named": {
+        "save_comparison": true
+      }
+    },
+    {
+      "id": 26,
+      "type": "H3StudioAudit",
+      "title": "Route + photo-tag report (after running)",
+      "pos": [
+        1100,
+        870
+      ],
+      "size": [
+        600,
+        360
+      ],
+      "flags": {},
+      "order": 25,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "plan",
+          "type": "H3_STILL_PLAN",
+          "link": 32
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "H3StudioAudit"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 27,
+      "type": "Note",
+      "title": "START HERE",
+      "pos": [
+        0,
+        920
+      ],
+      "size": [
+        1000,
+        380
+      ],
+      "flags": {},
+      "order": 26,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "Note"
+      },
+      "widgets_values": [
+        "POWERED BY MINIMAX H3\n\nAuto: no active photo = Generate; one = Edit; two to nine = References.\nFor a NEW scene using just one photo, select References instead of Auto.\nUpload photos in the slots, left to right. Expand slots 4-9 when needed.\nLeave unused slots at (none), or switch enabled OFF. No placeholder image is generated.\nUse <Picture 1>, <Picture 2>, etc. Active photos are numbered in slot order; see the report.\nEdit keeps the first photo aspect ratio at edit_megapixels. Other modes use generation size/aspect.\nQuality = 50 steps, no Turbo. Developer fast = 20 steps / Turbo 0.38, Generate or Edit only.\nTwo personal H3 LoRA slots are independently OFF by default. Upload to /workspace/h3-still/models/loras.\nThis is whole-image regeneration, not protected-mask inpainting or guaranteed restoration.\n4 MP generation is a starting point. 8 MP and nine references require GPU validation.\nRequires the rebuilt H3 Still Studio image. No BF16 base weights, no AI Lab nodes, no prompt enhancer."
+      ],
+      "widgets_values_named": {
+        "text": "POWERED BY MINIMAX H3\n\nAuto: no active photo = Generate; one = Edit; two to nine = References.\nFor a NEW scene using just one photo, select References instead of Auto.\nUpload photos in the slots, left to right. Expand slots 4-9 when needed.\nLeave unused slots at (none), or switch enabled OFF. No placeholder image is generated.\nUse <Picture 1>, <Picture 2>, etc. Active photos are numbered in slot order; see the report.\nEdit keeps the first photo aspect ratio at edit_megapixels. Other modes use generation size/aspect.\nQuality = 50 steps, no Turbo. Developer fast = 20 steps / Turbo 0.38, Generate or Edit only.\nTwo personal H3 LoRA slots are independently OFF by default. Upload to /workspace/h3-still/models/loras.\nThis is whole-image regeneration, not protected-mask inpainting or guaranteed restoration.\n4 MP generation is a starting point. 8 MP and nine references require GPU validation.\nRequires the rebuilt H3 Still Studio image. No BF16 base weights, no AI Lab nodes, no prompt enhancer."
+      }
+    }
+  ],
+  "links": [
+    [
+      1,
+      1,
+      0,
+      10,
+      0,
+      "H3_STILL_REFERENCE"
+    ],
+    [
+      2,
+      2,
+      0,
+      10,
+      1,
+      "H3_STILL_REFERENCE"
+    ],
+    [
+      3,
+      3,
+      0,
+      10,
+      2,
+      "H3_STILL_REFERENCE"
+    ],
+    [
+      4,
+      4,
+      0,
+      10,
+      3,
+      "H3_STILL_REFERENCE"
+    ],
+    [
+      5,
+      5,
+      0,
+      10,
+      4,
+      "H3_STILL_REFERENCE"
+    ],
+    [
+      6,
+      6,
+      0,
+      10,
+      5,
+      "H3_STILL_REFERENCE"
+    ],
+    [
+      7,
+      7,
+      0,
+      10,
+      6,
+      "H3_STILL_REFERENCE"
+    ],
+    [
+      8,
+      8,
+      0,
+      10,
+      7,
+      "H3_STILL_REFERENCE"
+    ],
+    [
+      9,
+      9,
+      0,
+      10,
+      8,
+      "H3_STILL_REFERENCE"
+    ],
+    [
+      10,
+      10,
+      0,
+      11,
+      0,
+      "H3_STILL_PLAN"
+    ],
+    [
+      11,
+      11,
+      0,
+      12,
+      0,
+      "MODEL"
+    ],
+    [
+      12,
+      12,
+      0,
+      13,
+      0,
+      "MODEL"
+    ],
+    [
+      13,
+      10,
+      0,
+      16,
+      0,
+      "H3_STILL_PLAN"
+    ],
+    [
+      14,
+      14,
+      0,
+      16,
+      1,
+      "CLIP"
+    ],
+    [
+      15,
+      15,
+      0,
+      16,
+      2,
+      "VAE"
+    ],
+    [
+      16,
+      10,
+      1,
+      17,
+      0,
+      "INT"
+    ],
+    [
+      17,
+      10,
+      2,
+      17,
+      1,
+      "INT"
+    ],
+    [
+      18,
+      13,
+      0,
+      20,
+      0,
+      "MODEL"
+    ],
+    [
+      19,
+      10,
+      3,
+      20,
+      1,
+      "INT"
+    ],
+    [
+      20,
+      13,
+      0,
+      21,
+      0,
+      "MODEL"
+    ],
+    [
+      21,
+      16,
+      0,
+      21,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      22,
+      18,
+      0,
+      22,
+      0,
+      "NOISE"
+    ],
+    [
+      23,
+      21,
+      0,
+      22,
+      1,
+      "GUIDER"
+    ],
+    [
+      24,
+      19,
+      0,
+      22,
+      2,
+      "SAMPLER"
+    ],
+    [
+      25,
+      20,
+      0,
+      22,
+      3,
+      "SIGMAS"
+    ],
+    [
+      26,
+      17,
+      0,
+      22,
+      4,
+      "LATENT"
+    ],
+    [
+      27,
+      22,
+      0,
+      23,
+      0,
+      "LATENT"
+    ],
+    [
+      28,
+      15,
+      0,
+      23,
+      1,
+      "VAE"
+    ],
+    [
+      29,
+      23,
+      0,
+      24,
+      0,
+      "IMAGE"
+    ],
+    [
+      30,
+      10,
+      0,
+      25,
+      0,
+      "H3_STILL_PLAN"
+    ],
+    [
+      31,
+      23,
+      0,
+      25,
+      1,
+      "IMAGE"
+    ],
+    [
+      32,
+      10,
+      0,
+      26,
+      0,
+      "H3_STILL_PLAN"
+    ]
+  ],
+  "groups": [
+    {
+      "title": "OPTIONAL PHOTOS - blank is valid",
+      "bounding": [
+        -20,
+        -50,
+        1030,
+        930
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "CONTROLS + PROMPT",
+      "bounding": [
+        1080,
+        -50,
+        660,
+        1320
+      ],
+      "color": "#497e61",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "QUANTIZED MODEL + OPTIONAL LORAS",
+      "bounding": [
+        1750,
+        -50,
+        500,
+        1030
+      ],
+      "color": "#766393",
+      "font_size": 24,
+      "flags": {}
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.43,
+      "offset": [
+        30,
+        60
+      ]
+    },
+    "h3_studio": {
+      "release": "2026-11-06.1",
+      "source_tested": true,
+      "gpu_tested": false,
+      "prompt_enhancer": false,
+      "requires_rebuild": true,
+      "reference_limit": 9
+    }
+  },
+  "version": 0.4
+}

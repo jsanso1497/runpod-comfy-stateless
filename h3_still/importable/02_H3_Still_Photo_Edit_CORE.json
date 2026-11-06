@@ -1,0 +1,1141 @@
+{
+  "id": "7c85201f-336f-5a62-8d02-1c89406ebadb",
+  "revision": 0,
+  "last_node_id": 34,
+  "last_link_id": 49,
+  "nodes": [
+    {
+      "id": 3,
+      "type": "CLIPLoader",
+      "pos": [
+        -1121.8356297072833,
+        805.9917872805987
+      ],
+      "size": [
+        640,
+        150
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            33
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.33.0",
+        "Node name for S&R": "CLIPLoader",
+        "models": [
+          {
+            "name": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+            "url": "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/54472221d27c695fca9621b0c3ed52f06c4af707/text_encoders/qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+            "directory": "text_encoders"
+          }
+        ],
+        "ue_properties": {
+          "widget_ue_connectable": {
+            "clip_name": true
+          },
+          "version": "7.8",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+        "minimax",
+        "default"
+      ],
+      "widgets_values_named": {
+        "clip_name": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+        "type": "minimax",
+        "device": "default"
+      }
+    },
+    {
+      "id": 4,
+      "type": "VAELoader",
+      "pos": [
+        -1121.8356297072833,
+        975.9917872805981
+      ],
+      "size": [
+        640,
+        100
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            16,
+            34
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.33.0",
+        "Node name for S&R": "VAELoader",
+        "models": [
+          {
+            "name": "minimax_h3_video_vae_int8_convrot.safetensors",
+            "url": "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/54472221d27c695fca9621b0c3ed52f06c4af707/vae/minimax_h3_video_vae_int8_convrot.safetensors",
+            "directory": "vae"
+          }
+        ],
+        "ue_properties": {
+          "widget_ue_connectable": {
+            "vae_name": true
+          },
+          "version": "7.8",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "minimax_h3_video_vae_int8_convrot.safetensors"
+      ],
+      "widgets_values_named": {
+        "vae_name": "minimax_h3_video_vae_int8_convrot.safetensors"
+      }
+    },
+    {
+      "id": 20,
+      "type": "SaveImage",
+      "pos": [
+        136.54429661174302,
+        689.532227891483
+      ],
+      "size": [
+        563.1590291451266,
+        377.26425068362323
+      ],
+      "flags": {},
+      "order": 16,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 17
+        }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": null
+        }
+      ],
+      "title": "FINAL: Edited image (Fizgig Still Decode)",
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.36.0",
+        "Node name for S&R": "SaveImage",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.8",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "H3_Still_Edit"
+      ],
+      "widgets_values_named": {
+        "filename_prefix": "H3_Still_Edit"
+      }
+    },
+    {
+      "id": 11,
+      "type": "KSamplerSelect",
+      "pos": [
+        143.20697524310515,
+        282.39266810366826
+      ],
+      "size": [
+        291.85135578444715,
+        76.48061429182417
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "SAMPLER",
+          "type": "SAMPLER",
+          "links": [
+            12
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.33.0",
+        "Node name for S&R": "KSamplerSelect",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.8",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "er_sde"
+      ],
+      "widgets_values_named": {
+        "sampler_name": "er_sde"
+      }
+    },
+    {
+      "id": 12,
+      "type": "BasicScheduler",
+      "pos": [
+        181.9278532015554,
+        111.211485538854
+      ],
+      "size": [
+        226.89235616223664,
+        120.98278189464713
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 31
+        }
+      ],
+      "outputs": [
+        {
+          "name": "SIGMAS",
+          "type": "SIGMAS",
+          "links": [
+            13
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.33.0",
+        "Node name for S&R": "BasicScheduler",
+        "ue_properties": {
+          "widget_ue_connectable": {
+            "steps": true
+          },
+          "version": "7.8",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "simple",
+        20,
+        1
+      ],
+      "widgets_values_named": {
+        "scheduler": "simple",
+        "steps": 20,
+        "denoise": 1
+      }
+    },
+    {
+      "id": 10,
+      "type": "BasicGuider",
+      "pos": [
+        423.95758693419737,
+        116.62858349218794
+      ],
+      "size": [
+        362.06973774353037,
+        107.94145953766002
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 32
+        },
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "link": 35
+        }
+      ],
+      "outputs": [
+        {
+          "name": "GUIDER",
+          "type": "GUIDER",
+          "links": [
+            11
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.33.0",
+        "Node name for S&R": "BasicGuider",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.8",
+          "input_ue_unconnectable": {}
+        }
+      }
+    },
+    {
+      "id": 1,
+      "type": "UNETLoader",
+      "pos": [
+        -1129.8041200198754,
+        642.5944783536016
+      ],
+      "size": [
+        640,
+        120
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            24
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.33.0",
+        "Node name for S&R": "UNETLoader",
+        "models": [
+          {
+            "name": "minimax_h3_fl2va_pruned_int8_convrot.safetensors",
+            "url": "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/54472221d27c695fca9621b0c3ed52f06c4af707/diffusion_models/minimax_h3_fl2va_pruned_int8_convrot.safetensors",
+            "directory": "diffusion_models"
+          }
+        ],
+        "ue_properties": {
+          "widget_ue_connectable": {
+            "unet_name": true
+          },
+          "version": "7.8",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "minimax_h3_fl2va_pruned_int8_convrot.safetensors",
+        "default"
+      ],
+      "widgets_values_named": {
+        "unet_name": "minimax_h3_fl2va_pruned_int8_convrot.safetensors",
+        "weight_dtype": "default"
+      }
+    },
+    {
+      "id": 21,
+      "type": "MarkdownNote",
+      "pos": [
+        -1119.741303479325,
+        93.63636363632739
+      ],
+      "size": [
+        630.5873294794878,
+        503.1493957400571
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "START HERE: Upload a photo, change the prompt, then Run",
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.8",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "H3 Still: native resize repair\n\nUpload your source photo. Edit the prompt using <Picture 1>. Run. The saved PNG comes from Fizgig H3 Still Decode.\n\n2.5 MP / 32-pixel grid / Lanczos. 20 steps / er_sde / simple / Turbo 0.38. No RMBG or color-input nodes. Whole-image regeneration, not exact restoration. Native rounding can change final dimensions slightly compared with the earlier graph."
+      ],
+      "widgets_values_named": {
+        "text": "H3 Still: native resize repair\n\nUpload your source photo. Edit the prompt using <Picture 1>. Run. The saved PNG comes from Fizgig H3 Still Decode.\n\n2.5 MP / 32-pixel grid / Lanczos. 20 steps / er_sde / simple / Turbo 0.38. No RMBG or color-input nodes. Whole-image regeneration, not exact restoration. Native rounding can change final dimensions slightly compared with the earlier graph."
+      },
+      "color": "#432",
+      "bgcolor": "#653"
+    },
+    {
+      "id": 13,
+      "type": "SamplerCustomAdvanced",
+      "pos": [
+        1424.4441070144683,
+        83.91845760132261
+      ],
+      "size": [
+        230,
+        390
+      ],
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "noise",
+          "type": "NOISE",
+          "link": 10
+        },
+        {
+          "name": "guider",
+          "type": "GUIDER",
+          "link": 11
+        },
+        {
+          "name": "sampler",
+          "type": "SAMPLER",
+          "link": 12
+        },
+        {
+          "name": "sigmas",
+          "type": "SIGMAS",
+          "link": 13
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 14
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "LATENT",
+          "links": [
+            15
+          ]
+        },
+        {
+          "name": "denoised_output",
+          "type": "LATENT",
+          "links": []
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.33.0",
+        "Node name for S&R": "SamplerCustomAdvanced",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.8",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 9,
+      "type": "RandomNoise",
+      "pos": [
+        968.4500410923481,
+        266.87010637359134
+      ],
+      "size": [
+        360,
+        90
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "NOISE",
+          "type": "NOISE",
+          "links": [
+            10
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.33.0",
+        "Node name for S&R": "RandomNoise",
+        "ue_properties": {
+          "widget_ue_connectable": {
+            "noise_seed": true
+          },
+          "version": "7.8",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        179298629995106,
+        "fixed"
+      ],
+      "widgets_values_named": {
+        "noise_seed": 179298629995106,
+        "control_after_generate": "fixed"
+      }
+    },
+    {
+      "id": 14,
+      "type": "FizgigH3StillDecode",
+      "pos": [
+        841.5295346064075,
+        468.31022908101636
+      ],
+      "size": [
+        284.5658132385279,
+        165.6118793914834
+      ],
+      "flags": {
+        "collapsed": false
+      },
+      "order": 15,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 15
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 16
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            17
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "FizgigH3StillDecode",
+        "cnr_id": "comfyui-fizgig-h3-still",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.8",
+          "input_ue_unconnectable": {}
+        }
+      }
+    },
+    {
+      "id": 19,
+      "type": "FizgigH3StillLatent",
+      "pos": [
+        243.65137963814945,
+        473.0288634973882
+      ],
+      "size": [
+        309.31381984588666,
+        160.708574716494
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "width",
+          "type": "INT",
+          "widget": {
+            "name": "width"
+          },
+          "link": 48
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "widget": {
+            "name": "height"
+          },
+          "link": 49
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            14
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "FizgigH3StillLatent",
+        "cnr_id": "comfyui-fizgig-h3-still",
+        "ue_properties": {
+          "widget_ue_connectable": {
+            "width": true,
+            "height": true
+          },
+          "version": "7.8",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        1344,
+        768,
+        1
+      ],
+      "widgets_values_named": {
+        "width": 1344,
+        "height": 768,
+        "batch_size": 1
+      }
+    },
+    {
+      "id": 25,
+      "type": "LoraLoaderModelOnly",
+      "pos": [
+        -473.55568118208305,
+        106.7450415593541
+      ],
+      "size": [
+        640,
+        130
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 24
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            31,
+            32
+          ]
+        }
+      ],
+      "title": "Turbo strength 0.38; try 0 with 50 steps for a comparison",
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {
+            "lora_name": true,
+            "strength_model": true
+          },
+          "version": "7.8",
+          "input_ue_unconnectable": {}
+        },
+        "cnr_id": "comfy-core",
+        "ver": "0.33.0",
+        "Node name for S&R": "LoraLoaderModelOnly",
+        "models": [
+          {
+            "name": "minimax_h3_turbo_v4_step600_ema.safetensors",
+            "url": "https://huggingface.co/larryvrh/MiniMax-H3-Turbo-Lora/resolve/43a74557ac3f6539db8e0f2a959d03feb7a81480/minimax_h3_turbo_v4_step600_ema.safetensors",
+            "directory": "loras"
+          }
+        ]
+      },
+      "widgets_values": [
+        "minimax_h3_turbo_v4_step600_ema.safetensors",
+        0.38
+      ],
+      "widgets_values_named": {
+        "lora_name": "minimax_h3_turbo_v4_step600_ema.safetensors",
+        "strength_model": 0.38
+      }
+    },
+    {
+      "id": 30,
+      "type": "LoadImage",
+      "pos": [
+        -1474.9081074650162,
+        696.4413368584983
+      ],
+      "size": [
+        282.798828125,
+        314.0000000000001
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            40
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        },
+        "cnr_id": "comfy-core",
+        "ver": "0.36.0",
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "upload-your-photo.png",
+        "image"
+      ],
+      "widgets_values_named": {
+        "image": "upload-your-photo.png",
+        "upload": "image"
+      },
+      "title": "1. Upload your own photograph"
+    },
+    {
+      "id": 29,
+      "type": "MiniMaxH3ReferenceToVideo",
+      "pos": [
+        -377.06753184730667,
+        324.1305826021313
+      ],
+      "size": [
+        400,
+        324
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 33
+        },
+        {
+          "name": "vae",
+          "shape": 7,
+          "type": "VAE",
+          "link": 34
+        },
+        {
+          "name": "audio_vae",
+          "shape": 7,
+          "type": "VAE",
+          "link": null
+        },
+        {
+          "name": "ref_images.ref_image_0",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 41
+        },
+        {
+          "name": "ref_images.ref_image_1",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "ref_videos.ref_video_0",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "ref_video_audios.ref_video_audio_0",
+          "shape": 7,
+          "type": "AUDIO",
+          "link": null
+        },
+        {
+          "name": "ref_audios.ref_audio_0",
+          "shape": 7,
+          "type": "AUDIO",
+          "link": null
+        },
+        {
+          "name": "width",
+          "type": "INT",
+          "widget": {
+            "name": "width"
+          },
+          "link": 46
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "widget": {
+            "name": "height"
+          },
+          "link": 47
+        }
+      ],
+      "outputs": [
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "links": [
+            35
+          ]
+        },
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        },
+        "cnr_id": "comfy-core",
+        "ver": "0.36.0",
+        "Node name for S&R": "MiniMaxH3ReferenceToVideo"
+      },
+      "widgets_values": [
+        "<Picture 1> Make a subtle, realistic photographic edit to the provided image while preserving the subject identity, proportions, pose, lighting, and framing. Natural texture and accurate details. Remove all text, numbers or watermarks.",
+        1344,
+        768,
+        124,
+        "match"
+      ],
+      "widgets_values_named": {
+        "prompt": "<Picture 1> Make a subtle, realistic photographic edit to the provided image while preserving the subject identity, proportions, pose, lighting, and framing. Natural texture and accurate details. Remove all text, numbers or watermarks.",
+        "width": 1344,
+        "height": 768,
+        "length": 124,
+        "ref_image_size": "match"
+      },
+      "title": "2. Describe the edit here (<Picture 1>)"
+    },
+    {
+      "id": 31,
+      "type": "GetImageSize",
+      "pos": [
+        -26.57024502547806,
+        985.0124691177471
+      ],
+      "size": [
+        140,
+        124.00000000000011
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 42
+        }
+      ],
+      "outputs": [
+        {
+          "name": "width",
+          "type": "INT",
+          "links": [
+            46,
+            48
+          ]
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "links": [
+            47,
+            49
+          ]
+        },
+        {
+          "name": "batch_size",
+          "type": "INT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        },
+        "cnr_id": "comfy-core",
+        "ver": "0.36.0",
+        "Node name for S&R": "GetImageSize"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 34,
+      "type": "ImageScaleToTotalPixels",
+      "pos": [
+        -386.4106761138543,
+        731.6298719208706
+      ],
+      "size": [
+        300,
+        140
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 40
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            41,
+            42
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.43.0",
+        "Node name for S&R": "ImageScaleToTotalPixels"
+      },
+      "widgets_values": [
+        "lanczos",
+        2.5,
+        32
+      ],
+      "widgets_values_named": {
+        "upscale_method": "lanczos",
+        "megapixels": 2.5,
+        "resolution_steps": 32
+      },
+      "color": "#2e3e57",
+      "bgcolor": "#4b5b73",
+      "title": "Reference resize: 2.5 MP / 32-pixel grid (no padding)"
+    }
+  ],
+  "links": [
+    [
+      10,
+      9,
+      0,
+      13,
+      0,
+      "NOISE"
+    ],
+    [
+      11,
+      10,
+      0,
+      13,
+      1,
+      "GUIDER"
+    ],
+    [
+      12,
+      11,
+      0,
+      13,
+      2,
+      "SAMPLER"
+    ],
+    [
+      13,
+      12,
+      0,
+      13,
+      3,
+      "SIGMAS"
+    ],
+    [
+      14,
+      19,
+      0,
+      13,
+      4,
+      "LATENT"
+    ],
+    [
+      15,
+      13,
+      0,
+      14,
+      0,
+      "LATENT"
+    ],
+    [
+      16,
+      4,
+      0,
+      14,
+      1,
+      "VAE"
+    ],
+    [
+      17,
+      14,
+      0,
+      20,
+      0,
+      "IMAGE"
+    ],
+    [
+      24,
+      1,
+      0,
+      25,
+      0,
+      "MODEL"
+    ],
+    [
+      31,
+      25,
+      0,
+      12,
+      0,
+      "MODEL"
+    ],
+    [
+      32,
+      25,
+      0,
+      10,
+      0,
+      "MODEL"
+    ],
+    [
+      33,
+      3,
+      0,
+      29,
+      0,
+      "CLIP"
+    ],
+    [
+      34,
+      4,
+      0,
+      29,
+      1,
+      "VAE"
+    ],
+    [
+      35,
+      29,
+      0,
+      10,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      40,
+      30,
+      0,
+      34,
+      0,
+      "IMAGE"
+    ],
+    [
+      41,
+      34,
+      0,
+      29,
+      3,
+      "IMAGE"
+    ],
+    [
+      42,
+      34,
+      0,
+      31,
+      0,
+      "IMAGE"
+    ],
+    [
+      46,
+      31,
+      0,
+      29,
+      8,
+      "INT"
+    ],
+    [
+      47,
+      31,
+      1,
+      29,
+      9,
+      "INT"
+    ],
+    [
+      48,
+      31,
+      0,
+      19,
+      0,
+      "INT"
+    ],
+    [
+      49,
+      31,
+      1,
+      19,
+      1,
+      "INT"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.65,
+      "offset": [
+        1550,
+        100
+      ]
+    },
+    "h3_still_edited_for": "Validated portable one-photo edit for jsanso1497 H3 Still workspace",
+    "h3_still_workspace": {
+      "release": "2026-11-05.1",
+      "profile": "edit_readme",
+      "source_commit": "10d5171f6e45b0757a03df977f53a660e060c33d",
+      "changes": [
+        "Loader download metadata now matches the selected pinned model files.",
+        "Resize 2 -> 2.5 MP to follow README; separate original-2-MP preset retained."
+      ],
+      "prompt_enhancer": false,
+      "gpu_tested": false
+    },
+    "h3_core_resize": {
+      "version": "2026-11-06.1",
+      "padding": false,
+      "extra_nodes_required": false,
+      "resolution_note": "Native nearest multiple of 32; not pixel-identical to RMBG floor rounding."
+    }
+  },
+  "version": 0.4
+}

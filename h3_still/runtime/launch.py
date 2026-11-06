@@ -96,7 +96,7 @@ def main() -> int:
         raise RuntimeError('CUDA is unavailable. Select a GPU host compatible with this CUDA 13.0 image.')
     print('H3 Still: developer INT8/ConvRot weights, native single-frame generation.', flush=True)
     print('Required Qwen3-VL encoder is not a prompt enhancer. No Ollama is installed.', flush=True)
-    print('First startup prepares about 40 GB of weights. Public port opens after readiness checks.', flush=True)
+    print('First startup prepares about 61 GB of quantized weights (about 21 GB new on an existing cache). Public port opens after readiness checks.', flush=True)
     print('Stop the Pod through RunPod when finished. This image does not stop GPU billing.', flush=True)
     prepare(root)
     config = prepare_auth(password)

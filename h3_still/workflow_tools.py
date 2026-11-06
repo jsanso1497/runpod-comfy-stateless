@@ -12,6 +12,7 @@ PRESETS = (
     ('h3_still_text_to_image.json', '01_H3_Still_Turbo_2_5MP.json', 'turbo'),
     ('Edit_Workflow_example.json', '02_H3_Still_Edit_README_2_5MP.json', 'edit_readme'),
     ('Edit_Workflow_example.json', '03_H3_Still_Edit_Original_2MP.json', 'edit_original'),
+    ('Edit_Workflow_example.json', '04_H3_Still_Two_References_CORE.json', 'edit_two'),
 )
 LOADER_FIELDS = {
     'UNETLoader': ('unet_name', 'h3_fl2va_int8'),
@@ -70,7 +71,7 @@ def portable_graph(source: dict, output_name: str, profile: str, models: list[di
         selector = get_node(graph, 'ResolutionSelector')
         set_widget(selector, 'multiple', 32)
         changes.append('ResolutionSelector multiple 16 -> 32, as required by the developer README.')
-    if profile == 'edit_readme':
+    if profile in ('edit_readme', 'edit_two'):
         set_widget(get_node(graph, 'AILab_ImageResize'), 'megapixels', 2.5)
         changes.append('Resize 2 -> 2.5 MP to follow README; separate original-2-MP preset retained.')
     graph['id'] = str(uuid.uuid5(uuid.NAMESPACE_URL, 'h3-still-2026-11-05.1/' + output_name))
@@ -82,6 +83,14 @@ def portable_graph(source: dict, output_name: str, profile: str, models: list[di
         'prompt_enhancer': False,
         'gpu_tested': False,
     }
+    from core_workflows import native_resize, add_second_reference, finalize
+    if profile.startswith('edit'):
+        graph = native_resize(graph)
+        changes.append('Use built-in ImageScaleToTotalPixels; no padding or color-node dependency.')
+        if profile == 'edit_two':
+            graph = add_second_reference(graph)
+            changes.append('Second reference has a separate LoadImage and native resize path.')
+    graph = finalize(graph, output_name)
     validate_graph(graph, profile)
     return graph
 
@@ -152,10 +161,20 @@ def validate_graph(graph: dict, profile: str) -> None:
     if lora['strength_model'] != (0 if profile == 'hq' else 0.38):
         raise ValueError('Turbo strength differs from the developer preset.')
     if profile.startswith('edit'):
-        resize = get_node(graph, 'AILab_ImageResize')['widgets_values_named']
-        expected_mp = 2.5 if profile == 'edit_readme' else 2
-        if resize['megapixels'] != expected_mp or resize['divisible_by'] != 32:
-            raise ValueError('Incorrect edit resize settings.')
+        resizers = [n for n in graph['nodes'] if n['type'] == 'ImageScaleToTotalPixels']
+        if len(resizers) != (2 if profile == 'edit_two' else 1):
+            raise ValueError('Incorrect native reference resize count.')
+        expected_mp = 2 if profile == 'edit_original' else 2.5
+        for n in resizers:
+            resize = n['widgets_values_named']
+            if resize != {'upscale_method':'lanczos','megapixels':expected_mp,'resolution_steps':32}:
+                raise ValueError('Incorrect native edit resize settings.')
+        if any(n['type'].startswith('AILab_') for n in graph['nodes']):
+            raise ValueError('Legacy resize/color dependency must not be present.')
+        reference_ports = [p for p in conditioning['inputs']
+                           if p['name'].startswith('ref_images.') and p.get('link') is not None]
+        if len(reference_ports) != len(resizers):
+            raise ValueError('Reference image count does not match the resizers.')
         if '<Picture 1>' not in conditioning['widgets_values_named']['prompt']:
             raise ValueError('Reference prompt must retain the Picture 1 marker.')
     else:
