@@ -22,8 +22,9 @@ import time
 from urllib.parse import quote, urlencode, urlsplit
 
 from aiohttp import ClientSession, ClientTimeout, WSMsgType, web
+from origin_policy import normalize_origin, format_origin, matches_origin
 
-VERSION = '2026-11-07.2'
+VERSION = '2026-11-07.3'
 COOKIE = 'h3_studio_v2_session'
 PREAUTH = 'h3_studio_v2_login'
 TTL = 12 * 3600
@@ -68,15 +69,11 @@ def valid_cookie(secret, value, purpose='session'):
         return False
 
 
-def same_origin(request):
-    source = request.headers.get('Origin') or request.headers.get('Referer')
-    if not source:
-        return False
-    try:
-        origin = urlsplit(source)
-        return origin.scheme in ('http', 'https') and origin.netloc.lower() == request.host.lower()
-    except ValueError:
-        return False
+def same_origin(request, target=None):
+    # Compatibility helper for direct tests. The gateway always supplies its
+    # trusted public target, not the Host seen after a reverse proxy rewrite.
+    target = target or request.scheme + '://' + request.host
+    return matches_origin(request, target)
 
 
 def document(title, body):
@@ -89,10 +86,45 @@ class Gateway:
         self.config, self.service = config, service
         self.secret = config['session_key']
         self.secure = config.get('secure_cookies', True)
+        self.public_origin = config.get('public_origins', {}).get(service)
+        if self.public_origin:
+            parts = normalize_origin(self.public_origin)
+            if self.secure and parts[0] != 'https':
+                raise ValueError('Secure service origin must use HTTPS.')
+            self.public_origin = format_origin(parts)
         self.attempts = defaultdict(deque)
         self.uploads = {}
         self.root = Path(config['workspace']).resolve()
         self.client = None
+
+    def target_origin(self, request):
+        if self.public_origin:
+            return self.public_origin
+        # Direct access/dev fallback only. Forwarded headers never grant trust.
+        scheme = 'https' if self.secure else request.scheme
+        return format_origin(normalize_origin(scheme + '://' + request.host))
+
+    def same_origin(self, request):
+        try:
+            return same_origin(request, self.target_origin(request))
+        except (ValueError, TypeError, UnicodeError):
+            return False
+
+    def origin_error(self, request, label):
+        # Diagnostic output deliberately omits cookies, passwords, tokens,
+        # query strings and the full Referer (which can contain credentials).
+        try:
+            expected = self.target_origin(request)
+        except (ValueError, TypeError, UnicodeError):
+            expected = '(not configured)'
+        print('Origin rejected: service=%s expected=%s. No credentials logged.' %
+              (self.service, expected), flush=True)
+        variable = 'H3_COMFY_PUBLIC_ORIGIN' if self.service == 'comfy' else 'H3_FILES_PUBLIC_ORIGIN'
+        body = '<h1>Service address mismatch</h1><p>%s origin check failed.</p>' % html.escape(label)
+        body += '<p>Open the active Pod service directly in an HTTPS tab, then reload this sign-in page.</p>'
+        body += '<p>Expected service: <code>%s</code>.</p>' % html.escape(expected)
+        body += '<p>For a nonstandard proxy address, set <code>%s</code> to the exact HTTPS origin. Do not disable authentication.</p>' % variable
+        return web.HTTPForbidden(text=document('Service address mismatch', body), content_type='text/html')
 
     def authenticated(self, request):
         return valid_cookie(self.secret, request.cookies.get(COOKIE))
@@ -107,15 +139,15 @@ class Gateway:
             'ComfyUI' if self.service == 'comfy' else 'Files, JupyterLab and terminal')
         if message:
             body += '<p class="error">%s</p>' % html.escape(message)
-        body += '<form method="post" action="/__h3/login"><input type="hidden" name="nonce" value="%s">' % nonce
+        body += '<form method="post" action="/__h3/login-v3"><input type="hidden" name="nonce" value="%s">' % nonce
         body += '<label>Password<br><input type="password" name="password" autocomplete="current-password" required autofocus maxlength="72"></label><br><button type="submit">Sign in</button></form><p><small>Studio %s. No browser username/password popup is used.</small></p>' % VERSION
         response = web.Response(text=document('H3 Studio sign in', body), content_type='text/html')
         self.set_cookie(response, PREAUTH, nonce, 600)
         return response
 
     async def login(self, request):
-        if not same_origin(request):
-            raise web.HTTPForbidden(text='Login origin check failed. Open this service in its own HTTPS tab.')
+        if not self.same_origin(request):
+            raise self.origin_error(request, 'Login')
         data = await request.post()
         nonce = str(data.get('nonce', ''))
         if nonce != request.cookies.get(PREAUTH) or not valid_cookie(self.secret, nonce, 'login'):
@@ -313,21 +345,30 @@ form.addEventListener('submit',async event=>{
         body = '<h1>Connection diagnostics</h1><p>Studio %s. A 200 means the internal HTTP service answered, not that GPU generation was tested.</p>' % VERSION
         body += ''.join('<p><strong>%s:</strong> %s</p>' % pair for pair in rows)
         body += '<p><a href="/__h3/files">Files</a> | <a href="/__h3/home">Home</a></p>'
+        body += '<p>Expected browser origin: <code>%s</code></p>' % html.escape(self.target_origin(request))
         body += '<p>Logs: <code>h3-still/logs</code>. GPU billing continues until the Pod is stopped.</p>'
         return web.Response(text=document('Connection diagnostics', body), content_type='text/html')
 
     async def proxy(self, request):
         upstream = self.config['comfy_upstream'] if self.service == 'comfy' else self.config['jupyter_upstream']
         url = upstream + str(request.rel_url)
-        headers = {k: v for k, v in request.headers.items() if k.lower() not in HOP | {'authorization', 'cookie', 'accept-encoding', 'x-forwarded-host', 'x-forwarded-proto'}}
-        headers['Host'] = request.host
-        headers['X-Forwarded-Proto'] = 'https' if self.secure else 'http'
+        # Forward one canonical public authority to the backends. Without this,
+        # login may succeed while Jupyter/Comfy WebSockets reject the Origin.
+        public = urlsplit(self.target_origin(request))
+        headers = {k: v for k, v in request.headers.items()
+                   if k.lower() not in HOP | {'host', 'authorization', 'cookie',
+                       'accept-encoding', 'forwarded', 'x-real-ip'}
+                   and not k.lower().startswith('x-forwarded-')}
+        headers['Host'] = public.netloc
+        headers['X-Forwarded-Host'] = public.netloc
+        headers['X-Forwarded-Proto'] = public.scheme
+        headers['X-Forwarded-Port'] = str(public.port or (443 if public.scheme == 'https' else 80))
         # Private token is attached only server-side, never exposed to browser JS or URLs.
         if self.service == 'jupyter':
             headers['Authorization'] = 'token ' + self.config['jupyter_token']
         if request.headers.get('Upgrade', '').lower() == 'websocket':
-            if not same_origin(request):
-                raise web.HTTPForbidden(text='WebSocket origin check failed.')
+            if not self.same_origin(request):
+                raise self.origin_error(request, 'WebSocket')
             protocols = [p.strip() for p in request.headers.get('Sec-WebSocket-Protocol', '').split(',') if p.strip()]
             for name in list(headers):
                 if name.lower().startswith('sec-websocket'):
@@ -380,16 +421,16 @@ form.addEventListener('submit',async event=>{
         path = request.path
         if path == '/__h3/health':
             return web.json_response({'gateway': 'ready', 'version': VERSION})
-        if path == '/__h3/login':
+        if path in ('/__h3/login', '/__h3/login-v3'):
             return await self.login(request) if request.method == 'POST' else self.login_page(request)
         if not self.authenticated(request):
             if request.method in ('GET', 'HEAD') and ('text/html' in request.headers.get('Accept', '') or path == '/'):
                 return self.login_page(request)
             return web.json_response({'error': 'Sign in at /__h3/login'}, status=401)
-        if request.method not in ('GET', 'HEAD', 'OPTIONS') and not same_origin(request):
-            raise web.HTTPForbidden(text='Request origin check failed.')
+        if request.method not in ('GET', 'HEAD', 'OPTIONS') and not self.same_origin(request):
+            raise self.origin_error(request, 'Request')
         if path == '/__h3/logout' and request.method == 'POST':
-            response = web.HTTPSeeOther(location='/__h3/login')
+            response = web.HTTPSeeOther(location='/__h3/login-v3')
             response.del_cookie(COOKIE, path='/')
             return response
         if path == '/__h3/home' or (self.service == 'jupyter' and path == '/'):
@@ -443,6 +484,7 @@ async def serve(config):
     try:
         for name, default_port in [('comfy', 8188), ('jupyter', 8888)]:
             gateway = Gateway(config, name)
+            print('Browser origin for %s: %s' % (name, gateway.public_origin or 'direct-host fallback'), flush=True)
             runner = web.AppRunner(gateway.application(), access_log=None)
             await runner.setup()
             await web.TCPSite(runner, config.get('listen', '0.0.0.0'), config.get(name + '_port', default_port), ssl_context=tls).start()

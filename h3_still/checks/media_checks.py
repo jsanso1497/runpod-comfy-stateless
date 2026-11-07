@@ -110,8 +110,10 @@ class AccessRules(unittest.TestCase):
         self.assertTrue(self.a.password_ok(p,h));self.assertFalse(self.a.password_ok('incorrect',h))
     def test_no_cache_headers(self):self.assertIn('no-store',self.a.NO_CACHE['Cache-Control'])
     def test_origin(self):
-        good=types.SimpleNamespace(headers={'Origin':'https://example.test'},host='example.test')
-        bad=types.SimpleNamespace(headers={'Origin':'https://evil.test'},host='example.test')
-        self.assertTrue(self.a.same_origin(good));self.assertFalse(self.a.same_origin(bad))
+        from aiohttp.test_utils import make_mocked_request
+        good=make_mocked_request('POST','/',headers={'Origin':'https://example.test','Host':'internal:8188'})
+        bad=make_mocked_request('POST','/',headers={'Origin':'https://evil.test','Host':'internal:8188'})
+        self.assertTrue(self.a.same_origin(good,'https://example.test'))
+        self.assertFalse(self.a.same_origin(bad,'https://example.test'))
 
 if __name__=='__main__':unittest.main()

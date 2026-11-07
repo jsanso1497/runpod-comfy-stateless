@@ -1,6 +1,6 @@
 """Actual Chromium + JupyterLab through the production cookie/proxy gateway.
 
-Uses HTTPS, a local fixture for the Comfy upstream, and no model weights.
+Uses an HTTPS-to-HTTP proxy that rewrites Host, real Jupyter, and no model weights.
 The Jupyter file browser and browser-terminal shell are exercised, not just /login.
 """
 from pathlib import Path
@@ -111,8 +111,9 @@ def main():
     with tempfile.TemporaryDirectory(prefix='h3-browser-') as temp:
         root=Path(temp);work=root/'work';work.mkdir();runtime=root/'runtime';runtime.mkdir()
         (work/'browser-proof.txt').write_text('Jupyter file browser is operational.')
-        ports=[port() for _ in range(4)]
-        cp,jp,cu,ju=ports
+        ports=[port() for _ in range(6)]
+        cp,jp,cu,ju,cg,jg=ports
+        cbase='https://127.0.0.1:'+str(cp);jbase='https://127.0.0.1:'+str(jp)
         password='browser-test-password-not-a-user-secret'
         token='private-jupyter-test-token-'+os.urandom(16).hex()
         cert=root/'cert.pem';key=root/'key.pem'
@@ -120,14 +121,17 @@ def main():
                         '-days','1','-nodes','-subj','/CN=localhost'],check=True,capture_output=True)
         gate=private_json(runtime/'gateway.json',dict(password_hash=password_hash(password),session_key=os.urandom(32).hex(),
             workspace=str(work),secure_cookies=True,comfy_upstream='http://127.0.0.1:'+str(cu),
-            jupyter_upstream='http://127.0.0.1:'+str(ju),jupyter_token=token,comfy_port=cp,jupyter_port=jp,
-            listen='127.0.0.1',test_tls_cert=str(cert),test_tls_key=str(key)))
+            jupyter_upstream='http://127.0.0.1:'+str(ju),jupyter_token=token,comfy_port=cg,jupyter_port=jg,
+            public_origins={'comfy':cbase,'jupyter':jbase},listen='127.0.0.1'))
+        boundary=root/'test_tls_boundary.py'
+        boundary.write_text("from aiohttp import web, ClientSession, WSMsgType\nimport asyncio, json, ssl, sys\nfrom multidict import CIMultiDict\nHOP={'connection','keep-alive','proxy-authenticate','proxy-authorization','te','trailer','transfer-encoding','upgrade','content-length'}\nasync def main():\n ports,cert,key=json.loads(sys.argv[1]),sys.argv[2],sys.argv[3]\n tls=ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER);tls.load_cert_chain(cert,key)\n runners=[]\n async with ClientSession(auto_decompress=False,trust_env=False) as client:\n  for public,inner in ports:\n   def factory(public,inner):\n    async def proxy(r):\n     h={k:v for k,v in r.headers.items() if k.lower() not in HOP|{'host'} and not k.lower().startswith('x-forwarded-')}\n     h['Host']='10.42.0.7:'+str(inner)\n     h['X-Forwarded-Host']='127.0.0.1:'+str(public)\n     h['X-Forwarded-Proto']='https'\n     url='http://127.0.0.1:'+str(inner)+str(r.rel_url)\n     if r.headers.get('Upgrade','').lower()=='websocket':\n      protocols=[p.strip() for p in r.headers.get('Sec-WebSocket-Protocol','').split(',') if p.strip()]\n      h={k:v for k,v in h.items() if not k.lower().startswith('sec-websocket')}\n      try:up=await client.ws_connect(url,headers=h,protocols=protocols)\n      except Exception as e:raise web.HTTPBadGateway(text='Test boundary WebSocket: '+str(e))\n      down=web.WebSocketResponse(protocols=[up.protocol] if up.protocol else ());await down.prepare(r)\n      async def relay(a,b):\n       async for m in a:\n        if m.type==WSMsgType.TEXT:await b.send_str(m.data)\n        elif m.type==WSMsgType.BINARY:await b.send_bytes(m.data)\n        else:break\n      jobs=[asyncio.create_task(relay(down,up)),asyncio.create_task(relay(up,down))]\n      try:await asyncio.wait(jobs,return_when=asyncio.FIRST_COMPLETED)\n      finally:\n       for job in jobs:job.cancel()\n       await asyncio.gather(*jobs,return_exceptions=True);await down.close();await up.close()\n      return down\n     async with client.request(r.method,url,headers=h,data=r.content.iter_chunked(262144) if r.can_read_body else None,allow_redirects=False) as up:\n      headers=CIMultiDict((k,v) for k,v in up.headers.items() if k.lower() not in HOP)\n      down=web.StreamResponse(status=up.status,headers=headers);await down.prepare(r)\n      async for block in up.content.iter_chunked(262144):await down.write(block)\n      await down.write_eof();return down\n    return proxy\n   app=web.Application(client_max_size=4*1024**3);app.router.add_route('*','/{path:.*}',factory(public,inner))\n   runner=web.AppRunner(app,access_log=None);await runner.setup()\n   await web.TCPSite(runner,'127.0.0.1',public,ssl_context=tls).start();runners.append(runner)\n  try:await asyncio.Event().wait()\n  finally:\n   for runner in runners:await runner.cleanup()\nasyncio.run(main())\n")
         jup=write_jupyter_proxy_config(runtime,work,token,ju)
         fake=root/'fake_comfy.py'
         fake.write_text('''from aiohttp import web
 import sys
 async def handler(r):
  if r.path=='/ws':
+  if r.headers.get('Origin') != 'https://'+r.host:raise web.HTTPForbidden(text='Fixture Host/Origin mismatch')
   ws=web.WebSocketResponse();await ws.prepare(r);await ws.send_str('h3-ws-ready')
   async for m in ws:
    if m.type==web.WSMsgType.TEXT:await ws.send_str(m.data)
@@ -147,7 +151,7 @@ a=web.Application();a.router.add_route('*','/{path:.*}',handler);web.run_app(a,h
             start('fake',[sys.executable,str(fake),str(cu)])
             start('jupyter',[sys.executable,'-m','jupyterlab','--config',str(jup)])
             start('gateway',[sys.executable,str(PACKAGE/'runtime/access_gateway.py'),'--config',str(gate)])
-            cbase='https://127.0.0.1:'+str(cp);jbase='https://127.0.0.1:'+str(jp)
+            start('boundary',[sys.executable,str(boundary),json.dumps([[cp,cg],[jp,jg]]),str(cert),str(key)])
             client=requests.Session();client.trust_env=False;client.verify=False
             deadline=time.monotonic()+120
             while time.monotonic()<deadline:
@@ -220,6 +224,7 @@ a=web.Application();a.router.add_route('*','/{path:.*}',handler);web.run_app(a,h
                 lightweight_filebrowser_rendered=not http_only,browser_upload=not http_only,
                 actual_jupyterlab_filebrowser_initialized=not http_only,actual_browser_terminal_command=not http_only,
                 private_jupyter_token_not_in_html=True,browser_page_errors=errors,
+                tls_terminated_before_gateway=True,rewritten_host_proxy_tested=True,
                 deployed_runpod_proxy_tested=False,gpu_inference=False,protocol_tests=protocol_report,
                 browser_note="Browser UI test deferred to CI; local managed Chromium blocks navigation" if http_only else "Executed")
             (PACKAGE/'browser-access-report.json').write_text(json.dumps(report,indent=2)+'\n')

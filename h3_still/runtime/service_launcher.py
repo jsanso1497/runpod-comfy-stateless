@@ -9,6 +9,7 @@ import subprocess
 import sys
 import time
 from access_gateway import password_hash
+from origin_policy import public_origins
 from launch import validate_password
 from recovery_launcher import terminal_environment, stop_process
 
@@ -69,7 +70,8 @@ def make_config(password, runtime, workspace):
     settings = dict(password_hash=password_hash(password), session_key=secrets.token_hex(48),
                     workspace=str(workspace), secure_cookies=True,
                     comfy_upstream='http://127.0.0.1:8189', jupyter_upstream='http://127.0.0.1:8889',
-                    jupyter_token=token, comfy_port=8188, jupyter_port=8888)
+                    jupyter_token=token, comfy_port=8188, jupyter_port=8888,
+                    public_origins=public_origins())
     gateway = private_json(runtime / 'gateway.json', settings)
     jupyter = write_jupyter_proxy_config(runtime, workspace, token)
     return gateway, jupyter
@@ -120,7 +122,7 @@ def main():
             if key not in env and key.upper().endswith(('_TOKEN', '_PASSWORD', '_SECRET', '_API_KEY')):
                 os.environ.pop(key, None)
         print('H3 Studio v2: 8188 = ComfyUI sign-in; 8888 = Files/Jupyter sign-in. Use comfy_password; no username.', flush=True)
-        print('Fresh access path on either service: /__h3/login . No manual UTM parameter is required by this app.', flush=True)
+        print('Fresh access path on either service: /__h3/login-v3 . No manual UTM parameter is required by this app.', flush=True)
         print('The file browser stays available while models load. Logs: /workspace/h3-still/logs/', flush=True)
         print('This does not stop GPU billing. Stop the Pod in RunPod when finished.', flush=True)
         reported = set()

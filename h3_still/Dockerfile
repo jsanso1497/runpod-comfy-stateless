@@ -20,6 +20,7 @@ RUN python -m pip install torch==2.9.1 torchvision==0.24.1 torchaudio==2.9.1 \
       --index-url https://download.pytorch.org/whl/cu130 \
     && python -m pip install -c constraints.txt -r /opt/ComfyUI/requirements.txt huggingface_hub jupyterlab==4.5.11 jupyter-server==2.21.1 websocket-client==1.9.0 \
     && python -m pip check \
+    && python -m unittest discover -s checks -p 'origin_checks.py' -v \
     && python -m compileall -q /opt/h3-still \
     && python -m pip freeze > /opt/h3-still/build-pip-freeze.txt
 # Python dependencies not pinned upstream are resolved here and recorded above.
