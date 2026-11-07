@@ -1,3 +1,5 @@
+> Superseded by [H3_STUDIO_V2.md](H3_STUDIO_V2.md). This v1 guide is retained for the original workflows. For current browser access, use the v2 guide.
+
 # H3 Still Studio: generate, edit, or use references
 
 Release 2026-11-06.1. Prepared against repository main f14db6a9d34e31ed5515294f79595e94bc8b1796.

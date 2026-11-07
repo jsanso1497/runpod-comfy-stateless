@@ -7,7 +7,7 @@ ENV PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=1 PIP_DISABLE_PIP_VERSION_CHECK=1 \
     NVIDIA_VISIBLE_DEVICES=all NVIDIA_DRIVER_CAPABILITIES=compute,utility
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    bash curl wget procps iproute2 openssh-client unzip git ca-certificates tini nginx apache2-utils ffmpeg libgl1 libglib2.0-0 build-essential \
+    bash curl wget procps openssl iproute2 openssh-client unzip git ca-certificates tini nginx apache2-utils ffmpeg libgl1 libglib2.0-0 build-essential \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /opt/h3-still
 COPY . .
@@ -28,4 +28,4 @@ WORKDIR /workspace
 EXPOSE 8188 8888
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60m --retries=5 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8189/system_stats', timeout=8)" || exit 1
-ENTRYPOINT ["/usr/bin/tini", "-s", "--", "python", "/opt/h3-still/runtime/recovery_launcher.py"]
+ENTRYPOINT ["/usr/bin/tini", "-s", "--", "python", "/opt/h3-still/runtime/service_launcher.py"]

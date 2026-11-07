@@ -73,6 +73,12 @@ def validate(object_info: dict, folder: Path | None = None) -> list[str]:
             validate_studio(object_info)
         except (ValueError, KeyError, AssertionError) as error:
             issues.append('H3 Studio: ' + str(error))
+    if check_studio:
+        try:
+            from media_validate import validate_all
+            validate_all(object_info)
+        except (ValueError, KeyError, AssertionError) as error:
+            issues.append('Media v2: ' + str(error))
     return sorted(set(issues))
 
 

@@ -29,6 +29,8 @@ def checkout(row: dict, dest: Path) -> None:
 
 
 def main():
+    from build_media_workflows import main as build_media
+    build_media()
     lock = json.loads((PACKAGE / 'sources.lock.json').read_text())
     sources = lock['sources']
     comfy = Path('/opt/ComfyUI')

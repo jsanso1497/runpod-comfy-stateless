@@ -59,7 +59,7 @@ class RecoveryTests(unittest.TestCase):
         self.assertEqual(n['widgets_values'],['lanczos',2.5,32])
     def test_docker_has_shell_tools_and_jupyter(self):
         s=(PACKAGE/'Dockerfile').read_text()
-        for token in ('bash curl wget procps','jupyterlab==4.5.11','jupyter-server==2.21.1','EXPOSE 8188 8888','recovery_launcher.py'):
+        for token in ('bash curl wget procps','jupyterlab==4.5.11','jupyter-server==2.21.1','EXPOSE 8188 8888','service_launcher.py'):
             self.assertIn(token,s)
     def test_launcher_not_dependent_on_cuda_before_jupyter(self):
         s=(PACKAGE/'runtime/recovery_launcher.py').read_text()

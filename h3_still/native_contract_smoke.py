@@ -52,6 +52,33 @@ def main():
         assert tuple(audio.shape)==(1,32,2,2)
         results.append({'mode':plan['mode'],'references':count,'single_frame_latent':True,
                         'native_conditioning_called':True,'encoder_and_vae':'synthetic fixtures'})
+    # Real native video-conditioning path; only encoder/VAE weights are synthetic.
+    media=sys.modules['h3_studio_contract.media_nodes']
+    seen=[]
+    class VideoVAEFixture:
+        def encode(self,pixels):
+            frames=int(pixels.shape[0]);seen.append(frames)
+            latent_t=1 if frames==1 else 2+5*((frames-5)//17)
+            return torch.zeros(1,24,latent_t,pixels.shape[1]//16,pixels.shape[2]//16)
+    frames=torch.zeros(73,96,160,3)
+    plan,w,h=media.H3StudioMediaPlan().prepare('References','2:3',.25,.25,
+        'Quality - 50 steps, no Turbo',.25,False,
+        video={'frames':frames,'summary':{'reference_frames':73,'fps':24}},
+        reference_1={'name':'synthetic-face.png','image':image})
+    cond=media.H3StudioMediaConditioning().encode(plan,encoder,VideoVAEFixture(),
+        'Use <Video 1> for the person and <Picture 1> for the face.')[0]
+    assert 73 in seen, seen
+    assert plan['conditioning_length']==73
+    blocks=cond[0][1]['minimax_refs']
+    assert len(blocks)==2 and blocks[1]['kind']=='video'
+    assert blocks[1]['latent_t']==22
+    video_tokens=encoder.last[1]['minimax_ref_items'][1]
+    assert video_tokens['type']=='video' and video_tokens['data'].shape[0]==7
+    latent=fizgig.FizgigH3StillLatent().make(w,h,1)[0]['samples']
+    assert latent.unbind()[0].shape[2]==1
+    results.append({'mode':'video-plus-photo reference','reference_frames':73,'native_vae_received_frames':73,
+                    'tokenizer_sampled_frames':7,'single_frame_latent':True,
+                    'encoder_and_vae':'synthetic fixtures, native H3 calling convention'})
     target=PACKAGE/'native-contract-report.json'
     target.write_text(json.dumps({'checks':results,'model_inference':False},indent=2)+'\n')
     print(target.read_text())

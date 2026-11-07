@@ -286,3 +286,9 @@ NODE_CLASS_MAPPINGS = {
 NODE_DISPLAY_NAME_MAPPINGS = {name: name.replace('H3Studio', 'H3 Still - ') for name in NODE_CLASS_MAPPINGS}
 
 WEB_DIRECTORY = "./web"
+
+# Additive v2 nodes preserve old Studio and the user's working standalone Turbo graph.
+from .media_nodes import MEDIA_NODE_CLASS_MAPPINGS
+NODE_CLASS_MAPPINGS.update(MEDIA_NODE_CLASS_MAPPINGS)
+NODE_DISPLAY_NAME_MAPPINGS.update({name: name.replace('H3Studio', 'H3 Studio - ')
+                                 for name in MEDIA_NODE_CLASS_MAPPINGS})

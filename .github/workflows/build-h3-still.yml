@@ -51,15 +51,26 @@ jobs:
         run: |
           docker run --name h3-still-terminal-check --entrypoint python \
             h3-still-checked:local /opt/h3-still/terminal_smoke.py
+      - name: Real short-video decoding and original-pixel mask protection
+        run: |
+          docker run --name h3-still-media-check --entrypoint python \
+            h3-still-checked:local /opt/h3-still/media_cpu_smoke.py
+      - name: Actual browser login, JupyterLab initialization and terminal through HTTPS
+        run: |
+          docker run --name h3-still-browser-check --entrypoint bash \
+            h3-still-checked:local -lc 'python -m pip install playwright==1.56.0 && python -m playwright install --with-deps chromium && python /opt/h3-still/browser_access_smoke.py'
       - name: Export the exact developer workflows and validation report
         run: |
           mkdir -p h3-still-build
-          for name in workflows studio_workflows upstream_workflows licenses UPSTREAM_FIZGIG_README.md models.lock.json sources.lock.json workflow-provenance.json build-provenance.json build-pip-freeze.txt cpu-smoke-report.json; do
+          for name in workflows studio_workflows media_workflows extra-models.lock.json upstream_workflows licenses UPSTREAM_FIZGIG_README.md models.lock.json sources.lock.json workflow-provenance.json build-provenance.json build-pip-freeze.txt cpu-smoke-report.json; do
             docker cp "h3-still-cpu-check:/opt/h3-still/$name" h3-still-build/
           done
           docker cp h3-still-native-check:/opt/h3-still/native-contract-report.json h3-still-build/
           docker cp h3-still-terminal-check:/opt/h3-still/terminal-smoke-report.json h3-still-build/
-          cp H3_STILL_START_HERE.md H3_STILL_STUDIO.md h3_still/RUNPOD_SETTINGS.txt h3-still-build/
+          docker cp h3-still-media-check:/opt/h3-still/media-cpu-report.json h3-still-build/
+          docker cp h3-still-browser-check:/opt/h3-still/browser-access-report.json h3-still-build/
+          docker cp h3-still-browser-check:/opt/h3-still/browser-access-check.png h3-still-build/
+          cp H3_STILL_START_HERE.md H3_STILL_STUDIO.md H3_STUDIO_V2.md h3_still/RUNPOD_SETTINGS.txt h3-still-build/
       - uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -79,21 +90,22 @@ jobs:
           test -n "$REF"
           printf '%s\n' "$REF" > h3-still-build/image-reference.txt
           {
-            echo '## H3 Still Studio INT8'
+            echo '## H3 Studio v2: photos, video references and person replacement'
             echo 'Use this exact successfully built image in RunPod:'
             echo
             echo "\`$REF\`"
             echo
             echo 'HTTP 8188 for ComfyUI, 8888 for Jupyter files and terminal. Leave the start command blank.'
-            echo 'ComfyUI username: workbench. Jupyter login uses the same comfy_password value, no username.'
+            echo 'Both ports now use a sign-in page with comfy_password only. No username or browser Basic Auth popup.'
+            echo 'Fresh entry path: /__h3/login. Port 8888 includes an independent chunked-upload file browser and JupyterLab.'
             echo 'COMFY_PASSWORD={{ RUNPOD_SECRET_comfy_password }}'
             echo 'Optional: HF_TOKEN={{ RUNPOD_SECRET_hf_token }}'
             echo 'Conservative first validation: A100 80 GB, 128 GB system RAM, 150 GB persistent /workspace, 30 GB container disk.'
             echo 'Requires a host driver compatible with CUDA 13.0. Hardware values are planning targets, not measured minimums.'
-            echo 'About 61 GB total cached weights; approximately 21 GB new REF2VA download if the existing cache is intact.'
-            echo 'Passed: source integrity, offline tests, actual CPU startup/schema checks, native resize execution, zero/one/nine-photo routing, authenticated proxy and Jupyter shell tests.'
+            echo 'Existing INT8 model stack unchanged. Reuses the working 1.96 GB REF2VA Turbo adapter; downloads only when absent.'
+            echo 'Passed: CPU schema checks, native photo/video conditioning contracts, FFmpeg clip decoding, mask compositing, HTTPS session auth, actual Chromium/Jupyter file UI and terminal checks. No GPU inference in these tests.'
             echo 'Not tested: GPU inference, peak VRAM, speed, generated-image quality or mobile layout.'
-            echo 'Open Workflows > 00_H3_Studio_v1 > 00_H3_Studio_Auto_INT8.'
+            echo 'Open Workflows > 00_H3_Studio_v2. Original v1 workflows remain available.'
             echo 'Download the h3-still-build artifact for the exact portable and original JSON workflows.'
           } >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
@@ -103,4 +115,4 @@ jobs:
           if-no-files-found: error
       - name: Clean up the CPU smoke-test container
         if: always()
-        run: docker rm -f h3-still-cpu-check h3-still-terminal-check h3-still-native-check >/dev/null 2>&1 || true
+        run: docker rm -f h3-still-cpu-check h3-still-terminal-check h3-still-native-check h3-still-media-check h3-still-browser-check >/dev/null 2>&1 || true

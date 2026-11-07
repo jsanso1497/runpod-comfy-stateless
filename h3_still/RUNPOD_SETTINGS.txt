@@ -1,46 +1,65 @@
-H3 Still Studio INT8 | 2026-11-06.1
+H3 Still Studio v2 | 2026-11-07.2
 
-Build action: Build H3 Still Developer Workspace
-Image: exact NEW image@sha256 reference from that successful build's summary
-Existing rolling tag: ghcr.io/jsanso1497/runpod-comfy-stateless:h3-still
-Do not reuse an older digest. This updater does not publish images.
+BUILD / IMAGE
+Action: Build H3 Still Developer Workspace
+Start a NEW run on the updated commit. Use its successful image@sha256 digest.
+Rolling tag retained: ghcr.io/jsanso1497/runpod-comfy-stateless:h3-still
+No image has been built or published by the downloadable installer.
 
-GPU planning target: A100 80 GB or comparable CUDA-13-compatible GPU
+RUNPOD
+GPU planning target: 1 x A100 80 GB or comparable supported CUDA GPU
 System RAM planning target: 128 GB or more
 Container disk: 30 GB
-Persistent disk: 150 GB recommended, mounted at /workspace
+Persistent disk: 150 GB recommended at /workspace
 HTTP ports: 8188,8888
 TCP ports: none required
-Container command and entrypoint override: leave blank
+Container command and entrypoint overrides: leave blank
+Host driver must support the existing CUDA 13.0 runtime.
 
-Required:
+ENVIRONMENT
 COMFY_PASSWORD={{ RUNPOD_SECRET_comfy_password }}
-
-Optional:
 HF_TOKEN={{ RUNPOD_SECRET_hf_token }}
+Only COMFY_PASSWORD is required; keep the same 16-72-byte password.
+No username, separate Jupyter token, WB_WORKSPACE, or enhancer variables.
 
-8188: ComfyUI, username workbench, your comfy_password
-8888: JupyterLab, same password, then Launcher > Terminal
-Jupyter is independent of RunPod's Web Terminal toggle and starts before downloads.
+ACCESS
+Open the active Pod's HTTPS Connect service URL.
+First visit after updating: /__h3/login
+8188: password sign-in -> ComfyUI
+8888: password sign-in -> Files / JupyterLab
+Files is an independent lightweight browser with chunked upload/download.
+JupyterLab: /jupyter/lab/workspaces/h3-studio-v2?reset
+Terminal: JupyterLab > Launcher > Terminal
+No RunPod Web Terminal toggle needed.
+The app does not bypass auth for UTM/query strings.
+Previously cached provider denials cannot be purged by a container update.
+Use the fresh login path and verify the new image if the old root is cached.
 
-Workflow: 00_H3_Studio_v1 / 00_H3_Studio_Auto_INT8
-Auto + 0 active photos: Generate (FL2VA INT8)
-Auto + 1 active photo: Edit (FL2VA INT8)
-Auto + 2-9 active photos: References (REF2VA INT8)
-Select References explicitly to generate from just one reference.
-Unused photo slots: (none) or enabled OFF
-Prompts: <Picture 1>, <Picture 2>, etc., in active slot order
-Default: 50 steps, no Turbo, er_sde/simple
-Generation/reference canvas: 4 MP initially; 8 MP is optional
-Edit canvas: original aspect at 2.5 MP initially
+WORKFLOWS: Workflows > 00_H3_Studio_v2
+00_H3_Studio_Photos_Video_INT8: no media generates, one photo edits, video/multiple photos use references.
+01_H3_Video_Reference_To_Still_Turbo: upload a short clip; optional photo references; one still output.
+02_H3_Replace_Person_Image1: target scene in image 1, replacement photos in other slots, optional video.
+Person replacement defaults to mask protection: paint the target person in its Load Image Mask Editor.
+The mask protects the final composite; it does not make the generator a masked-inpainting model.
+Disable protect_background only to allow whole-image regeneration.
 
-User LoRAs: /workspace/h3-still/models/loras
-Outputs: /workspace/h3-still/output/H3_Studio
-Total locked weights: approximately 61 GB
-New download on an intact previous cache: approximately 21 GB REF2VA INT8
-No BF16 base checkpoints or encoder. No prompt enhancer. No AI Lab color node.
+VIDEO / MODELS
+Initial video: 3.1 seconds, 0.5 MP reference cap, normalized to 24 fps.
+The full selected H3-valid reference interval is retained; output is one frame.
+Audio ignored. No extra base checkpoint, VAE or audio model.
+Existing INT8/NVFP4 model cache reused, about 61 GB.
+Existing REF2VA Turbo adapter reused; downloads about 1.96 GB only if absent.
+REF2VA Turbo: 8 steps, Euler/simple, strength 1, shifts 12/3.
+Quality: 50 steps, er_sde/simple, no Turbo.
 
-Preserve /workspace before replacing or terminating any Pod.
-Stop the Pod when finished; this workspace does not stop GPU billing.
-GPU generation, memory limits, image quality, and nine-reference capacity need a Pod test.
-Model license/authorization requirements remain unchanged.
+PATHS
+Inputs / video uploads: /workspace/h3-still/input
+New output PNGs: /workspace/h3-still/output/H3_Studio_v2
+LoRAs: /workspace/h3-still/models/loras
+Saved workflows: /workspace/h3-still/user/default/workflows
+Logs: /workspace/h3-still/logs/{access,jupyter,comfy}.log
+
+Keep the persistent volume and old saved workflows. Do not terminate an ordinary Pod volume containing needed files.
+Stop the Pod when finished; no automatic billing stop is included.
+Source/CPU/HTTP checks are not GPU inference or a deployed RunPod certification.
+Model license requirements remain unchanged.

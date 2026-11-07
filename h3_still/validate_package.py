@@ -32,6 +32,8 @@ def validate_manifest(data: dict) -> None:
 
 
 def main() -> None:
+    from media_validate import validate_all
+    validate_all()
     for path in PACKAGE.rglob('*.py'):
         ast.parse(path.read_text(encoding='utf-8'), filename=str(path))
     validate_manifest(json.loads((PACKAGE / 'models.lock.json').read_text()))

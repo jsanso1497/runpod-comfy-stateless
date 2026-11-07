@@ -9,3 +9,6 @@ models/
 output/
 user/
 reports/
+
+*-report.json
+*-check.png

@@ -70,7 +70,7 @@ def verified(path: Path, row: dict, marker: Path, force: bool = False) -> bool:
 
 def seed_workflows(root: Path) -> None:
     # Keep saved user graphs and previous factories. Seed each new name only once.
-    for directory, name in [('workflows', LEGACY_FACTORY), ('studio_workflows', FACTORY)]:
+    for directory, name in [('workflows', LEGACY_FACTORY), ('studio_workflows', FACTORY), ('media_workflows', '00_H3_Studio_v2')]:
         factory = safe_child(root, 'user/default/workflows/' + name)
         factory.mkdir(parents=True, exist_ok=True)
         for source in sorted((PACKAGE / directory).glob('*.json')):
