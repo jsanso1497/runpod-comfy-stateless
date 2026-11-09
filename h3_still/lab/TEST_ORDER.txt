@@ -1,0 +1,31 @@
+H3 STUDIO LAB: SIMPLE TEST ORDER
+
+1. Mac: apply update_h3_studio_lab.py inside your repository.
+2. GitHub Desktop: review, commit, Push origin manually.
+3. GitHub Actions: Build H3 Studio Lab, profile stable.
+4. RunPod: new successful image digest, same /workspace, HTTP 8188,8888,
+   existing passwords, no start command override.
+5. ComfyUI: Workflows > 00_H3_Studio_Lab_v1.
+
+FIRST: 00_Known_Good_Replacement, same photos and successful prompt.
+NEXT: 02_Replace_One_Person, no accelerator/adapter, direct prompt for comparison.
+THEN: 04_Spectrum_Test, same seed/photos/prompt/resolution; inspect both time and likeness.
+THEN: 05_Character_Swap_Test after optional download swap.
+OPTIONAL: 03_SAM version, 07 original contact sheet, 08 generated sheet,
+          09 save RefMods / 10 generate from saved references.
+A40 ONLY: setup spark, restart, 06_Spark_A40_Test. Skip on A100.
+SEPARATE: Build profile ph3, download ph3, 11_P_H3_INT8_Comparison.
+
+Pod terminal commands:
+python3 /opt/h3-still/lab/manage.py status
+python3 /opt/h3-still/lab/manage.py download sam
+python3 /opt/h3-still/lab/manage.py download swap
+python3 /opt/h3-still/lab/manage.py setup spark
+python3 /opt/h3-still/lab/manage.py download ph3
+
+Output: /workspace/h3-still/output/H3_Lab
+Reports: /workspace/h3-still/output/H3_Lab/reports
+
+No model downloads are automatic in the Lab add-on. No BF16 base/enhancer.
+GPU speed, quality and memory capacity require your Pod tests.
+Keep the old h3-still image digest available for rollback.

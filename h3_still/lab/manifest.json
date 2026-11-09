@@ -1,0 +1,26 @@
+{
+  "version": "2026-11-08.1",
+  "baseline_repo_commit": "c8ad356ff6f7d2ca327c0395b21ec608062b900c",
+  "base_image": "ghcr.io/jsanso1497/runpod-comfy-stateless:h3-still-c8ad356ff6f7d2ca327c0395b21ec608062b900c",
+  "stable_comfy_commit": "426f5eea52a7ece1dd599fff4cb6cd1f352ddd24",
+  "ph3_comfy_commit": "fca60fe70e5b84c5c6b058263653d15cb3401e44",
+  "providers": {
+    "spectrum": {"url":"https://github.com/xmarre/ComfyUI-Spectrum-MiniMax-H3.git","revision":"806fe498d574a726fecb8818917f00a4b993fd77"},
+    "refmods": {"url":"https://github.com/Luisacaotica/ComfyUI-MiniMaxH3Mod.git","revision":"517e8c419a8584fbf69fceb487bc39d83e6a6ec8"}
+  },
+  "spark": {
+    "release":"comfyui-v0.2.0",
+    "url":"https://github.com/zechengtang/Spark-H3/releases/download/comfyui-v0.2.0/ComfyUI-Spark-H3-0.2.0-linux-x86_64-sm86-cu130.zip",
+    "size_bytes":17985304,
+    "sha256":"8997f751296d1ff6c032125f2ce2fbc45a776bec5ac8cf40d5c30f3a6ac14a02",
+    "implementation":"0.2.37",
+    "capability":[8,6]
+  },
+  "downloads": [
+    {"group":"swap","id":"character_swap_v15","repo":"akatz-ai/MiniMax-H3-Character-Swap-LoRA","revision":"96ea3407b230b6f7df71c58c70e31df96bd7e533","file":"h3_character_swap_v1.5.safetensors","destination":"loras/h3_character_swap_v1.5.safetensors","approx_gb":0.155,"sha256":"8f2c3c3eba161df8d0c6099598b4730f641f5ce01e04cd16d2427cff8a35218f"},
+    {"group":"sam","id":"sam31","repo":"Comfy-Org/sam3.1","revision":"5febd4769e8802cdfdb75e1f733abd8c68434a85","file":"checkpoints/sam3.1_multiplex_fp16.safetensors","destination":"checkpoints/sam3.1_multiplex_fp16.safetensors","approx_gb":1.746,"sha256":"9ba99c92703c2e8b4f47de2d34a539bb8e18923049e238b780d70dbe6368eb03"},
+    {"group":"ph3","id":"ph3_diffusion_int8","repo":"PrunaAI/P-H3-Image-Comfy","revision":"44a0fb73f299da1bb715bdb5ff59ce3fd3c6f543","file":"diffusion_models/p-h3-image_int8_convrot.safetensors","destination":"diffusion_models/p-h3-image_int8_convrot.safetensors","approx_gb":21.2,"sha256":"b156fd4fe9d169e58cb2b07f9594ec740ff8f0e052d62b009e6dd034de5865e7"},
+    {"group":"ph3","id":"ph3_encoder_int8","repo":"PrunaAI/P-H3-Image-Comfy","revision":"44a0fb73f299da1bb715bdb5ff59ce3fd3c6f543","file":"text_encoders/p-h3-image_text_encoder_int8_convrot.safetensors","destination":"text_encoders/p-h3-image_text_encoder_int8_convrot.safetensors","approx_gb":5.12,"sha256":"fb42c9ff0597e61729475d0b48b69b591ffe06d0b442a79dde22b14fadbe1c0f"},
+    {"group":"ph3","id":"ph3_vae_int8","repo":"PrunaAI/P-H3-Image-Comfy","revision":"44a0fb73f299da1bb715bdb5ff59ce3fd3c6f543","file":"vae/p-h3-image_vae_int8_convrot.safetensors","destination":"vae/p-h3-image_vae_int8_convrot.safetensors","approx_gb":3.15,"sha256":"583e0d43354b6b833aa9a0815a5fac831b1ef6d0c19a7eaa0616980a3dab5ffe"}
+  ]
+}

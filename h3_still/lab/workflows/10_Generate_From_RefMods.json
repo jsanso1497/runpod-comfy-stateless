@@ -1,0 +1,1175 @@
+{
+  "id": "66b7fc89-1064-50f6-954a-40af5a646441",
+  "revision": 0,
+  "last_node_id": 90,
+  "last_link_id": 29,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "H3LabRefModLoad",
+      "title": "Choose saved face / optional body references",
+      "pos": [
+        0,
+        0
+      ],
+      "size": [
+        600,
+        200
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "mods",
+          "type": "H3_REF_MODS",
+          "links": [
+            1,
+            5
+          ]
+        },
+        {
+          "name": "mapping",
+          "type": "STRING",
+          "links": [
+            9
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3LabRefModLoad"
+      },
+      "widgets_values": [
+        "(none)",
+        "(none)",
+        1.0,
+        1.0
+      ],
+      "widgets_values_named": {
+        "face_refmod": "(none)",
+        "body_refmod": "(none)",
+        "face_strength": 1.0,
+        "body_strength": 1.0
+      }
+    },
+    {
+      "id": 10,
+      "type": "H3LabRefModPlan",
+      "title": "Reference generation from saved photographs",
+      "pos": [
+        800,
+        0
+      ],
+      "size": [
+        450,
+        160
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "mods",
+          "type": "H3_REF_MODS",
+          "link": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "plan",
+          "type": "H3_STILL_PLAN",
+          "links": [
+            2,
+            6,
+            13,
+            15
+          ]
+        },
+        {
+          "name": "width",
+          "type": "INT",
+          "links": [
+            10
+          ]
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "links": [
+            11
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3LabRefModPlan"
+      },
+      "widgets_values": [
+        "2:3",
+        2.5
+      ],
+      "widgets_values_named": {
+        "aspect_ratio": "2:3",
+        "output_megapixels": 2.5
+      }
+    },
+    {
+      "id": 11,
+      "type": "H3StudioMediaModel",
+      "title": "Existing INT8 model selection",
+      "pos": [
+        2200,
+        0
+      ],
+      "size": [
+        450,
+        90
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "plan",
+          "type": "H3_STILL_PLAN",
+          "link": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            3
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3StudioMediaModel"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 12,
+      "type": "H3StudioMediaLora",
+      "title": "Personal identity LoRA - OFF",
+      "pos": [
+        2200,
+        170
+      ],
+      "size": [
+        450,
+        150
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 3
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            4
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3StudioMediaLora"
+      },
+      "widgets_values": [
+        false,
+        "(none)",
+        1.0
+      ],
+      "widgets_values_named": {
+        "enabled": false,
+        "lora_name": "(none)",
+        "strength": 1.0
+      }
+    },
+    {
+      "id": 13,
+      "type": "H3StudioMediaLora",
+      "title": "Personal style LoRA - OFF",
+      "pos": [
+        2200,
+        380
+      ],
+      "size": [
+        450,
+        150
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            12
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3StudioMediaLora"
+      },
+      "widgets_values": [
+        false,
+        "(none)",
+        1.0
+      ],
+      "widgets_values_named": {
+        "enabled": false,
+        "lora_name": "(none)",
+        "strength": 1.0
+      }
+    },
+    {
+      "id": 14,
+      "type": "CLIPLoader",
+      "title": "Existing required H3 encoder",
+      "pos": [
+        2200,
+        600
+      ],
+      "size": [
+        450,
+        130
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            7
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPLoader",
+        "cnr_id": "comfy-core"
+      },
+      "widgets_values": [
+        "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+        "minimax",
+        "default"
+      ],
+      "widgets_values_named": {
+        "clip_name": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+        "type": "minimax",
+        "device": "default"
+      }
+    },
+    {
+      "id": 15,
+      "type": "VAELoader",
+      "title": "Existing H3 video VAE",
+      "pos": [
+        2200,
+        800
+      ],
+      "size": [
+        450,
+        90
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            8,
+            26
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAELoader",
+        "cnr_id": "comfy-core"
+      },
+      "widgets_values": [
+        "minimax_h3_video_vae_int8_convrot.safetensors"
+      ],
+      "widgets_values_named": {
+        "vae_name": "minimax_h3_video_vae_int8_convrot.safetensors"
+      }
+    },
+    {
+      "id": 16,
+      "type": "H3LabRefModConditioning",
+      "title": "Direct prompt using saved Picture tags",
+      "pos": [
+        800,
+        350
+      ],
+      "size": [
+        1000,
+        250
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "mods",
+          "type": "H3_REF_MODS",
+          "link": 5
+        },
+        {
+          "name": "plan",
+          "type": "H3_STILL_PLAN",
+          "link": 6
+        },
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 7
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 8
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            17
+          ]
+        },
+        {
+          "name": "report",
+          "type": "STRING",
+          "links": [
+            23
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3LabRefModConditioning"
+      },
+      "widgets_values": [
+        "Create one natural studio photograph of the person in <Picture 1>. Preserve their facial identity and natural proportions."
+      ],
+      "widgets_values_named": {
+        "prompt": "Create one natural studio photograph of the person in <Picture 1>. Preserve their facial identity and natural proportions."
+      }
+    },
+    {
+      "id": 34,
+      "type": "H3LabReport",
+      "title": "Actual saved-reference ordering",
+      "pos": [
+        0,
+        350
+      ],
+      "size": [
+        650,
+        250
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": 9,
+          "widget": {
+            "name": "text"
+          }
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "H3LabReport"
+      },
+      "widgets_values": [
+        "",
+        false
+      ],
+      "widgets_values_named": {
+        "text": "",
+        "save_report": false
+      }
+    },
+    {
+      "id": 17,
+      "type": "FizgigH3StillLatent",
+      "title": "True one-frame output",
+      "pos": [
+        2800,
+        750
+      ],
+      "size": [
+        350,
+        130
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "width",
+          "type": "INT",
+          "link": 10,
+          "widget": {
+            "name": "width"
+          }
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "link": 11,
+          "widget": {
+            "name": "height"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            22
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "FizgigH3StillLatent"
+      },
+      "widgets_values": [
+        1344,
+        768,
+        1
+      ],
+      "widgets_values_named": {
+        "width": 1344,
+        "height": 768,
+        "batch_size": 1
+      }
+    },
+    {
+      "id": 18,
+      "type": "RandomNoise",
+      "title": "Fixed seed for A/B tests",
+      "pos": [
+        2800,
+        0
+      ],
+      "size": [
+        350,
+        110
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "NOISE",
+          "type": "NOISE",
+          "links": [
+            18
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "RandomNoise",
+        "cnr_id": "comfy-core"
+      },
+      "widgets_values": [
+        18071042,
+        "fixed"
+      ],
+      "widgets_values_named": {
+        "noise_seed": 18071042,
+        "control_after_generate": "fixed"
+      }
+    },
+    {
+      "id": 19,
+      "type": "H3StudioMediaSampling",
+      "title": "Baseline sampling / correct Turbo",
+      "pos": [
+        2800,
+        180
+      ],
+      "size": [
+        350,
+        130
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 12
+        },
+        {
+          "name": "plan",
+          "type": "H3_STILL_PLAN",
+          "link": 13
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            14
+          ]
+        },
+        {
+          "name": "SAMPLER",
+          "type": "SAMPLER",
+          "links": [
+            20
+          ]
+        },
+        {
+          "name": "SIGMAS",
+          "type": "SIGMAS",
+          "links": [
+            21
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3StudioMediaSampling"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 20,
+      "type": "H3LabExperiment",
+      "title": "EXPERIMENT - test one change at a time",
+      "pos": [
+        3200,
+        180
+      ],
+      "size": [
+        480,
+        230
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 14
+        },
+        {
+          "name": "plan",
+          "type": "H3_STILL_PLAN",
+          "link": 15
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            16
+          ]
+        },
+        {
+          "name": "report",
+          "type": "STRING",
+          "links": [
+            24
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3LabExperiment"
+      },
+      "widgets_values": [
+        false,
+        1.0,
+        "None",
+        false
+      ],
+      "widgets_values_named": {
+        "character_swap_adapter": false,
+        "character_swap_strength": 1.0,
+        "accelerator": "None",
+        "allow_combined_experiment": false
+      }
+    },
+    {
+      "id": 21,
+      "type": "BasicGuider",
+      "title": "Conditioning + experimental model",
+      "pos": [
+        3200,
+        490
+      ],
+      "size": [
+        450,
+        100
+      ],
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 16
+        },
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "link": 17
+        }
+      ],
+      "outputs": [
+        {
+          "name": "GUIDER",
+          "type": "GUIDER",
+          "links": [
+            19
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BasicGuider",
+        "cnr_id": "comfy-core"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 22,
+      "type": "H3LabTimedSampler",
+      "title": "SAMPLE - change run_label to repeat cached test",
+      "pos": [
+        3800,
+        0
+      ],
+      "size": [
+        510,
+        230
+      ],
+      "flags": {},
+      "order": 15,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "noise",
+          "type": "NOISE",
+          "link": 18
+        },
+        {
+          "name": "guider",
+          "type": "GUIDER",
+          "link": 19
+        },
+        {
+          "name": "sampler",
+          "type": "SAMPLER",
+          "link": 20
+        },
+        {
+          "name": "sigmas",
+          "type": "SIGMAS",
+          "link": 21
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 22
+        },
+        {
+          "name": "preparation_report",
+          "type": "STRING",
+          "link": 23,
+          "widget": {
+            "name": "preparation_report"
+          }
+        },
+        {
+          "name": "experiment_report",
+          "type": "STRING",
+          "link": 24,
+          "widget": {
+            "name": "experiment_report"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            25
+          ]
+        },
+        {
+          "name": "report",
+          "type": "STRING",
+          "links": [
+            27
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3LabTimedSampler"
+      },
+      "widgets_values": [
+        "",
+        "",
+        "refmods"
+      ],
+      "widgets_values_named": {
+        "preparation_report": "",
+        "experiment_report": "",
+        "run_label": "refmods"
+      }
+    },
+    {
+      "id": 23,
+      "type": "H3LabTimedDecode",
+      "title": "Fizgig decode + timing",
+      "pos": [
+        3800,
+        330
+      ],
+      "size": [
+        510,
+        130
+      ],
+      "flags": {},
+      "order": 16,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 25
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 26
+        },
+        {
+          "name": "report",
+          "type": "STRING",
+          "link": 27,
+          "widget": {
+            "name": "report"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            28
+          ]
+        },
+        {
+          "name": "report",
+          "type": "STRING",
+          "links": [
+            29
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3LabTimedDecode"
+      },
+      "widgets_values": [
+        "",
+        "Fizgig"
+      ],
+      "widgets_values_named": {
+        "report": "",
+        "decoder": "Fizgig"
+      }
+    },
+    {
+      "id": 40,
+      "type": "SaveImage",
+      "title": "A. RAW H3 - inspect before compositing",
+      "pos": [
+        4420,
+        0
+      ],
+      "size": [
+        540,
+        470
+      ],
+      "flags": {},
+      "order": 17,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 28
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "SaveImage",
+        "cnr_id": "comfy-core"
+      },
+      "widgets_values": [
+        "H3_Lab/refmods/Raw"
+      ],
+      "widgets_values_named": {
+        "filename_prefix": "H3_Lab/refmods/Raw"
+      }
+    },
+    {
+      "id": 41,
+      "type": "H3LabReport",
+      "title": "PERFORMANCE / ERRORS / CONFIGURATION",
+      "pos": [
+        4420,
+        1100
+      ],
+      "size": [
+        620,
+        420
+      ],
+      "flags": {},
+      "order": 18,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": 29,
+          "widget": {
+            "name": "text"
+          }
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "H3LabReport"
+      },
+      "widgets_values": [
+        "",
+        true
+      ],
+      "widgets_values_named": {
+        "text": "",
+        "save_report": true
+      }
+    },
+    {
+      "id": 90,
+      "type": "Note",
+      "title": "READ FIRST",
+      "pos": [
+        0,
+        900
+      ],
+      "size": [
+        1700,
+        300
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "Note"
+      },
+      "widgets_values": [
+        "Save originals with 09_Save_RefMod first, then refresh model definitions. Face/body files become Picture 1 / Picture 2 in active order. With only one file, remove Picture 2 references from your prompt. The saved latent is decoded for the vision encoder, so neither identical output nor a speed improvement is guaranteed. Do not append these same mods a second time with an Apply node."
+      ],
+      "widgets_values_named": {
+        "text": "Save originals with 09_Save_RefMod first, then refresh model definitions. Face/body files become Picture 1 / Picture 2 in active order. With only one file, remove Picture 2 references from your prompt. The saved latent is decoded for the vision encoder, so neither identical output nor a speed improvement is guaranteed. Do not append these same mods a second time with an Apply node."
+      }
+    }
+  ],
+  "links": [
+    [
+      1,
+      1,
+      0,
+      10,
+      0,
+      "H3_REF_MODS"
+    ],
+    [
+      2,
+      10,
+      0,
+      11,
+      0,
+      "H3_STILL_PLAN"
+    ],
+    [
+      3,
+      11,
+      0,
+      12,
+      0,
+      "MODEL"
+    ],
+    [
+      4,
+      12,
+      0,
+      13,
+      0,
+      "MODEL"
+    ],
+    [
+      5,
+      1,
+      0,
+      16,
+      0,
+      "H3_REF_MODS"
+    ],
+    [
+      6,
+      10,
+      0,
+      16,
+      1,
+      "H3_STILL_PLAN"
+    ],
+    [
+      7,
+      14,
+      0,
+      16,
+      2,
+      "CLIP"
+    ],
+    [
+      8,
+      15,
+      0,
+      16,
+      3,
+      "VAE"
+    ],
+    [
+      9,
+      1,
+      1,
+      34,
+      0,
+      "STRING"
+    ],
+    [
+      10,
+      10,
+      1,
+      17,
+      0,
+      "INT"
+    ],
+    [
+      11,
+      10,
+      2,
+      17,
+      1,
+      "INT"
+    ],
+    [
+      12,
+      13,
+      0,
+      19,
+      0,
+      "MODEL"
+    ],
+    [
+      13,
+      10,
+      0,
+      19,
+      1,
+      "H3_STILL_PLAN"
+    ],
+    [
+      14,
+      19,
+      0,
+      20,
+      0,
+      "MODEL"
+    ],
+    [
+      15,
+      10,
+      0,
+      20,
+      1,
+      "H3_STILL_PLAN"
+    ],
+    [
+      16,
+      20,
+      0,
+      21,
+      0,
+      "MODEL"
+    ],
+    [
+      17,
+      16,
+      0,
+      21,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      18,
+      18,
+      0,
+      22,
+      0,
+      "NOISE"
+    ],
+    [
+      19,
+      21,
+      0,
+      22,
+      1,
+      "GUIDER"
+    ],
+    [
+      20,
+      19,
+      1,
+      22,
+      2,
+      "SAMPLER"
+    ],
+    [
+      21,
+      19,
+      2,
+      22,
+      3,
+      "SIGMAS"
+    ],
+    [
+      22,
+      17,
+      0,
+      22,
+      4,
+      "LATENT"
+    ],
+    [
+      23,
+      16,
+      1,
+      22,
+      5,
+      "STRING"
+    ],
+    [
+      24,
+      20,
+      1,
+      22,
+      6,
+      "STRING"
+    ],
+    [
+      25,
+      22,
+      0,
+      23,
+      0,
+      "LATENT"
+    ],
+    [
+      26,
+      15,
+      0,
+      23,
+      1,
+      "VAE"
+    ],
+    [
+      27,
+      22,
+      1,
+      23,
+      2,
+      "STRING"
+    ],
+    [
+      28,
+      23,
+      0,
+      40,
+      0,
+      "IMAGE"
+    ],
+    [
+      29,
+      23,
+      1,
+      41,
+      0,
+      "STRING"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "version": 0.4,
+  "extra": {
+    "ds": {
+      "scale": 0.35,
+      "offset": [
+        30,
+        60
+      ]
+    },
+    "h3_lab": {
+      "release": "2026-11-08.1",
+      "gpu_tested": false,
+      "name": "10_Generate_From_RefMods.json"
+    }
+  }
+}

@@ -1,0 +1,2645 @@
+{
+  "id": "0ff918b9-63bc-572f-b651-55ff6f2c5ad0",
+  "revision": 0,
+  "last_node_id": 203,
+  "last_link_id": 57,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "LoadImage",
+      "title": "PICTURE 1 - TARGET SCENE",
+      "pos": [
+        0,
+        0
+      ],
+      "size": [
+        380,
+        330
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            1
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": [
+            2
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage",
+        "cnr_id": "comfy-core"
+      },
+      "widgets_values": [
+        "UPLOAD_TARGET_PHOTO.png",
+        "image"
+      ],
+      "widgets_values_named": {
+        "image": "UPLOAD_TARGET_PHOTO.png",
+        "upload": "image"
+      }
+    },
+    {
+      "id": 31,
+      "type": "H3StudioTargetPhoto",
+      "title": "Original target + selected mask",
+      "pos": [
+        0,
+        370
+      ],
+      "size": [
+        380,
+        110
+      ],
+      "flags": {},
+      "order": 15,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 1
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "reference",
+          "type": "H3_STILL_REFERENCE",
+          "links": [
+            13
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3StudioTargetPhoto"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 2,
+      "type": "H3StudioOptionalImage",
+      "title": "PICTURE 2 - face and hair",
+      "pos": [
+        420,
+        0
+      ],
+      "size": [
+        380,
+        300
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "reference",
+          "type": "H3_STILL_REFERENCE",
+          "links": [
+            3
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3StudioOptionalImage"
+      },
+      "widgets_values": [
+        "(none)",
+        true,
+        "image"
+      ],
+      "widgets_values_named": {
+        "image": "(none)",
+        "enabled": true,
+        "upload": "image"
+      }
+    },
+    {
+      "id": 102,
+      "type": "H3LabReference",
+      "title": "Crop and size - Picture 2",
+      "pos": [
+        420,
+        330
+      ],
+      "size": [
+        380,
+        230
+      ],
+      "flags": {},
+      "order": 16,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "reference",
+          "type": "H3_STILL_REFERENCE",
+          "link": 3
+        }
+      ],
+      "outputs": [
+        {
+          "name": "reference",
+          "type": "H3_STILL_REFERENCE",
+          "links": [
+            14
+          ]
+        },
+        {
+          "name": "preview",
+          "type": "IMAGE",
+          "links": [
+            4
+          ]
+        },
+        {
+          "name": "details",
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3LabReference"
+      },
+      "widgets_values": [
+        "face and hair",
+        2.5,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "widgets_values_named": {
+        "role": "face and hair",
+        "cap_megapixels": 2.5,
+        "crop_left_percent": 0.0,
+        "crop_top_percent": 0.0,
+        "crop_right_percent": 0.0,
+        "crop_bottom_percent": 0.0
+      }
+    },
+    {
+      "id": 202,
+      "type": "PreviewImage",
+      "title": "CHECK ACTUAL CROP - Picture 2",
+      "pos": [
+        420,
+        580
+      ],
+      "size": [
+        380,
+        220
+      ],
+      "flags": {},
+      "order": 25,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 4
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage",
+        "cnr_id": "comfy-core"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 3,
+      "type": "H3StudioOptionalImage",
+      "title": "PICTURE 3 - body proportions",
+      "pos": [
+        840,
+        0
+      ],
+      "size": [
+        380,
+        300
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "reference",
+          "type": "H3_STILL_REFERENCE",
+          "links": [
+            5
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3StudioOptionalImage"
+      },
+      "widgets_values": [
+        "(none)",
+        true,
+        "image"
+      ],
+      "widgets_values_named": {
+        "image": "(none)",
+        "enabled": true,
+        "upload": "image"
+      }
+    },
+    {
+      "id": 103,
+      "type": "H3LabReference",
+      "title": "Crop and size - Picture 3",
+      "pos": [
+        840,
+        330
+      ],
+      "size": [
+        380,
+        230
+      ],
+      "flags": {},
+      "order": 17,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "reference",
+          "type": "H3_STILL_REFERENCE",
+          "link": 5
+        }
+      ],
+      "outputs": [
+        {
+          "name": "reference",
+          "type": "H3_STILL_REFERENCE",
+          "links": [
+            15
+          ]
+        },
+        {
+          "name": "preview",
+          "type": "IMAGE",
+          "links": [
+            6
+          ]
+        },
+        {
+          "name": "details",
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3LabReference"
+      },
+      "widgets_values": [
+        "body proportions",
+        2.5,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "widgets_values_named": {
+        "role": "body proportions",
+        "cap_megapixels": 2.5,
+        "crop_left_percent": 0.0,
+        "crop_top_percent": 0.0,
+        "crop_right_percent": 0.0,
+        "crop_bottom_percent": 0.0
+      }
+    },
+    {
+      "id": 203,
+      "type": "PreviewImage",
+      "title": "CHECK ACTUAL CROP - Picture 3",
+      "pos": [
+        840,
+        580
+      ],
+      "size": [
+        380,
+        220
+      ],
+      "flags": {},
+      "order": 26,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 6
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage",
+        "cnr_id": "comfy-core"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 4,
+      "type": "H3StudioOptionalImage",
+      "title": "PICTURE 4 - supporting reference",
+      "pos": [
+        0,
+        900
+      ],
+      "size": [
+        380,
+        300
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 3,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "reference",
+          "type": "H3_STILL_REFERENCE",
+          "links": [
+            7
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3StudioOptionalImage"
+      },
+      "widgets_values": [
+        "(none)",
+        true,
+        "image"
+      ],
+      "widgets_values_named": {
+        "image": "(none)",
+        "enabled": true,
+        "upload": "image"
+      }
+    },
+    {
+      "id": 104,
+      "type": "H3LabReference",
+      "title": "Crop and size - Picture 4",
+      "pos": [
+        0,
+        1230
+      ],
+      "size": [
+        380,
+        230
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 18,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "reference",
+          "type": "H3_STILL_REFERENCE",
+          "link": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "reference",
+          "type": "H3_STILL_REFERENCE",
+          "links": [
+            16
+          ]
+        },
+        {
+          "name": "preview",
+          "type": "IMAGE",
+          "links": null
+        },
+        {
+          "name": "details",
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3LabReference"
+      },
+      "widgets_values": [
+        "supporting reference",
+        2.5,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "widgets_values_named": {
+        "role": "supporting reference",
+        "cap_megapixels": 2.5,
+        "crop_left_percent": 0.0,
+        "crop_top_percent": 0.0,
+        "crop_right_percent": 0.0,
+        "crop_bottom_percent": 0.0
+      }
+    },
+    {
+      "id": 5,
+      "type": "H3StudioOptionalImage",
+      "title": "PICTURE 5 - supporting reference",
+      "pos": [
+        420,
+        900
+      ],
+      "size": [
+        380,
+        300
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 4,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "reference",
+          "type": "H3_STILL_REFERENCE",
+          "links": [
+            8
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3StudioOptionalImage"
+      },
+      "widgets_values": [
+        "(none)",
+        true,
+        "image"
+      ],
+      "widgets_values_named": {
+        "image": "(none)",
+        "enabled": true,
+        "upload": "image"
+      }
+    },
+    {
+      "id": 105,
+      "type": "H3LabReference",
+      "title": "Crop and size - Picture 5",
+      "pos": [
+        420,
+        1230
+      ],
+      "size": [
+        380,
+        230
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 19,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "reference",
+          "type": "H3_STILL_REFERENCE",
+          "link": 8
+        }
+      ],
+      "outputs": [
+        {
+          "name": "reference",
+          "type": "H3_STILL_REFERENCE",
+          "links": [
+            17
+          ]
+        },
+        {
+          "name": "preview",
+          "type": "IMAGE",
+          "links": null
+        },
+        {
+          "name": "details",
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3LabReference"
+      },
+      "widgets_values": [
+        "supporting reference",
+        2.5,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "widgets_values_named": {
+        "role": "supporting reference",
+        "cap_megapixels": 2.5,
+        "crop_left_percent": 0.0,
+        "crop_top_percent": 0.0,
+        "crop_right_percent": 0.0,
+        "crop_bottom_percent": 0.0
+      }
+    },
+    {
+      "id": 6,
+      "type": "H3StudioOptionalImage",
+      "title": "PICTURE 6 - supporting reference",
+      "pos": [
+        840,
+        900
+      ],
+      "size": [
+        380,
+        300
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 5,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "reference",
+          "type": "H3_STILL_REFERENCE",
+          "links": [
+            9
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3StudioOptionalImage"
+      },
+      "widgets_values": [
+        "(none)",
+        true,
+        "image"
+      ],
+      "widgets_values_named": {
+        "image": "(none)",
+        "enabled": true,
+        "upload": "image"
+      }
+    },
+    {
+      "id": 106,
+      "type": "H3LabReference",
+      "title": "Crop and size - Picture 6",
+      "pos": [
+        840,
+        1230
+      ],
+      "size": [
+        380,
+        230
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 20,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "reference",
+          "type": "H3_STILL_REFERENCE",
+          "link": 9
+        }
+      ],
+      "outputs": [
+        {
+          "name": "reference",
+          "type": "H3_STILL_REFERENCE",
+          "links": [
+            18
+          ]
+        },
+        {
+          "name": "preview",
+          "type": "IMAGE",
+          "links": null
+        },
+        {
+          "name": "details",
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3LabReference"
+      },
+      "widgets_values": [
+        "supporting reference",
+        2.5,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "widgets_values_named": {
+        "role": "supporting reference",
+        "cap_megapixels": 2.5,
+        "crop_left_percent": 0.0,
+        "crop_top_percent": 0.0,
+        "crop_right_percent": 0.0,
+        "crop_bottom_percent": 0.0
+      }
+    },
+    {
+      "id": 7,
+      "type": "H3StudioOptionalImage",
+      "title": "PICTURE 7 - supporting reference",
+      "pos": [
+        0,
+        1800
+      ],
+      "size": [
+        380,
+        300
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 6,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "reference",
+          "type": "H3_STILL_REFERENCE",
+          "links": [
+            10
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3StudioOptionalImage"
+      },
+      "widgets_values": [
+        "(none)",
+        true,
+        "image"
+      ],
+      "widgets_values_named": {
+        "image": "(none)",
+        "enabled": true,
+        "upload": "image"
+      }
+    },
+    {
+      "id": 107,
+      "type": "H3LabReference",
+      "title": "Crop and size - Picture 7",
+      "pos": [
+        0,
+        2130
+      ],
+      "size": [
+        380,
+        230
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 21,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "reference",
+          "type": "H3_STILL_REFERENCE",
+          "link": 10
+        }
+      ],
+      "outputs": [
+        {
+          "name": "reference",
+          "type": "H3_STILL_REFERENCE",
+          "links": [
+            19
+          ]
+        },
+        {
+          "name": "preview",
+          "type": "IMAGE",
+          "links": null
+        },
+        {
+          "name": "details",
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3LabReference"
+      },
+      "widgets_values": [
+        "supporting reference",
+        2.5,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "widgets_values_named": {
+        "role": "supporting reference",
+        "cap_megapixels": 2.5,
+        "crop_left_percent": 0.0,
+        "crop_top_percent": 0.0,
+        "crop_right_percent": 0.0,
+        "crop_bottom_percent": 0.0
+      }
+    },
+    {
+      "id": 8,
+      "type": "H3StudioOptionalImage",
+      "title": "PICTURE 8 - supporting reference",
+      "pos": [
+        420,
+        1800
+      ],
+      "size": [
+        380,
+        300
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 7,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "reference",
+          "type": "H3_STILL_REFERENCE",
+          "links": [
+            11
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3StudioOptionalImage"
+      },
+      "widgets_values": [
+        "(none)",
+        true,
+        "image"
+      ],
+      "widgets_values_named": {
+        "image": "(none)",
+        "enabled": true,
+        "upload": "image"
+      }
+    },
+    {
+      "id": 108,
+      "type": "H3LabReference",
+      "title": "Crop and size - Picture 8",
+      "pos": [
+        420,
+        2130
+      ],
+      "size": [
+        380,
+        230
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 22,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "reference",
+          "type": "H3_STILL_REFERENCE",
+          "link": 11
+        }
+      ],
+      "outputs": [
+        {
+          "name": "reference",
+          "type": "H3_STILL_REFERENCE",
+          "links": [
+            20
+          ]
+        },
+        {
+          "name": "preview",
+          "type": "IMAGE",
+          "links": null
+        },
+        {
+          "name": "details",
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3LabReference"
+      },
+      "widgets_values": [
+        "supporting reference",
+        2.5,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "widgets_values_named": {
+        "role": "supporting reference",
+        "cap_megapixels": 2.5,
+        "crop_left_percent": 0.0,
+        "crop_top_percent": 0.0,
+        "crop_right_percent": 0.0,
+        "crop_bottom_percent": 0.0
+      }
+    },
+    {
+      "id": 9,
+      "type": "H3StudioOptionalImage",
+      "title": "PICTURE 9 - supporting reference",
+      "pos": [
+        840,
+        1800
+      ],
+      "size": [
+        380,
+        300
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 8,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "reference",
+          "type": "H3_STILL_REFERENCE",
+          "links": [
+            12
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3StudioOptionalImage"
+      },
+      "widgets_values": [
+        "(none)",
+        true,
+        "image"
+      ],
+      "widgets_values_named": {
+        "image": "(none)",
+        "enabled": true,
+        "upload": "image"
+      }
+    },
+    {
+      "id": 109,
+      "type": "H3LabReference",
+      "title": "Crop and size - Picture 9",
+      "pos": [
+        840,
+        2130
+      ],
+      "size": [
+        380,
+        230
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 23,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "reference",
+          "type": "H3_STILL_REFERENCE",
+          "link": 12
+        }
+      ],
+      "outputs": [
+        {
+          "name": "reference",
+          "type": "H3_STILL_REFERENCE",
+          "links": [
+            21
+          ]
+        },
+        {
+          "name": "preview",
+          "type": "IMAGE",
+          "links": null
+        },
+        {
+          "name": "details",
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3LabReference"
+      },
+      "widgets_values": [
+        "supporting reference",
+        2.5,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "widgets_values_named": {
+        "role": "supporting reference",
+        "cap_megapixels": 2.5,
+        "crop_left_percent": 0.0,
+        "crop_top_percent": 0.0,
+        "crop_right_percent": 0.0,
+        "crop_bottom_percent": 0.0
+      }
+    },
+    {
+      "id": 30,
+      "type": "H3StudioOptionalVideo",
+      "title": "Optional short video - OFF initially",
+      "pos": [
+        1400,
+        0
+      ],
+      "size": [
+        520,
+        230
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "video",
+          "type": "H3_STILL_VIDEO",
+          "links": [
+            22
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3StudioOptionalVideo"
+      },
+      "widgets_values": [
+        "(none)",
+        false,
+        0.0,
+        3.1,
+        0.5,
+        "video"
+      ],
+      "widgets_values_named": {
+        "file": "(none)",
+        "enabled": false,
+        "start_seconds": 0.0,
+        "duration_seconds": 3.1,
+        "video_cap_megapixels": 0.5,
+        "upload": "video"
+      }
+    },
+    {
+      "id": 10,
+      "type": "H3LabPlan",
+      "title": "1. MODE / ONE OUTPUT MP CONTROL",
+      "pos": [
+        1400,
+        340
+      ],
+      "size": [
+        640,
+        300
+      ],
+      "flags": {},
+      "order": 24,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "reference_1",
+          "type": "H3_STILL_REFERENCE",
+          "link": 13
+        },
+        {
+          "name": "reference_2",
+          "type": "H3_STILL_REFERENCE",
+          "link": 14
+        },
+        {
+          "name": "reference_3",
+          "type": "H3_STILL_REFERENCE",
+          "link": 15
+        },
+        {
+          "name": "reference_4",
+          "type": "H3_STILL_REFERENCE",
+          "link": 16
+        },
+        {
+          "name": "reference_5",
+          "type": "H3_STILL_REFERENCE",
+          "link": 17
+        },
+        {
+          "name": "reference_6",
+          "type": "H3_STILL_REFERENCE",
+          "link": 18
+        },
+        {
+          "name": "reference_7",
+          "type": "H3_STILL_REFERENCE",
+          "link": 19
+        },
+        {
+          "name": "reference_8",
+          "type": "H3_STILL_REFERENCE",
+          "link": 20
+        },
+        {
+          "name": "reference_9",
+          "type": "H3_STILL_REFERENCE",
+          "link": 21
+        },
+        {
+          "name": "video",
+          "type": "H3_STILL_VIDEO",
+          "link": 22
+        }
+      ],
+      "outputs": [
+        {
+          "name": "plan",
+          "type": "H3_STILL_PLAN",
+          "links": [
+            23,
+            26,
+            29,
+            36,
+            38,
+            53,
+            56
+          ]
+        },
+        {
+          "name": "width",
+          "type": "INT",
+          "links": [
+            33
+          ]
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "links": [
+            34
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3LabPlan"
+      },
+      "widgets_values": [
+        "Replace person",
+        "2:3",
+        2.5,
+        "Quality - 50 steps, no Turbo",
+        0,
+        "match",
+        false
+      ],
+      "widgets_values_named": {
+        "mode": "Replace person",
+        "aspect_ratio": "2:3",
+        "output_megapixels": 2.5,
+        "preset": "Quality - 50 steps, no Turbo",
+        "manual_quality_steps": 0,
+        "reference_size_mode": "match",
+        "protect_background": false
+      }
+    },
+    {
+      "id": 32,
+      "type": "PrimitiveStringMultiline",
+      "title": "SELECT ONE PERSON - position + short description",
+      "pos": [
+        1400,
+        780
+      ],
+      "size": [
+        600,
+        110
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            24
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PrimitiveStringMultiline",
+        "cnr_id": "comfy-core"
+      },
+      "widgets_values": [
+        "person on the left"
+      ],
+      "widgets_values_named": {
+        "value": "person on the left"
+      }
+    },
+    {
+      "id": 33,
+      "type": "H3LabPrompt",
+      "title": "2. DIRECT PROMPT / OPTIONAL ROLE BUILDER",
+      "pos": [
+        1400,
+        990
+      ],
+      "size": [
+        640,
+        340
+      ],
+      "flags": {},
+      "order": 29,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "plan",
+          "type": "H3_STILL_PLAN",
+          "link": 23
+        },
+        {
+          "name": "target_description",
+          "type": "STRING",
+          "link": 24,
+          "widget": {
+            "name": "target_description"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            25,
+            32
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3LabPrompt"
+      },
+      "widgets_values": [
+        true,
+        "person on the left",
+        2,
+        3,
+        true,
+        false,
+        "Create one natural, photorealistic still image."
+      ],
+      "widgets_values_named": {
+        "use_role_builder": true,
+        "target_description": "person on the left",
+        "face_slot": 2,
+        "body_slot": 3,
+        "preserve_other_people": true,
+        "match_lighting": false,
+        "request": "Create one natural, photorealistic still image."
+      }
+    },
+    {
+      "id": 34,
+      "type": "H3LabReport",
+      "title": "READ THE EXACT PROMPT BEFORE RENDERING",
+      "pos": [
+        1400,
+        1430
+      ],
+      "size": [
+        640,
+        260
+      ],
+      "flags": {},
+      "order": 32,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": 25,
+          "widget": {
+            "name": "text"
+          }
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "H3LabReport"
+      },
+      "widgets_values": [
+        "",
+        false
+      ],
+      "widgets_values_named": {
+        "text": "",
+        "save_report": false
+      }
+    },
+    {
+      "id": 11,
+      "type": "H3StudioMediaModel",
+      "title": "Existing INT8 model selection",
+      "pos": [
+        2200,
+        0
+      ],
+      "size": [
+        450,
+        90
+      ],
+      "flags": {},
+      "order": 27,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "plan",
+          "type": "H3_STILL_PLAN",
+          "link": 26
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            27
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3StudioMediaModel"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 12,
+      "type": "H3StudioMediaLora",
+      "title": "Personal identity LoRA - OFF",
+      "pos": [
+        2200,
+        170
+      ],
+      "size": [
+        450,
+        150
+      ],
+      "flags": {},
+      "order": 30,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 27
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            28
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3StudioMediaLora"
+      },
+      "widgets_values": [
+        false,
+        "(none)",
+        1.0
+      ],
+      "widgets_values_named": {
+        "enabled": false,
+        "lora_name": "(none)",
+        "strength": 1.0
+      }
+    },
+    {
+      "id": 13,
+      "type": "H3StudioMediaLora",
+      "title": "Personal style LoRA - OFF",
+      "pos": [
+        2200,
+        380
+      ],
+      "size": [
+        450,
+        150
+      ],
+      "flags": {},
+      "order": 33,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 28
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            35
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3StudioMediaLora"
+      },
+      "widgets_values": [
+        false,
+        "(none)",
+        1.0
+      ],
+      "widgets_values_named": {
+        "enabled": false,
+        "lora_name": "(none)",
+        "strength": 1.0
+      }
+    },
+    {
+      "id": 14,
+      "type": "CLIPLoader",
+      "title": "Existing required H3 encoder",
+      "pos": [
+        2200,
+        600
+      ],
+      "size": [
+        450,
+        130
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            30
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPLoader",
+        "cnr_id": "comfy-core"
+      },
+      "widgets_values": [
+        "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+        "minimax",
+        "default"
+      ],
+      "widgets_values_named": {
+        "clip_name": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+        "type": "minimax",
+        "device": "default"
+      }
+    },
+    {
+      "id": 15,
+      "type": "VAELoader",
+      "title": "Existing H3 video VAE",
+      "pos": [
+        2200,
+        800
+      ],
+      "size": [
+        450,
+        90
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            31,
+            49
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAELoader",
+        "cnr_id": "comfy-core"
+      },
+      "widgets_values": [
+        "minimax_h3_video_vae_int8_convrot.safetensors"
+      ],
+      "widgets_values_named": {
+        "vae_name": "minimax_h3_video_vae_int8_convrot.safetensors"
+      }
+    },
+    {
+      "id": 16,
+      "type": "H3LabConditioning",
+      "title": "Native reference conditioning - no enhancer",
+      "pos": [
+        2200,
+        1100
+      ],
+      "size": [
+        450,
+        140
+      ],
+      "flags": {},
+      "order": 31,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "plan",
+          "type": "H3_STILL_PLAN",
+          "link": 29
+        },
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 30
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 31
+        },
+        {
+          "name": "prompt",
+          "type": "STRING",
+          "link": 32,
+          "widget": {
+            "name": "prompt"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            40
+          ]
+        },
+        {
+          "name": "report",
+          "type": "STRING",
+          "links": [
+            46
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3LabConditioning"
+      },
+      "widgets_values": [
+        ""
+      ],
+      "widgets_values_named": {
+        "prompt": ""
+      }
+    },
+    {
+      "id": 17,
+      "type": "FizgigH3StillLatent",
+      "title": "True one-frame output",
+      "pos": [
+        2800,
+        750
+      ],
+      "size": [
+        350,
+        130
+      ],
+      "flags": {},
+      "order": 28,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "width",
+          "type": "INT",
+          "link": 33,
+          "widget": {
+            "name": "width"
+          }
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "link": 34,
+          "widget": {
+            "name": "height"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            45
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "FizgigH3StillLatent"
+      },
+      "widgets_values": [
+        1344,
+        768,
+        1
+      ],
+      "widgets_values_named": {
+        "width": 1344,
+        "height": 768,
+        "batch_size": 1
+      }
+    },
+    {
+      "id": 18,
+      "type": "RandomNoise",
+      "title": "Fixed seed for A/B tests",
+      "pos": [
+        2800,
+        0
+      ],
+      "size": [
+        350,
+        110
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "NOISE",
+          "type": "NOISE",
+          "links": [
+            41
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "RandomNoise",
+        "cnr_id": "comfy-core"
+      },
+      "widgets_values": [
+        18071042,
+        "fixed"
+      ],
+      "widgets_values_named": {
+        "noise_seed": 18071042,
+        "control_after_generate": "fixed"
+      }
+    },
+    {
+      "id": 19,
+      "type": "H3StudioMediaSampling",
+      "title": "Baseline sampling / correct Turbo",
+      "pos": [
+        2800,
+        180
+      ],
+      "size": [
+        350,
+        130
+      ],
+      "flags": {},
+      "order": 34,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 35
+        },
+        {
+          "name": "plan",
+          "type": "H3_STILL_PLAN",
+          "link": 36
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            37
+          ]
+        },
+        {
+          "name": "SAMPLER",
+          "type": "SAMPLER",
+          "links": [
+            43
+          ]
+        },
+        {
+          "name": "SIGMAS",
+          "type": "SIGMAS",
+          "links": [
+            44
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3StudioMediaSampling"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 20,
+      "type": "H3LabExperiment",
+      "title": "EXPERIMENT - test one change at a time",
+      "pos": [
+        3200,
+        180
+      ],
+      "size": [
+        480,
+        230
+      ],
+      "flags": {},
+      "order": 35,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 37
+        },
+        {
+          "name": "plan",
+          "type": "H3_STILL_PLAN",
+          "link": 38
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            39
+          ]
+        },
+        {
+          "name": "report",
+          "type": "STRING",
+          "links": [
+            47
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3LabExperiment"
+      },
+      "widgets_values": [
+        true,
+        1.0,
+        "None",
+        false
+      ],
+      "widgets_values_named": {
+        "character_swap_adapter": true,
+        "character_swap_strength": 1.0,
+        "accelerator": "None",
+        "allow_combined_experiment": false
+      }
+    },
+    {
+      "id": 21,
+      "type": "BasicGuider",
+      "title": "Conditioning + experimental model",
+      "pos": [
+        3200,
+        490
+      ],
+      "size": [
+        450,
+        100
+      ],
+      "flags": {},
+      "order": 36,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 39
+        },
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "link": 40
+        }
+      ],
+      "outputs": [
+        {
+          "name": "GUIDER",
+          "type": "GUIDER",
+          "links": [
+            42
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BasicGuider",
+        "cnr_id": "comfy-core"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 22,
+      "type": "H3LabTimedSampler",
+      "title": "SAMPLE - change run_label to repeat cached test",
+      "pos": [
+        3800,
+        0
+      ],
+      "size": [
+        510,
+        230
+      ],
+      "flags": {},
+      "order": 37,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "noise",
+          "type": "NOISE",
+          "link": 41
+        },
+        {
+          "name": "guider",
+          "type": "GUIDER",
+          "link": 42
+        },
+        {
+          "name": "sampler",
+          "type": "SAMPLER",
+          "link": 43
+        },
+        {
+          "name": "sigmas",
+          "type": "SIGMAS",
+          "link": 44
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 45
+        },
+        {
+          "name": "preparation_report",
+          "type": "STRING",
+          "link": 46,
+          "widget": {
+            "name": "preparation_report"
+          }
+        },
+        {
+          "name": "experiment_report",
+          "type": "STRING",
+          "link": 47,
+          "widget": {
+            "name": "experiment_report"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            48
+          ]
+        },
+        {
+          "name": "report",
+          "type": "STRING",
+          "links": [
+            50
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3LabTimedSampler"
+      },
+      "widgets_values": [
+        "",
+        "",
+        "swap"
+      ],
+      "widgets_values_named": {
+        "preparation_report": "",
+        "experiment_report": "",
+        "run_label": "swap"
+      }
+    },
+    {
+      "id": 23,
+      "type": "H3LabTimedDecode",
+      "title": "Fizgig decode + timing",
+      "pos": [
+        3800,
+        330
+      ],
+      "size": [
+        510,
+        130
+      ],
+      "flags": {},
+      "order": 38,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 48
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 49
+        },
+        {
+          "name": "report",
+          "type": "STRING",
+          "link": 50,
+          "widget": {
+            "name": "report"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            51,
+            54
+          ]
+        },
+        {
+          "name": "report",
+          "type": "STRING",
+          "links": [
+            52
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3LabTimedDecode"
+      },
+      "widgets_values": [
+        "",
+        "Fizgig"
+      ],
+      "widgets_values_named": {
+        "report": "",
+        "decoder": "Fizgig"
+      }
+    },
+    {
+      "id": 40,
+      "type": "SaveImage",
+      "title": "A. RAW H3 - inspect before compositing",
+      "pos": [
+        4420,
+        0
+      ],
+      "size": [
+        540,
+        470
+      ],
+      "flags": {},
+      "order": 40,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 51
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "SaveImage",
+        "cnr_id": "comfy-core"
+      },
+      "widgets_values": [
+        "H3_Lab/swap/Raw"
+      ],
+      "widgets_values_named": {
+        "filename_prefix": "H3_Lab/swap/Raw"
+      }
+    },
+    {
+      "id": 41,
+      "type": "H3LabReport",
+      "title": "PERFORMANCE / ERRORS / CONFIGURATION",
+      "pos": [
+        4420,
+        1100
+      ],
+      "size": [
+        620,
+        420
+      ],
+      "flags": {},
+      "order": 41,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": 52,
+          "widget": {
+            "name": "text"
+          }
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "H3LabReport"
+      },
+      "widgets_values": [
+        "",
+        true
+      ],
+      "widgets_values_named": {
+        "text": "",
+        "save_report": true
+      }
+    },
+    {
+      "id": 28,
+      "type": "H3StudioMediaFinish",
+      "title": "Final original-pixel protection (not inpainting)",
+      "pos": [
+        3800,
+        590
+      ],
+      "size": [
+        510,
+        110
+      ],
+      "flags": {},
+      "order": 39,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "plan",
+          "type": "H3_STILL_PLAN",
+          "link": 53
+        },
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 54
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            55,
+            57
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3StudioMediaFinish"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 24,
+      "type": "SaveImage",
+      "title": "B. FINAL - protected only when mask option is ON",
+      "pos": [
+        4420,
+        560
+      ],
+      "size": [
+        540,
+        470
+      ],
+      "flags": {},
+      "order": 42,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 55
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "SaveImage",
+        "cnr_id": "comfy-core"
+      },
+      "widgets_values": [
+        "H3_Lab/swap/Final"
+      ],
+      "widgets_values_named": {
+        "filename_prefix": "H3_Lab/swap/Final"
+      }
+    },
+    {
+      "id": 25,
+      "type": "H3StudioMediaCompare",
+      "title": "Target left / result right",
+      "pos": [
+        3800,
+        850
+      ],
+      "size": [
+        510,
+        240
+      ],
+      "flags": {},
+      "order": 43,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "plan",
+          "type": "H3_STILL_PLAN",
+          "link": 56
+        },
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 57
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "H3StudioMediaCompare"
+      },
+      "widgets_values": [
+        true
+      ],
+      "widgets_values_named": {
+        "save_comparison": true
+      }
+    },
+    {
+      "id": 90,
+      "type": "Note",
+      "title": "START HERE",
+      "pos": [
+        0,
+        3300
+      ],
+      "size": [
+        2050,
+        360
+      ],
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "Note"
+      },
+      "widgets_values": [
+        "H3 STUDIO LAB. Existing models and login remain unchanged. No model downloads happen when opening this graph.\nFirst test the unchanged 00 baseline. Keep the same seed, photographs and prompt for A/B tests. Change run_label to force another timed sample; preparation may be cached.\nOne output_megapixels value controls the selected mode, including Replace person. Supporting photos have their own crop and MP nodes. Previews are before the native match/max reference resize; the report shows final reference dimensions.\nRole builder is literal text assembly, not an LLM. Turn it OFF to paste your successful prompt unchanged. Face/body roles are instructions, not hard identity locks.\nAll optional personal LoRAs are OFF. Experimental graph presets request exactly one experiment. Spectrum and Spark change the numerical trajectory; do not assume a speedup or likeness improvement.\nRun manage.py download swap once. The adapter is video-trained; single-frame quality is experimental.\n"
+      ],
+      "widgets_values_named": {
+        "text": "H3 STUDIO LAB. Existing models and login remain unchanged. No model downloads happen when opening this graph.\nFirst test the unchanged 00 baseline. Keep the same seed, photographs and prompt for A/B tests. Change run_label to force another timed sample; preparation may be cached.\nOne output_megapixels value controls the selected mode, including Replace person. Supporting photos have their own crop and MP nodes. Previews are before the native match/max reference resize; the report shows final reference dimensions.\nRole builder is literal text assembly, not an LLM. Turn it OFF to paste your successful prompt unchanged. Face/body roles are instructions, not hard identity locks.\nAll optional personal LoRAs are OFF. Experimental graph presets request exactly one experiment. Spectrum and Spark change the numerical trajectory; do not assume a speedup or likeness improvement.\nRun manage.py download swap once. The adapter is video-trained; single-frame quality is experimental.\n"
+      }
+    }
+  ],
+  "links": [
+    [
+      1,
+      1,
+      0,
+      31,
+      0,
+      "IMAGE"
+    ],
+    [
+      2,
+      1,
+      1,
+      31,
+      1,
+      "MASK"
+    ],
+    [
+      3,
+      2,
+      0,
+      102,
+      0,
+      "H3_STILL_REFERENCE"
+    ],
+    [
+      4,
+      102,
+      1,
+      202,
+      0,
+      "IMAGE"
+    ],
+    [
+      5,
+      3,
+      0,
+      103,
+      0,
+      "H3_STILL_REFERENCE"
+    ],
+    [
+      6,
+      103,
+      1,
+      203,
+      0,
+      "IMAGE"
+    ],
+    [
+      7,
+      4,
+      0,
+      104,
+      0,
+      "H3_STILL_REFERENCE"
+    ],
+    [
+      8,
+      5,
+      0,
+      105,
+      0,
+      "H3_STILL_REFERENCE"
+    ],
+    [
+      9,
+      6,
+      0,
+      106,
+      0,
+      "H3_STILL_REFERENCE"
+    ],
+    [
+      10,
+      7,
+      0,
+      107,
+      0,
+      "H3_STILL_REFERENCE"
+    ],
+    [
+      11,
+      8,
+      0,
+      108,
+      0,
+      "H3_STILL_REFERENCE"
+    ],
+    [
+      12,
+      9,
+      0,
+      109,
+      0,
+      "H3_STILL_REFERENCE"
+    ],
+    [
+      13,
+      31,
+      0,
+      10,
+      0,
+      "H3_STILL_REFERENCE"
+    ],
+    [
+      14,
+      102,
+      0,
+      10,
+      1,
+      "H3_STILL_REFERENCE"
+    ],
+    [
+      15,
+      103,
+      0,
+      10,
+      2,
+      "H3_STILL_REFERENCE"
+    ],
+    [
+      16,
+      104,
+      0,
+      10,
+      3,
+      "H3_STILL_REFERENCE"
+    ],
+    [
+      17,
+      105,
+      0,
+      10,
+      4,
+      "H3_STILL_REFERENCE"
+    ],
+    [
+      18,
+      106,
+      0,
+      10,
+      5,
+      "H3_STILL_REFERENCE"
+    ],
+    [
+      19,
+      107,
+      0,
+      10,
+      6,
+      "H3_STILL_REFERENCE"
+    ],
+    [
+      20,
+      108,
+      0,
+      10,
+      7,
+      "H3_STILL_REFERENCE"
+    ],
+    [
+      21,
+      109,
+      0,
+      10,
+      8,
+      "H3_STILL_REFERENCE"
+    ],
+    [
+      22,
+      30,
+      0,
+      10,
+      9,
+      "H3_STILL_VIDEO"
+    ],
+    [
+      23,
+      10,
+      0,
+      33,
+      0,
+      "H3_STILL_PLAN"
+    ],
+    [
+      24,
+      32,
+      0,
+      33,
+      1,
+      "STRING"
+    ],
+    [
+      25,
+      33,
+      0,
+      34,
+      0,
+      "STRING"
+    ],
+    [
+      26,
+      10,
+      0,
+      11,
+      0,
+      "H3_STILL_PLAN"
+    ],
+    [
+      27,
+      11,
+      0,
+      12,
+      0,
+      "MODEL"
+    ],
+    [
+      28,
+      12,
+      0,
+      13,
+      0,
+      "MODEL"
+    ],
+    [
+      29,
+      10,
+      0,
+      16,
+      0,
+      "H3_STILL_PLAN"
+    ],
+    [
+      30,
+      14,
+      0,
+      16,
+      1,
+      "CLIP"
+    ],
+    [
+      31,
+      15,
+      0,
+      16,
+      2,
+      "VAE"
+    ],
+    [
+      32,
+      33,
+      0,
+      16,
+      3,
+      "STRING"
+    ],
+    [
+      33,
+      10,
+      1,
+      17,
+      0,
+      "INT"
+    ],
+    [
+      34,
+      10,
+      2,
+      17,
+      1,
+      "INT"
+    ],
+    [
+      35,
+      13,
+      0,
+      19,
+      0,
+      "MODEL"
+    ],
+    [
+      36,
+      10,
+      0,
+      19,
+      1,
+      "H3_STILL_PLAN"
+    ],
+    [
+      37,
+      19,
+      0,
+      20,
+      0,
+      "MODEL"
+    ],
+    [
+      38,
+      10,
+      0,
+      20,
+      1,
+      "H3_STILL_PLAN"
+    ],
+    [
+      39,
+      20,
+      0,
+      21,
+      0,
+      "MODEL"
+    ],
+    [
+      40,
+      16,
+      0,
+      21,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      41,
+      18,
+      0,
+      22,
+      0,
+      "NOISE"
+    ],
+    [
+      42,
+      21,
+      0,
+      22,
+      1,
+      "GUIDER"
+    ],
+    [
+      43,
+      19,
+      1,
+      22,
+      2,
+      "SAMPLER"
+    ],
+    [
+      44,
+      19,
+      2,
+      22,
+      3,
+      "SIGMAS"
+    ],
+    [
+      45,
+      17,
+      0,
+      22,
+      4,
+      "LATENT"
+    ],
+    [
+      46,
+      16,
+      1,
+      22,
+      5,
+      "STRING"
+    ],
+    [
+      47,
+      20,
+      1,
+      22,
+      6,
+      "STRING"
+    ],
+    [
+      48,
+      22,
+      0,
+      23,
+      0,
+      "LATENT"
+    ],
+    [
+      49,
+      15,
+      0,
+      23,
+      1,
+      "VAE"
+    ],
+    [
+      50,
+      22,
+      1,
+      23,
+      2,
+      "STRING"
+    ],
+    [
+      51,
+      23,
+      0,
+      40,
+      0,
+      "IMAGE"
+    ],
+    [
+      52,
+      23,
+      1,
+      41,
+      0,
+      "STRING"
+    ],
+    [
+      53,
+      10,
+      0,
+      28,
+      0,
+      "H3_STILL_PLAN"
+    ],
+    [
+      54,
+      23,
+      0,
+      28,
+      1,
+      "IMAGE"
+    ],
+    [
+      55,
+      28,
+      0,
+      24,
+      0,
+      "IMAGE"
+    ],
+    [
+      56,
+      10,
+      0,
+      25,
+      0,
+      "H3_STILL_PLAN"
+    ],
+    [
+      57,
+      28,
+      0,
+      25,
+      1,
+      "IMAGE"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "version": 0.4,
+  "extra": {
+    "ds": {
+      "scale": 0.35,
+      "offset": [
+        30,
+        60
+      ]
+    },
+    "h3_lab": {
+      "release": "2026-11-08.1",
+      "gpu_tested": false,
+      "name": "05_Character_Swap_Test.json"
+    }
+  }
+}

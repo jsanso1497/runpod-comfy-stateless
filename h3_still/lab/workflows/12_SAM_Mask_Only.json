@@ -1,0 +1,562 @@
+{
+  "id": "56880f0a-8d95-5062-a45d-5d76cd3d4366",
+  "revision": 1,
+  "last_node_id": 60,
+  "last_link_id": 38,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "LoadImage",
+      "title": "1. TARGET PHOTO | includes the person to replace",
+      "pos": [
+        0,
+        0
+      ],
+      "size": [
+        350,
+        420
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            33
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage",
+        "cnr_id": "comfy-core",
+        "ver": "0.43.0"
+      },
+      "widgets_values": [
+        "UPLOAD_TARGET_PHOTO.png",
+        "image"
+      ],
+      "widgets_values_named": {
+        "image": "UPLOAD_TARGET_PHOTO.png",
+        "upload": "image"
+      }
+    },
+    {
+      "id": 50,
+      "type": "CheckpointLoaderSimple",
+      "title": "SAM 3.1 only | not an H3 checkpoint",
+      "pos": [
+        430,
+        220
+      ],
+      "size": [
+        400,
+        115
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            32
+          ]
+        },
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            30
+          ]
+        },
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CheckpointLoaderSimple",
+        "cnr_id": "comfy-core",
+        "ver": "0.43.0",
+        "models": [
+          {
+            "name": "sam3.1_multiplex_fp16.safetensors",
+            "url": "https://huggingface.co/Comfy-Org/sam3.1/resolve/5febd4769e8802cdfdb75e1f733abd8c68434a85/checkpoints/sam3.1_multiplex_fp16.safetensors",
+            "directory": "checkpoints"
+          }
+        ]
+      },
+      "widgets_values": [
+        "sam3.1_multiplex_fp16.safetensors"
+      ],
+      "widgets_values_named": {
+        "ckpt_name": "sam3.1_multiplex_fp16.safetensors"
+      }
+    },
+    {
+      "id": 51,
+      "type": "PrimitiveStringMultiline",
+      "title": "SELECT ONE PERSON | edit this short description",
+      "pos": [
+        430,
+        0
+      ],
+      "size": [
+        400,
+        160
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            31
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PrimitiveStringMultiline",
+        "cnr_id": "comfy-core",
+        "ver": "0.43.0"
+      },
+      "widgets_values": [
+        "person on the left"
+      ],
+      "widgets_values_named": {
+        "value": "person on the left"
+      }
+    },
+    {
+      "id": 52,
+      "type": "CLIPTextEncode",
+      "title": "SAM selection text | from the shared description",
+      "pos": [
+        430,
+        405
+      ],
+      "size": [
+        400,
+        140
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 30
+        },
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": 31,
+          "widget": {
+            "name": "text"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            34
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPTextEncode",
+        "cnr_id": "comfy-core",
+        "ver": "0.43.0"
+      },
+      "widgets_values": [
+        "person on the left"
+      ],
+      "widgets_values_named": {
+        "text": "person on the left"
+      }
+    },
+    {
+      "id": 53,
+      "type": "SAM3_Detect",
+      "title": "SAM3 mask of the selected person",
+      "pos": [
+        900,
+        0
+      ],
+      "size": [
+        350,
+        250
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 32
+        },
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 33
+        },
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "link": 34
+        }
+      ],
+      "outputs": [
+        {
+          "name": "masks",
+          "type": "MASK",
+          "links": [
+            35
+          ]
+        },
+        {
+          "name": "bboxes",
+          "type": "BOUNDING_BOX",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SAM3_Detect",
+        "cnr_id": "comfy-core",
+        "ver": "0.43.0"
+      },
+      "widgets_values": [
+        0.5,
+        2,
+        false
+      ],
+      "widgets_values_named": {
+        "threshold": 0.5,
+        "refine_iterations": 2,
+        "individual_masks": false
+      }
+    },
+    {
+      "id": 54,
+      "type": "GrowMask",
+      "title": "MASK MARGIN | 0 px initially; inspect before growing",
+      "pos": [
+        900,
+        325
+      ],
+      "size": [
+        350,
+        120
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": 35
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": [
+            36,
+            37
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "GrowMask",
+        "cnr_id": "comfy-core",
+        "ver": "0.43.0"
+      },
+      "widgets_values": [
+        0,
+        true
+      ],
+      "widgets_values_named": {
+        "expand": 0,
+        "tapered_corners": true
+      }
+    },
+    {
+      "id": 55,
+      "type": "MaskPreview",
+      "title": "CHECK MASK | white = replace; black = original",
+      "pos": [
+        1320,
+        0
+      ],
+      "size": [
+        380,
+        400
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": 36
+        }
+      ],
+      "outputs": [
+        {
+          "name": "mask",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "MaskPreview",
+        "cnr_id": "comfy-core",
+        "ver": "0.43.0"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 57,
+      "type": "MaskToImage",
+      "title": "Mask to image for PNG save",
+      "pos": [
+        1320,
+        480
+      ],
+      "size": [
+        330,
+        70
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": 37
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            38
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "MaskToImage",
+        "cnr_id": "comfy-core",
+        "ver": "0.43.0"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 58,
+      "type": "SaveImage",
+      "title": "SAVE MASK | inspect before accepting final",
+      "pos": [
+        1320,
+        625
+      ],
+      "size": [
+        380,
+        370
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 38
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "SaveImage",
+        "cnr_id": "comfy-core",
+        "ver": "0.43.0"
+      },
+      "widgets_values": [
+        "H3_Replace_One_SAM3/00_Selected_Person_Mask"
+      ],
+      "widgets_values_named": {
+        "filename_prefix": "H3_Replace_One_SAM3/00_Selected_Person_Mask"
+      }
+    },
+    {
+      "id": 60,
+      "type": "Note",
+      "title": "MASK ONLY | no H3 generation",
+      "pos": [
+        0,
+        1160
+      ],
+      "size": [
+        1640,
+        260
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {},
+      "widgets_values": [
+        "Load the TARGET PHOTO and edit SELECT ONE PERSON. Run. White must select ONLY the person to replace; all other people must be black. Use a short clothing/position description, not a comma-separated list. Start with mask margin 0. This test loads only SAM3, not H3. After verifying, use the same photo, description and SAM settings in H3_Replace_One_Person_SAM3.json. If the target is wrong or missing, do not render H3 yet. Refine the description and inspect again. Install the single SAM checkpoint using setup_h3_sam3.py. No custom-node package is needed."
+      ],
+      "widgets_values_named": {
+        "text": "Load the TARGET PHOTO and edit SELECT ONE PERSON. Run. White must select ONLY the person to replace; all other people must be black. Use a short clothing/position description, not a comma-separated list. Start with mask margin 0. This test loads only SAM3, not H3. After verifying, use the same photo, description and SAM settings in H3_Replace_One_Person_SAM3.json. If the target is wrong or missing, do not render H3 yet. Refine the description and inspect again. Install the single SAM checkpoint using setup_h3_sam3.py. No custom-node package is needed."
+      }
+    }
+  ],
+  "links": [
+    [
+      30,
+      50,
+      1,
+      52,
+      0,
+      "CLIP"
+    ],
+    [
+      31,
+      51,
+      0,
+      52,
+      1,
+      "STRING"
+    ],
+    [
+      32,
+      50,
+      0,
+      53,
+      0,
+      "MODEL"
+    ],
+    [
+      33,
+      1,
+      0,
+      53,
+      1,
+      "IMAGE"
+    ],
+    [
+      34,
+      52,
+      0,
+      53,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      35,
+      53,
+      0,
+      54,
+      0,
+      "MASK"
+    ],
+    [
+      36,
+      54,
+      0,
+      55,
+      0,
+      "MASK"
+    ],
+    [
+      37,
+      54,
+      0,
+      57,
+      0,
+      "MASK"
+    ],
+    [
+      38,
+      57,
+      0,
+      58,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "groups": [
+    {
+      "title": "INPUTS - target / face / body",
+      "bounding": [
+        -20,
+        -65,
+        410,
+        1400
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "SAM3 - choose ONE person and inspect the mask",
+      "bounding": [
+        410,
+        -65,
+        1320,
+        1150
+      ],
+      "color": "#497e61",
+      "font_size": 24,
+      "flags": {}
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.65,
+      "offset": [
+        60,
+        100
+      ]
+    },
+    "h3_sam_addon": {
+      "source_file": "H3_Replace_Person_Diagnostic_Test.json",
+      "source_sha256": "f44922415137739156587403f23d4c1a951a94a631eb3791a4ed266576b73e06",
+      "comfy_commit": "426f5eea52a7ece1dd599fff4cb6cd1f352ddd24",
+      "new_checkpoint": "sam3.1_multiplex_fp16.safetensors",
+      "sampling_changed": false,
+      "mask_applied": "post-generation original-pixel composite; not native inpainting",
+      "requires_custom_node_install": false,
+      "gpu_tested": false,
+      "mask_only": true
+    }
+  },
+  "version": 0.4
+}

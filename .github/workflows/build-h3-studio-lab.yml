@@ -1,0 +1,128 @@
+name: Build H3 Studio Lab
+on:
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: "stable keeps the working ComfyUI; ph3 builds a separate newer-core comparison image"
+        type: choice
+        options: [stable, ph3]
+        default: stable
+        required: true
+permissions:
+  contents: read
+  packages: write
+concurrency:
+  group: h3-studio-lab-${{ inputs.profile }}
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      LAB_PROFILE: ${{ inputs.profile }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Source syntax and offline structural tests
+        run: |
+          python3 -m compileall -q h3_still/lab
+          python3 -m unittest discover -s h3_still/lab/tests -v
+      - name: Reclaim optional runner software
+        run: |
+          sudo rm -rf /usr/local/lib/android /opt/ghc /usr/share/dotnet
+          df -h
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Resolve the existing successful Studio image to its actual digest
+        id: base
+        run: |
+          BASE=ghcr.io/jsanso1497/runpod-comfy-stateless:h3-still-c8ad356ff6f7d2ca327c0395b21ec608062b900c
+          docker pull "$BASE"
+          REV=$(docker image inspect "$BASE" --format '{{index .Config.Labels "org.opencontainers.image.revision"}}')
+          test "$REV" = c8ad356ff6f7d2ca327c0395b21ec608062b900c
+          REF=$(docker image inspect "$BASE" --format '{{index .RepoDigests 0}}')
+          test -n "$REF"
+          echo "image=$REF" >> "$GITHUB_OUTPUT"
+      - uses: docker/setup-buildx-action@v3
+      - name: Build additive Lab image without publishing
+        uses: docker/build-push-action@v6
+        with:
+          context: h3_still/lab
+          file: h3_still/lab/Dockerfile
+          platforms: linux/amd64
+          build-args: |
+            BASE_IMAGE=${{ steps.base.outputs.image }}
+            LAB_PROFILE=${{ inputs.profile }}
+          load: true
+          push: false
+          tags: h3-lab-checked:local
+          provenance: false
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.title=H3 Studio Lab ${{ inputs.profile }}
+      - name: Actual ComfyUI CPU schemas and preprocessing graph
+        run: docker run --name h3-lab-cpu --entrypoint python h3-lab-checked:local /opt/h3-still/lab/cpu_smoke.py
+      - name: Native conditioning contracts and exact unmasked pixels
+        run: docker run --name h3-lab-native --entrypoint python h3-lab-checked:local /opt/h3-still/lab/native_smoke.py
+      - name: Real pinned provider import and signature checks without weights
+        run: docker run --name h3-lab-providers --entrypoint python h3-lab-checked:local /opt/h3-still/lab/provider_probe.py
+      - name: Existing HTTPS login, file browser, JupyterLab and terminal browser test
+        run: |
+          docker run --shm-size=1g --name h3-lab-browser --entrypoint bash h3-lab-checked:local -lc \
+            'python -m pip install playwright==1.56.0 && python -m playwright install --with-deps chromium && python /opt/h3-still/browser_access_smoke.py'
+      - name: Export workflow files and CPU reports
+        run: |
+          mkdir -p h3-studio-lab-build
+          for name in workflows manifest.json build-profile.txt build-provenance.json build-pip-freeze.txt cpu-lab-report.json; do
+            docker cp "h3-lab-cpu:/opt/h3-still/lab/$name" h3-studio-lab-build/
+          done
+          docker cp h3-lab-native:/opt/h3-still/lab/native-lab-report.json h3-studio-lab-build/
+          docker cp h3-lab-providers:/opt/h3-still/lab/provider-contract-report.json h3-studio-lab-build/
+          docker cp h3-lab-browser:/opt/h3-still/browser-access-report.json h3-studio-lab-build/
+          cp H3_STUDIO_LAB_START_HERE.md h3-studio-lab-build/
+      - name: Publish only after the checks pass
+        env:
+          REPOSITORY: ${{ github.repository }}
+          COMMIT: ${{ github.sha }}
+        run: |
+          IMAGE="ghcr.io/${REPOSITORY,,}"
+          SUFFIX=h3-still-lab
+          if [ "$LAB_PROFILE" = ph3 ]; then SUFFIX=h3-still-lab-ph3; fi
+          docker tag h3-lab-checked:local "$IMAGE:$SUFFIX-$COMMIT"
+          docker tag h3-lab-checked:local "$IMAGE:$SUFFIX"
+          docker push "$IMAGE:$SUFFIX-$COMMIT"
+          docker push "$IMAGE:$SUFFIX"
+          REF=$(docker image inspect "$IMAGE:$SUFFIX-$COMMIT" --format '{{index .RepoDigests 0}}')
+          test -n "$REF"
+          printf '%s\n' "$REF" > h3-studio-lab-build/image-reference.txt
+          {
+            echo '## H3 Studio Lab'
+            echo "Profile: $LAB_PROFILE"
+            echo "RunPod image: \`$REF\`"
+            echo 'HTTP ports 8188,8888. Leave start command and entrypoint overrides blank.'
+            echo 'Same COMFY_PASSWORD and optional HF_TOKEN. Same /__h3/login-v3 and /__h3/files.'
+            echo 'Existing H3 model cache and v1/v2 workflows are preserved.'
+            echo 'Open Workflows > 00_H3_Studio_Lab_v1. Start with 00 or 02, no accelerator.'
+            echo 'No additional model is downloaded automatically by Lab.'
+            echo 'Optional Pod commands: python3 /opt/h3-still/lab/manage.py download sam | swap | ph3'
+            echo 'Spark: python3 /opt/h3-still/lab/manage.py setup spark (SM86/A40 only, not A100).'
+            echo 'Passed CPU/browser checks, not GPU inference, likeness, peak VRAM or accelerator speed.'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: h3-studio-lab-${{ inputs.profile }}
+          path: h3-studio-lab-build/
+          if-no-files-found: error
+      - name: Logs on failure
+        if: failure()
+        run: |
+          for c in h3-lab-cpu h3-lab-native h3-lab-providers h3-lab-browser; do docker logs "$c" 2>&1 | tail -100 || true; done
+      - name: Clean up test containers
+        if: always()
+        run: docker rm -f h3-lab-cpu h3-lab-native h3-lab-providers h3-lab-browser >/dev/null 2>&1 || true
