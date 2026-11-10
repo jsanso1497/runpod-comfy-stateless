@@ -13,6 +13,26 @@ PACKAGE = Path(__file__).resolve().parent
 COMFY = Path('/opt/ComfyUI')
 
 
+def configure_cpu_imports():
+    """Select CPU in this test process before importing native ComfyUI modules.
+
+    main.py opts in to CLI parsing itself. Direct imports do not: ComfyUI's
+    default is to parse an empty argument list. Setting sys.argv alone therefore
+    leaves args.cpu false and can initialize CUDA on a CPU-only CI runner.
+    This helper is test-only; it never changes the workspace GPU launcher.
+    """
+    if 'comfy.model_management' in sys.modules:
+        raise RuntimeError('CPU smoke bootstrap must run before comfy.model_management is imported.')
+    sys.path.insert(0, str(COMFY))
+    sys.argv = ['native-smoke', '--cpu', '--cache-none', '--disable-pinned-memory']
+    import comfy.options
+    comfy.options.enable_args_parsing()
+    from comfy.cli_args import args
+    if not args.cpu:
+        raise RuntimeError('CPU smoke arguments were already cached without --cpu. Run in a fresh Python process.')
+    return args
+
+
 def main():
     command = [sys.executable, str(COMFY/'main.py'), '--cpu', '--listen', '127.0.0.1', '--port', '8189',
                '--enable-manager', '--cache-none', '--disable-pinned-memory', '--disable-auto-launch']
@@ -49,8 +69,13 @@ def main():
                 try:process.wait(timeout=20)
                 except subprocess.TimeoutExpired:process.kill();process.wait()
     # Exercise the real native conditioner with fake encoder/VAE objects, not fake geometry functions.
-    sys.path.insert(0,str(COMFY));sys.argv=['native-smoke','--cpu']
+    configure_cpu_imports()
     import torch
+    from comfy import model_management
+    device = model_management.get_torch_device()
+    if device.type != 'cpu':
+        raise RuntimeError('Native CPU smoke selected a non-CPU device: ' + str(device))
+    report.update(in_process_cpu_mode=True, native_test_device=str(device))
     from comfy_extras.nodes_minimax_h3 import MiniMaxH3ImageConditioning
     spec=importlib.util.spec_from_file_location('image_workspace',PACKAGE/'nodes/H3ImageWorkspace/__init__.py')
     helpers=importlib.util.module_from_spec(spec);spec.loader.exec_module(helpers)
