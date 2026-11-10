@@ -1,0 +1,394 @@
+{
+  "1": {
+    "class_type": "H3ImageOptionalReference",
+    "inputs": {
+      "image": "(none)",
+      "enabled": true
+    },
+    "_meta": {
+      "title": "Picture 1: optional reference"
+    }
+  },
+  "2": {
+    "class_type": "H3ImageOptionalReference",
+    "inputs": {
+      "image": "(none)",
+      "enabled": true
+    },
+    "_meta": {
+      "title": "Picture 2: optional reference"
+    }
+  },
+  "3": {
+    "class_type": "H3ImageOptionalReference",
+    "inputs": {
+      "image": "(none)",
+      "enabled": true
+    },
+    "_meta": {
+      "title": "Picture 3: optional reference"
+    }
+  },
+  "4": {
+    "class_type": "H3ImageOptionalReference",
+    "inputs": {
+      "image": "(none)",
+      "enabled": true
+    },
+    "_meta": {
+      "title": "Picture 4: optional reference"
+    }
+  },
+  "5": {
+    "class_type": "H3ImageOptionalReference",
+    "inputs": {
+      "image": "(none)",
+      "enabled": true
+    },
+    "_meta": {
+      "title": "Picture 5: optional reference"
+    }
+  },
+  "6": {
+    "class_type": "H3ImageOptionalReference",
+    "inputs": {
+      "image": "(none)",
+      "enabled": true
+    },
+    "_meta": {
+      "title": "Picture 6: optional reference"
+    }
+  },
+  "7": {
+    "class_type": "H3ImageOptionalReference",
+    "inputs": {
+      "image": "(none)",
+      "enabled": true
+    },
+    "_meta": {
+      "title": "Picture 7: optional reference"
+    }
+  },
+  "8": {
+    "class_type": "H3ImageOptionalReference",
+    "inputs": {
+      "image": "(none)",
+      "enabled": true
+    },
+    "_meta": {
+      "title": "Picture 8: optional reference"
+    }
+  },
+  "9": {
+    "class_type": "H3ImageOptionalReference",
+    "inputs": {
+      "image": "(none)",
+      "enabled": true
+    },
+    "_meta": {
+      "title": "Picture 9: optional reference"
+    }
+  },
+  "10": {
+    "class_type": "H3ImageOptionalReference",
+    "inputs": {
+      "image": "(none)",
+      "enabled": true
+    },
+    "_meta": {
+      "title": "Picture 10: optional reference"
+    }
+  },
+  "11": {
+    "class_type": "H3ImageOptionalReference",
+    "inputs": {
+      "image": "(none)",
+      "enabled": true
+    },
+    "_meta": {
+      "title": "Picture 11: optional reference"
+    }
+  },
+  "12": {
+    "class_type": "H3ImageOptionalReference",
+    "inputs": {
+      "image": "(none)",
+      "enabled": true
+    },
+    "_meta": {
+      "title": "Picture 12: optional reference"
+    }
+  },
+  "13": {
+    "class_type": "H3ImageOptionalReference",
+    "inputs": {
+      "image": "(none)",
+      "enabled": true
+    },
+    "_meta": {
+      "title": "Picture 13: optional reference"
+    }
+  },
+  "14": {
+    "class_type": "H3ImageOptionalReference",
+    "inputs": {
+      "image": "(none)",
+      "enabled": true
+    },
+    "_meta": {
+      "title": "Picture 14: optional reference"
+    }
+  },
+  "15": {
+    "class_type": "H3ImageOptionalReference",
+    "inputs": {
+      "image": "(none)",
+      "enabled": true
+    },
+    "_meta": {
+      "title": "Picture 15: optional reference"
+    }
+  },
+  "16": {
+    "class_type": "H3ImageOptionalReference",
+    "inputs": {
+      "image": "(none)",
+      "enabled": true
+    },
+    "_meta": {
+      "title": "Picture 16: optional reference"
+    }
+  },
+  "30": {
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "minimax_h3_image_pruned_int8_convrot.safetensors",
+      "weight_dtype": "default"
+    },
+    "_meta": {
+      "title": "NEW H3 Image INT8 - not video H3 or Eros"
+    }
+  },
+  "31": {
+    "class_type": "CLIPLoader",
+    "inputs": {
+      "clip_name": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+      "type": "minimax",
+      "device": "default"
+    },
+    "_meta": {
+      "title": "Required H3 encoder - not a prompt enhancer"
+    }
+  },
+  "32": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "minimax_h3_image_vae_fp16.safetensors"
+    },
+    "_meta": {
+      "title": "NEW image VAE - no Fizgig video decode"
+    }
+  },
+  "40": {
+    "class_type": "H3ImageManualConditioning",
+    "inputs": {
+      "prompt": "",
+      "aspect_ratio": "2:3",
+      "output_megapixels": 4.0,
+      "follow_image_1_aspect": false,
+      "minimum_references": 1,
+      "aspect_source_slot": 0,
+      "clip": [
+        "31",
+        0
+      ],
+      "vae": [
+        "32",
+        0
+      ],
+      "reference_1": [
+        "1",
+        0
+      ],
+      "reference_2": [
+        "2",
+        0
+      ],
+      "reference_3": [
+        "3",
+        0
+      ],
+      "reference_4": [
+        "4",
+        0
+      ],
+      "reference_5": [
+        "5",
+        0
+      ],
+      "reference_6": [
+        "6",
+        0
+      ],
+      "reference_7": [
+        "7",
+        0
+      ],
+      "reference_8": [
+        "8",
+        0
+      ],
+      "reference_9": [
+        "9",
+        0
+      ],
+      "reference_10": [
+        "10",
+        0
+      ],
+      "reference_11": [
+        "11",
+        0
+      ],
+      "reference_12": [
+        "12",
+        0
+      ],
+      "reference_13": [
+        "13",
+        0
+      ],
+      "reference_14": [
+        "14",
+        0
+      ],
+      "reference_15": [
+        "15",
+        0
+      ],
+      "reference_16": [
+        "16",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "WRITE YOUR FULL PROMPT HERE - nothing is added"
+    }
+  },
+  "41": {
+    "class_type": "H3ImageSixStepSchedule",
+    "inputs": {
+      "model": [
+        "30",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Fixed six-step PDD schedule / Euler"
+    }
+  },
+  "42": {
+    "class_type": "BasicGuider",
+    "inputs": {
+      "model": [
+        "30",
+        0
+      ],
+      "conditioning": [
+        "40",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "No classifier-free guidance"
+    }
+  },
+  "43": {
+    "class_type": "RandomNoise",
+    "inputs": {
+      "noise_seed": 18071042
+    },
+    "_meta": {
+      "title": "Seed - fixed while comparing"
+    }
+  },
+  "44": {
+    "class_type": "H3ImageTimedSampler",
+    "inputs": {
+      "run_label": "02_Generate_From_References",
+      "noise": [
+        "43",
+        0
+      ],
+      "guider": [
+        "42",
+        0
+      ],
+      "sampler": [
+        "41",
+        0
+      ],
+      "sigmas": [
+        "41",
+        1
+      ],
+      "latent_image": [
+        "40",
+        1
+      ],
+      "reference_report": [
+        "40",
+        2
+      ]
+    },
+    "_meta": {
+      "title": "Generate one image + timing"
+    }
+  },
+  "45": {
+    "class_type": "H3ImageTimedDecode",
+    "inputs": {
+      "sampling_report": [
+        "44",
+        1
+      ],
+      "samples": [
+        "44",
+        0
+      ],
+      "vae": [
+        "32",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Native H3 IMAGE decode + timing"
+    }
+  },
+  "46": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "filename_prefix": "H3_Image/02_Generate_From_References",
+      "images": [
+        "45",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "FINAL PNG"
+    }
+  },
+  "47": {
+    "class_type": "H3ImageReport",
+    "inputs": {
+      "save_report": true,
+      "report": [
+        "45",
+        1
+      ]
+    },
+    "_meta": {
+      "title": "REFERENCE SIZES, SAMPLING / DECODE TIME"
+    }
+  }
+}

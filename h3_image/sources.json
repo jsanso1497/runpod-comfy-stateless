@@ -1,0 +1,30 @@
+{
+  "release": "h3-image-manual-2026-11-10.2",
+  "comfy_repo": "https://github.com/Comfy-Org/ComfyUI.git",
+  "comfy_commit": "ede4e5fe8d15445c6fcd6828d70b202c22f9502c",
+  "template_commit": "c8e48bdcfc7241d7af588d20d4f924caf9d9d953",
+  "template_path": "templates/image_minimax_h3_image_t2i.json",
+  "model_source": "MiniMaxAI/MiniMax-H3-Image",
+  "models": [
+    {
+      "id": "image_dit_int8",
+      "repo": "Comfy-Org/MiniMax-H3-Image",
+      "file": "diffusion_models/minimax_h3_image_pruned_int8_convrot.safetensors",
+      "destination": "diffusion_models/minimax_h3_image_pruned_int8_convrot.safetensors"
+    },
+    {
+      "id": "h3_encoder_nvfp4",
+      "repo": "Comfy-Org/MiniMax-H3",
+      "file": "text_encoders/qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+      "destination": "text_encoders/qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+      "reuse": "/workspace/h3-still/models/text_encoders/qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors"
+    },
+    {
+      "id": "image_vae_fp16",
+      "repo": "Comfy-Org/MiniMax-H3-Image",
+      "file": "vae/minimax_h3_image_vae_fp16.safetensors",
+      "destination": "vae/minimax_h3_image_vae_fp16.safetensors"
+    }
+  ],
+  "notes": "Native image-model integration is pinned by commit and checked in CI, not inferred from a release label. No automatic core update."
+}

@@ -1,0 +1,27 @@
+NATIVE MINIMAX H3 IMAGE - MANUAL INT8
+
+Image: actual ghcr.io/jsanso1497/runpod-comfy-stateless@sha256:... from the successful Build Native H3 Image Workspace summary. Do not substitute the old Lab image.
+GPU: A40 48 GB initial test or A100 80 GB for more headroom; GPU inference not validated here.
+Host: supports CUDA 13.0 PyTorch.
+System RAM: 128 GB+ planning allowance.
+Container disk: 30 GB.
+Persistent disk: 100 GB new workspace; 200 GB recommended if sharing an existing Lab cache.
+Mount: /workspace.
+HTTP ports: 8188,8888.
+TCP ports: none required.
+Start command: blank.
+Entrypoint override: blank.
+COMFY_PASSWORD={{ RUNPOD_SECRET_comfy_password }}
+HF_TOKEN={{ RUNPOD_SECRET_hf_token }}  (optional)
+
+8188: ComfyUI.
+8888: Files and Jupyter.
+Sign-in: /__h3/login-v3
+Files: /__h3/files
+Workflows: 00_H3_Image_Manual_v2
+Output: /workspace/h3-image/output
+First test: 00_Generate_No_References at 4 MP.
+Manual prompts, fixed seed, six-step native schedule, no prompt enhancer.
+
+Preserve old storage and image digest. Ordinary Pod volume data is lost on termination.
+Model license and territorial/commercial authorization requirements still apply.

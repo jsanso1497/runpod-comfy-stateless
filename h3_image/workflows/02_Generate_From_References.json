@@ -1,0 +1,1538 @@
+{
+  "id": "558c061a-18b4-5f91-ad9a-7e4031a6d328",
+  "revision": 0,
+  "last_node_id": 48,
+  "last_link_id": 32,
+  "version": 0.4,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "H3ImageOptionalReference",
+      "title": "Picture 1: optional reference",
+      "pos": [
+        0,
+        0
+      ],
+      "size": [
+        325,
+        300
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "reference",
+          "type": "H3_IMAGE_REFERENCE",
+          "links": [
+            3
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3ImageOptionalReference"
+      },
+      "widgets_values": [
+        "(none)",
+        true,
+        "image"
+      ],
+      "widgets_values_named": {
+        "image": "(none)",
+        "enabled": true,
+        "upload": "image"
+      }
+    },
+    {
+      "id": 2,
+      "type": "H3ImageOptionalReference",
+      "title": "Picture 2: optional reference",
+      "pos": [
+        350,
+        0
+      ],
+      "size": [
+        325,
+        300
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "reference",
+          "type": "H3_IMAGE_REFERENCE",
+          "links": [
+            4
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3ImageOptionalReference"
+      },
+      "widgets_values": [
+        "(none)",
+        true,
+        "image"
+      ],
+      "widgets_values_named": {
+        "image": "(none)",
+        "enabled": true,
+        "upload": "image"
+      }
+    },
+    {
+      "id": 3,
+      "type": "H3ImageOptionalReference",
+      "title": "Picture 3: optional reference",
+      "pos": [
+        700,
+        0
+      ],
+      "size": [
+        325,
+        300
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "reference",
+          "type": "H3_IMAGE_REFERENCE",
+          "links": [
+            5
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3ImageOptionalReference"
+      },
+      "widgets_values": [
+        "(none)",
+        true,
+        "image"
+      ],
+      "widgets_values_named": {
+        "image": "(none)",
+        "enabled": true,
+        "upload": "image"
+      }
+    },
+    {
+      "id": 4,
+      "type": "H3ImageOptionalReference",
+      "title": "Picture 4: optional reference",
+      "pos": [
+        1050,
+        0
+      ],
+      "size": [
+        325,
+        300
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "reference",
+          "type": "H3_IMAGE_REFERENCE",
+          "links": [
+            6
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3ImageOptionalReference"
+      },
+      "widgets_values": [
+        "(none)",
+        true,
+        "image"
+      ],
+      "widgets_values_named": {
+        "image": "(none)",
+        "enabled": true,
+        "upload": "image"
+      }
+    },
+    {
+      "id": 5,
+      "type": "H3ImageOptionalReference",
+      "title": "Picture 5: optional reference",
+      "pos": [
+        0,
+        350
+      ],
+      "size": [
+        325,
+        300
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 4,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "reference",
+          "type": "H3_IMAGE_REFERENCE",
+          "links": [
+            7
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3ImageOptionalReference"
+      },
+      "widgets_values": [
+        "(none)",
+        true,
+        "image"
+      ],
+      "widgets_values_named": {
+        "image": "(none)",
+        "enabled": true,
+        "upload": "image"
+      }
+    },
+    {
+      "id": 6,
+      "type": "H3ImageOptionalReference",
+      "title": "Picture 6: optional reference",
+      "pos": [
+        350,
+        350
+      ],
+      "size": [
+        325,
+        300
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 5,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "reference",
+          "type": "H3_IMAGE_REFERENCE",
+          "links": [
+            8
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3ImageOptionalReference"
+      },
+      "widgets_values": [
+        "(none)",
+        true,
+        "image"
+      ],
+      "widgets_values_named": {
+        "image": "(none)",
+        "enabled": true,
+        "upload": "image"
+      }
+    },
+    {
+      "id": 7,
+      "type": "H3ImageOptionalReference",
+      "title": "Picture 7: optional reference",
+      "pos": [
+        700,
+        350
+      ],
+      "size": [
+        325,
+        300
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 6,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "reference",
+          "type": "H3_IMAGE_REFERENCE",
+          "links": [
+            9
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3ImageOptionalReference"
+      },
+      "widgets_values": [
+        "(none)",
+        true,
+        "image"
+      ],
+      "widgets_values_named": {
+        "image": "(none)",
+        "enabled": true,
+        "upload": "image"
+      }
+    },
+    {
+      "id": 8,
+      "type": "H3ImageOptionalReference",
+      "title": "Picture 8: optional reference",
+      "pos": [
+        1050,
+        350
+      ],
+      "size": [
+        325,
+        300
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 7,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "reference",
+          "type": "H3_IMAGE_REFERENCE",
+          "links": [
+            10
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3ImageOptionalReference"
+      },
+      "widgets_values": [
+        "(none)",
+        true,
+        "image"
+      ],
+      "widgets_values_named": {
+        "image": "(none)",
+        "enabled": true,
+        "upload": "image"
+      }
+    },
+    {
+      "id": 9,
+      "type": "H3ImageOptionalReference",
+      "title": "Picture 9: optional reference",
+      "pos": [
+        0,
+        700
+      ],
+      "size": [
+        325,
+        300
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 8,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "reference",
+          "type": "H3_IMAGE_REFERENCE",
+          "links": [
+            11
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3ImageOptionalReference"
+      },
+      "widgets_values": [
+        "(none)",
+        true,
+        "image"
+      ],
+      "widgets_values_named": {
+        "image": "(none)",
+        "enabled": true,
+        "upload": "image"
+      }
+    },
+    {
+      "id": 10,
+      "type": "H3ImageOptionalReference",
+      "title": "Picture 10: optional reference",
+      "pos": [
+        350,
+        700
+      ],
+      "size": [
+        325,
+        300
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 9,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "reference",
+          "type": "H3_IMAGE_REFERENCE",
+          "links": [
+            12
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3ImageOptionalReference"
+      },
+      "widgets_values": [
+        "(none)",
+        true,
+        "image"
+      ],
+      "widgets_values_named": {
+        "image": "(none)",
+        "enabled": true,
+        "upload": "image"
+      }
+    },
+    {
+      "id": 11,
+      "type": "H3ImageOptionalReference",
+      "title": "Picture 11: optional reference",
+      "pos": [
+        700,
+        700
+      ],
+      "size": [
+        325,
+        300
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 10,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "reference",
+          "type": "H3_IMAGE_REFERENCE",
+          "links": [
+            13
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3ImageOptionalReference"
+      },
+      "widgets_values": [
+        "(none)",
+        true,
+        "image"
+      ],
+      "widgets_values_named": {
+        "image": "(none)",
+        "enabled": true,
+        "upload": "image"
+      }
+    },
+    {
+      "id": 12,
+      "type": "H3ImageOptionalReference",
+      "title": "Picture 12: optional reference",
+      "pos": [
+        1050,
+        700
+      ],
+      "size": [
+        325,
+        300
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 11,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "reference",
+          "type": "H3_IMAGE_REFERENCE",
+          "links": [
+            14
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3ImageOptionalReference"
+      },
+      "widgets_values": [
+        "(none)",
+        true,
+        "image"
+      ],
+      "widgets_values_named": {
+        "image": "(none)",
+        "enabled": true,
+        "upload": "image"
+      }
+    },
+    {
+      "id": 13,
+      "type": "H3ImageOptionalReference",
+      "title": "Picture 13: optional reference",
+      "pos": [
+        0,
+        1050
+      ],
+      "size": [
+        325,
+        300
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 12,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "reference",
+          "type": "H3_IMAGE_REFERENCE",
+          "links": [
+            15
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3ImageOptionalReference"
+      },
+      "widgets_values": [
+        "(none)",
+        true,
+        "image"
+      ],
+      "widgets_values_named": {
+        "image": "(none)",
+        "enabled": true,
+        "upload": "image"
+      }
+    },
+    {
+      "id": 14,
+      "type": "H3ImageOptionalReference",
+      "title": "Picture 14: optional reference",
+      "pos": [
+        350,
+        1050
+      ],
+      "size": [
+        325,
+        300
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 13,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "reference",
+          "type": "H3_IMAGE_REFERENCE",
+          "links": [
+            16
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3ImageOptionalReference"
+      },
+      "widgets_values": [
+        "(none)",
+        true,
+        "image"
+      ],
+      "widgets_values_named": {
+        "image": "(none)",
+        "enabled": true,
+        "upload": "image"
+      }
+    },
+    {
+      "id": 15,
+      "type": "H3ImageOptionalReference",
+      "title": "Picture 15: optional reference",
+      "pos": [
+        700,
+        1050
+      ],
+      "size": [
+        325,
+        300
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 14,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "reference",
+          "type": "H3_IMAGE_REFERENCE",
+          "links": [
+            17
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3ImageOptionalReference"
+      },
+      "widgets_values": [
+        "(none)",
+        true,
+        "image"
+      ],
+      "widgets_values_named": {
+        "image": "(none)",
+        "enabled": true,
+        "upload": "image"
+      }
+    },
+    {
+      "id": 16,
+      "type": "H3ImageOptionalReference",
+      "title": "Picture 16: optional reference",
+      "pos": [
+        1050,
+        1050
+      ],
+      "size": [
+        325,
+        300
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 15,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "reference",
+          "type": "H3_IMAGE_REFERENCE",
+          "links": [
+            18
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3ImageOptionalReference"
+      },
+      "widgets_values": [
+        "(none)",
+        true,
+        "image"
+      ],
+      "widgets_values_named": {
+        "image": "(none)",
+        "enabled": true,
+        "upload": "image"
+      }
+    },
+    {
+      "id": 30,
+      "type": "UNETLoader",
+      "title": "NEW H3 Image INT8 - not video H3 or Eros",
+      "pos": [
+        1480,
+        0
+      ],
+      "size": [
+        470,
+        110
+      ],
+      "flags": {},
+      "order": 16,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            19,
+            20
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "UNETLoader"
+      },
+      "widgets_values": [
+        "minimax_h3_image_pruned_int8_convrot.safetensors",
+        "default"
+      ],
+      "widgets_values_named": {
+        "unet_name": "minimax_h3_image_pruned_int8_convrot.safetensors",
+        "weight_dtype": "default"
+      }
+    },
+    {
+      "id": 31,
+      "type": "CLIPLoader",
+      "title": "Required H3 encoder - not a prompt enhancer",
+      "pos": [
+        1480,
+        170
+      ],
+      "size": [
+        470,
+        145
+      ],
+      "flags": {},
+      "order": 17,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            1
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPLoader"
+      },
+      "widgets_values": [
+        "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+        "minimax",
+        "default"
+      ],
+      "widgets_values_named": {
+        "clip_name": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+        "type": "minimax",
+        "device": "default"
+      }
+    },
+    {
+      "id": 32,
+      "type": "VAELoader",
+      "title": "NEW image VAE - no Fizgig video decode",
+      "pos": [
+        1480,
+        370
+      ],
+      "size": [
+        470,
+        100
+      ],
+      "flags": {},
+      "order": 18,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            2,
+            30
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAELoader"
+      },
+      "widgets_values": [
+        "minimax_h3_image_vae_fp16.safetensors"
+      ],
+      "widgets_values_named": {
+        "vae_name": "minimax_h3_image_vae_fp16.safetensors"
+      }
+    },
+    {
+      "id": 40,
+      "type": "H3ImageManualConditioning",
+      "title": "WRITE YOUR FULL PROMPT HERE - nothing is added",
+      "pos": [
+        2020,
+        0
+      ],
+      "size": [
+        660,
+        500
+      ],
+      "flags": {},
+      "order": 19,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 1
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 2
+        },
+        {
+          "name": "reference_1",
+          "type": "H3_IMAGE_REFERENCE",
+          "link": 3
+        },
+        {
+          "name": "reference_2",
+          "type": "H3_IMAGE_REFERENCE",
+          "link": 4
+        },
+        {
+          "name": "reference_3",
+          "type": "H3_IMAGE_REFERENCE",
+          "link": 5
+        },
+        {
+          "name": "reference_4",
+          "type": "H3_IMAGE_REFERENCE",
+          "link": 6
+        },
+        {
+          "name": "reference_5",
+          "type": "H3_IMAGE_REFERENCE",
+          "link": 7
+        },
+        {
+          "name": "reference_6",
+          "type": "H3_IMAGE_REFERENCE",
+          "link": 8
+        },
+        {
+          "name": "reference_7",
+          "type": "H3_IMAGE_REFERENCE",
+          "link": 9
+        },
+        {
+          "name": "reference_8",
+          "type": "H3_IMAGE_REFERENCE",
+          "link": 10
+        },
+        {
+          "name": "reference_9",
+          "type": "H3_IMAGE_REFERENCE",
+          "link": 11
+        },
+        {
+          "name": "reference_10",
+          "type": "H3_IMAGE_REFERENCE",
+          "link": 12
+        },
+        {
+          "name": "reference_11",
+          "type": "H3_IMAGE_REFERENCE",
+          "link": 13
+        },
+        {
+          "name": "reference_12",
+          "type": "H3_IMAGE_REFERENCE",
+          "link": 14
+        },
+        {
+          "name": "reference_13",
+          "type": "H3_IMAGE_REFERENCE",
+          "link": 15
+        },
+        {
+          "name": "reference_14",
+          "type": "H3_IMAGE_REFERENCE",
+          "link": 16
+        },
+        {
+          "name": "reference_15",
+          "type": "H3_IMAGE_REFERENCE",
+          "link": 17
+        },
+        {
+          "name": "reference_16",
+          "type": "H3_IMAGE_REFERENCE",
+          "link": 18
+        }
+      ],
+      "outputs": [
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "links": [
+            21
+          ]
+        },
+        {
+          "name": "image_latent",
+          "type": "LATENT",
+          "links": [
+            26
+          ]
+        },
+        {
+          "name": "reference_report",
+          "type": "STRING",
+          "links": [
+            27
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3ImageManualConditioning"
+      },
+      "widgets_values": [
+        "",
+        "2:3",
+        4.0,
+        false,
+        1,
+        0
+      ],
+      "widgets_values_named": {
+        "prompt": "",
+        "aspect_ratio": "2:3",
+        "output_megapixels": 4.0,
+        "follow_image_1_aspect": false,
+        "minimum_references": 1,
+        "aspect_source_slot": 0
+      }
+    },
+    {
+      "id": 41,
+      "type": "H3ImageSixStepSchedule",
+      "title": "Fixed six-step PDD schedule / Euler",
+      "pos": [
+        2760,
+        160
+      ],
+      "size": [
+        365,
+        115
+      ],
+      "flags": {},
+      "order": 20,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 19
+        }
+      ],
+      "outputs": [
+        {
+          "name": "euler_sampler",
+          "type": "SAMPLER",
+          "links": [
+            24
+          ]
+        },
+        {
+          "name": "six_step_sigmas",
+          "type": "SIGMAS",
+          "links": [
+            25
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3ImageSixStepSchedule"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 42,
+      "type": "BasicGuider",
+      "title": "No classifier-free guidance",
+      "pos": [
+        2760,
+        340
+      ],
+      "size": [
+        365,
+        110
+      ],
+      "flags": {},
+      "order": 21,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 20
+        },
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "link": 21
+        }
+      ],
+      "outputs": [
+        {
+          "name": "GUIDER",
+          "type": "GUIDER",
+          "links": [
+            23
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BasicGuider"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 43,
+      "type": "RandomNoise",
+      "title": "Seed - fixed while comparing",
+      "pos": [
+        2760,
+        0
+      ],
+      "size": [
+        365,
+        110
+      ],
+      "flags": {},
+      "order": 22,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "NOISE",
+          "type": "NOISE",
+          "links": [
+            22
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "RandomNoise"
+      },
+      "widgets_values": [
+        18071042,
+        "fixed"
+      ],
+      "widgets_values_named": {
+        "noise_seed": 18071042,
+        "control_after_generate": "fixed"
+      }
+    },
+    {
+      "id": 44,
+      "type": "H3ImageTimedSampler",
+      "title": "Generate one image + timing",
+      "pos": [
+        3200,
+        0
+      ],
+      "size": [
+        350,
+        300
+      ],
+      "flags": {},
+      "order": 23,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "noise",
+          "type": "NOISE",
+          "link": 22
+        },
+        {
+          "name": "guider",
+          "type": "GUIDER",
+          "link": 23
+        },
+        {
+          "name": "sampler",
+          "type": "SAMPLER",
+          "link": 24
+        },
+        {
+          "name": "sigmas",
+          "type": "SIGMAS",
+          "link": 25
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 26
+        },
+        {
+          "name": "reference_report",
+          "type": "STRING",
+          "link": 27
+        }
+      ],
+      "outputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "links": [
+            29
+          ]
+        },
+        {
+          "name": "sampling_report",
+          "type": "STRING",
+          "links": [
+            28
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3ImageTimedSampler"
+      },
+      "widgets_values": [
+        "02_Generate_From_References"
+      ],
+      "widgets_values_named": {
+        "run_label": "02_Generate_From_References"
+      }
+    },
+    {
+      "id": 45,
+      "type": "H3ImageTimedDecode",
+      "title": "Native H3 IMAGE decode + timing",
+      "pos": [
+        3200,
+        390
+      ],
+      "size": [
+        350,
+        130
+      ],
+      "flags": {},
+      "order": 24,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "sampling_report",
+          "type": "STRING",
+          "link": 28
+        },
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 29
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 30
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            31
+          ]
+        },
+        {
+          "name": "complete_report",
+          "type": "STRING",
+          "links": [
+            32
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3ImageTimedDecode"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 46,
+      "type": "SaveImage",
+      "title": "FINAL PNG",
+      "pos": [
+        3640,
+        0
+      ],
+      "size": [
+        620,
+        600
+      ],
+      "flags": {},
+      "order": 25,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 31
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "SaveImage"
+      },
+      "widgets_values": [
+        "H3_Image/02_Generate_From_References"
+      ],
+      "widgets_values_named": {
+        "filename_prefix": "H3_Image/02_Generate_From_References"
+      }
+    },
+    {
+      "id": 47,
+      "type": "H3ImageReport",
+      "title": "REFERENCE SIZES, SAMPLING / DECODE TIME",
+      "pos": [
+        2020,
+        580
+      ],
+      "size": [
+        660,
+        450
+      ],
+      "flags": {},
+      "order": 26,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "report",
+          "type": "STRING",
+          "link": 32
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "H3ImageReport"
+      },
+      "widgets_values": [
+        true
+      ],
+      "widgets_values_named": {
+        "save_report": true
+      }
+    },
+    {
+      "id": 48,
+      "type": "Note",
+      "title": "READ FIRST",
+      "pos": [
+        0,
+        1520
+      ],
+      "size": [
+        1390,
+        360
+      ],
+      "flags": {},
+      "order": 27,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "Note"
+      },
+      "widgets_values": [
+        "This requires the NEW H3 Image workspace. It is NOT a workflow for the existing H3 Lab.\n\nPrompt is passed verbatim. No prompt builder, enhancer, hidden prefixes, negative prompt, Turbo or Akatz.\nNative MiniMax-H3-Image INT8 model, matching IMAGE VAE, six PDD steps, Euler.\nStart at 4 MP with few references; 16 MP is not an A40 memory guarantee.\nAspect source slot: 0 = first active picture; 3 = original upload slot 3. Only used when follow_image_1_aspect is ON.\nPicture tags follow ACTIVE slots in order. Disabled/empty slots are omitted. Check the report.\nLabels are reminders only. State head/body/scene roles yourself in your prompt.\nNative reference resizing can increase small references; lowering output MP alone does not cap all reference cost.\nThis is whole-image generation/editing, not exact background preservation or inpainting.\nThe original Lab and files under /workspace/h3-still are not modified.\nReports include actual vision/VAE reference sizes and sampling/decode time. Comparisons are resized previews, not the final image.\nYour results save under /workspace/h3-image/output/. No GPU inference has been validated by this package author."
+      ],
+      "widgets_values_named": {
+        "text": "This requires the NEW H3 Image workspace. It is NOT a workflow for the existing H3 Lab.\n\nPrompt is passed verbatim. No prompt builder, enhancer, hidden prefixes, negative prompt, Turbo or Akatz.\nNative MiniMax-H3-Image INT8 model, matching IMAGE VAE, six PDD steps, Euler.\nStart at 4 MP with few references; 16 MP is not an A40 memory guarantee.\nAspect source slot: 0 = first active picture; 3 = original upload slot 3. Only used when follow_image_1_aspect is ON.\nPicture tags follow ACTIVE slots in order. Disabled/empty slots are omitted. Check the report.\nLabels are reminders only. State head/body/scene roles yourself in your prompt.\nNative reference resizing can increase small references; lowering output MP alone does not cap all reference cost.\nThis is whole-image generation/editing, not exact background preservation or inpainting.\nThe original Lab and files under /workspace/h3-still are not modified.\nReports include actual vision/VAE reference sizes and sampling/decode time. Comparisons are resized previews, not the final image.\nYour results save under /workspace/h3-image/output/. No GPU inference has been validated by this package author."
+      }
+    }
+  ],
+  "links": [
+    [
+      1,
+      31,
+      0,
+      40,
+      0,
+      "CLIP"
+    ],
+    [
+      2,
+      32,
+      0,
+      40,
+      1,
+      "VAE"
+    ],
+    [
+      3,
+      1,
+      0,
+      40,
+      2,
+      "H3_IMAGE_REFERENCE"
+    ],
+    [
+      4,
+      2,
+      0,
+      40,
+      3,
+      "H3_IMAGE_REFERENCE"
+    ],
+    [
+      5,
+      3,
+      0,
+      40,
+      4,
+      "H3_IMAGE_REFERENCE"
+    ],
+    [
+      6,
+      4,
+      0,
+      40,
+      5,
+      "H3_IMAGE_REFERENCE"
+    ],
+    [
+      7,
+      5,
+      0,
+      40,
+      6,
+      "H3_IMAGE_REFERENCE"
+    ],
+    [
+      8,
+      6,
+      0,
+      40,
+      7,
+      "H3_IMAGE_REFERENCE"
+    ],
+    [
+      9,
+      7,
+      0,
+      40,
+      8,
+      "H3_IMAGE_REFERENCE"
+    ],
+    [
+      10,
+      8,
+      0,
+      40,
+      9,
+      "H3_IMAGE_REFERENCE"
+    ],
+    [
+      11,
+      9,
+      0,
+      40,
+      10,
+      "H3_IMAGE_REFERENCE"
+    ],
+    [
+      12,
+      10,
+      0,
+      40,
+      11,
+      "H3_IMAGE_REFERENCE"
+    ],
+    [
+      13,
+      11,
+      0,
+      40,
+      12,
+      "H3_IMAGE_REFERENCE"
+    ],
+    [
+      14,
+      12,
+      0,
+      40,
+      13,
+      "H3_IMAGE_REFERENCE"
+    ],
+    [
+      15,
+      13,
+      0,
+      40,
+      14,
+      "H3_IMAGE_REFERENCE"
+    ],
+    [
+      16,
+      14,
+      0,
+      40,
+      15,
+      "H3_IMAGE_REFERENCE"
+    ],
+    [
+      17,
+      15,
+      0,
+      40,
+      16,
+      "H3_IMAGE_REFERENCE"
+    ],
+    [
+      18,
+      16,
+      0,
+      40,
+      17,
+      "H3_IMAGE_REFERENCE"
+    ],
+    [
+      19,
+      30,
+      0,
+      41,
+      0,
+      "MODEL"
+    ],
+    [
+      20,
+      30,
+      0,
+      42,
+      0,
+      "MODEL"
+    ],
+    [
+      21,
+      40,
+      0,
+      42,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      22,
+      43,
+      0,
+      44,
+      0,
+      "NOISE"
+    ],
+    [
+      23,
+      42,
+      0,
+      44,
+      1,
+      "GUIDER"
+    ],
+    [
+      24,
+      41,
+      0,
+      44,
+      2,
+      "SAMPLER"
+    ],
+    [
+      25,
+      41,
+      1,
+      44,
+      3,
+      "SIGMAS"
+    ],
+    [
+      26,
+      40,
+      1,
+      44,
+      4,
+      "LATENT"
+    ],
+    [
+      27,
+      40,
+      2,
+      44,
+      5,
+      "STRING"
+    ],
+    [
+      28,
+      44,
+      1,
+      45,
+      0,
+      "STRING"
+    ],
+    [
+      29,
+      44,
+      0,
+      45,
+      1,
+      "LATENT"
+    ],
+    [
+      30,
+      32,
+      0,
+      45,
+      2,
+      "VAE"
+    ],
+    [
+      31,
+      45,
+      0,
+      46,
+      0,
+      "IMAGE"
+    ],
+    [
+      32,
+      45,
+      1,
+      47,
+      0,
+      "STRING"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.55,
+      "offset": [
+        30,
+        80
+      ]
+    },
+    "h3_image": {
+      "manual_prompt_only": true,
+      "gpu_tested": false,
+      "native_model": "MiniMax-H3-Image",
+      "steps": 6
+    }
+  }
+}

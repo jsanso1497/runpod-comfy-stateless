@@ -1,0 +1,241 @@
+{
+  "1": {
+    "class_type": "H3ImageOptionalReference",
+    "inputs": {
+      "image": "(none)",
+      "enabled": true
+    },
+    "_meta": {
+      "title": "Picture 1: body"
+    }
+  },
+  "2": {
+    "class_type": "H3ImageOptionalReference",
+    "inputs": {
+      "image": "(none)",
+      "enabled": true
+    },
+    "_meta": {
+      "title": "Picture 2: face / head"
+    }
+  },
+  "3": {
+    "class_type": "H3ImageOptionalReference",
+    "inputs": {
+      "image": "(none)",
+      "enabled": true
+    },
+    "_meta": {
+      "title": "Picture 3: target scene"
+    }
+  },
+  "30": {
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "minimax_h3_image_pruned_int8_convrot.safetensors",
+      "weight_dtype": "default"
+    },
+    "_meta": {
+      "title": "NEW H3 Image INT8 - not video H3 or Eros"
+    }
+  },
+  "31": {
+    "class_type": "CLIPLoader",
+    "inputs": {
+      "clip_name": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+      "type": "minimax",
+      "device": "default"
+    },
+    "_meta": {
+      "title": "Required H3 encoder - not a prompt enhancer"
+    }
+  },
+  "32": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "minimax_h3_image_vae_fp16.safetensors"
+    },
+    "_meta": {
+      "title": "NEW image VAE - no Fizgig video decode"
+    }
+  },
+  "40": {
+    "class_type": "H3ImageManualConditioning",
+    "inputs": {
+      "prompt": "",
+      "aspect_ratio": "2:3",
+      "output_megapixels": 4.0,
+      "follow_image_1_aspect": true,
+      "minimum_references": 3,
+      "aspect_source_slot": 3,
+      "clip": [
+        "31",
+        0
+      ],
+      "vae": [
+        "32",
+        0
+      ],
+      "reference_1": [
+        "1",
+        0
+      ],
+      "reference_2": [
+        "2",
+        0
+      ],
+      "reference_3": [
+        "3",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "WRITE YOUR FULL PROMPT HERE - nothing is added"
+    }
+  },
+  "41": {
+    "class_type": "H3ImageSixStepSchedule",
+    "inputs": {
+      "model": [
+        "30",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Fixed six-step PDD schedule / Euler"
+    }
+  },
+  "42": {
+    "class_type": "BasicGuider",
+    "inputs": {
+      "model": [
+        "30",
+        0
+      ],
+      "conditioning": [
+        "40",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "No classifier-free guidance"
+    }
+  },
+  "43": {
+    "class_type": "RandomNoise",
+    "inputs": {
+      "noise_seed": 18071042
+    },
+    "_meta": {
+      "title": "Seed - fixed while comparing"
+    }
+  },
+  "44": {
+    "class_type": "H3ImageTimedSampler",
+    "inputs": {
+      "run_label": "05_Replace_Body_Face_Scene_Last",
+      "noise": [
+        "43",
+        0
+      ],
+      "guider": [
+        "42",
+        0
+      ],
+      "sampler": [
+        "41",
+        0
+      ],
+      "sigmas": [
+        "41",
+        1
+      ],
+      "latent_image": [
+        "40",
+        1
+      ],
+      "reference_report": [
+        "40",
+        2
+      ]
+    },
+    "_meta": {
+      "title": "Generate one image + timing"
+    }
+  },
+  "45": {
+    "class_type": "H3ImageTimedDecode",
+    "inputs": {
+      "sampling_report": [
+        "44",
+        1
+      ],
+      "samples": [
+        "44",
+        0
+      ],
+      "vae": [
+        "32",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Native H3 IMAGE decode + timing"
+    }
+  },
+  "46": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "filename_prefix": "H3_Image/05_Replace_Body_Face_Scene_Last",
+      "images": [
+        "45",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "FINAL PNG"
+    }
+  },
+  "47": {
+    "class_type": "H3ImageReport",
+    "inputs": {
+      "save_report": true,
+      "report": [
+        "45",
+        1
+      ]
+    },
+    "_meta": {
+      "title": "REFERENCE SIZES, SAMPLING / DECODE TIME"
+    }
+  },
+  "49": {
+    "class_type": "H3ImageCompare",
+    "inputs": {
+      "reference": [
+        "3",
+        0
+      ],
+      "generated": [
+        "45",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Source LEFT / result RIGHT"
+    }
+  },
+  "50": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "filename_prefix": "H3_Image/Comparisons/05_Replace_Body_Face_Scene_Last",
+      "images": [
+        "49",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "COMPARISON ONLY - final PNG is above"
+    }
+  }
+}

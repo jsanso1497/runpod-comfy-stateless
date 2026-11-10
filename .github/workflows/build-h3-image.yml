@@ -1,0 +1,105 @@
+name: Build Native H3 Image Workspace
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  packages: write
+concurrency:
+  group: native-h3-image
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate local files and workflow graphs
+        run: |
+          python3 -m compileall -q h3_image
+          python3 -m unittest discover -s h3_image/tests -v
+      - name: Verify published INT8 assets and freeze revisions BEFORE building
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: python3 h3_image/assets.py resolve
+      - name: Free optional runner software
+        run: |
+          sudo rm -rf /usr/local/lib/android /opt/ghc /usr/share/dotnet
+          df -h
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/setup-buildx-action@v3
+      - name: Build new isolated image; do not publish yet
+        uses: docker/build-push-action@v6
+        with:
+          context: h3_image
+          file: h3_image/Dockerfile
+          platforms: linux/amd64
+          load: true
+          push: false
+          provenance: false
+          tags: h3-image-tested:local
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.title=Native MiniMax H3 Image Manual Workspace
+      - name: Native CPU schemas, conditioning and six-step schedule
+        run: docker run --name h3-image-native --entrypoint python3 h3-image-tested:local /opt/h3-image/native_smoke.py
+      - name: HTTPS login, file browser, JupyterLab and terminal browser test
+        run: |
+          docker run --shm-size=1g --name h3-image-browser --entrypoint bash h3-image-tested:local -lc \
+            'python3 -m pip install playwright==1.56.0 && python3 -m playwright install --with-deps chromium && python3 /opt/h3-image/browser_smoke.py'
+      - name: Export reports and workflows
+        run: |
+          mkdir -p h3-image-build
+          for f in sources.json models.lock.json build-pip-freeze.txt native-smoke-report.json workflows; do
+            docker cp "h3-image-native:/opt/h3-image/$f" h3-image-build/
+          done
+          docker cp h3-image-browser:/opt/h3-image/browser-access-report.json h3-image-build/
+          cp h3_image/START_HERE.md h3-image-build/
+      - name: Publish only after all checks pass
+        env:
+          REPOSITORY: ${{ github.repository }}
+          COMMIT: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          IMAGE="ghcr.io/${REPOSITORY,,}"
+          TAG="h3-image-$COMMIT"
+          docker tag h3-image-tested:local "$IMAGE:$TAG"
+          docker push "$IMAGE:$TAG" | tee /tmp/h3-image-push.txt
+          DIGEST=$(awk '/digest: sha256:/{for(i=1;i<=NF;i++)if($i=="digest:")print $(i+1)}' /tmp/h3-image-push.txt | tail -n 1)
+          [[ "$DIGEST" =~ ^sha256:[0-9a-f]{64}$ ]]
+          REF="$IMAGE@$DIGEST"
+          docker tag h3-image-tested:local "$IMAGE:h3-image"
+          docker push "$IMAGE:h3-image"
+          printf '%s\n' "$REF" > h3-image-build/image-reference.txt
+          {
+            echo '## Native MiniMax H3 Image'
+            echo "RunPod image: \`$REF\`"
+            echo 'HTTP ports: 8188,8888. Leave entrypoint/start-command overrides blank.'
+            echo 'COMFY_PASSWORD: your existing RunPod secret. HF_TOKEN optional if model access requires it.'
+            echo 'Persistent files: /workspace/h3-image. Existing /workspace/h3-still is not changed.'
+            echo 'First boot downloads only the locked H3 Image model set. Existing matching H3 encoder is reused.'
+            echo 'Open Workflows > 00_H3_Image_Manual_v2. Start at 4 MP with no reference, then test one reference.'
+            echo 'The model license and territorial/commercial authorization requirements still apply.'
+            echo 'Memory/restart/export controls: python3 /opt/h3-image/control.py free | restart | zip'
+            echo 'Manual prompting only. Manager enabled. No prompt enhancer or old H3/PH3/Turbo adapters.'
+            echo 'CPU and browser checks passed. GPU generation, likeness, speed and peak memory are not validated by this build.'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: native-h3-image-workspace
+          path: h3-image-build/
+          if-no-files-found: error
+      - name: Logs on failure
+        if: failure()
+        run: |
+          for c in h3-image-native h3-image-browser; do docker logs "$c" 2>&1 | tail -n 100 || true; done
+      - name: Clean test containers
+        if: always()
+        run: docker rm -f h3-image-native h3-image-browser >/dev/null 2>&1 || true
