@@ -80,7 +80,7 @@ class GraphTests(unittest.TestCase):
         self.assertIn('--cache-none',text)
         self.assertNotIn('security_level = weak',text)
     def test_new_workflow_folder(self):
-        self.assertIn('00_H3_Image_Manual_v2',(PACKAGE/'runtime/backend.py').read_text())
+        self.assertIn('00_H3_Image_INT8_Encoder_v3',(PACKAGE/'runtime/backend.py').read_text())
 
 
 class ControlTests(unittest.TestCase):

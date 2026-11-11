@@ -172,12 +172,12 @@
   "31": {
     "class_type": "CLIPLoader",
     "inputs": {
-      "clip_name": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+      "clip_name": "qwen3vl_32b_minimax_h3_int8_convrot.safetensors",
       "type": "minimax",
       "device": "default"
     },
     "_meta": {
-      "title": "Required H3 encoder - not a prompt enhancer"
+      "title": "H3 Qwen3-VL-32B INT8 encoder - not a prompt enhancer"
     }
   },
   "32": {

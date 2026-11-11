@@ -18,10 +18,13 @@ HF_TOKEN={{ RUNPOD_SECRET_hf_token }}  (optional)
 8888: Files and Jupyter.
 Sign-in: /__h3/login-v3
 Files: /__h3/files
-Workflows: 00_H3_Image_Manual_v2
+Workflows: 00_H3_Image_INT8_Encoder_v3
 Output: /workspace/h3-image/output
 First test: 00_Generate_No_References at 4 MP.
 Manual prompts, fixed seed, six-step native schedule, no prompt enhancer.
 
 Preserve old storage and image digest. Ordinary Pod volume data is lost on termination.
 Model license and territorial/commercial authorization requirements still apply.
+
+Encoder update: INT8/ConvRot, 27.1 GB additional download if absent. Allow 35 GB free.
+Open the new v3 folder; old saved workflows keep their own encoder selection.

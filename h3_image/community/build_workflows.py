@@ -14,7 +14,7 @@ PACKAGE = Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location('h3_manual_baseline_builder', PACKAGE / 'build_workflows.py')
 BASE = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(BASE)
-VERSION = '2026-11-10-community.1'
+VERSION = '2026-11-11-community-int8.1'
 PRUNA_VAE = 'p-h3-image_vae_int8_convrot.safetensors'
 # Six steps and the simple scheduler for LCM are controlled test choices, not settings
 # recoverable from the LCM screenshot. ER-SDE four/six steps come from the second screenshot.
@@ -186,7 +186,7 @@ def build(profile):
     notes = [
         'NATIVE H3 IMAGE COMMUNITY EXPERIMENT. Not the old video H3, Eros or P-H3 workflow.',
         'Recreated from visible screenshots. The uploaded JPEG had no embedded workflow, seed or prompt.',
-        'Your prompt is blank and passed verbatim. Same INT8 checkpoint, NVFP4/AWQ encoder and fixed seed as the native workspace.',
+        'Your prompt is blank and passed verbatim. Same INT8 checkpoint, INT8/ConvRot encoder and fixed seed as the native workspace.',
         '16 MP is the target in the reports. Begin at 4 MP only to check memory, then test 16 MP when feasible. A40 fit is unverified.',
         'For sampler comparisons use IDENTICAL prompt, references, dimensions, precision and seed. A fixed seed does not lock the image across samplers.',
         'Compare 10 (Euler 6) with 11 (ER-SDE 6) before 12 (ER-SDE 4). Four steps changes the trained six-step recipe and is experimental.',

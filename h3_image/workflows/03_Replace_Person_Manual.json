@@ -1,5 +1,5 @@
 {
-  "id": "761b8c8d-7021-5454-ae69-743f64aca8fd",
+  "id": "d00c3616-4685-576c-a50a-7e849a89daa3",
   "revision": 0,
   "last_node_id": 50,
   "last_link_id": 22,
@@ -164,7 +164,7 @@
     {
       "id": 31,
       "type": "CLIPLoader",
-      "title": "Required H3 encoder - not a prompt enhancer",
+      "title": "H3 Qwen3-VL-32B INT8 encoder - not a prompt enhancer",
       "pos": [
         1480,
         170
@@ -190,12 +190,12 @@
         "Node name for S&R": "CLIPLoader"
       },
       "widgets_values": [
-        "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+        "qwen3vl_32b_minimax_h3_int8_convrot.safetensors",
         "minimax",
         "default"
       ],
       "widgets_values_named": {
-        "clip_name": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+        "clip_name": "qwen3vl_32b_minimax_h3_int8_convrot.safetensors",
         "type": "minimax",
         "device": "default"
       }

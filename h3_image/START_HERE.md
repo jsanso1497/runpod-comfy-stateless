@@ -1,3 +1,9 @@
+# INT8 encoder update (2026-11-11)
+
+For an existing native-image checkout, apply `update_h3_image_int8_encoder.py` from your Mac repository terminal, then review, commit and push manually in GitHub Desktop. See `INT8_ENCODER_UPDATE.md`. The older full-workspace installation instructions below describe the original package, not the incremental encoder update.
+
+The required text/vision encoder now defaults to INT8/ConvRot. Allow about 27.1 GB for it, with at least 35 GB free recommended before an upgrade. Existing smaller encoder files and saved workflows are not deleted. New v3 workflows are installed separately; open that folder to use the new defaults. Your current running Pod does not change until you deploy a newly built image.
+
 # Native H3 Image: James's manual-prompt workspace
 
 Release: 2026-11-10.2. This is the first-party MiniMax-H3-Image pipeline, not Fizgig, video REF2VA, Eros, or Pruna P-H3.
@@ -49,7 +55,7 @@ First boot downloads the locked model set sequentially, verifies each checksum, 
 ### Model set
 
 - `minimax_h3_image_pruned_int8_convrot.safetensors`
-- `qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors`
+- `qwen3vl_32b_minimax_h3_int8_convrot.safetensors`
 - `minimax_h3_image_vae_fp16.safetensors`
 
 Comfy-Org lists this combination. The new INT8 diffusion file is approximately 21 GB. Exact individual sizes and total download size are printed by the build. The encoder is reused from `/workspace/h3-still/models/text_encoders` only when its size and checksum match. A reused encoder is linked, not copied or modified. Deleting its old source would break that link.
@@ -90,7 +96,7 @@ Manager is installed using the pinned core's manager requirements and enabled au
 
 ## 5. Your six workflows
 
-Open **Workflows > `00_H3_Image_Manual_v2`**. Earlier v1 graphs and user-saved graphs are not overwritten.
+Open **Workflows > `00_H3_Image_INT8_Encoder_v3`**. Earlier v1 graphs and user-saved graphs are not overwritten.
 
 | File | Inputs |
 | --- | --- |

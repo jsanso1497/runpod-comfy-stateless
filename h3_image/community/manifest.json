@@ -1,5 +1,5 @@
 {
-  "version": "2026-11-10-community.1",
+  "version": "2026-11-11-community-int8.1",
   "workflows": [
     {
       "file": "10_Community_T2I_Euler_16MP_Control.json",

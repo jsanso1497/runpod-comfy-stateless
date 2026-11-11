@@ -34,3 +34,14 @@ Official template reference: workflow_templates commit `c8e48bdcfc7241d7af588d20
 ## Measurements and limitations
 
 Reference sizes in reports call the native resize function/constants. Timings wrap the native sampling and decode calls. Unit tests use fake model/encoder objects and small tensors where applicable; they do not establish numerical equivalence for real weights. GPU generation and licensed self-host deployment must be validated separately.
+
+## INT8 encoder default update: 2026-11-11
+
+The current source manifest supersedes the earlier NVFP4 default. Only the required text/vision encoder changes.
+- Model: https://huggingface.co/Comfy-Org/MiniMax-H3/blob/main/text_encoders/qwen3vl_32b_minimax_h3_int8_convrot.safetensors
+- Raw pointer: https://huggingface.co/Comfy-Org/MiniMax-H3/raw/main/text_encoders/qwen3vl_32b_minimax_h3_int8_convrot.safetensors
+- Reviewed byte size: 27141342152.
+- Reviewed SHA-256: bc2ced0fbea64757fa9acddccfc0b3f4819d1dcf1da6c124d690d368be283923.
+- Build resolution checks the reviewed fingerprint, records the immutable repository revision, and the existing Pod downloader verifies the full downloaded file.
+- Native image model-card lists both encoder formats: https://huggingface.co/Comfy-Org/MiniMax-H3-Image
+- No quality, speed or VRAM equivalence is implied. No model weights are included in this update.

@@ -85,6 +85,11 @@ def lock_row(row, metadata):
     size = lfs.get('size', entry.get('size', 0))
     if not re.fullmatch(r'[0-9a-f]{64}', sha) or not isinstance(size, int) or size <= 0:
         raise ValueError('No trustworthy LFS size/SHA-256 for ' + row['file'])
+    # When an asset has an independently reviewed fingerprint, fail closed on a changed release.
+    if row.get('expected_sha256') and sha != row['expected_sha256']:
+        raise ValueError('Published checksum changed for ' + row['file'] + '. Review the source before building.')
+    if row.get('expected_size_bytes') and size != row['expected_size_bytes']:
+        raise ValueError('Published size changed for ' + row['file'] + '. Review the source before building.')
     return dict(row, revision=revision, sha256=sha, size_bytes=size)
 
 

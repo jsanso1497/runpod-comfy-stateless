@@ -1,5 +1,5 @@
 {
-  "id": "ab317b6a-f90b-52f4-ac95-7fd9f30391a9",
+  "id": "c93bd961-7bd6-545a-a1ed-e3d1888608cf",
   "revision": 0,
   "last_node_id": 51,
   "last_link_id": 20,
@@ -202,7 +202,7 @@
     {
       "id": 31,
       "type": "CLIPLoader",
-      "title": "Required H3 encoder - not a prompt enhancer",
+      "title": "H3 Qwen3-VL-32B INT8 encoder - not a prompt enhancer",
       "pos": [
         1480,
         170
@@ -228,12 +228,12 @@
         "Node name for S&R": "CLIPLoader"
       },
       "widgets_values": [
-        "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+        "qwen3vl_32b_minimax_h3_int8_convrot.safetensors",
         "minimax",
         "default"
       ],
       "widgets_values_named": {
-        "clip_name": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+        "clip_name": "qwen3vl_32b_minimax_h3_int8_convrot.safetensors",
         "type": "minimax",
         "device": "default"
       }
@@ -703,10 +703,10 @@
         "Node name for S&R": "Note"
       },
       "widgets_values": [
-        "NATIVE H3 IMAGE COMMUNITY EXPERIMENT. Not the old video H3, Eros or P-H3 workflow.\n\nRecreated from visible screenshots. The uploaded JPEG had no embedded workflow, seed or prompt.\n\nYour prompt is blank and passed verbatim. Same INT8 checkpoint, NVFP4/AWQ encoder and fixed seed as the native workspace.\n\n16 MP is the target in the reports. Begin at 4 MP only to check memory, then test 16 MP when feasible. A40 fit is unverified.\n\nFor sampler comparisons use IDENTICAL prompt, references, dimensions, precision and seed. A fixed seed does not lock the image across samplers.\n\nCompare 10 (Euler 6) with 11 (ER-SDE 6) before 12 (ER-SDE 4). Four steps changes the trained six-step recipe and is experimental.\n\nLCM: six steps/simple is our controlled starting recipe; the screenshot does NOT specify its steps or schedule. Set s_noise and s_noise_end BOTH to the same value, e.g. 0.95, 1.00, 1.10 or 1.20. noise_clip_std stays 0.\n\nNo extra LCM LoRA, model-sampling patch, prompt enhancer, Turbo, Akatz or accelerator is required/added.\n\nThe old 00-05 workflows remain untouched. No simultaneous seed sweep or queued batch is included.\n\nReports contain actual step count/timing. Inspect PNG workflow metadata for the sampler/noise/VAE values; run_label alone is not proof of settings.\n\nPicture 1: A head. Picture 2: A body. Picture 3: B head. Picture 4: B body.\n\nWrite the scene yourself. Labels do not impose identity binding. Select the desired output aspect ratio."
+        "NATIVE H3 IMAGE COMMUNITY EXPERIMENT. Not the old video H3, Eros or P-H3 workflow.\n\nRecreated from visible screenshots. The uploaded JPEG had no embedded workflow, seed or prompt.\n\nYour prompt is blank and passed verbatim. Same INT8 checkpoint, INT8/ConvRot encoder and fixed seed as the native workspace.\n\n16 MP is the target in the reports. Begin at 4 MP only to check memory, then test 16 MP when feasible. A40 fit is unverified.\n\nFor sampler comparisons use IDENTICAL prompt, references, dimensions, precision and seed. A fixed seed does not lock the image across samplers.\n\nCompare 10 (Euler 6) with 11 (ER-SDE 6) before 12 (ER-SDE 4). Four steps changes the trained six-step recipe and is experimental.\n\nLCM: six steps/simple is our controlled starting recipe; the screenshot does NOT specify its steps or schedule. Set s_noise and s_noise_end BOTH to the same value, e.g. 0.95, 1.00, 1.10 or 1.20. noise_clip_std stays 0.\n\nNo extra LCM LoRA, model-sampling patch, prompt enhancer, Turbo, Akatz or accelerator is required/added.\n\nThe old 00-05 workflows remain untouched. No simultaneous seed sweep or queued batch is included.\n\nReports contain actual step count/timing. Inspect PNG workflow metadata for the sampler/noise/VAE values; run_label alone is not proof of settings.\n\nPicture 1: A head. Picture 2: A body. Picture 3: B head. Picture 4: B body.\n\nWrite the scene yourself. Labels do not impose identity binding. Select the desired output aspect ratio."
       ],
       "widgets_values_named": {
-        "text": "NATIVE H3 IMAGE COMMUNITY EXPERIMENT. Not the old video H3, Eros or P-H3 workflow.\n\nRecreated from visible screenshots. The uploaded JPEG had no embedded workflow, seed or prompt.\n\nYour prompt is blank and passed verbatim. Same INT8 checkpoint, NVFP4/AWQ encoder and fixed seed as the native workspace.\n\n16 MP is the target in the reports. Begin at 4 MP only to check memory, then test 16 MP when feasible. A40 fit is unverified.\n\nFor sampler comparisons use IDENTICAL prompt, references, dimensions, precision and seed. A fixed seed does not lock the image across samplers.\n\nCompare 10 (Euler 6) with 11 (ER-SDE 6) before 12 (ER-SDE 4). Four steps changes the trained six-step recipe and is experimental.\n\nLCM: six steps/simple is our controlled starting recipe; the screenshot does NOT specify its steps or schedule. Set s_noise and s_noise_end BOTH to the same value, e.g. 0.95, 1.00, 1.10 or 1.20. noise_clip_std stays 0.\n\nNo extra LCM LoRA, model-sampling patch, prompt enhancer, Turbo, Akatz or accelerator is required/added.\n\nThe old 00-05 workflows remain untouched. No simultaneous seed sweep or queued batch is included.\n\nReports contain actual step count/timing. Inspect PNG workflow metadata for the sampler/noise/VAE values; run_label alone is not proof of settings.\n\nPicture 1: A head. Picture 2: A body. Picture 3: B head. Picture 4: B body.\n\nWrite the scene yourself. Labels do not impose identity binding. Select the desired output aspect ratio."
+        "text": "NATIVE H3 IMAGE COMMUNITY EXPERIMENT. Not the old video H3, Eros or P-H3 workflow.\n\nRecreated from visible screenshots. The uploaded JPEG had no embedded workflow, seed or prompt.\n\nYour prompt is blank and passed verbatim. Same INT8 checkpoint, INT8/ConvRot encoder and fixed seed as the native workspace.\n\n16 MP is the target in the reports. Begin at 4 MP only to check memory, then test 16 MP when feasible. A40 fit is unverified.\n\nFor sampler comparisons use IDENTICAL prompt, references, dimensions, precision and seed. A fixed seed does not lock the image across samplers.\n\nCompare 10 (Euler 6) with 11 (ER-SDE 6) before 12 (ER-SDE 4). Four steps changes the trained six-step recipe and is experimental.\n\nLCM: six steps/simple is our controlled starting recipe; the screenshot does NOT specify its steps or schedule. Set s_noise and s_noise_end BOTH to the same value, e.g. 0.95, 1.00, 1.10 or 1.20. noise_clip_std stays 0.\n\nNo extra LCM LoRA, model-sampling patch, prompt enhancer, Turbo, Akatz or accelerator is required/added.\n\nThe old 00-05 workflows remain untouched. No simultaneous seed sweep or queued batch is included.\n\nReports contain actual step count/timing. Inspect PNG workflow metadata for the sampler/noise/VAE values; run_label alone is not proof of settings.\n\nPicture 1: A head. Picture 2: A body. Picture 3: B head. Picture 4: B body.\n\nWrite the scene yourself. Labels do not impose identity binding. Select the desired output aspect ratio."
       }
     },
     {
@@ -927,7 +927,7 @@
       "gpu_tested": false,
       "native_model": "MiniMax-H3-Image",
       "steps": 6,
-      "community_version": "2026-11-10-community.1",
+      "community_version": "2026-11-11-community-int8.1",
       "source": "User screenshots; NOT an extracted original workflow",
       "sampler": "lcm",
       "scheduler": "simple",

@@ -77,7 +77,7 @@ After the build succeeds, use its new image digest on RunPod. Preserve `/workspa
 At first launch these new files are added to:
 
 ```text
-Workflows > 00_H3_Image_Manual_v2
+Workflows > 00_H3_Image_INT8_Encoder_v3
 ```
 
 Look for prefixes **10 through 18**. The existing startup copies missing files without overwriting user-saved workflows. If you have already saved a different copy under the same name, use the downloadable JSON directly rather than expecting a restart to overwrite it.

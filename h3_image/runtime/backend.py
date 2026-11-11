@@ -20,7 +20,7 @@ def prepare(root):
                          'vae': 'models/vae', 'loras': 'models/loras', 'checkpoints': 'models/checkpoints',
                          'custom_nodes': 'custom_nodes', 'download_model_base': 'models'}}
     (root / 'extra_model_paths.yaml').write_text(yaml.safe_dump(paths), encoding='utf-8')
-    workflows = root / 'user/default/workflows/00_H3_Image_Manual_v2'
+    workflows = root / 'user/default/workflows/00_H3_Image_INT8_Encoder_v3'
     workflows.mkdir(parents=True, exist_ok=True)
     for source in (PACKAGE / 'workflows').glob('*.json'):
         target = workflows / source.name

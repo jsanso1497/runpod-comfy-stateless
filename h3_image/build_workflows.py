@@ -6,7 +6,7 @@ import uuid
 
 ROOT = Path(__file__).resolve().parent
 MODEL = 'minimax_h3_image_pruned_int8_convrot.safetensors'
-ENCODER = 'qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors'
+ENCODER = 'qwen3vl_32b_minimax_h3_int8_convrot.safetensors'
 VAE = 'minimax_h3_image_vae_fp16.safetensors'
 PROFILES = [
     ('00_Generate_No_References', 0, 0, False, '1:1'),
@@ -20,7 +20,7 @@ PROFILES = [
 
 class Graph:
     def __init__(self, name):
-        self.data = {'id': str(uuid.uuid5(uuid.NAMESPACE_URL, 'h3-image-manual-v2/' + name)),
+        self.data = {'id': str(uuid.uuid5(uuid.NAMESPACE_URL, 'h3-image-int8-encoder-v3/' + name)),
                      'revision': 0, 'last_node_id': 0, 'last_link_id': 0, 'version': 0.4,
                      'nodes': [], 'links': [], 'groups': [], 'config': {},
                      'extra': {'ds': {'scale': 0.55, 'offset': [30, 80]},
@@ -81,7 +81,7 @@ def build(profile):
               {'image': '(none)', 'enabled': True, 'upload': 'image'}, size=(325, 300), collapsed=i > 4)
     g.add(30, 'UNETLoader', 'NEW H3 Image INT8 - not video H3 or Eros', 1480, 0, [('MODEL', 'MODEL')],
           {'unet_name': MODEL, 'weight_dtype': 'default'}, size=(470, 110))
-    g.add(31, 'CLIPLoader', 'Required H3 encoder - not a prompt enhancer', 1480, 170, [('CLIP', 'CLIP')],
+    g.add(31, 'CLIPLoader', 'H3 Qwen3-VL-32B INT8 encoder - not a prompt enhancer', 1480, 170, [('CLIP', 'CLIP')],
           {'clip_name': ENCODER, 'type': 'minimax', 'device': 'default'}, size=(470, 145))
     g.add(32, 'VAELoader', 'NEW image VAE - no Fizgig video decode', 1480, 370, [('VAE', 'VAE')],
           {'vae_name': VAE}, size=(470, 100))
