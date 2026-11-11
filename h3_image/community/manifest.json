@@ -1,0 +1,86 @@
+{
+  "version": "2026-11-10-community.1",
+  "workflows": [
+    {
+      "file": "10_Community_T2I_Euler_16MP_Control.json",
+      "sampler": "euler",
+      "steps": 6,
+      "output_megapixels": 16.0,
+      "sampler_node": "KSamplerSelect",
+      "optional_pruna_vae": false,
+      "source_is_reconstruction": true
+    },
+    {
+      "file": "11_Community_T2I_ER_SDE_6_16MP.json",
+      "sampler": "er_sde",
+      "steps": 6,
+      "output_megapixels": 16.0,
+      "sampler_node": "KSamplerSelect",
+      "optional_pruna_vae": false,
+      "source_is_reconstruction": true
+    },
+    {
+      "file": "12_Community_T2I_ER_SDE_4_16MP.json",
+      "sampler": "er_sde",
+      "steps": 4,
+      "output_megapixels": 16.0,
+      "sampler_node": "KSamplerSelect",
+      "optional_pruna_vae": false,
+      "source_is_reconstruction": true
+    },
+    {
+      "file": "13_Community_T2I_LCM_6_16MP.json",
+      "sampler": "lcm",
+      "steps": 6,
+      "output_megapixels": 16.0,
+      "sampler_node": "SamplerLCM",
+      "optional_pruna_vae": false,
+      "source_is_reconstruction": true
+    },
+    {
+      "file": "14_Community_Replace_ER_SDE_6_16MP.json",
+      "sampler": "er_sde",
+      "steps": 6,
+      "output_megapixels": 16.0,
+      "sampler_node": "KSamplerSelect",
+      "optional_pruna_vae": false,
+      "source_is_reconstruction": true
+    },
+    {
+      "file": "15_Community_Replace_LCM_6_16MP.json",
+      "sampler": "lcm",
+      "steps": 6,
+      "output_megapixels": 16.0,
+      "sampler_node": "SamplerLCM",
+      "optional_pruna_vae": false,
+      "source_is_reconstruction": true
+    },
+    {
+      "file": "16_Community_Two_People_ER_SDE_6_16MP.json",
+      "sampler": "er_sde",
+      "steps": 6,
+      "output_megapixels": 16.0,
+      "sampler_node": "KSamplerSelect",
+      "optional_pruna_vae": false,
+      "source_is_reconstruction": true
+    },
+    {
+      "file": "17_Community_Two_People_LCM_6_16MP.json",
+      "sampler": "lcm",
+      "steps": 6,
+      "output_megapixels": 16.0,
+      "sampler_node": "SamplerLCM",
+      "optional_pruna_vae": false,
+      "source_is_reconstruction": true
+    },
+    {
+      "file": "18_Community_Pruna_Decode_AB_16MP.json",
+      "sampler": "euler",
+      "steps": 6,
+      "output_megapixels": 16.0,
+      "sampler_node": "KSamplerSelect",
+      "optional_pruna_vae": true,
+      "source_is_reconstruction": true
+    }
+  ]
+}

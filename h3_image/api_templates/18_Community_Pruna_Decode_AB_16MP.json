@@ -1,0 +1,298 @@
+{
+  "30": {
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "minimax_h3_image_pruned_int8_convrot.safetensors",
+      "weight_dtype": "default"
+    },
+    "_meta": {
+      "title": "NEW H3 Image INT8 - not video H3 or Eros"
+    }
+  },
+  "31": {
+    "class_type": "CLIPLoader",
+    "inputs": {
+      "clip_name": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+      "type": "minimax",
+      "device": "default"
+    },
+    "_meta": {
+      "title": "Required H3 encoder - not a prompt enhancer"
+    }
+  },
+  "32": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "minimax_h3_image_vae_fp16.safetensors"
+    },
+    "_meta": {
+      "title": "NEW image VAE - no Fizgig video decode"
+    }
+  },
+  "40": {
+    "class_type": "H3ImageManualConditioning",
+    "inputs": {
+      "prompt": "",
+      "aspect_ratio": "1:1",
+      "output_megapixels": 16.0,
+      "follow_image_1_aspect": false,
+      "minimum_references": 0,
+      "aspect_source_slot": 0,
+      "clip": [
+        "31",
+        0
+      ],
+      "vae": [
+        "32",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "YOUR MANUAL PROMPT + 16 MP (4 MP only for a memory smoke test)"
+    }
+  },
+  "41": {
+    "class_type": "BasicScheduler",
+    "inputs": {
+      "scheduler": "simple",
+      "steps": 6,
+      "denoise": 1.0,
+      "model": [
+        "30",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "SIMPLE SCHEDULE: 6 steps, denoise 1.0"
+    }
+  },
+  "42": {
+    "class_type": "BasicGuider",
+    "inputs": {
+      "model": [
+        "30",
+        0
+      ],
+      "conditioning": [
+        "40",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "No classifier-free guidance"
+    }
+  },
+  "43": {
+    "class_type": "RandomNoise",
+    "inputs": {
+      "noise_seed": 18071042
+    },
+    "_meta": {
+      "title": "Seed - fixed while comparing"
+    }
+  },
+  "44": {
+    "class_type": "H3ImageTimedSampler",
+    "inputs": {
+      "run_label": "18_Community_Pruna_Decode_AB_16MP",
+      "noise": [
+        "43",
+        0
+      ],
+      "guider": [
+        "42",
+        0
+      ],
+      "sampler": [
+        "51",
+        0
+      ],
+      "sigmas": [
+        "41",
+        0
+      ],
+      "latent_image": [
+        "40",
+        1
+      ],
+      "reference_report": [
+        "40",
+        2
+      ]
+    },
+    "_meta": {
+      "title": "Generate one image + timing"
+    }
+  },
+  "45": {
+    "class_type": "H3ImageTimedDecode",
+    "inputs": {
+      "sampling_report": [
+        "44",
+        1
+      ],
+      "samples": [
+        "44",
+        0
+      ],
+      "vae": [
+        "32",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "A: Native image VAE, same generated latent"
+    }
+  },
+  "46": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "filename_prefix": "H3_Image/Community_Tests/18_Community_Pruna_Decode_AB_16MP/A_native",
+      "images": [
+        "45",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "A: NATIVE FINAL PNG"
+    }
+  },
+  "47": {
+    "class_type": "H3ImageReport",
+    "inputs": {
+      "save_report": true,
+      "report": [
+        "45",
+        1
+      ]
+    },
+    "_meta": {
+      "title": "REFERENCE SIZES, SAMPLING / DECODE TIME"
+    }
+  },
+  "51": {
+    "class_type": "KSamplerSelect",
+    "inputs": {
+      "sampler_name": "euler"
+    },
+    "_meta": {
+      "title": "SAMPLER: euler"
+    }
+  },
+  "52": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "p-h3-image_vae_int8_convrot.safetensors"
+    },
+    "_meta": {
+      "title": "OPTIONAL Pruna INT8 VAE: DECODE ONLY"
+    }
+  },
+  "53": {
+    "class_type": "H3ImageTimedDecode",
+    "inputs": {
+      "samples": [
+        "44",
+        0
+      ],
+      "vae": [
+        "52",
+        0
+      ],
+      "sampling_report": [
+        "44",
+        1
+      ]
+    },
+    "_meta": {
+      "title": "B: Pruna decode of EXACT SAME latent"
+    }
+  },
+  "54": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "filename_prefix": "H3_Image/Community_Tests/18_Community_Pruna_Decode_AB_16MP/B_pruna",
+      "images": [
+        "53",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "B: PRUNA FINAL PNG (experimental)"
+    }
+  },
+  "55": {
+    "class_type": "H3ImageReport",
+    "inputs": {
+      "save_report": true,
+      "report": [
+        "53",
+        1
+      ]
+    },
+    "_meta": {
+      "title": "B: PRUNA DECODE TIME"
+    }
+  },
+  "56": {
+    "class_type": "ImageScaleToMaxDimension",
+    "inputs": {
+      "upscale_method": "area",
+      "largest_size": 1024,
+      "image": [
+        "45",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Native preview"
+    }
+  },
+  "57": {
+    "class_type": "ImageScaleToMaxDimension",
+    "inputs": {
+      "upscale_method": "area",
+      "largest_size": 1024,
+      "image": [
+        "53",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Pruna preview"
+    }
+  },
+  "58": {
+    "class_type": "ImageStitch",
+    "inputs": {
+      "direction": "right",
+      "match_image_size": true,
+      "spacing_width": 8,
+      "spacing_color": "black",
+      "image1": [
+        "56",
+        0
+      ],
+      "image2": [
+        "57",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "A native LEFT / B Pruna RIGHT"
+    }
+  },
+  "59": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "filename_prefix": "H3_Image/Community_Tests/18_Community_Pruna_Decode_AB_16MP/compare_native_left",
+      "images": [
+        "58",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "COMPARISON PREVIEW ONLY"
+    }
+  }
+}

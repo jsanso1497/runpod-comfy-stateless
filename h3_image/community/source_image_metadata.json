@@ -1,0 +1,39 @@
+{
+  "filename": "minimax_h3_image_t2i_00066_.jpeg",
+  "format": "JPEG",
+  "size": [
+    1536,
+    657
+  ],
+  "info_keys": [
+    "jfif",
+    "jfif_version",
+    "jfif_unit",
+    "jfif_density",
+    "exif",
+    "photoshop",
+    "dpi"
+  ],
+  "exif": {
+    "296": "2",
+    "34665": "90",
+    "274": "1",
+    "282": "72.0",
+    "283": "72.0"
+  },
+  "markers": {
+    "workflow": -1,
+    "prompt": -1,
+    "SamplerLCM": -1,
+    "er_sde": -1,
+    "s_noise": -1,
+    "{\"nodes\"": -1
+  },
+  "34665": {
+    "40961": "1",
+    "40962": "1536",
+    "40963": "657"
+  },
+  "34853": {},
+  "trailing_bytes_after_jpeg_eoi": 0
+}

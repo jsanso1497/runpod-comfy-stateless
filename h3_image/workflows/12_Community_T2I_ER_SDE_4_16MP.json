@@ -1,0 +1,727 @@
+{
+  "id": "837af9ab-aa94-5a9f-8e5e-73dfc60a07b6",
+  "revision": 0,
+  "last_node_id": 51,
+  "last_link_id": 16,
+  "version": 0.4,
+  "nodes": [
+    {
+      "id": 30,
+      "type": "UNETLoader",
+      "title": "NEW H3 Image INT8 - not video H3 or Eros",
+      "pos": [
+        1480,
+        0
+      ],
+      "size": [
+        470,
+        110
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            3,
+            4
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "UNETLoader"
+      },
+      "widgets_values": [
+        "minimax_h3_image_pruned_int8_convrot.safetensors",
+        "default"
+      ],
+      "widgets_values_named": {
+        "unet_name": "minimax_h3_image_pruned_int8_convrot.safetensors",
+        "weight_dtype": "default"
+      }
+    },
+    {
+      "id": 31,
+      "type": "CLIPLoader",
+      "title": "Required H3 encoder - not a prompt enhancer",
+      "pos": [
+        1480,
+        170
+      ],
+      "size": [
+        470,
+        145
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            1
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPLoader"
+      },
+      "widgets_values": [
+        "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+        "minimax",
+        "default"
+      ],
+      "widgets_values_named": {
+        "clip_name": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+        "type": "minimax",
+        "device": "default"
+      }
+    },
+    {
+      "id": 32,
+      "type": "VAELoader",
+      "title": "NEW image VAE - no Fizgig video decode",
+      "pos": [
+        1480,
+        370
+      ],
+      "size": [
+        470,
+        100
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            2,
+            14
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAELoader"
+      },
+      "widgets_values": [
+        "minimax_h3_image_vae_fp16.safetensors"
+      ],
+      "widgets_values_named": {
+        "vae_name": "minimax_h3_image_vae_fp16.safetensors"
+      }
+    },
+    {
+      "id": 40,
+      "type": "H3ImageManualConditioning",
+      "title": "YOUR MANUAL PROMPT + 16 MP (4 MP only for a memory smoke test)",
+      "pos": [
+        2020,
+        0
+      ],
+      "size": [
+        660,
+        500
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 1
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "links": [
+            5
+          ]
+        },
+        {
+          "name": "image_latent",
+          "type": "LATENT",
+          "links": [
+            10
+          ]
+        },
+        {
+          "name": "reference_report",
+          "type": "STRING",
+          "links": [
+            11
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3ImageManualConditioning"
+      },
+      "widgets_values": [
+        "",
+        "1:1",
+        16.0,
+        false,
+        0,
+        0
+      ],
+      "widgets_values_named": {
+        "prompt": "",
+        "aspect_ratio": "1:1",
+        "output_megapixels": 16.0,
+        "follow_image_1_aspect": false,
+        "minimum_references": 0,
+        "aspect_source_slot": 0
+      }
+    },
+    {
+      "id": 41,
+      "type": "BasicScheduler",
+      "title": "SIMPLE SCHEDULE: 4 steps, denoise 1.0",
+      "pos": [
+        2760,
+        170
+      ],
+      "size": [
+        365,
+        150
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 3
+        }
+      ],
+      "outputs": [
+        {
+          "name": "SIGMAS",
+          "type": "SIGMAS",
+          "links": [
+            9
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BasicScheduler",
+        "cnr_id": "comfy-core"
+      },
+      "widgets_values": [
+        "simple",
+        4,
+        1.0
+      ],
+      "widgets_values_named": {
+        "scheduler": "simple",
+        "steps": 4,
+        "denoise": 1.0
+      }
+    },
+    {
+      "id": 42,
+      "type": "BasicGuider",
+      "title": "No classifier-free guidance",
+      "pos": [
+        2760,
+        340
+      ],
+      "size": [
+        365,
+        110
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 4
+        },
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "link": 5
+        }
+      ],
+      "outputs": [
+        {
+          "name": "GUIDER",
+          "type": "GUIDER",
+          "links": [
+            7
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BasicGuider"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 43,
+      "type": "RandomNoise",
+      "title": "Seed - fixed while comparing",
+      "pos": [
+        2760,
+        0
+      ],
+      "size": [
+        365,
+        110
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "NOISE",
+          "type": "NOISE",
+          "links": [
+            6
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "RandomNoise"
+      },
+      "widgets_values": [
+        18071042,
+        "fixed"
+      ],
+      "widgets_values_named": {
+        "noise_seed": 18071042,
+        "control_after_generate": "fixed"
+      }
+    },
+    {
+      "id": 44,
+      "type": "H3ImageTimedSampler",
+      "title": "Generate one image + timing",
+      "pos": [
+        3200,
+        0
+      ],
+      "size": [
+        350,
+        300
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "noise",
+          "type": "NOISE",
+          "link": 6
+        },
+        {
+          "name": "guider",
+          "type": "GUIDER",
+          "link": 7
+        },
+        {
+          "name": "sampler",
+          "type": "SAMPLER",
+          "link": 8
+        },
+        {
+          "name": "sigmas",
+          "type": "SIGMAS",
+          "link": 9
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 10
+        },
+        {
+          "name": "reference_report",
+          "type": "STRING",
+          "link": 11
+        }
+      ],
+      "outputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "links": [
+            13
+          ]
+        },
+        {
+          "name": "sampling_report",
+          "type": "STRING",
+          "links": [
+            12
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3ImageTimedSampler"
+      },
+      "widgets_values": [
+        "12_Community_T2I_ER_SDE_4_16MP"
+      ],
+      "widgets_values_named": {
+        "run_label": "12_Community_T2I_ER_SDE_4_16MP"
+      }
+    },
+    {
+      "id": 45,
+      "type": "H3ImageTimedDecode",
+      "title": "Native H3 IMAGE decode + timing",
+      "pos": [
+        3200,
+        390
+      ],
+      "size": [
+        350,
+        130
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "sampling_report",
+          "type": "STRING",
+          "link": 12
+        },
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 13
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 14
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            15
+          ]
+        },
+        {
+          "name": "complete_report",
+          "type": "STRING",
+          "links": [
+            16
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3ImageTimedDecode"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 46,
+      "type": "SaveImage",
+      "title": "FINAL PNG",
+      "pos": [
+        3640,
+        0
+      ],
+      "size": [
+        620,
+        600
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 15
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "SaveImage"
+      },
+      "widgets_values": [
+        "H3_Image/Community_Tests/12_Community_T2I_ER_SDE_4_16MP/final"
+      ],
+      "widgets_values_named": {
+        "filename_prefix": "H3_Image/Community_Tests/12_Community_T2I_ER_SDE_4_16MP/final"
+      }
+    },
+    {
+      "id": 47,
+      "type": "H3ImageReport",
+      "title": "REFERENCE SIZES, SAMPLING / DECODE TIME",
+      "pos": [
+        2020,
+        580
+      ],
+      "size": [
+        660,
+        450
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "report",
+          "type": "STRING",
+          "link": 16
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "H3ImageReport"
+      },
+      "widgets_values": [
+        true
+      ],
+      "widgets_values_named": {
+        "save_report": true
+      }
+    },
+    {
+      "id": 48,
+      "type": "Note",
+      "title": "READ FIRST: reconstructed community test, not a recovered graph",
+      "pos": [
+        0,
+        440
+      ],
+      "size": [
+        1390,
+        700
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "Note"
+      },
+      "widgets_values": [
+        "NATIVE H3 IMAGE COMMUNITY EXPERIMENT. Not the old video H3, Eros or P-H3 workflow.\n\nRecreated from visible screenshots. The uploaded JPEG had no embedded workflow, seed or prompt.\n\nYour prompt is blank and passed verbatim. Same INT8 checkpoint, NVFP4/AWQ encoder and fixed seed as the native workspace.\n\n16 MP is the target in the reports. Begin at 4 MP only to check memory, then test 16 MP when feasible. A40 fit is unverified.\n\nFor sampler comparisons use IDENTICAL prompt, references, dimensions, precision and seed. A fixed seed does not lock the image across samplers.\n\nCompare 10 (Euler 6) with 11 (ER-SDE 6) before 12 (ER-SDE 4). Four steps changes the trained six-step recipe and is experimental.\n\nLCM: six steps/simple is our controlled starting recipe; the screenshot does NOT specify its steps or schedule. Set s_noise and s_noise_end BOTH to the same value, e.g. 0.95, 1.00, 1.10 or 1.20. noise_clip_std stays 0.\n\nNo extra LCM LoRA, model-sampling patch, prompt enhancer, Turbo, Akatz or accelerator is required/added.\n\nThe old 00-05 workflows remain untouched. No simultaneous seed sweep or queued batch is included.\n\nReports contain actual step count/timing. Inspect PNG workflow metadata for the sampler/noise/VAE values; run_label alone is not proof of settings."
+      ],
+      "widgets_values_named": {
+        "text": "NATIVE H3 IMAGE COMMUNITY EXPERIMENT. Not the old video H3, Eros or P-H3 workflow.\n\nRecreated from visible screenshots. The uploaded JPEG had no embedded workflow, seed or prompt.\n\nYour prompt is blank and passed verbatim. Same INT8 checkpoint, NVFP4/AWQ encoder and fixed seed as the native workspace.\n\n16 MP is the target in the reports. Begin at 4 MP only to check memory, then test 16 MP when feasible. A40 fit is unverified.\n\nFor sampler comparisons use IDENTICAL prompt, references, dimensions, precision and seed. A fixed seed does not lock the image across samplers.\n\nCompare 10 (Euler 6) with 11 (ER-SDE 6) before 12 (ER-SDE 4). Four steps changes the trained six-step recipe and is experimental.\n\nLCM: six steps/simple is our controlled starting recipe; the screenshot does NOT specify its steps or schedule. Set s_noise and s_noise_end BOTH to the same value, e.g. 0.95, 1.00, 1.10 or 1.20. noise_clip_std stays 0.\n\nNo extra LCM LoRA, model-sampling patch, prompt enhancer, Turbo, Akatz or accelerator is required/added.\n\nThe old 00-05 workflows remain untouched. No simultaneous seed sweep or queued batch is included.\n\nReports contain actual step count/timing. Inspect PNG workflow metadata for the sampler/noise/VAE values; run_label alone is not proof of settings."
+      }
+    },
+    {
+      "id": 51,
+      "type": "KSamplerSelect",
+      "title": "SAMPLER: er_sde",
+      "pos": [
+        2760,
+        540
+      ],
+      "size": [
+        365,
+        160
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "SAMPLER",
+          "type": "SAMPLER",
+          "links": [
+            8
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "KSamplerSelect",
+        "cnr_id": "comfy-core"
+      },
+      "widgets_values": [
+        "er_sde"
+      ],
+      "widgets_values_named": {
+        "sampler_name": "er_sde"
+      }
+    }
+  ],
+  "links": [
+    [
+      1,
+      31,
+      0,
+      40,
+      0,
+      "CLIP"
+    ],
+    [
+      2,
+      32,
+      0,
+      40,
+      1,
+      "VAE"
+    ],
+    [
+      3,
+      30,
+      0,
+      41,
+      0,
+      "MODEL"
+    ],
+    [
+      4,
+      30,
+      0,
+      42,
+      0,
+      "MODEL"
+    ],
+    [
+      5,
+      40,
+      0,
+      42,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      6,
+      43,
+      0,
+      44,
+      0,
+      "NOISE"
+    ],
+    [
+      7,
+      42,
+      0,
+      44,
+      1,
+      "GUIDER"
+    ],
+    [
+      8,
+      51,
+      0,
+      44,
+      2,
+      "SAMPLER"
+    ],
+    [
+      9,
+      41,
+      0,
+      44,
+      3,
+      "SIGMAS"
+    ],
+    [
+      10,
+      40,
+      1,
+      44,
+      4,
+      "LATENT"
+    ],
+    [
+      11,
+      40,
+      2,
+      44,
+      5,
+      "STRING"
+    ],
+    [
+      12,
+      44,
+      1,
+      45,
+      0,
+      "STRING"
+    ],
+    [
+      13,
+      44,
+      0,
+      45,
+      1,
+      "LATENT"
+    ],
+    [
+      14,
+      32,
+      0,
+      45,
+      2,
+      "VAE"
+    ],
+    [
+      15,
+      45,
+      0,
+      46,
+      0,
+      "IMAGE"
+    ],
+    [
+      16,
+      45,
+      1,
+      47,
+      0,
+      "STRING"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.55,
+      "offset": [
+        30,
+        80
+      ]
+    },
+    "h3_image": {
+      "manual_prompt_only": true,
+      "gpu_tested": false,
+      "native_model": "MiniMax-H3-Image",
+      "steps": 4,
+      "community_version": "2026-11-10-community.1",
+      "source": "User screenshots; NOT an extracted original workflow",
+      "sampler": "er_sde",
+      "scheduler": "simple",
+      "output_megapixels": 16.0,
+      "experimental": true,
+      "decode_only_vae_comparison": false
+    }
+  }
+}
