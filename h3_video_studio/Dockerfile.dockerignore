@@ -1,0 +1,8 @@
+**
+!h3_still/
+!h3_still/lab/
+!h3_still/lab/**
+!h3_video_studio/
+!h3_video_studio/**
+**/__pycache__/**
+**/*.pyc

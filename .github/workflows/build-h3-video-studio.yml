@@ -1,0 +1,127 @@
+name: Build H3 Video Still Studio
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  packages: write
+concurrency:
+  group: h3-video-still-studio
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check Python source and regenerate workflow files
+        run: |
+          python3 -m compileall -q h3_video_studio
+          python3 h3_video_studio/build_workflows.py
+      - name: Reclaim optional runner software
+        run: |
+          sudo rm -rf /usr/local/lib/android /opt/ghc /usr/share/dotnet
+          df -h
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Resolve and verify the existing Studio base image
+        id: base
+        run: |
+          BASE=ghcr.io/jsanso1497/runpod-comfy-stateless:h3-still-c8ad356ff6f7d2ca327c0395b21ec608062b900c
+          docker pull "$BASE"
+          REV=$(docker image inspect "$BASE" --format '{{index .Config.Labels "org.opencontainers.image.revision"}}')
+          test "$REV" = c8ad356ff6f7d2ca327c0395b21ec608062b900c
+          REF=$(docker image inspect "$BASE" --format '{{index .RepoDigests 0}}')
+          test -n "$REF"
+          echo "image=$REF" >> "$GITHUB_OUTPUT"
+      - uses: docker/setup-buildx-action@v3
+      - name: Build new image without publishing
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: h3_video_studio/Dockerfile
+          platforms: linux/amd64
+          build-args: |
+            BASE_IMAGE=${{ steps.base.outputs.image }}
+          load: true
+          push: false
+          provenance: false
+          tags: h3-video-studio-checked:local
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.title=H3 Video Still Studio
+      - name: Verify every pinned asset using publisher metadata only
+        run: docker run --name h3v-metadata --entrypoint python h3-video-studio-checked:local /opt/h3-still/video_studio/manage.py verify-metadata
+      - name: Real ComfyUI CPU schemas and all three preprocessing routes
+        run: docker run --name h3v-cpu --entrypoint python h3-video-studio-checked:local /opt/h3-still/video_studio/cpu_smoke.py
+      - name: Native conditioning and single-frame latent contracts
+        run: docker run --name h3v-native --entrypoint python h3-video-studio-checked:local /opt/h3-still/video_studio/native_smoke.py
+      - name: Retained Lab and exact unmasked pixel regression checks
+        run: docker run --name h3v-lab --entrypoint python h3-video-studio-checked:local /opt/h3-still/lab/native_smoke.py
+      - name: Existing HTTPS login, Files, Jupyter and terminal browser regression
+        run: |
+          docker run --shm-size=1g --name h3v-browser --entrypoint bash h3-video-studio-checked:local -lc \
+            'python -m pip install playwright==1.56.0 && python -m playwright install --with-deps chromium && python /opt/h3-still/browser_access_smoke.py'
+      - name: Collect package and test reports
+        run: |
+          mkdir -p h3-video-studio-build
+          for name in workflows api_workflows manifest.json build-provenance.json build-pip-freeze.txt cpu-contract-report.json cpu-comfy.log; do
+            docker cp "h3v-cpu:/opt/h3-still/video_studio/$name" h3-video-studio-build/
+          done
+          docker cp h3v-metadata:/opt/h3-still/video_studio/remote-model-metadata-report.json h3-video-studio-build/
+          docker cp h3v-native:/opt/h3-still/video_studio/native-contract-report.json h3-video-studio-build/
+          docker cp h3v-lab:/opt/h3-still/lab/native-lab-report.json h3-video-studio-build/
+          docker cp h3v-browser:/opt/h3-still/browser-access-report.json h3-video-studio-build/
+          cp H3_VIDEO_STUDIO_START_HERE.md h3_video_studio/LICENSE_NOTES.md h3_video_studio/RUNPOD_SETTINGS.md h3-video-studio-build/
+      - name: Publish only this new image after the checks pass
+        env:
+          REPOSITORY: ${{ github.repository }}
+          COMMIT: ${{ github.sha }}
+        run: |
+          IMAGE="ghcr.io/${REPOSITORY,,}"
+          docker tag h3-video-studio-checked:local "$IMAGE:h3-video-studio-$COMMIT"
+          docker tag h3-video-studio-checked:local "$IMAGE:h3-video-studio"
+          docker push "$IMAGE:h3-video-studio-$COMMIT"
+          docker push "$IMAGE:h3-video-studio"
+          REF=$(docker image inspect "$IMAGE:h3-video-studio-$COMMIT" --format '{{index .RepoDigests 0}}')
+          test -n "$REF"
+          printf '%s\n' "$REF" > h3-video-studio-build/image-reference.txt
+          {
+            echo '## H3 Video Still Studio'
+            echo "RunPod image: \`$REF\`"
+            echo 'A100 SXM 80 GB; 128 GB+ host RAM for INT8 HQ, 256 GB recommended for full precision.'
+            echo '50 GB container disk; 250 GB persistent for HQ, 500 GB for all model sets.'
+            echo 'HTTP ports 8188,8888. Mount /workspace. Leave entrypoint/start overrides blank.'
+            echo 'COMFY_PASSWORD required. HF_TOKEN optional. H3V_PRELOAD=hq or all.'
+            echo 'Set H3V_LICENSE_CONFIRMED=1 only after confirming applicable authorization. The community license excludes US/EU/UK/KR use without separate permission.'
+            echo 'Open Workflows > 00_H3_Video_Still_Studio > 00 or 01.'
+            echo 'Built and CPU/browser tested, NOT GPU qualified. Run one baseline generation per model before scaling up.'
+            echo 'Existing image tags and user workflow files were not overwritten.'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: h3-video-studio-build
+          path: h3-video-studio-build/
+          if-no-files-found: error
+      - name: Collect failure logs
+        if: failure()
+        run: |
+          mkdir -p h3-video-studio-failure
+          for c in h3v-cpu h3v-native h3v-lab h3v-browser h3v-metadata; do
+            docker logs "$c" > "h3-video-studio-failure/$c.log" 2>&1 || true
+          done
+          docker cp h3v-cpu:/opt/h3-still/video_studio/cpu-comfy.log h3-video-studio-failure/ || true
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: h3-video-studio-failure-logs
+          path: h3-video-studio-failure/
+      - name: Clean up test containers
+        if: always()
+        run: docker rm -f h3v-cpu h3v-native h3v-lab h3v-browser h3v-metadata >/dev/null 2>&1 || true

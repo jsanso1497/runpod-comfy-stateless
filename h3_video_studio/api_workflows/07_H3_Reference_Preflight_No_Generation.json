@@ -1,0 +1,213 @@
+{
+  "10": {
+    "class_type": "H3VSettings",
+    "inputs": {
+      "engine": "MiniMax H3",
+      "precision": "INT8 HQ",
+      "mode": "References",
+      "aspect_ratio": "2:3",
+      "output_megapixels": 2.5,
+      "photo_cap_megapixels": 4.0,
+      "reference_size": "max",
+      "video_strategy": "Auto",
+      "standard_steps": 50,
+      "eros_steps": 8,
+      "protect_background": false
+    },
+    "_meta": {
+      "title": "1. MODEL / PRECISION / MODE / SIZE"
+    }
+  },
+  "1": {
+    "class_type": "H3StudioOptionalImage",
+    "inputs": {
+      "image": "(none)",
+      "enabled": true
+    },
+    "_meta": {
+      "title": "PHOTO SLOT 1 (optional)"
+    }
+  },
+  "2": {
+    "class_type": "H3StudioOptionalImage",
+    "inputs": {
+      "image": "(none)",
+      "enabled": true
+    },
+    "_meta": {
+      "title": "PHOTO SLOT 2 (optional)"
+    }
+  },
+  "3": {
+    "class_type": "H3StudioOptionalImage",
+    "inputs": {
+      "image": "(none)",
+      "enabled": true
+    },
+    "_meta": {
+      "title": "PHOTO SLOT 3 (optional)"
+    }
+  },
+  "4": {
+    "class_type": "H3StudioOptionalImage",
+    "inputs": {
+      "image": "(none)",
+      "enabled": true
+    },
+    "_meta": {
+      "title": "PHOTO SLOT 4 (optional)"
+    }
+  },
+  "5": {
+    "class_type": "H3StudioOptionalImage",
+    "inputs": {
+      "image": "(none)",
+      "enabled": true
+    },
+    "_meta": {
+      "title": "PHOTO SLOT 5 (optional)"
+    }
+  },
+  "6": {
+    "class_type": "H3StudioOptionalImage",
+    "inputs": {
+      "image": "(none)",
+      "enabled": true
+    },
+    "_meta": {
+      "title": "PHOTO SLOT 6 (optional)"
+    }
+  },
+  "7": {
+    "class_type": "H3StudioOptionalImage",
+    "inputs": {
+      "image": "(none)",
+      "enabled": true
+    },
+    "_meta": {
+      "title": "PHOTO SLOT 7 (optional)"
+    }
+  },
+  "8": {
+    "class_type": "H3StudioOptionalImage",
+    "inputs": {
+      "image": "(none)",
+      "enabled": true
+    },
+    "_meta": {
+      "title": "PHOTO SLOT 8 (optional)"
+    }
+  },
+  "9": {
+    "class_type": "H3StudioOptionalImage",
+    "inputs": {
+      "image": "(none)",
+      "enabled": true
+    },
+    "_meta": {
+      "title": "PHOTO SLOT 9 (optional)"
+    }
+  },
+  "11": {
+    "class_type": "H3VVideo",
+    "inputs": {
+      "file": "(none)",
+      "enabled": true,
+      "start_seconds": 0.0,
+      "duration_seconds": 3.1,
+      "native_video_megapixels": 1.0,
+      "keyframe_megapixels": 2.5,
+      "keyframe_count": 4,
+      "keyframe_times": "",
+      "crop_left_percent": 0.0,
+      "crop_top_percent": 0.0,
+      "crop_right_percent": 0.0,
+      "crop_bottom_percent": 0.0,
+      "config": [
+        "10",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "2. OPTIONAL VIDEO / CROP / KEYFRAMES"
+    }
+  },
+  "12": {
+    "class_type": "H3VPlan",
+    "inputs": {
+      "prompt": "subject_definitions:\nThe person in <Video 1> is the sole identity reference. Preserve their facial features, natural asymmetries, hair, physique and body proportions.\n\nCreate one realistic studio photograph of that same person, front-facing with a relaxed natural expression, arms relaxed, soft neutral lighting and a plain background. Keep plausible natural skin and hair detail; do not invent defining features. Remove all text, numbers or watermarks.",
+      "config": [
+        "10",
+        0
+      ],
+      "video": [
+        "11",
+        0
+      ],
+      "reference_1": [
+        "1",
+        0
+      ],
+      "reference_2": [
+        "2",
+        0
+      ],
+      "reference_3": [
+        "3",
+        0
+      ],
+      "reference_4": [
+        "4",
+        0
+      ],
+      "reference_5": [
+        "5",
+        0
+      ],
+      "reference_6": [
+        "6",
+        0
+      ],
+      "reference_7": [
+        "7",
+        0
+      ],
+      "reference_8": [
+        "8",
+        0
+      ],
+      "reference_9": [
+        "9",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "3. LITERAL PROMPT + REFERENCE MAPPING"
+    }
+  },
+  "13": {
+    "class_type": "PreviewImage",
+    "inputs": {
+      "images": [
+        "12",
+        1
+      ]
+    },
+    "_meta": {
+      "title": "Actual image inputs / native-video preview frames"
+    }
+  },
+  "14": {
+    "class_type": "H3VAudit",
+    "inputs": {
+      "report": [
+        "12",
+        2
+      ],
+      "save_report": false
+    },
+    "_meta": {
+      "title": "Inspect reference tags and exact prompt"
+    }
+  }
+}

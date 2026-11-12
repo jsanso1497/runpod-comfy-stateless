@@ -1,0 +1,168 @@
+{
+  "version": "2026-11-11.1",
+  "review_date": "2026-11-11 America/Detroit",
+  "baseline_repo_commit": "ca5ce71174f7676a4fc67e1606d87222c54cc60d",
+  "base_image": "ghcr.io/jsanso1497/runpod-comfy-stateless:h3-still-c8ad356ff6f7d2ca327c0395b21ec608062b900c",
+  "comfy_commit": "a592c0a654af22f75d97f214d6e3e34eb13cd9db",
+  "gpu_tested": false,
+  "container_built_here": false,
+  "prompt_enhancer": false,
+  "models": [
+    {
+      "id": "h3_hq_encoder",
+      "group": "hq",
+      "repo": "Comfy-Org/MiniMax-H3",
+      "revision": "b697c7d61dc6289af15ce2690dcd4cd58366d2f0",
+      "file": "text_encoders/qwen3vl_32b_minimax_h3_int8_convrot.safetensors",
+      "destination": "text_encoders/qwen3vl_32b_minimax_h3_int8_convrot.safetensors",
+      "approx_gb": 27.1,
+      "sha256": "bc2ced0fbea64757fa9acddccfc0b3f4819d1dcf1da6c124d690d368be283923",
+      "checksum_source": "locked publisher LFS SHA-256"
+    },
+    {
+      "id": "h3_fp16_vae",
+      "group": "hq",
+      "repo": "Comfy-Org/MiniMax-H3",
+      "revision": "b697c7d61dc6289af15ce2690dcd4cd58366d2f0",
+      "file": "vae/minimax_h3_video_vae_fp16.safetensors",
+      "destination": "vae/minimax_h3_video_vae_fp16.safetensors",
+      "approx_gb": 5.21,
+      "sha256": "7c1f131492e7eddacaac9069a61b81bdd39de5cc96561e677c5eab1cdce5e522",
+      "checksum_source": "locked publisher LFS SHA-256"
+    },
+    {
+      "id": "eros_fix1_hq",
+      "group": "hq",
+      "repo": "TenStrip/10Eros-Max",
+      "revision": "f52f244ba01cb2639038aa37c339293874466d40",
+      "file": "10Eros_Max_h3_8stepTURBO_beta7_fix1-native_int8_protected_edges_HQ.safetensors",
+      "destination": "diffusion_models/10Eros_Max_h3_8stepTURBO_beta7_fix1-native_int8_protected_edges_HQ.safetensors",
+      "approx_gb": 22.9,
+      "sha256": "5604c5662478f791a6a013c8ab1807b91acfd9b58ea8c73c13b37c195431c4e3",
+      "checksum_source": "locked publisher LFS SHA-256"
+    },
+    {
+      "id": "ph3_int8_diffusion",
+      "group": "hq",
+      "repo": "PrunaAI/P-H3-Image-Comfy",
+      "revision": "44a0fb73f299da1bb715bdb5ff59ce3fd3c6f543",
+      "file": "diffusion_models/p-h3-image_int8_convrot.safetensors",
+      "destination": "diffusion_models/p-h3-image_int8_convrot.safetensors",
+      "approx_gb": 21.2,
+      "sha256": "b156fd4fe9d169e58cb2b07f9594ec740ff8f0e052d62b009e6dd034de5865e7",
+      "checksum_source": "locked publisher LFS SHA-256"
+    },
+    {
+      "id": "ph3_int8_encoder",
+      "group": "hq",
+      "repo": "PrunaAI/P-H3-Image-Comfy",
+      "revision": "44a0fb73f299da1bb715bdb5ff59ce3fd3c6f543",
+      "file": "text_encoders/p-h3-image_text_encoder_int8_convrot.safetensors",
+      "destination": "text_encoders/p-h3-image_text_encoder_int8_convrot.safetensors",
+      "approx_gb": 5.12,
+      "sha256": "fb42c9ff0597e61729475d0b48b69b591ffe06d0b442a79dde22b14fadbe1c0f",
+      "checksum_source": "locked publisher LFS SHA-256"
+    },
+    {
+      "id": "ph3_int8_vae",
+      "group": "hq",
+      "repo": "PrunaAI/P-H3-Image-Comfy",
+      "revision": "44a0fb73f299da1bb715bdb5ff59ce3fd3c6f543",
+      "file": "vae/p-h3-image_vae_int8_convrot.safetensors",
+      "destination": "vae/p-h3-image_vae_int8_convrot.safetensors",
+      "approx_gb": 3.15,
+      "sha256": "583e0d43354b6b833aa9a0815a5fac831b1ef6d0c19a7eaa0616980a3dab5ffe",
+      "checksum_source": "locked publisher LFS SHA-256"
+    },
+    {
+      "id": "h3_bf16_fl2va",
+      "group": "bf16",
+      "repo": "Comfy-Org/MiniMax-H3",
+      "revision": "b697c7d61dc6289af15ce2690dcd4cd58366d2f0",
+      "file": "diffusion_models/minimax_h3_fl2va_pruned_bf16.safetensors",
+      "destination": "diffusion_models/minimax_h3_fl2va_pruned_bf16.safetensors",
+      "approx_gb": 40.2,
+      "sha256": "a32572fb90b5508b201ec7c2eddcc184b13ddfd3c6f6d2cf06a0b46535d541b4",
+      "checksum_source": "locked publisher LFS SHA-256"
+    },
+    {
+      "id": "h3_bf16_ref2va",
+      "group": "bf16",
+      "repo": "Comfy-Org/MiniMax-H3",
+      "revision": "b697c7d61dc6289af15ce2690dcd4cd58366d2f0",
+      "file": "diffusion_models/minimax_h3_ref2va_pruned_bf16.safetensors",
+      "destination": "diffusion_models/minimax_h3_ref2va_pruned_bf16.safetensors",
+      "approx_gb": 40.2,
+      "sha256": "37c0da793e20ca735272ec2be655f08a2e10f97a3ec8fdfb40f5b39a736ed6fe",
+      "checksum_source": "locked publisher LFS SHA-256"
+    },
+    {
+      "id": "h3_bf16_encoder",
+      "group": "bf16",
+      "repo": "Comfy-Org/MiniMax-H3",
+      "revision": "b697c7d61dc6289af15ce2690dcd4cd58366d2f0",
+      "file": "text_encoders/qwen3vl_32b_minimax_h3_bf16.safetensors",
+      "destination": "text_encoders/qwen3vl_32b_minimax_h3_bf16.safetensors",
+      "approx_gb": 51.5,
+      "sha256": "600d567f6a9629c8574e8e7041b199bdd9c59a986afa7906910a81919610607d",
+      "checksum_source": "locked publisher LFS SHA-256"
+    },
+    {
+      "id": "eros_fix1_16bit",
+      "group": "bf16",
+      "repo": "TenStrip/10Eros-Max",
+      "revision": "f52f244ba01cb2639038aa37c339293874466d40",
+      "file": "10Eros_Max_h3_8stepTURBO_beta7_fix1.safetensors",
+      "destination": "diffusion_models/10Eros_Max_h3_8stepTURBO_beta7_fix1.safetensors",
+      "approx_gb": 40.3,
+      "sha256": "8a670bf9962e7379946f10bede480d3e603d0d1ed2ab02c22d36398f4c796a29",
+      "checksum_source": "locked publisher LFS SHA-256"
+    },
+    {
+      "id": "ph3_bf16_diffusion",
+      "group": "bf16",
+      "repo": "PrunaAI/P-H3-Image-Comfy",
+      "revision": "44a0fb73f299da1bb715bdb5ff59ce3fd3c6f543",
+      "file": "diffusion_models/p-h3-image_bf16.safetensors",
+      "destination": "diffusion_models/p-h3-image_bf16.safetensors",
+      "approx_gb": 40.5,
+      "sha256": null,
+      "checksum_source": "resolve LFS SHA-256 from this immutable revision before downloading"
+    },
+    {
+      "id": "ph3_bf16_encoder",
+      "group": "bf16",
+      "repo": "PrunaAI/P-H3-Image-Comfy",
+      "revision": "44a0fb73f299da1bb715bdb5ff59ce3fd3c6f543",
+      "file": "text_encoders/p-h3-image_text_encoder_bf16.safetensors",
+      "destination": "text_encoders/p-h3-image_text_encoder_bf16.safetensors",
+      "approx_gb": 9.14,
+      "sha256": "ae0c83cb35207dcc0a81361768094a5d1e3f92d1a95b8ff75a0328dfefbbc3d8",
+      "checksum_source": "locked publisher LFS SHA-256"
+    },
+    {
+      "id": "ph3_bf16_vae",
+      "group": "bf16",
+      "repo": "PrunaAI/P-H3-Image-Comfy",
+      "revision": "44a0fb73f299da1bb715bdb5ff59ce3fd3c6f543",
+      "file": "vae/p-h3-image_vae_bf16.safetensors",
+      "destination": "vae/p-h3-image_vae_bf16.safetensors",
+      "approx_gb": 5.56,
+      "sha256": "a1f2a7a98d0f2d1e761656fc5701dd43d7cf46d1bbdaa5d866a3e961e97487d7",
+      "checksum_source": "locked publisher LFS SHA-256"
+    }
+  ],
+  "sources": [
+    "https://huggingface.co/TenStrip/10Eros-Max",
+    "https://huggingface.co/Comfy-Org/MiniMax-H3",
+    "https://huggingface.co/PrunaAI/P-H3-Image-Comfy",
+    "https://huggingface.co/MiniMaxAI/MiniMax-H3/blob/main/LICENSE"
+  ],
+  "notes": [
+    "Inherited legacy assets are retained for older Studio workflows.",
+    "INT8 HQ is the default. BF16 assets are optional and never silently substituted.",
+    "Eros protected-edges HQ is the newest INT8 Fix1 checkpoint verified at review time, not a claim of visual superiority.",
+    "P-H3 is image-only; video inputs are decoded to high-quality image references.",
+    "The P-H3 BF16 diffusion checksum must be resolved from the pinned publisher revision because its file page was not readable during preparation."
+  ]
+}
