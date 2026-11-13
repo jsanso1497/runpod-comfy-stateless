@@ -1,0 +1,28 @@
+TEMPLATE NAME: H3 A40 Identity Studio
+GPU: 1 x NVIDIA A40 48 GB
+SYSTEM RAM: 128 GB or more recommended; not a measured minimum
+CONTAINER DISK: 50 GB
+PERSISTENT /workspace: 160 GB or more for a fresh profile
+HTTP PORTS: 8188,8888
+TCP PORTS: none required
+START COMMAND / ENTRYPOINT OVERRIDES: leave blank
+CONTAINER IMAGE: exact digest from successful Build H3 A40 Identity Studio action
+HOST DRIVER: CUDA 13-compatible NVIDIA driver R580 or newer
+
+ENVIRONMENT:
+COMFY_PASSWORD={{ RUNPOD_SECRET_comfy_password }}
+HF_TOKEN={{ RUNPOD_SECRET_hf_token }}
+H3_STILL_DATA_ROOT=/workspace/h3-still
+
+HF_TOKEN is optional unless needed for access.
+Preserve H3V_LICENSE_CONFIRMED=1 only after confirming applicable model authorization.
+H3V_PRELOAD is not used by this new image. It always prepares the four pinned assets.
+
+Fresh weights: approximately 76.2 GB (71.0 GiB), excluding software and input/output files.
+Existing model files are verified and reused, not deleted or automatically relocated.
+
+OPEN: Workflows > 00_H3_A40_Identity > 00_H3_A40_Identity_Quality
+DEFAULT: MiniMax H3, INT8 HQ, 3.1s native video at 1 MP cap, 2.5 MP output, 50 steps.
+EROS: switch engine to Eros Beta 7 Fix1; 8 steps, Euler/simple, 12/3 shifts.
+No P-H3, no BF16-full weights, no 2 MP native experiment, no 15s preset, no prompt enhancer.
+These are configuration targets, not a verified A40 speed or peak-memory result.

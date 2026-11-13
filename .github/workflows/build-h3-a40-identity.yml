@@ -1,0 +1,100 @@
+name: Build H3 A40 Identity Studio
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  packages: write
+concurrency:
+  group: h3-a40-identity-build
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reclaim runner disk
+        run: |
+          sudo rm -rf /usr/local/lib/android /opt/ghc /usr/share/dotnet
+          df -h
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build isolated A40 image without publishing
+        uses: docker/build-push-action@v6
+        with:
+          context: h3_a40
+          file: h3_a40/Dockerfile
+          platforms: linux/amd64
+          load: true
+          push: false
+          tags: h3-a40-checked:local
+          provenance: false
+      - name: Verify pinned model metadata without downloading weights
+        run: docker run --name h3a40-metadata --entrypoint python h3-a40-checked:local /opt/h3-still/a40/runtime.py verify-metadata
+      - name: Real ComfyUI CPU registration, workflow schemas and media preflight
+        run: docker run --name h3a40-cpu --entrypoint python h3-a40-checked:local /opt/h3-still/a40/cpu_smoke.py
+      - name: Real upstream conditioning contracts with synthetic encoder and VAE
+        run: docker run --name h3a40-native --entrypoint python h3-a40-checked:local /opt/h3-still/a40/native_smoke.py
+      - name: Inherited gateway and actual Jupyter browser checks
+        run: |
+          docker run --name h3a40-browser --entrypoint bash h3-a40-checked:local -lc 'python -m pip install playwright==1.56.0 && python -m playwright install --with-deps chromium && python /opt/h3-still/browser_access_smoke.py'
+      - name: Collect workflow and validation artifacts
+        run: |
+          mkdir -p h3-a40-build
+          for name in workflows api_workflows manifest.json build-provenance.json build-pip-freeze.txt; do
+            docker cp "h3a40-cpu:/opt/h3-still/a40/$name" h3-a40-build/
+          done
+          docker cp h3a40-cpu:/opt/h3-still/a40/cpu-contract-report.json h3-a40-build/
+          docker cp h3a40-native:/opt/h3-still/a40/native-contract-report.json h3-a40-build/
+          docker cp h3a40-metadata:/opt/h3-still/a40/metadata-report.json h3-a40-build/
+          docker cp h3a40-browser:/opt/h3-still/browser-access-report.json h3-a40-build/
+          cp h3_a40/README.md h3_a40/RUNPOD_SETTINGS.txt h3_a40/LICENSE_NOTES.md h3-a40-build/
+      - name: Publish only the new A40 image after checks pass
+        env:
+          REPOSITORY: ${{ github.repository }}
+          COMMIT: ${{ github.sha }}
+        run: |
+          IMAGE="ghcr.io/${REPOSITORY,,}"
+          docker tag h3-a40-checked:local "$IMAGE:h3-a40-identity-$COMMIT"
+          docker tag h3-a40-checked:local "$IMAGE:h3-a40-identity"
+          docker push "$IMAGE:h3-a40-identity-$COMMIT"
+          docker push "$IMAGE:h3-a40-identity"
+          REF=$(docker image inspect "$IMAGE:h3-a40-identity-$COMMIT" --format '{{index .RepoDigests 0}}')
+          test -n "$REF"
+          printf '%s\n' "$REF" > h3-a40-build/image-reference.txt
+          {
+            echo '## H3 A40 Identity Studio'
+            echo "RunPod container image: \`$REF\`"
+            echo 'A40 48 GB. 128 GB system RAM recommended. CUDA 13-compatible host, R580+ driver.'
+            echo '50 GB container disk, 160 GB or larger persistent /workspace. HTTP 8188,8888.'
+            echo 'Leave start/entrypoint overrides blank. COMFY_PASSWORD required; HF_TOKEN optional.'
+            echo 'Preserve H3V_LICENSE_CONFIRMED=1 only with applicable model authorization.'
+            echo 'Four model assets: approximately 76.2 GB. Old H3V_PRELOAD settings are ignored.'
+            echo 'Open Workflows > 00_H3_A40_Identity > 00_H3_A40_Identity_Quality.'
+            echo 'CPU/media/browser checks passed; no GPU inference, speed, peak VRAM or likeness qualification.'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: h3-a40-build
+          path: h3-a40-build/
+          if-no-files-found: error
+      - name: Collect failure logs
+        if: failure()
+        run: |
+          mkdir -p h3-a40-failure
+          for c in h3a40-cpu h3a40-native h3a40-metadata h3a40-browser; do
+            docker logs "$c" > "h3-a40-failure/$c.log" 2>&1 || true
+          done
+          docker cp h3a40-cpu:/opt/h3-still/a40/cpu-comfy.log h3-a40-failure/ || true
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: h3-a40-failure-logs
+          path: h3-a40-failure/
+      - name: Clean up containers
+        if: always()
+        run: docker rm -f h3a40-cpu h3a40-native h3a40-metadata h3a40-browser >/dev/null 2>&1 || true
